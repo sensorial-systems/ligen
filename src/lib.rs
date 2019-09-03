@@ -20,11 +20,3 @@ pub fn get_path() -> String {
     let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
     format!("./target/{profile}/ligen", profile = profile)
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
