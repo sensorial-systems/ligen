@@ -1,18 +1,3 @@
-// 1. IF WE RUN CARGO CLEAN AND CARGO BUILD, THE DYLIB ISN'T BEING FOUND (PROBABLY IT IS IN A INTERMEDIATE FOLDER BEFORE GOING TO TARGET?)
-// 2. HOW CAN WE FIND OUT WHERE IS THE TARGET FOLDER?
-// 3. WE NEED TO DEFINE THE DYNAMIC LIBRARY LOCATION
-// 4. WE MUST DEFINE HOW THE GENERATOR DEVELOPER CAN GET THE ATTRIBUTE ARGUMENTS
-// 5. WE NEED TO VERIFY IF GENERATOR_GENERATE AND GENERATOR_NEW ARE PRESENT IN THE DLL FILE
-//
-// 6. How to directly send object1 and object2 to use_object without refering to Object.self?
-// Object object1(111, 222);
-// Object object2(333, 444);
-//
-// Window window;
-// window.set_size();
-// window.use_object(object1.self, object2.self);
-
-
 use crate::object::Object;
 use crate::ty::Type;
 
