@@ -4,15 +4,19 @@ mod identifier;
 mod input;
 mod output;
 mod ty;
+mod attribute;
+mod literal;
 
 mod generator;
 
+pub use literal::Literal;
+pub use attribute::{Attribute, Attributes, LiteralConverter};
 pub use object::Object;
 pub use method::Method;
 pub use identifier::Identifier;
 pub use input::{Input, Inputs};
 pub use output::Output;
-pub use ty::Type;
+pub use ty::{Type, Reference};
 
 pub use generator::{Generator, Files, File};
 

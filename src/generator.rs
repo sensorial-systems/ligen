@@ -1,13 +1,14 @@
-use crate::object::Object;
-use crate::ty::Type;
+use crate::Object;
+use crate::Attribute;
+use crate::Attributes;
 
 use libloading as lib;
 
 use std::ffi::c_void;
 
 pub struct File {
-    path : String,
-    content : String
+    pub path : String,
+    pub content : String
 }
 
 impl File {
@@ -20,7 +21,7 @@ impl File {
 }
 
 pub struct Files {
-    files : Vec<File>
+    pub files : Vec<File>
 }
 
 use std::io::Write;
@@ -56,28 +57,25 @@ pub struct Generator {
 }
 
 impl Generator {
-    pub fn new(arg: &syn::NestedMeta) -> Result<Generator, &'static str> {
-        match arg {
-            syn::NestedMeta::Meta(meta) => {
-                match meta {
-                    syn::Meta::Path(path) => {
-                        println!("Creating {} generator", Type::parse_path(&path).identifier.name);
-                        let library = lib::Library::new(format!("{}/../ligen_{}", crate::get_path(), Type::parse_path(&path).identifier.name.to_lowercase()));
-                        match library {
-                            Ok(library) => {
-                                let generator = unsafe {
-                                     let generator_new : lib::Symbol<extern fn() -> *mut c_void> = library.get(b"Generator_new").unwrap();
-                                     generator_new()
-                                };
-                                Result::Ok(Generator{library, generator})
-                            },
-                            Err(_) => Result::Err("Library file not found")
-                        }
-                    },
-                    _ => Result::Err("Incorrect attribute argument")
-                }
+    pub fn new(attribute: &Attribute) -> Result<Generator, String> {
+        let (name, attributes) = match attribute {
+            Attribute::Group(identifier, attributes) => (&identifier.name, attributes),
+            Attribute::Named(_, _) => return Result::Err(format!("[1] Wrong attribute")),
+            Attribute::Literal(_) => return Result::Err(format!("[2] Wrong attribute"))
+        };
+
+        eprintln!("Loading {}", name);
+
+        let library = lib::Library::new(format!("{}/../ligen_{}", crate::get_path(), name));
+        match library {
+            Ok(library) => {
+                let generator = unsafe {
+                     let generator_new : lib::Symbol<extern fn(&Attributes) -> *mut c_void> = library.get(b"Generator_new").unwrap();
+                     generator_new(&attributes)
+                };
+                Result::Ok(Generator{library, generator})
             },
-            syn::NestedMeta::Lit(_lit) => Result::Err("Incorrect attribute argument")
+            Err(_) => Result::Err(format!("Library file not found"))
         }
     }
 

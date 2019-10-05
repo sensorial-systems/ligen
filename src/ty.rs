@@ -4,17 +4,57 @@ use quote::{TokenStreamExt, ToTokens};
 use crate::identifier::Identifier;
 
 #[derive(Clone)]
+pub struct Reference {
+    pub is_mutable : bool
+}
+
+impl Reference {
+    pub fn new(is_mutable : bool) -> Reference {
+        Reference {
+            is_mutable
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Type {
-    pub is_atomic: bool,
+    pub reference : Option<Reference>,
     pub path: Vec<Identifier>,
     pub identifier: Identifier
 }
 
 impl Type {
+    pub fn new(reference : Option<Reference>, path : Vec<Identifier>, identifier : Identifier) -> Type {
+        Type {
+            reference,
+            path,
+            identifier
+        }
+    }
+
     pub fn parse(ty: &syn::Type) -> Self {
         let ty = match ty {
             syn::Type::Path(path) => Some(Type::parse_path(&path.path)),
-            syn::Type::Reference(reference) => Some(Type::parse(&*reference.elem)),
+            syn::Type::Ptr(ptr) => {
+                let mut is_mutable = false;
+                if let Some(_mutability) = ptr.mutability {
+                    is_mutable = true;
+                }
+                Some(Type {
+                    reference : Some(Reference::new(is_mutable)),
+                    ..Type::parse(&*ptr.elem)
+                })
+            },
+            syn::Type::Reference(reference) => {
+                let mut is_mutable = false;
+                if let Some(_mutability) = reference.mutability {
+                    is_mutable = true;
+                }
+                Some(Type {
+                    reference : Some(Reference::new(is_mutable)),
+                    ..Type::parse(&*reference.elem)
+                })
+            },
             _ => None
         }.unwrap();
         ty
@@ -28,15 +68,17 @@ impl Type {
 
         let identifier = path.pop().unwrap();
 
-        let is_atomic = match identifier.name.as_ref() {
-            "u64" | "u32" | "u16" | "u8" | "i64" | "i32" | "i16" | "i8" | "f32" | "f64" => true,
-            _ => false
-        };
-
         Self {
-            is_atomic,
+            reference : None,
             path,
             identifier
+        }
+    }
+
+    pub fn is_atomic(&self) -> bool {
+        match self.identifier.name.as_ref() {
+            "u64" | "u32" | "u16" | "u8" | "i64" | "i32" | "i16" | "i8" | "f32" | "f64" => true,
+            _ => false
         }
     }
 }
@@ -44,14 +86,14 @@ impl Type {
 impl ToTokens for Type {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let identifier = &self.identifier;
-        let modifier = match self.is_atomic {
-            true => quote! {},
-            false => quote! {
-                *mut
-            }
-        };
+        let modifier = if self.is_atomic() { quote! {} } else { quote! { *mut } };
+        let mut path = quote! {};
+        for identifier in &self.path {
+            path = quote! { #path#identifier:: };
+        }
+        path = quote! { #path#identifier };
         tokens.append_all(quote! {
-            #modifier #identifier
+            #modifier #path
         })
 
     }

@@ -1,12 +1,18 @@
 use quote::quote;
 use quote::{TokenStreamExt, ToTokens};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Identifier {
     pub name : String
 }
 
 impl Identifier {
+    pub fn new(name: &str) -> Identifier {
+        Identifier {
+            name : String::from(name)
+        }
+    }
+
     pub fn parse(ident: &syn::Ident) -> Identifier {
         Identifier {
             name: ident.to_string()
