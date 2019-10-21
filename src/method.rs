@@ -62,9 +62,13 @@ impl ToTokens for Method {
                 None => &default_code
         };
 
+        let signature = quote! {
+            pub unsafe extern fn #function_identifier(#parameters) #method_output
+        };
+
         tokens.append_all(quote!{
             #[no_mangle]
-            pub unsafe extern fn #function_identifier(#parameters) #method_output {
+            #signature {
                 #code
             }
         });

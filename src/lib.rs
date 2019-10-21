@@ -16,11 +16,15 @@ pub use method::Method;
 pub use identifier::Identifier;
 pub use input::{Input, Inputs};
 pub use output::Output;
-pub use ty::{Type, Reference};
+pub use ty::{Type, Reference, TypeModifier};
 
 pub use generator::{Generator, Files, File};
 
-pub fn get_path() -> String {
+pub fn get_build_path() -> String {
     let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
-    format!("./target/{profile}/ligen", profile = profile)
+    format!("./target/{}", profile)
+}
+
+pub fn get_path() -> String {
+    format!("{}/ligen", get_build_path())
 }

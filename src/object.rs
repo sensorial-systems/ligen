@@ -1,14 +1,19 @@
 use quote::quote;
 use quote::{TokenStreamExt, ToTokens};
 
-use crate::{Method, Type, Attribute, Identifier, Inputs, Output, Reference, Attributes};
+use crate::{Method, Type, TypeModifier, Attribute, Identifier, Inputs, Output, Reference, Attributes};
 
 pub struct Object {
     pub typ: Type,
+    pub dependencies : Vec<Identifier>,
     pub methods: Vec<Method>
 }
 
 impl Object {
+    pub fn new(typ : Type, dependencies : Vec<Identifier>, methods : Vec<Method>) -> Self {
+        Self { typ, dependencies, methods }
+    }
+
     pub fn parse(impl_: syn::ItemImpl) -> Object {
         let typ = Type::parse(&*impl_.self_ty);
 
@@ -27,17 +32,41 @@ impl Object {
 
         let destroy_attribute = Attribute::Group(Identifier::new(""), Attributes::new());
         let destroy_identifier = Identifier::new("destroy");
-        let destroy_inputs = Inputs::new(Some(Type::new(Some(Reference::new(true)), Vec::new(), Identifier::new(&typ.identifier.name))), Vec::new());
+        let destroy_inputs = Inputs::new(Some(Type::new(TypeModifier::Reference(Reference::new(true)), Vec::new(), Identifier::new(&typ.identifier.name))), true, Vec::new());
         let destroy_output = Output::new(None);
         let destroy_code = Some(quote! { Box::from_raw(self_object); });
         let destroy_method = Method::new(typ.clone(), destroy_attribute, destroy_identifier, destroy_inputs, destroy_output, destroy_code);
 
         methods.push(destroy_method);
 
-        Object {
-            typ,
-            methods
+        let mut object = Object::new(typ, Vec::new(), methods);
+
+        // Translates Self to Object's identifier name
+        for method in &mut object.methods {
+            if let Some(typ) = &mut method.output.typ {
+                if typ.identifier.name == "Self" {
+                    typ.identifier.name = object.typ.identifier.name.clone()
+                }
+            }
         }
+
+        // Get dependencies
+        for method in &mut object.methods {
+            if let Some(typ) = &method.output.typ {
+                if !typ.is_atomic() && typ.identifier.name != object.typ.identifier.name {
+                    object.dependencies.push(Identifier::new(&typ.identifier.name))
+                }
+            }
+
+            for input in &method.inputs.inputs {
+                let typ = &input.typ;
+                if !typ.is_atomic() && typ.identifier.name != object.typ.identifier.name {
+                    object.dependencies.push(Identifier::new(&typ.identifier.name))
+                }
+            }
+        }
+
+        object
     }
 }
 

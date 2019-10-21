@@ -1,11 +1,11 @@
 use quote::quote;
 use proc_macro2::TokenStream;
 
-use crate::{Method, Identifier, Type, Reference};
+use crate::{Method, Identifier, Type, TypeModifier, Reference};
 
 pub struct Input {
     pub identifier : Identifier,
-    pub ty : Type
+    pub typ : Type
 }
 
 impl Input {
@@ -14,32 +14,41 @@ impl Input {
             syn::Pat::Ident(identifier) => Some(Identifier::parse(&identifier.ident)),
             _ => None
         }.unwrap();
-        let ty = Type::parse(&*pat.ty);
+        let typ = Type::parse(&*pat.ty);
         Input {
             identifier,
-            ty
+            typ
         }
     }
 
     pub fn get_tokens(&self) -> (TokenStream, TokenStream) {
         let identifier = &self.identifier;
-        let ty = &self.ty;
-        let parameter = quote!{#identifier: #ty};
-        let deref = if ty.is_atomic() { quote!{} } else { quote!{&*} };
-        let arg = quote!{#deref #identifier};
+        let typ = &self.typ;
+        let parameter = quote!{#identifier: #typ};
+        let arg = if typ.is_atomic() {
+            quote!{#identifier}
+        } else {
+            match &typ.modifier {
+                TypeModifier::Reference(_) => quote!{&* #identifier},
+                TypeModifier::Pointer(_) => quote!{#identifier},
+                TypeModifier::None => quote!{*Box::from_raw(#identifier)}
+            }
+        };
         (parameter, arg)
     }
 }
 
 pub struct Inputs {
     pub self_type: Option<Type>,
+    pub self_type_mutability : bool,
     pub inputs: Vec<Input>
 }
 
 impl Inputs {
-    pub fn new(self_type : Option<Type>, inputs : Vec<Input>) -> Self {
+    pub fn new(self_type : Option<Type>, self_type_mutability: bool, inputs : Vec<Input>) -> Self {
         Self {
             self_type,
+            self_type_mutability,
             inputs
         }
     }
@@ -47,21 +56,24 @@ impl Inputs {
     pub fn parse(owner : &Type, syn_inputs: &syn::punctuated::Punctuated<syn::FnArg, syn::token::Comma>) -> Inputs {
         let mut inputs = Vec::new();
         let mut self_type = None;
+        let mut self_type_mutability = false;
         for input in syn_inputs {
             match input {
                 syn::FnArg::Receiver(receiver) => {
-                    let is_mutable = if let Some(_mutability) = receiver.mutability { true } else { false };
-                    self_type = Some(Type::new(Some(Reference::new(is_mutable)), Vec::new(), Identifier::new(&owner.identifier.name)))
+                    self_type_mutability = if let Some(_mutability) = receiver.mutability { true } else { false };
+                    let modifier = if let Some(_) = receiver.reference {
+                        TypeModifier::Reference(Reference::new(self_type_mutability))
+                    } else {
+                        TypeModifier::None
+                    };
+                    self_type = Some(Type::new(modifier, Vec::new(), Identifier::new(&owner.identifier.name)))
                 },
                 syn::FnArg::Typed(ty) => {
                     inputs.push(Input::parse(ty))
                 }
             }
         }
-        Inputs {
-            self_type,
-            inputs
-        }
+        Inputs::new(self_type, self_type_mutability, inputs)
     }
 
     pub fn get_tokens(&self, method: &Method) -> (TokenStream, TokenStream, TokenStream) {
@@ -81,10 +93,14 @@ impl Inputs {
 
         let (parameters, method_call) = match &self.self_type {
             None => (parameters, quote!{ #owner_identifier::#method_identifier(#args) }),
-            Some(_ty) => {
+            Some(typ) => {
                 let self_param = quote! { self_object : #owner_type };
                 parameters = if self.inputs.len() > 0 { quote! {#self_param, #parameters} } else { self_param };
-                (parameters, quote!{ (*self_object).#method_identifier(#args) })
+                match &typ.modifier {
+                    TypeModifier::Pointer(_) => (parameters, quote!{ (*self_object).#method_identifier(#args) }),
+                    TypeModifier::Reference(_) => (parameters, quote!{ (*self_object).#method_identifier(#args) }),
+                    TypeModifier::None => (parameters, quote!{ (Box::from_raw(self_object)).#method_identifier(#args) })
+                }
             }
         };
 
