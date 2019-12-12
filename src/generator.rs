@@ -64,9 +64,14 @@ impl Generator {
             Attribute::Literal(_) => return Result::Err(format!("[2] Wrong attribute"))
         };
 
-        eprintln!("Loading {}", name);
+        let library_path = if cfg!(windows) {
+            format!("{}/ligen_{}.dll", crate::get_build_path(), name.to_lowercase())
+        } else {
+            format!("{}/libligen_{}.so", crate::get_build_path(), name.to_lowercase())
+        };
+        eprintln!("Loading {}", library_path);
 
-        let library = lib::Library::new(format!("{}/../ligen_{}", crate::get_path(), name));
+        let library = lib::Library::new(library_path);
         match library {
             Ok(library) => {
                 let generator = unsafe {

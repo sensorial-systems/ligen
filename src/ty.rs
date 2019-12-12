@@ -3,7 +3,7 @@ use quote::{TokenStreamExt, ToTokens};
 
 use crate::identifier::Identifier;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Reference {
     pub is_mutable : bool
 }
@@ -17,16 +17,23 @@ impl Reference {
 }
 
 #[derive(Clone)]
+pub enum TypeModifier {
+    Reference(Reference),
+    Pointer(Reference),
+    None
+}
+
+#[derive(Clone)]
 pub struct Type {
-    pub reference : Option<Reference>,
+    pub modifier : TypeModifier,
     pub path: Vec<Identifier>,
     pub identifier: Identifier
 }
 
 impl Type {
-    pub fn new(reference : Option<Reference>, path : Vec<Identifier>, identifier : Identifier) -> Type {
+    pub fn new(modifier : TypeModifier, path : Vec<Identifier>, identifier : Identifier) -> Type {
         Type {
-            reference,
+            modifier,
             path,
             identifier
         }
@@ -41,7 +48,7 @@ impl Type {
                     is_mutable = true;
                 }
                 Some(Type {
-                    reference : Some(Reference::new(is_mutable)),
+                    modifier : TypeModifier::Pointer(Reference::new(is_mutable)),
                     ..Type::parse(&*ptr.elem)
                 })
             },
@@ -51,7 +58,7 @@ impl Type {
                     is_mutable = true;
                 }
                 Some(Type {
-                    reference : Some(Reference::new(is_mutable)),
+                    modifier : TypeModifier::Reference(Reference::new(is_mutable)),
                     ..Type::parse(&*reference.elem)
                 })
             },
@@ -69,7 +76,7 @@ impl Type {
         let identifier = path.pop().unwrap();
 
         Self {
-            reference : None,
+            modifier : TypeModifier::None,
             path,
             identifier
         }
@@ -77,7 +84,7 @@ impl Type {
 
     pub fn is_atomic(&self) -> bool {
         match self.identifier.name.as_ref() {
-            "u64" | "u32" | "u16" | "u8" | "i64" | "i32" | "i16" | "i8" | "f32" | "f64" => true,
+            "u64" | "u32" | "u16" | "u8" | "i64" | "i32" | "i16" | "i8" | "f32" | "f64" | "bool" | "usize" | "isize" => true,
             _ => false
         }
     }
@@ -86,7 +93,11 @@ impl Type {
 impl ToTokens for Type {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let identifier = &self.identifier;
-        let modifier = if self.is_atomic() { quote! {} } else { quote! { *mut } };
+        let modifier = match &self.modifier {
+            TypeModifier::Reference(reference) => if reference.is_mutable { quote! { *mut } } else { quote! { *const } },
+            TypeModifier::Pointer(reference) => if reference.is_mutable { quote! { *mut } } else { quote! { *const } },
+            TypeModifier::None => if self.is_atomic() { quote! {} } else { quote! { *mut } }
+        };
         let mut path = quote! {};
         for identifier in &self.path {
             path = quote! { #path#identifier:: };
