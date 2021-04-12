@@ -35,9 +35,11 @@ impl Files {
             files
         }
     }
+
     pub fn push(&mut self, file : File) {
         self.files.push(file);
     }
+
     fn save(&self) {
         for file in &self.files {
             let ligen_path = crate::get_path();
