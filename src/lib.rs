@@ -1,30 +1,19 @@
-mod object;
-mod method;
-mod identifier;
-mod input;
-mod output;
-mod ty;
-mod attribute;
-mod literal;
+//! This crate provides core functionalities for ligen.
 
-mod generator;
+#![warn(missing_copy_implementations)]
+#![warn(missing_debug_implementations)]
+#![warn(missing_docs)]
+#![warn(trivial_casts)]
+#![warn(trivial_numeric_casts)]
+#![warn(unsafe_code)]
+#![warn(unused_import_braces)]
+#![warn(unused_qualifications)]
 
-pub use literal::Literal;
-pub use attribute::{Attribute, Attributes, LiteralConverter};
-pub use object::Object;
-pub use method::Method;
-pub use identifier::Identifier;
-pub use input::{Input, Inputs};
-pub use output::Output;
-pub use ty::{Type, Reference, TypeModifier};
+pub mod ir;
 
-pub use generator::{Generator, Files, File};
 
-pub fn get_build_path() -> String {
-    let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
-    format!("./target/{}", profile)
-}
-
-pub fn get_path() -> String {
-    format!("{}/ligen", get_build_path())
+use proc_macro2::TokenStream;
+/// `ligen` entry-point called by `#[ligen]`.
+pub fn ligen(_args: TokenStream, input: TokenStream) -> TokenStream {
+    input
 }
