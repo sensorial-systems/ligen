@@ -11,7 +11,6 @@
 
 pub mod ir;
 
-
 use proc_macro2::TokenStream;
 /// `ligen` entry-point called by `#[ligen]`.
 pub fn ligen(_args: TokenStream, input: TokenStream) -> TokenStream {

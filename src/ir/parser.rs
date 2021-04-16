@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod test {
+    use crate::ligen;
     use proc_macro2::TokenStream;
     use quote::*;
     use syn::parse_quote::parse;
-    use crate::ligen;
 
     fn extract_struct_attributes_and_item(
         item_impl: &TokenStream,
