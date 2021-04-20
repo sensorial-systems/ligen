@@ -50,3 +50,4 @@ impl Literal {
     }
 }
 
+//TODO: Test all variants.

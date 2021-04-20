@@ -21,7 +21,13 @@ pub struct Attributes {
 }
 
 impl From<syn::AttributeArgs> for Attributes {
-    fn from(_args: syn::AttributeArgs) -> Attributes {
+    fn from(attribute_args: syn::AttributeArgs) -> Self {
+        todo!()
+    }
+}
+
+impl From<syn::MetaList> for Attributes {
+    fn from(meta_list: syn::MetaList) -> Self {
         todo!()
     }
 }
