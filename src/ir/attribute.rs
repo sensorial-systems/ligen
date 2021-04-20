@@ -1,40 +1,39 @@
+use crate::prelude::*;
+
 use crate::ir::Literal;
 use crate::ir::Identifier;
 
-extern crate darling;
-extern crate syn;
-
-extern crate proc_macro;
-
-use darling::{FromVariant, FromMeta, *};
 use syn::{AttributeArgs, ItemFn};
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 
 /// Attribute Enum
-//#[derive(Debug, FromMeta)]
-//#[darling(default)]
-//pub enum Attribute {
-   // Literal(Literal),
-  //  Named(Literal),
- //   Group(Vec<Attribute>),
-//}
-
-
-#[derive(Debug, FromMeta)]
-pub struct Attribute {
-    #[darling(default)]
-    identifier: String,
- //   literal: Literal,
+#[derive(Debug)]
+pub enum Attribute {
+   Literal(Literal),
+   Named(Identifier, Literal),
+   Group(Identifier, Vec<Attribute>),
 }
 
+#[derive(Shrinkwrap, Default)]
+#[shrinkwrap(mutable)]
+pub struct Attributes {
+    pub attributes: Vec<Attribute>
+}
 
-
-impl Attribute {
-    pub fn parse_args(args : &syn::AttributeArgs) -> Attribute {
-        match Attribute::from_list(&args) {
-        Ok(v) => v,
-        Err(e) => { Attribute {identifier: String::from("")} }
+impl From<syn::AttributeArgs> for Attributes {
+    fn from(_args: syn::AttributeArgs) -> Attributes {
+        todo!()
     }
+}
 
-    }
+#[cfg(test)]
+mod test {
+    #[test]
+    fn literal() {}
+
+    #[test]
+    fn named() {}
+
+    #[test]
+    fn group() {}
 }

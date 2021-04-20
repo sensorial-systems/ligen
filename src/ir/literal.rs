@@ -1,16 +1,9 @@
 use syn::Lit;
 
-extern crate darling;
-extern crate syn;
-
-extern crate proc_macro;
-
-use darling::{FromVariant, FromMeta, *};
 use syn::{AttributeArgs, ItemFn};
-use proc_macro::TokenStream;
 
 /// Literal Enum
-#[derive(Debug, FromMeta)]
+#[derive(Debug)]
 pub enum Literal {
     /// String variant
     String(String),
@@ -26,7 +19,10 @@ pub enum Literal {
     Float(f64),
 }
 
+//TODO: Implement fn as_string(&self) -> Option<&String> and variants.
+
 impl Literal {
+    //FIXME: Implement From instead
     /// Parse Literal
     pub fn parse(lit: &Lit) -> Literal {
         match lit {
@@ -39,6 +35,8 @@ impl Literal {
             _ => Literal::String(String::from("")),
         }
     }
+
+    //FIXME: Implement Display instead
     /// Convert Literal to String
     pub fn to_string(&self) -> String {
         match self {
@@ -51,3 +49,4 @@ impl Literal {
         }
     }
 }
+

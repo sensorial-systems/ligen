@@ -13,5 +13,4 @@ proc-macro2 = "1.0.24"
 syn          = { version = "1.0.53", features = [ "full" ] }
 quote       = "1.0.7"
 libloading  = "0.6.6"
-derive_more = "0.99.11"
-darling = "0.12.3"
+shrinkwraprs = "0.3.0"

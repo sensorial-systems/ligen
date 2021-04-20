@@ -1,43 +1,50 @@
 use quote::{quote, ToTokens, TokenStreamExt};
 
-extern crate darling;
-extern crate syn;
-
-extern crate proc_macro;
-
-use darling::{FromVariant, FromMeta, *};
 use syn::{AttributeArgs, ItemFn};
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 
 /// Identifier structure
-#[derive(Clone, Debug, FromMeta, Default)]
+#[derive(Clone, Debug)]
 pub struct Identifier {
-    #[darling(default)]
     /// Name field of Identifier
-    pub name: String,
+    pub name: String
 }
 
 impl Identifier {
     /// Create a new Identifier
-    pub fn new(name: &str) -> Identifier {
-        Identifier {
-            name: String::from(name),
-        }
+    pub fn new(name: &str) -> Self {
+        let name = String::from(name);
+        Self { name }
     }
+}
 
-    /// Parse Identifier
-    pub fn parse(ident: &syn::Ident) -> Identifier {
-        Identifier {
-            name: ident.to_string(),
-        }
+impl From<syn::Ident> for Identifier {
+    fn from(ident: syn::Ident) -> Self {
+        let name = ident.to_string();
+        Self { name }
     }
 }
 
 impl ToTokens for Identifier {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let identifier = proc_macro2::Ident::new(&self.name, proc_macro2::Span::call_site());
         tokens.append_all(quote! {
             #identifier
         });
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::quote;
+    use super::Identifier;
+    use syn::parse_quote::parse;
+
+    #[test]
+    fn identifier() {
+        let tokenstream = quote! { id };
+        let mut identifier: syn::Ident = parse(tokenstream);
+        let identifier: Identifier = identifier.into();
+        assert_eq!(identifier.name, "id");
     }
 }
