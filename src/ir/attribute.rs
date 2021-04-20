@@ -11,7 +11,7 @@ use proc_macro2::TokenStream;
 pub enum Attribute {
    Literal(Literal),
    Named(Identifier, Literal),
-   Group(Identifier, Vec<Attribute>),
+   Group(Identifier, Attributes),
 }
 
 #[derive(Shrinkwrap, Default)]
