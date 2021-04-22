@@ -6,7 +6,7 @@ use crate::ir::Literal;
 use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path};
 
 /// Attribute Enum
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Attribute {
     /// Literal Variant
     Literal(Literal),
@@ -16,7 +16,7 @@ pub enum Attribute {
     Group(Identifier, Attributes),
 }
 
-#[derive(Shrinkwrap, Default, Debug)]
+#[derive(Shrinkwrap, Default, Debug, PartialEq)]
 #[shrinkwrap(mutable)]
 /// Attributes Struct
 pub struct Attributes {
@@ -82,13 +82,44 @@ impl From<NestedMeta> for Attribute {
 
 #[cfg(test)]
 mod test {
+    use crate::ir::{Attribute, Attributes, Identifier, Literal};
+    use syn::NestedMeta;
 
     #[test]
-    fn attribute_literal() {}
+    fn attribute_literal() {
+        let args: NestedMeta = syn::parse_quote!(C);
+        let attr = Attribute::from(args);
+        assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))))
+    }
 
     #[test]
-    fn attribute_named() {}
+    fn attribute_named() {
+        let args: NestedMeta = syn::parse_quote!(int = "sized");
+        let attr = Attribute::from(args);
+        assert_eq!(
+            attr,
+            Attribute::Named(
+                Identifier::new("int"),
+                Literal::String(String::from("sized"))
+            )
+        )
+    }
 
     #[test]
-    fn attribute_group() {}
+    fn attribute_group() {
+        let args: NestedMeta = syn::parse_quote!(C(int = "sized"));
+        let attr = Attribute::from(args);
+        assert_eq!(
+            attr,
+            Attribute::Group(
+                Identifier::new("C"),
+                Attributes {
+                    attributes: vec![Attribute::Named(
+                        Identifier::new("int"),
+                        Literal::String(String::from("sized"))
+                    )]
+                }
+            )
+        )
+    }
 }

@@ -1,7 +1,7 @@
 use syn::{Ident, Lit};
 
 /// Literal Enum
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Literal {
     /// String variant
     String(String),
