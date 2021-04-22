@@ -1,13 +1,12 @@
 use quote::{quote, ToTokens, TokenStreamExt};
 
-use syn::{AttributeArgs, ItemFn};
 use proc_macro2::TokenStream;
 
 /// Identifier structure
 #[derive(Clone, Debug)]
 pub struct Identifier {
     /// Name field of Identifier
-    pub name: String
+    pub name: String,
 }
 
 impl Identifier {
@@ -43,7 +42,7 @@ mod test {
     #[test]
     fn identifier() {
         let tokenstream = quote! { id };
-        let mut identifier: syn::Ident = parse(tokenstream);
+        let identifier: syn::Ident = parse(tokenstream);
         let identifier: Identifier = identifier.into();
         assert_eq!(identifier.name, "id");
     }

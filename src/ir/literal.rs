@@ -1,4 +1,4 @@
-use syn::Lit;
+use syn::{Ident, Lit};
 
 /// Literal Enum
 #[derive(Debug)]
@@ -30,8 +30,13 @@ impl From<Lit> for Literal {
             Lit::Int(litint) => Self::Integer(litint.base10_parse().unwrap()),
             Lit::Float(litfloat) => Self::Float(litfloat.base10_parse().unwrap()),
             Lit::Bool(litbool) => Self::Bool(litbool.value),
-            _ => Self::String(String::from("")),
         }
+    }
+}
+
+impl From<Ident> for Literal {
+    fn from(ident: Ident) -> Self {
+        Self::String(ident.to_string())
     }
 }
 
