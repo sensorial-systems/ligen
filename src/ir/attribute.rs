@@ -26,12 +26,11 @@ pub struct Attributes {
 
 impl From<AttributeArgs> for Attributes {
     fn from(attribute_args: AttributeArgs) -> Self {
-        println!("attribute_args: {:#?}", attribute_args);
-        let mut vec: Vec<Attribute> = vec![];
-        for arg in attribute_args {
-            vec.push(Attribute::from(arg));
-        }
-        Self { attributes: vec }
+        let attributes = attribute_args
+            .iter()
+            .map(|a| Attribute::from(a.clone()))
+            .collect();
+        Self { attributes }
     }
 }
 
