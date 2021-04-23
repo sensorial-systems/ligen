@@ -10,7 +10,7 @@
 #![warn(unused_qualifications)]
 
 pub mod ir;
-
+mod prelude;
 
 use proc_macro2::TokenStream;
 /// `ligen` entry-point called by `#[ligen]`.
