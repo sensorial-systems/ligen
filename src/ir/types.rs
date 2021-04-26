@@ -1,55 +1,90 @@
 use proc_macro2::Ident;
+use syn::{Path, TypePath, TypeReference};
 
 use crate::ir::Identifier;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
+/// Integer Enum
 pub enum Integer {
+    /// u8 variant
     U8,
+    /// u16 variant
     U16,
+    /// u32 variant
     U32,
+    /// u64 variant
     U64,
+    /// u128 variant
     U128,
+    /// usize variant
     USize,
+    /// i8 variant
     I8,
+    /// i16 variant
     I16,
+    /// i32 variant
     I32,
+    /// i64 variant
     I64,
+    /// i128 variant
     I128,
+    /// isize variant
     ISize,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
+/// Float Enum
 pub enum Float {
+    /// f32 variant
     F32,
+    /// f64 variant
     F64,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
+/// Atomic Enum
 pub enum Atomic {
+    /// Integer variant
     Integer(Integer),
+    /// Float variant
     Float(Float),
+    /// Boolean variant
     Boolean,
+    /// Character variant
     Character,
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Type {
+// TODO: Find better name for enum
+/// Atom Enum
+pub enum Atom {
+    /// Atomic variant
     Atomic(Atomic),
+    /// Compound variant
     Compound(Identifier),
 }
 
+#[derive(Debug, PartialEq)]
+/// Borrowed Enum
 pub enum Borrowed {
-    Exclusive(Type),
-    Shared(Type),
+    /// Shared variant
+    Shared(Atom),
+    /// Exclusive variant
+    Exclusive(Atom),
 }
 
-pub enum TypeOwnership {
-    Owned(Type),
+#[derive(Debug, PartialEq)]
+/// Type Enum
+pub enum Type {
+    /// Owned variant
+    Owned(Atom),
+    /// Borrowed variant
     Borrowed(Borrowed),
 }
 
-impl From<Ident> for Type {
+impl From<Ident> for Atom {
     fn from(ident: Ident) -> Self {
+        println!("ident: {:#?}", ident);
         match ident.to_string().as_str() {
             "u8" => Self::Atomic(Atomic::Integer(Integer::U8)),
             "u16" => Self::Atomic(Atomic::Integer(Integer::U16)),
@@ -67,22 +102,57 @@ impl From<Ident> for Type {
             "f64" => Self::Atomic(Atomic::Float(Float::F64)),
             "bool" => Self::Atomic(Atomic::Boolean),
             "char" => Self::Atomic(Atomic::Character),
-            _ => Self::Atomic(Atomic::Integer(Integer::U64)),
+            _ => panic!("Unknown Ident"),
+        }
+    }
+}
+
+impl From<Path> for Atom {
+    fn from(path: Path) -> Self {
+        match path {
+            Path { segments, .. } => Self::from(segments[0].ident.clone()),
+        }
+    }
+}
+
+impl From<syn::Type> for Type {
+    fn from(syn_type: syn::Type) -> Self {
+        println!("syn_type: {:#?}", syn_type);
+        match syn_type {
+            syn::Type::Path(TypePath { path, .. }) => Self::Owned(Atom::from(path)),
+            syn::Type::Reference(TypeReference {
+                elem, mutability, ..
+            }) => {
+                if let syn::Type::Path(TypePath { path, .. }) = *elem {
+                    match mutability {
+                        Some(_m) => Self::Borrowed(Borrowed::Exclusive(Atom::from(path))),
+                        None => Self::Borrowed(Borrowed::Shared(Atom::from(path))),
+                    }
+                } else {
+                    panic!("Unknown type");
+                }
+            }
+
+            _ => panic!("Unknown Type"),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::any::type_name;
 
-    use super::{Atomic, Float, Integer, Type};
+    use super::{Atom, Atomic, Borrowed, Float, Integer, Type};
     use quote::quote;
-    use syn::{parse_quote::parse, Ident};
+    use syn::parse_quote::parse;
+
+    #[test]
+    fn types_array() {
+        let a: Type = parse::<syn::Type>(quote! {Vec<i32>}).into();
+    }
 
     #[test]
     fn types_integer() {
-        let mut vec: Vec<Type> = vec![
+        let vec: Vec<Type> = vec![
             quote! { u8 },
             quote! { u16 },
             quote! { u32 },
@@ -97,9 +167,9 @@ mod test {
             quote! { isize },
         ]
         .into_iter()
-        .map(|x| parse::<Ident>(x).into())
+        .map(|x| parse::<syn::Type>(x).into())
         .collect();
-        let mut expected = vec![
+        let expected: Vec<Type> = vec![
             Integer::U8,
             Integer::U16,
             Integer::U32,
@@ -112,26 +182,32 @@ mod test {
             Integer::I64,
             Integer::I128,
             Integer::ISize,
-        ];
+        ]
+        .into_iter()
+        .map(|x| Type::Owned(Atom::Atomic(Atomic::Integer(x))))
+        .collect();
 
         let mut iter = vec.iter().zip(expected.iter());
 
-        while let Some((Type::Atomic(Atomic::Integer(value)), expected_value)) = iter.next() {
+        while let Some((value, expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
     }
 
     #[test]
     fn types_float() {
-        let mut vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
+        let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
-            .map(|x| parse::<Ident>(x).into())
+            .map(|x| parse::<syn::Type>(x).into())
             .collect();
-        let mut expected = vec![Float::F32, Float::F64];
+        let expected: Vec<Type> = vec![Float::F32, Float::F64]
+            .into_iter()
+            .map(|x| Type::Owned(Atom::Atomic(Atomic::Float(x))))
+            .collect();
 
         let mut iter = vec.iter().zip(expected.iter());
 
-        while let Some((Type::Atomic(Atomic::Float(value)), expected_value)) = iter.next() {
+        while let Some((value, expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
     }
@@ -139,16 +215,36 @@ mod test {
     #[test]
     fn types_boolean() {
         assert_eq!(
-            Type::Atomic(Atomic::Boolean),
-            parse::<Ident>(quote! {bool}).into()
+            Type::Owned(Atom::Atomic(Atomic::Boolean)),
+            parse::<syn::Type>(quote! {bool}).into()
         );
     }
 
     #[test]
     fn types_character() {
         assert_eq!(
-            Type::Atomic(Atomic::Character),
-            parse::<Ident>(quote! {char}).into()
+            Type::Owned(Atom::Atomic(Atomic::Character)),
+            parse::<syn::Type>(quote! {char}).into()
+        );
+    }
+
+    #[test]
+    fn types_borrowed_shared() {
+        assert_eq!(
+            Type::Borrowed(Borrowed::Shared(Atom::Atomic(Atomic::Integer(
+                Integer::I32
+            )))),
+            parse::<syn::Type>(quote! {&i32}).into()
+        );
+    }
+
+    #[test]
+    fn types_borrowed_exclusive() {
+        assert_eq!(
+            Type::Borrowed(Borrowed::Exclusive(Atom::Atomic(Atomic::Integer(
+                Integer::I32
+            )))),
+            parse::<syn::Type>(quote! {&mut i32}).into()
         );
     }
 }
