@@ -41,20 +41,31 @@ pub enum Pointer {
     Mutable(Box<Type>),
 }
 
+impl From<syn::Path> for Type {
+    fn from(path: syn::Path) -> Self {
+        match path.clone() {
+            syn::Path { segments, .. } => match segments[0].ident.clone().to_string().as_str() {
+                "String" => Self::Compound(Identifier::from(segments[0].ident.clone())),
+                _ => Self::Atomic(Atomic::from(path)),
+            },
+        }
+    }
+}
+
 impl From<syn::Type> for Type {
     fn from(syn_type: syn::Type) -> Self {
         match syn_type {
-            syn::Type::Path(TypePath { path, .. }) => Self::Atomic(Atomic::from(path)),
+            syn::Type::Path(TypePath { path, .. }) => Self::from(path),
             syn::Type::Reference(TypeReference {
                 elem, mutability, ..
             }) => {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
                         Some(_m) => Self::Reference(Reference::Borrow(Borrow::Mutable(Box::new(
-                            Type::Atomic(Atomic::from(path)),
+                            Type::from(path),
                         )))),
                         None => Self::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                            Type::Atomic(Atomic::from(path)),
+                            Type::from(path),
                         )))),
                     }
                 } else {
@@ -67,10 +78,10 @@ impl From<syn::Type> for Type {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
                         Some(_m) => Self::Reference(Reference::Pointer(Pointer::Mutable(
-                            Box::new(Type::Atomic(Atomic::from(path))),
+                            Box::new(Type::from(path)),
                         ))),
                         None => Self::Reference(Reference::Pointer(Pointer::Constant(Box::new(
-                            Type::Atomic(Atomic::from(path)),
+                            Type::from(path),
                         )))),
                     }
                 } else {
