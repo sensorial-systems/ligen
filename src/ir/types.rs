@@ -45,8 +45,11 @@ impl From<syn::Path> for Type {
     fn from(path: syn::Path) -> Self {
         match path.clone() {
             syn::Path { segments, .. } => match segments[0].ident.clone().to_string().as_str() {
-                "String" => Self::Compound(Identifier::from(segments[0].ident.clone())),
-                _ => Self::Atomic(Atomic::from(path)),
+                "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
+                | "i128" | "isize" | "f32" | "f64" | "bool" | "char" => {
+                    Self::Atomic(Atomic::from(path))
+                }
+                _ => Self::Compound(Identifier::from(segments[0].ident.clone())),
             },
         }
     }
