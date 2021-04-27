@@ -10,7 +10,7 @@ pub struct Argument {
 
 impl From<ExprType> for Argument {
     fn from(expr_type: ExprType) -> Self {
-        println!("{:#?}", expr_type);
+        // println!("{:#?}", expr_type);
 
         let identifier = match *expr_type.expr {
             Expr::Path(syn::ExprPath { path, .. }) => path.segments[0].ident.clone(),
@@ -28,12 +28,12 @@ impl From<ExprType> for Argument {
 mod test {
 
     use super::Argument;
-    use crate::ir::{Atomic, Identifier, Integer, Type};
+    use crate::ir::{Atomic, Borrow, Identifier, Integer, Pointer, Reference, Type};
     use quote::quote;
     use syn::parse_quote::parse;
 
     #[test]
-    fn argument() {
+    fn argument_atomic() {
         assert_eq!(
             Argument::from(parse::<syn::ExprType>(quote! {integer: i32})),
             Argument {
@@ -46,7 +46,7 @@ mod test {
     }
 
     #[test]
-    fn argument_string() {
+    fn argument_compound() {
         assert_eq!(
             Argument::from(parse::<syn::ExprType>(quote! {name: String})),
             Argument {
@@ -56,6 +56,74 @@ mod test {
                 type_: Type::Compound(Identifier {
                     name: String::from("String")
                 })
+            }
+        );
+    }
+
+    #[test]
+    fn argument_borrow_constant() {
+        assert_eq!(
+            Argument::from(parse::<syn::ExprType>(quote! {name: &String})),
+            Argument {
+                identifier: Identifier {
+                    name: String::from("name")
+                },
+                type_: Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(
+                    Type::Compound(Identifier {
+                        name: String::from("String")
+                    })
+                ))))
+            }
+        );
+    }
+
+    #[test]
+    fn argument_borrow_mutable() {
+        assert_eq!(
+            Argument::from(parse::<syn::ExprType>(quote! {name: &mut String})),
+            Argument {
+                identifier: Identifier {
+                    name: String::from("name")
+                },
+                type_: Type::Reference(Reference::Borrow(Borrow::Mutable(Box::new(
+                    Type::Compound(Identifier {
+                        name: String::from("String")
+                    })
+                ))))
+            }
+        );
+    }
+
+    #[test]
+    fn argument_pointer_constant() {
+        assert_eq!(
+            Argument::from(parse::<syn::ExprType>(quote! {name: *const String})),
+            Argument {
+                identifier: Identifier {
+                    name: String::from("name")
+                },
+                type_: Type::Reference(Reference::Pointer(Pointer::Constant(Box::new(
+                    Type::Compound(Identifier {
+                        name: String::from("String")
+                    })
+                ))))
+            }
+        );
+    }
+
+    #[test]
+    fn argument_pointer_mutable() {
+        assert_eq!(
+            Argument::from(parse::<syn::ExprType>(quote! {name: *mut String})),
+            Argument {
+                identifier: Identifier {
+                    name: String::from("name")
+                },
+                type_: Type::Reference(Reference::Pointer(Pointer::Mutable(Box::new(
+                    Type::Compound(Identifier {
+                        name: String::from("String")
+                    })
+                ))))
             }
         );
     }
