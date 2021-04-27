@@ -4,8 +4,8 @@ use syn::FnArg;
 #[derive(Debug, PartialEq)]
 /// Argument Struct
 pub struct Argument {
-    identifier: Identifier,
-    type_: Type,
+    pub identifier: Identifier,
+    pub type_: Type,
 }
 
 impl From<FnArg> for Argument {
