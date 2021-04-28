@@ -35,7 +35,7 @@ impl From<ItemConst> for Constant {
                 literal: Literal::from(lit),
             }
         } else {
-            panic!("Undefined Constant inside Impl block");
+            panic!("Undefined Constant");
         }
     }
 }
