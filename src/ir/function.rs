@@ -1,5 +1,5 @@
 use crate::ir::{Argument, Attribute, Attributes, Identifier, Type};
-use syn::ItemFn;
+use syn::{ImplItemMethod, ItemFn};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 /// Async Struct
@@ -8,53 +8,65 @@ pub struct Async;
 #[derive(Debug, PartialEq)]
 /// Function Struct
 pub struct Function {
+    /// attributes field
     pub attributes: Attributes,
+    /// asyncness field
     pub asyncness: Option<Async>,
+    /// identifier field
     pub identifier: Identifier,
+    /// input field
     pub input: Vec<Argument>,
+    /// output field
     pub output: Option<Type>,
 }
 
-impl From<ItemFn> for Function {
-    fn from(item_fn: ItemFn) -> Self {
-        let syn::Signature {
-            asyncness,
-            ident,
-            inputs,
-            output,
-            ..
-        } = item_fn.sig;
-        let input: Vec<Argument> = inputs
-            .clone()
-            .into_iter()
-            .map(|x| Argument::from(x))
-            .collect();
-        let output: Option<Type> = match output {
-            syn::ReturnType::Default => None,
-            syn::ReturnType::Type(_x, y) => Some(Type::from(*y)),
-        };
-        Self {
-            attributes: Attributes {
-                attributes: item_fn
-                    .attrs
+macro_rules! impl_function {
+    ($T:ident) => {
+        impl From<$T> for Function {
+            fn from(item_fn: $T) -> Self {
+                let syn::Signature {
+                    asyncness,
+                    ident,
+                    inputs,
+                    output,
+                    ..
+                } = item_fn.sig;
+                let input: Vec<Argument> = inputs
+                    .clone()
                     .into_iter()
-                    .map(|x| Attribute::from(x.parse_meta().expect("Failed to parse Meta")))
-                    .collect(),
-            },
-            asyncness: match asyncness {
-                Some(_x) => Some(Async),
-                None => None,
-            },
-            identifier: Identifier::from(ident),
-            input,
-            output,
+                    .map(|x| Argument::from(x))
+                    .collect();
+                let output: Option<Type> = match output {
+                    syn::ReturnType::Default => None,
+                    syn::ReturnType::Type(_x, y) => Some(Type::from(*y)),
+                };
+                Self {
+                    attributes: Attributes {
+                        attributes: item_fn
+                            .attrs
+                            .into_iter()
+                            .map(|x| Attribute::from(x.parse_meta().expect("Failed to parse Meta")))
+                            .collect(),
+                    },
+                    asyncness: match asyncness {
+                        Some(_x) => Some(Async),
+                        None => None,
+                    },
+                    identifier: Identifier::from(ident),
+                    input,
+                    output,
+                }
+            }
         }
-    }
+    };
 }
+
+impl_function!(ItemFn);
+impl_function!(ImplItemMethod);
 
 #[cfg(test)]
 mod test {
-    use super::{Async, Function, ItemFn, Type};
+    use super::{Async, Function, ImplItemMethod, ItemFn, Type};
     use crate::ir::{Argument, Attribute, Attributes, Borrow, Identifier, Literal, Reference};
     use quote::quote;
     use syn::parse_quote::parse;
@@ -63,6 +75,22 @@ mod test {
     fn function() {
         assert_eq!(
             Function::from(parse::<ItemFn>(quote! {fn test() {}})),
+            Function {
+                attributes: Attributes { attributes: vec![] },
+                asyncness: None,
+                identifier: Identifier {
+                    name: String::from("test")
+                },
+                input: vec![],
+                output: None
+            }
+        );
+    }
+
+    #[test]
+    fn function_impl() {
+        assert_eq!(
+            Function::from(parse::<ImplItemMethod>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
