@@ -8,11 +8,11 @@ pub struct Async;
 #[derive(Debug, PartialEq)]
 /// Function Struct
 pub struct Function {
-    attributes: Attributes,
-    asyncness: Option<Async>,
-    identifier: Identifier,
-    input: Vec<Argument>,
-    output: Option<Type>,
+    pub attributes: Attributes,
+    pub asyncness: Option<Async>,
+    pub identifier: Identifier,
+    pub input: Vec<Argument>,
+    pub output: Option<Type>,
 }
 
 impl From<ItemFn> for Function {
