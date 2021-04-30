@@ -36,7 +36,7 @@ impl From<ItemConst> for Constant {
                 literal: Literal::from(lit),
             }
         } else {
-            panic!("Undefined Constant inside Impl block");
+            panic!("Undefined Constant");
         }
     }
 }
@@ -51,7 +51,7 @@ mod test {
     #[test]
     fn impl_const_impl() {
         assert_eq!(
-            Constant::from(parse::<ImplItemConst>(quote! {const a: &str = "teste";})),
+            Constant::from(parse::<ImplItemConst>(quote! {const a: &str = "test";})),
             Constant {
                 identifier: Identifier {
                     name: String::from("a")
@@ -61,7 +61,7 @@ mod test {
                         name: String::from("str")
                     })
                 )))),
-                literal: Literal::String(String::from("teste"))
+                literal: Literal::String(String::from("test"))
             }
         );
     }
@@ -69,7 +69,7 @@ mod test {
     #[test]
     fn impl_const() {
         assert_eq!(
-            Constant::from(parse::<ItemConst>(quote! {const a: &str = "teste";})),
+            Constant::from(parse::<ItemConst>(quote! {const a: &str = "test";})),
             Constant {
                 identifier: Identifier {
                     name: String::from("a")
@@ -79,7 +79,7 @@ mod test {
                         name: String::from("str")
                     })
                 )))),
-                literal: Literal::String(String::from("teste"))
+                literal: Literal::String(String::from("test"))
             }
         );
     }
