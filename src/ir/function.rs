@@ -1,4 +1,5 @@
 use crate::ir::{Argument, Attribute, Attributes, Identifier, Type};
+use std::convert::TryFrom;
 use syn::{ImplItemMethod, ItemFn};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -34,11 +35,13 @@ macro_rules! impl_function {
                 let input: Vec<Argument> = inputs
                     .clone()
                     .into_iter()
-                    .map(|x| Argument::from(x))
+                    .map(|x| Argument::try_from(x).expect("Failed to convert Argument"))
                     .collect();
                 let output: Option<Type> = match output {
                     syn::ReturnType::Default => None,
-                    syn::ReturnType::Type(_x, y) => Some(Type::from(*y)),
+                    syn::ReturnType::Type(_x, y) => {
+                        Some(Type::try_from(*y).expect("Failed to convert from ReturnType::Type"))
+                    }
                 };
                 Self {
                     attributes: Attributes {

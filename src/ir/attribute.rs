@@ -1,8 +1,6 @@
-use crate::prelude::*;
-
 use crate::ir::Identifier;
 use crate::ir::Literal;
-
+use crate::prelude::*;
 use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path};
 
 /// Attribute Enum

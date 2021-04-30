@@ -1,7 +1,7 @@
-use syn::{TypePath, TypePtr, TypeReference};
-
 use crate::ir::Atomic;
 use crate::ir::Identifier;
+use std::convert::TryFrom;
+use syn::{TypePath, TypePtr, TypeReference};
 
 #[derive(Debug, PartialEq)]
 /// Type Enum
@@ -55,24 +55,25 @@ impl From<syn::Path> for Type {
     }
 }
 
-impl From<syn::Type> for Type {
-    fn from(syn_type: syn::Type) -> Self {
+impl TryFrom<syn::Type> for Type {
+    type Error = &'static str;
+    fn try_from(syn_type: syn::Type) -> Result<Self, Self::Error> {
         match syn_type {
-            syn::Type::Path(TypePath { path, .. }) => Self::from(path),
+            syn::Type::Path(TypePath { path, .. }) => Ok(Self::from(path)),
             syn::Type::Reference(TypeReference {
                 elem, mutability, ..
             }) => {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
-                        Some(_m) => Self::Reference(Reference::Borrow(Borrow::Mutable(Box::new(
-                            Type::from(path),
+                        Some(_m) => Ok(Self::Reference(Reference::Borrow(Borrow::Mutable(
+                            Box::new(Type::from(path)),
                         )))),
-                        None => Self::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                            Type::from(path),
+                        None => Ok(Self::Reference(Reference::Borrow(Borrow::Constant(
+                            Box::new(Type::from(path)),
                         )))),
                     }
                 } else {
-                    panic!("Unknown type");
+                    Err("Couldn't find path")
                 }
             }
             syn::Type::Ptr(TypePtr {
@@ -80,32 +81,32 @@ impl From<syn::Type> for Type {
             }) => {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
-                        Some(_m) => Self::Reference(Reference::Pointer(Pointer::Mutable(
+                        Some(_m) => Ok(Self::Reference(Reference::Pointer(Pointer::Mutable(
                             Box::new(Type::from(path)),
-                        ))),
-                        None => Self::Reference(Reference::Pointer(Pointer::Constant(Box::new(
-                            Type::from(path),
+                        )))),
+                        None => Ok(Self::Reference(Reference::Pointer(Pointer::Constant(
+                            Box::new(Type::from(path)),
                         )))),
                     }
                 } else {
-                    panic!("Unknown type");
+                    Err("Couldn't find path")
                 }
             }
 
-            _ => panic!("Unknown Type"),
+            _ => Err("Only Path, Reference and Ptr Types are currently supported"),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-
     use super::{
         Atomic::{self, Boolean, Character},
         Borrow, Pointer, Reference, Type,
     };
     use crate::ir::{Float, Integer};
     use quote::quote;
+    use std::convert::TryInto;
     use syn::parse_quote::parse;
 
     #[test]
@@ -125,7 +126,11 @@ mod test {
             quote! { isize },
         ]
         .into_iter()
-        .map(|x| parse::<syn::Type>(x).into())
+        .map(|x| {
+            parse::<syn::Type>(x)
+                .try_into()
+                .expect("Failed to convert from syn::Type")
+        })
         .collect();
         let expected: Vec<Type> = vec![
             Integer::U8,
@@ -156,7 +161,11 @@ mod test {
     fn types_float() {
         let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
-            .map(|x| parse::<syn::Type>(x).into())
+            .map(|x| {
+                parse::<syn::Type>(x)
+                    .try_into()
+                    .expect("Failed to convert from syn::Type")
+            })
             .collect();
         let expected: Vec<Type> = vec![Float::F32, Float::F64]
             .into_iter()
@@ -174,7 +183,9 @@ mod test {
     fn types_boolean() {
         assert_eq!(
             Type::Atomic(Boolean),
-            parse::<syn::Type>(quote! {bool}).into()
+            parse::<syn::Type>(quote! {bool})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 
@@ -182,7 +193,9 @@ mod test {
     fn types_character() {
         assert_eq!(
             Type::Atomic(Character),
-            parse::<syn::Type>(quote! {char}).into()
+            parse::<syn::Type>(quote! {char})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 
@@ -190,9 +203,11 @@ mod test {
     fn types_borrow_constant() {
         assert_eq!(
             Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(Type::Atomic(
-                Atomic::Integer(crate::ir::Integer::I32)
+                Atomic::Integer(Integer::I32)
             ))))),
-            parse::<syn::Type>(quote! {&i32}).into()
+            parse::<syn::Type>(quote! {&i32})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 
@@ -200,9 +215,11 @@ mod test {
     fn types_borrow_mutable() {
         assert_eq!(
             Type::Reference(Reference::Borrow(Borrow::Mutable(Box::new(Type::Atomic(
-                Atomic::Integer(crate::ir::Integer::I32)
+                Atomic::Integer(Integer::I32)
             ))))),
-            parse::<syn::Type>(quote! {&mut i32}).into()
+            parse::<syn::Type>(quote! {&mut i32})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 
@@ -210,9 +227,11 @@ mod test {
     fn types_pointer_constant() {
         assert_eq!(
             Type::Reference(Reference::Pointer(Pointer::Constant(Box::new(
-                Type::Atomic(Atomic::Integer(crate::ir::Integer::I32))
+                Type::Atomic(Atomic::Integer(Integer::I32))
             )))),
-            parse::<syn::Type>(quote! {*const i32}).into()
+            parse::<syn::Type>(quote! {*const i32})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 
@@ -220,9 +239,11 @@ mod test {
     fn types_pointer_mutable() {
         assert_eq!(
             Type::Reference(Reference::Pointer(Pointer::Mutable(Box::new(
-                Type::Atomic(Atomic::Integer(crate::ir::Integer::I32))
+                Type::Atomic(Atomic::Integer(Integer::I32))
             )))),
-            parse::<syn::Type>(quote! {*mut i32}).into()
+            parse::<syn::Type>(quote! {*mut i32})
+                .try_into()
+                .expect("Failed to convert from syn::Type")
         );
     }
 }

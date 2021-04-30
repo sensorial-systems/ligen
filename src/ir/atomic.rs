@@ -1,4 +1,5 @@
 use proc_macro2::Ident;
+use std::convert::TryFrom;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Integer Enum
@@ -51,26 +52,27 @@ pub enum Atomic {
     Character,
 }
 
-impl From<Ident> for Atomic {
-    fn from(ident: Ident) -> Self {
+impl TryFrom<Ident> for Atomic {
+    type Error = &'static str;
+    fn try_from(ident: Ident) -> Result<Self, Self::Error> {
         match ident.to_string().as_str() {
-            "u8" => Self::Integer(Integer::U8),
-            "u16" => Self::Integer(Integer::U16),
-            "u32" => Self::Integer(Integer::U32),
-            "u64" => Self::Integer(Integer::U64),
-            "u128" => Self::Integer(Integer::U128),
-            "usize" => Self::Integer(Integer::USize),
-            "i8" => Self::Integer(Integer::I8),
-            "i16" => Self::Integer(Integer::I16),
-            "i32" => Self::Integer(Integer::I32),
-            "i64" => Self::Integer(Integer::I64),
-            "i128" => Self::Integer(Integer::I128),
-            "isize" => Self::Integer(Integer::ISize),
-            "f32" => Self::Float(Float::F32),
-            "f64" => Self::Float(Float::F64),
-            "bool" => Self::Boolean,
-            "char" => Self::Character,
-            _ => panic!("Unknown Ident"),
+            "u8" => Ok(Self::Integer(Integer::U8)),
+            "u16" => Ok(Self::Integer(Integer::U16)),
+            "u32" => Ok(Self::Integer(Integer::U32)),
+            "u64" => Ok(Self::Integer(Integer::U64)),
+            "u128" => Ok(Self::Integer(Integer::U128)),
+            "usize" => Ok(Self::Integer(Integer::USize)),
+            "i8" => Ok(Self::Integer(Integer::I8)),
+            "i16" => Ok(Self::Integer(Integer::I16)),
+            "i32" => Ok(Self::Integer(Integer::I32)),
+            "i64" => Ok(Self::Integer(Integer::I64)),
+            "i128" => Ok(Self::Integer(Integer::I128)),
+            "isize" => Ok(Self::Integer(Integer::ISize)),
+            "f32" => Ok(Self::Float(Float::F32)),
+            "f64" => Ok(Self::Float(Float::F64)),
+            "bool" => Ok(Self::Boolean),
+            "char" => Ok(Self::Character),
+            _ => Err("Unknown Ident"),
         }
     }
 }
@@ -78,13 +80,17 @@ impl From<Ident> for Atomic {
 impl From<syn::Path> for Atomic {
     fn from(path: syn::Path) -> Self {
         match path {
-            syn::Path { segments, .. } => Self::from(segments[0].ident.clone()),
+            syn::Path { segments, .. } => {
+                Self::try_from(segments[0].ident.clone()).expect("Failed to convert from Ident")
+            }
         }
     }
 }
 
 #[cfg(test)]
 mod test {
+
+    use std::convert::TryInto;
 
     use super::{Atomic, Float, Integer};
     use quote::quote;
@@ -107,7 +113,7 @@ mod test {
             quote! { isize },
         ]
         .into_iter()
-        .map(|x| parse::<syn::Ident>(x).into())
+        .map(|x| parse::<syn::Ident>(x).try_into().expect("Failed to parse"))
         .collect();
         let expected: Vec<Integer> = vec![
             Integer::U8,
@@ -137,7 +143,7 @@ mod test {
     fn atomic_float() {
         let vec: Vec<Atomic> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
-            .map(|x| parse::<syn::Ident>(x).into())
+            .map(|x| parse::<syn::Ident>(x).try_into().expect("Failed to parse"))
             .collect();
         let expected: Vec<Float> = vec![Float::F32, Float::F64].into_iter().collect();
 
@@ -150,11 +156,21 @@ mod test {
 
     #[test]
     fn atomic_boolean() {
-        assert_eq!(Atomic::Boolean, parse::<syn::Ident>(quote! {bool}).into());
+        assert_eq!(
+            Atomic::Boolean,
+            parse::<syn::Ident>(quote! {bool})
+                .try_into()
+                .expect("Failed to parse")
+        );
     }
 
     #[test]
     fn atomic_character() {
-        assert_eq!(Atomic::Character, parse::<syn::Ident>(quote! {char}).into());
+        assert_eq!(
+            Atomic::Character,
+            parse::<syn::Ident>(quote! {char})
+                .try_into()
+                .expect("Failed to parse")
+        );
     }
 }
