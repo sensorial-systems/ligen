@@ -1,5 +1,5 @@
-use crate::ir::{Argument, Attribute, Attributes, Identifier, Type};
-use std::convert::TryFrom;
+use crate::ir::{Argument, Attributes, Identifier, Type};
+use std::convert::{TryFrom, TryInto};
 use syn::{ImplItemMethod, ItemFn};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -35,7 +35,7 @@ macro_rules! impl_function {
                 let input: Vec<Argument> = inputs
                     .clone()
                     .into_iter()
-                    .map(|x| Argument::try_from(x).expect("Failed to convert Argument"))
+                    .map(|x| x.try_into().expect("Failed to convert Argument"))
                     .collect();
                 let output: Option<Type> = match output {
                     syn::ReturnType::Default => None,
@@ -48,14 +48,14 @@ macro_rules! impl_function {
                         attributes: item_fn
                             .attrs
                             .into_iter()
-                            .map(|x| Attribute::from(x.parse_meta().expect("Failed to parse Meta")))
+                            .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                             .collect(),
                     },
                     asyncness: match asyncness {
                         Some(_x) => Some(Async),
                         None => None,
                     },
-                    identifier: Identifier::from(ident),
+                    identifier: ident.into(),
                     input,
                     output,
                 }

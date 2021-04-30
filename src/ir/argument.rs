@@ -19,7 +19,7 @@ impl TryFrom<FnArg> for Argument {
             FnArg::Typed(syn::PatType { pat, ty, .. }) => {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self {
-                        identifier: Identifier::from(ident),
+                        identifier: ident.into(),
                         type_: Type::try_from(*ty).expect("Failed to convert from Type"),
                     })
                 } else {

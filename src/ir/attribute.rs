@@ -85,14 +85,14 @@ mod test {
     #[test]
     fn attribute_literal() {
         let args: NestedMeta = syn::parse_quote!(C);
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))))
     }
 
     #[test]
     fn attribute_named() {
         let args: NestedMeta = syn::parse_quote!(int = "sized");
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(
             attr,
             Attribute::Named(
@@ -105,7 +105,7 @@ mod test {
     #[test]
     fn attribute_group() {
         let args: NestedMeta = syn::parse_quote!(C(int = "sized"));
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(
             attr,
             Attribute::Group(

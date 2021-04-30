@@ -1,5 +1,5 @@
-use crate::ir::{Attribute, Attributes, Constant, Function, Identifier};
-use std::convert::TryFrom;
+use crate::ir::{Attributes, Constant, Function, Identifier};
+use std::convert::{TryFrom, TryInto};
 use syn::ItemImpl;
 
 #[derive(Debug, PartialEq)]
@@ -26,12 +26,8 @@ impl TryFrom<syn::ImplItem> for ImplItem {
     type Error = &'static str;
     fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
         match impl_item {
-            syn::ImplItem::Const(impl_item_const) => {
-                Ok(Self::Constant(Constant::from(impl_item_const)))
-            }
-            syn::ImplItem::Method(impl_item_method) => {
-                Ok(Self::Method(Function::from(impl_item_method)))
-            }
+            syn::ImplItem::Const(impl_item_const) => Ok(Self::Constant(impl_item_const.into())),
+            syn::ImplItem::Method(impl_item_method) => Ok(Self::Method(impl_item_method.into())),
             _ => Err("Only Const and Method Impl items are currently supported"),
         }
     }
@@ -46,14 +42,14 @@ impl TryFrom<ItemImpl> for Impl {
                     attributes: item_impl
                         .attrs
                         .into_iter()
-                        .map(|x| Attribute::from(x.parse_meta().expect("Failed to parse Meta")))
+                        .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                         .collect(),
                 },
-                self_: Identifier::from(path.segments[0].ident.clone()),
+                self_: path.segments[0].ident.clone().into(),
                 items: item_impl
                     .items
                     .into_iter()
-                    .map(|x| ImplItem::try_from(x).expect("Failed to convert from ImplItem"))
+                    .map(|x| x.try_into().expect("Failed to convert from ImplItem"))
                     .collect(),
             })
         } else {
@@ -66,8 +62,8 @@ impl TryFrom<ItemImpl> for Impl {
 mod test {
     use std::convert::TryFrom;
 
-    use super::{Attribute, Attributes, Constant, Function, Identifier, Impl, ImplItem, ItemImpl};
-    use crate::ir::{Atomic, Integer, Literal, Type};
+    use super::{Attributes, Constant, Function, Identifier, Impl, ImplItem, ItemImpl};
+    use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
     use quote::quote;
     use syn::parse_quote::parse;
 

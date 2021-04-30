@@ -46,10 +46,8 @@ impl From<syn::Path> for Type {
         match path.clone() {
             syn::Path { segments, .. } => match segments[0].ident.clone().to_string().as_str() {
                 "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
-                | "i128" | "isize" | "f32" | "f64" | "bool" | "char" => {
-                    Self::Atomic(Atomic::from(path))
-                }
-                _ => Self::Compound(Identifier::from(segments[0].ident.clone())),
+                | "i128" | "isize" | "f32" | "f64" | "bool" | "char" => Self::Atomic(path.into()),
+                _ => Self::Compound(segments[0].ident.clone().into()),
             },
         }
     }
@@ -59,17 +57,17 @@ impl TryFrom<syn::Type> for Type {
     type Error = &'static str;
     fn try_from(syn_type: syn::Type) -> Result<Self, Self::Error> {
         match syn_type {
-            syn::Type::Path(TypePath { path, .. }) => Ok(Self::from(path)),
+            syn::Type::Path(TypePath { path, .. }) => Ok(path.into()),
             syn::Type::Reference(TypeReference {
                 elem, mutability, ..
             }) => {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
                         Some(_m) => Ok(Self::Reference(Reference::Borrow(Borrow::Mutable(
-                            Box::new(Type::from(path)),
+                            Box::new(path.into()),
                         )))),
                         None => Ok(Self::Reference(Reference::Borrow(Borrow::Constant(
-                            Box::new(Type::from(path)),
+                            Box::new(path.into()),
                         )))),
                     }
                 } else {
@@ -82,10 +80,10 @@ impl TryFrom<syn::Type> for Type {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
                         Some(_m) => Ok(Self::Reference(Reference::Pointer(Pointer::Mutable(
-                            Box::new(Type::from(path)),
+                            Box::new(path.into()),
                         )))),
                         None => Ok(Self::Reference(Reference::Pointer(Pointer::Constant(
-                            Box::new(Type::from(path)),
+                            Box::new(path.into()),
                         )))),
                     }
                 } else {
