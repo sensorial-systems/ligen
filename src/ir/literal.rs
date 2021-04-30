@@ -1,7 +1,9 @@
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{Ident, Lit};
 
 /// Literal Enum
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Literal {
     /// String variant
     String(String),
@@ -50,6 +52,37 @@ impl std::fmt::Display for Literal {
             Literal::UnsignedInteger(value) => write!(f, "{}", value),
             Literal::Float(value) => write!(f, "{}", value),
         }
+    }
+}
+
+impl ToTokens for Literal {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self.clone() {
+            Literal::String(x) => {
+                let y = proc_macro2::Literal::string(&x);
+                tokens.append_all(quote! {#y})
+            }
+            Literal::Bool(x) => {
+                let y = proc_macro2::Ident::new(&x.to_string(), proc_macro2::Span::call_site());
+                tokens.append_all(quote! {#y})
+            }
+            Literal::Char(x) => {
+                let y = proc_macro2::Literal::character(x);
+                tokens.append_all(quote! {#y})
+            }
+            Literal::Integer(x) => {
+                let y = proc_macro2::Literal::i64_unsuffixed(x);
+                tokens.append_all(quote! {#y})
+            }
+            Literal::UnsignedInteger(x) => {
+                let y = proc_macro2::Literal::u64_unsuffixed(x);
+                tokens.append_all(quote! {#y})
+            }
+            Literal::Float(x) => {
+                let y = proc_macro2::Literal::f64_unsuffixed(x);
+                tokens.append_all(quote! {#y})
+            }
+        };
     }
 }
 

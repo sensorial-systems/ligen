@@ -4,7 +4,7 @@ use crate::prelude::*;
 use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path};
 
 /// Attribute Enum
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Attribute {
     /// Literal Variant
     Literal(Literal),
@@ -14,7 +14,7 @@ pub enum Attribute {
     Group(Identifier, Attributes),
 }
 
-#[derive(Shrinkwrap, Default, Debug, PartialEq)]
+#[derive(Shrinkwrap, Default, Debug, PartialEq, Clone)]
 #[shrinkwrap(mutable)]
 /// Attributes Struct
 pub struct Attributes {
