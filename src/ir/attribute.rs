@@ -1,8 +1,6 @@
-use crate::prelude::*;
-
 use crate::ir::Identifier;
 use crate::ir::Literal;
-
+use crate::prelude::*;
 use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path};
 
 /// Attribute Enum
@@ -87,14 +85,14 @@ mod test {
     #[test]
     fn attribute_literal() {
         let args: NestedMeta = syn::parse_quote!(C);
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))))
     }
 
     #[test]
     fn attribute_named() {
         let args: NestedMeta = syn::parse_quote!(int = "sized");
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(
             attr,
             Attribute::Named(
@@ -107,7 +105,7 @@ mod test {
     #[test]
     fn attribute_group() {
         let args: NestedMeta = syn::parse_quote!(C(int = "sized"));
-        let attr = Attribute::from(args);
+        let attr: Attribute = args.into();
         assert_eq!(
             attr,
             Attribute::Group(

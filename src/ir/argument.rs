@@ -1,31 +1,36 @@
 use crate::ir::{Borrow, Identifier, Reference, Type};
+use std::convert::TryFrom;
 use syn::FnArg;
 
 #[derive(Debug, PartialEq)]
 /// Argument Struct
 pub struct Argument {
+    /// identifier field
     pub identifier: Identifier,
+    /// type_ field
     pub type_: Type,
 }
 
-impl From<FnArg> for Argument {
-    fn from(fn_arg: FnArg) -> Self {
+impl TryFrom<FnArg> for Argument {
+    type Error = &'static str;
+
+    fn try_from(fn_arg: FnArg) -> Result<Self, Self::Error> {
         match fn_arg {
             FnArg::Typed(syn::PatType { pat, ty, .. }) => {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
-                    Self {
-                        identifier: Identifier::from(ident),
-                        type_: Type::from(*ty),
-                    }
+                    Ok(Self {
+                        identifier: ident.into(),
+                        type_: Type::try_from(*ty).expect("Failed to convert from Type"),
+                    })
                 } else {
-                    panic!("Identifier not found");
+                    Err("Identifier not found")
                 }
             }
             FnArg::Receiver(syn::Receiver {
                 reference,
                 mutability,
                 ..
-            }) => Self {
+            }) => Ok(Self {
                 identifier: Identifier {
                     name: String::from("self"),
                 },
@@ -46,12 +51,14 @@ impl From<FnArg> for Argument {
                     }),
                     (None, Some(_y)) => panic!("Non-Reference Mutable Self"),
                 },
-            },
+            }),
         }
     }
 }
 #[cfg(test)]
 mod test {
+
+    use std::convert::TryFrom;
 
     use super::Argument;
     use crate::ir::{Atomic, Borrow, Identifier, Integer, Pointer, Reference, Type};
@@ -61,7 +68,7 @@ mod test {
     #[test]
     fn argument_atomic() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {integer: i32})),
+            Argument::try_from(parse::<FnArg>(quote! {integer: i32})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("integer")
@@ -74,7 +81,7 @@ mod test {
     #[test]
     fn argument_compound() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {name: String})),
+            Argument::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("name")
@@ -89,7 +96,7 @@ mod test {
     #[test]
     fn argument_borrow_constant() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {name: &String})),
+            Argument::try_from(parse::<FnArg>(quote! {name: &String})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("name")
@@ -106,7 +113,7 @@ mod test {
     #[test]
     fn argument_borrow_mutable() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {name: &mut String})),
+            Argument::try_from(parse::<FnArg>(quote! {name: &mut String})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("name")
@@ -123,7 +130,8 @@ mod test {
     #[test]
     fn argument_pointer_constant() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {name: *const String})),
+            Argument::try_from(parse::<FnArg>(quote! {name: *const String}))
+                .expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("name")
@@ -140,7 +148,7 @@ mod test {
     #[test]
     fn argument_pointer_mutable() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {name: *mut String})),
+            Argument::try_from(parse::<FnArg>(quote! {name: *mut String})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("name")
@@ -157,7 +165,7 @@ mod test {
     #[test]
     fn argument_receiver() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {self})),
+            Argument::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("self")
@@ -172,7 +180,7 @@ mod test {
     #[test]
     fn argument_receiver_reference() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {&self})),
+            Argument::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("self")
@@ -189,7 +197,7 @@ mod test {
     #[test]
     fn argument_receiver_mutable() {
         assert_eq!(
-            Argument::from(parse::<FnArg>(quote! {&mut self})),
+            Argument::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
             Argument {
                 identifier: Identifier {
                     name: String::from("self")

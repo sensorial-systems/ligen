@@ -1,4 +1,5 @@
-use crate::ir::{Attribute, Attributes, Constant, Function, Identifier};
+use crate::ir::{Attributes, Constant, Function, Identifier};
+use std::convert::{TryFrom, TryInto};
 use syn::ItemImpl;
 
 #[derive(Debug, PartialEq)]
@@ -21,55 +22,56 @@ pub enum ImplItem {
     Method(Function),
 }
 
-impl From<syn::ImplItem> for ImplItem {
-    fn from(impl_item: syn::ImplItem) -> Self {
+impl TryFrom<syn::ImplItem> for ImplItem {
+    type Error = &'static str;
+    fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
         match impl_item {
-            syn::ImplItem::Const(impl_item_const) => {
-                Self::Constant(Constant::from(impl_item_const))
-            }
-            syn::ImplItem::Method(impl_item_method) => {
-                Self::Method(Function::from(impl_item_method))
-            }
-            _ => panic!("Only Const and Method Impl items are currently supported"),
+            syn::ImplItem::Const(impl_item_const) => Ok(Self::Constant(impl_item_const.into())),
+            syn::ImplItem::Method(impl_item_method) => Ok(Self::Method(impl_item_method.into())),
+            _ => Err("Only Const and Method Impl items are currently supported"),
         }
     }
 }
 
-impl From<ItemImpl> for Impl {
-    fn from(item_impl: ItemImpl) -> Self {
+impl TryFrom<ItemImpl> for Impl {
+    type Error = &'static str;
+    fn try_from(item_impl: ItemImpl) -> Result<Self, Self::Error> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = *item_impl.self_ty {
-            Self {
+            Ok(Self {
                 attributes: Attributes {
                     attributes: item_impl
                         .attrs
                         .into_iter()
-                        .map(|x| Attribute::from(x.parse_meta().expect("Failed to parse Meta")))
+                        .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                         .collect(),
                 },
-                self_: Identifier::from(path.segments[0].ident.clone()),
+                self_: path.segments[0].ident.clone().into(),
                 items: item_impl
                     .items
                     .into_iter()
-                    .map(|x| ImplItem::from(x))
+                    .map(|x| x.try_into().expect("Failed to convert from ImplItem"))
                     .collect(),
-            }
+            })
         } else {
-            panic!("Impl Block Identifier not found")
+            Err("Impl Block Identifier not found")
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::{Attribute, Attributes, Constant, Function, Identifier, Impl, ImplItem, ItemImpl};
-    use crate::ir::{Atomic, Integer, Literal, Type};
+    use std::convert::TryFrom;
+
+    use super::{Attributes, Constant, Function, Identifier, Impl, ImplItem, ItemImpl};
+    use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
     use quote::quote;
     use syn::parse_quote::parse;
 
     #[test]
     fn impl_block() {
         assert_eq!(
-            Impl::from(parse::<ItemImpl>(quote! {impl Test {}})),
+            Impl::try_from(parse::<ItemImpl>(quote! {impl Test {}}))
+                .expect("Failed to convert from ItemImpl"),
             Impl {
                 attributes: Attributes { attributes: vec![] },
                 self_: Identifier {
@@ -83,10 +85,11 @@ mod test {
     #[test]
     fn impl_block_attributes() {
         assert_eq!(
-            Impl::from(parse::<ItemImpl>(quote! {
+            Impl::try_from(parse::<ItemImpl>(quote! {
                 #[test(a = "b")]
                 impl Test {}
-            })),
+            }))
+            .expect("Failed to convert from ItemImpl"),
             Impl {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -110,11 +113,12 @@ mod test {
     #[test]
     fn impl_block_items_const() {
         assert_eq!(
-            Impl::from(parse::<ItemImpl>(quote! {
+            Impl::try_from(parse::<ItemImpl>(quote! {
                 impl Test {
                     const a: i32 = 2;
                 }
-            })),
+            }))
+            .expect("Failed to convert from ItemImpl"),
             Impl {
                 attributes: Attributes { attributes: vec![] },
                 self_: Identifier {
@@ -134,11 +138,12 @@ mod test {
     #[test]
     fn impl_block_items_method() {
         assert_eq!(
-            Impl::from(parse::<ItemImpl>(quote! {
+            Impl::try_from(parse::<ItemImpl>(quote! {
                 impl Test {
                     fn a(){}
                 }
-            })),
+            }))
+            .expect("Failed to convert from ItemImpl"),
             Impl {
                 attributes: Attributes { attributes: vec![] },
                 self_: Identifier {
@@ -160,12 +165,13 @@ mod test {
     #[test]
     fn impl_block_items() {
         assert_eq!(
-            Impl::from(parse::<ItemImpl>(quote! {
+            Impl::try_from(parse::<ItemImpl>(quote! {
                 impl Test {
                     const a: i32 = 2;
                     fn b(){}
                 }
-            })),
+            }))
+            .expect("Failed to convert from ItemImpl"),
             Impl {
                 attributes: Attributes { attributes: vec![] },
                 self_: Identifier {

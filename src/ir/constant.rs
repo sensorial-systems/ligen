@@ -1,4 +1,5 @@
 use crate::ir::{Identifier, Literal, Type};
+use std::convert::TryFrom;
 use syn::{ImplItemConst, ItemConst};
 
 #[derive(Debug, PartialEq)]
@@ -17,7 +18,7 @@ impl From<ImplItemConst> for Constant {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             Self {
                 identifier: Identifier::from(item_const.ident.clone()),
-                type_: Type::from(item_const.ty),
+                type_: Type::try_from(item_const.ty).expect("Failed to convert from Type"),
                 literal: Literal::from(lit),
             }
         } else {
@@ -31,7 +32,7 @@ impl From<ItemConst> for Constant {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Self {
                 identifier: Identifier::from(item_const.ident.clone()),
-                type_: Type::from(*item_const.ty),
+                type_: Type::try_from(*item_const.ty).expect("Failed to convert from Type"),
                 literal: Literal::from(lit),
             }
         } else {
