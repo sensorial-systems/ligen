@@ -11,44 +11,25 @@
 
 pub mod ir;
 mod prelude;
+pub mod utils;
 
-use std::convert::TryFrom;
-
-use crate::ir::{Attribute, Attributes};
-use ir::Identifier;
+use crate::ir::Attributes;
 use proc_macro2::TokenStream;
 use quote::{quote, TokenStreamExt};
-use syn::AttributeArgs;
+use syn::parse2;
+
 /// `ligen` entry-point called by `#[ligen]`.
-pub fn ligen(args: AttributeArgs, item: TokenStream) -> TokenStream {
-    let args = Attributes::try_from(args).expect("Failed to parse AttributeArgs");
+pub fn ligen(args: TokenStream, item: TokenStream) -> TokenStream {
+    let args = parse2::<Attributes>(args).expect("Failed to parse Attributes");
 
-    let mut stream: TokenStream = TokenStream::new();
+    let mut stream = TokenStream::new();
 
-    args.attributes.into_iter().for_each(|x| match x {
-        Attribute::Literal(lit) => {
-            let id = Identifier {
-                name: String::from(format!("ligen_{}", lit)),
-            };
-            stream.append_all(quote! {#[#id]})
-        }
-        Attribute::Group(ident, group) => group.attributes.into_iter().for_each(|x| match x {
-            Attribute::Literal(lit) => {
-                let id = Identifier {
-                    name: String::from(format!("ligen_{}", ident.name)),
-                };
-                stream.append_all(quote! {#[#id(#lit)]})
-            }
-            Attribute::Named(ident2, lit) => {
-                let id = Identifier {
-                    name: String::from(format!("ligen_{}", ident.name)),
-                };
-                stream.append_all(quote! {#[#id(#ident2 = #lit)]})
-            }
-            _ => panic!("panic"),
-        }),
-        _ => panic!("panic2"),
-    });
+    let macro_attributes = args
+        .attributes
+        .iter()
+        .map(|attribute| attribute.to_ligen_macro());
+
+    macro_attributes.for_each(|macro_attribute| stream.append_all(quote! { #macro_attribute }));
 
     println!("stream: {:#?}", stream);
 
@@ -60,14 +41,19 @@ pub fn ligen(args: AttributeArgs, item: TokenStream) -> TokenStream {
 
 #[cfg(test)]
 mod test {
+    use super::ligen;
     use quote::quote;
-    use std::convert::TryInto;
-    use syn::parse_quote::parse;
 
-    // #[test]
-    //fn ligen() {
-    //     parse::<syn::Type>(quote! {#[ligen()]})
-    //        .try_into()
-    //        .expect("Failed to convert from syn::Type")
-    // }
+    #[test]
+    fn ligen_main() {
+        assert_eq!(
+            quote! {
+                #[ligen_c(int = "sized")]
+                #[ligen_python]
+                struct Test;
+            }
+            .to_string(),
+            ligen(quote! {c(int = "sized"), python}, quote! {struct Test;}).to_string()
+        );
+    }
 }
