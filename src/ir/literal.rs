@@ -80,11 +80,11 @@ mod test {
 
     #[test]
     fn literal_byte() {
-        let tokenstream = quote! { b'2' };
+        let tokenstream = quote! { b'A' };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = lit.into();
         if let Literal::UnsignedInteger(value) = literal {
-            assert_eq!(value, 50);
+            assert_eq!(value, b'A' as u64);
         }
     }
 
@@ -120,34 +120,31 @@ mod test {
 
     #[test]
     fn literal_integer() {
-        let integer: i64 = 2;
         let tokenstream = quote! { 2 };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = lit.into();
         if let Literal::Integer(value) = literal {
-            assert_eq!(value, integer);
+            assert_eq!(value, 2);
         }
     }
 
     #[test]
     fn literal_unsigned_integer() {
-        let unsigned_integer: u64 = 2;
         let tokenstream = quote! { 2 };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = lit.into();
         if let Literal::UnsignedInteger(value) = literal {
-            assert_eq!(value, unsigned_integer);
+            assert_eq!(value, 2);
         }
     }
 
     #[test]
     fn literal_float() {
-        let float: f64 = 2.0;
         let tokenstream = quote! { 2.0 };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = lit.into();
         if let Literal::Float(value) = literal {
-            assert_eq!(value, float);
+            assert_eq!(value, 2.0);
         }
     }
 }
