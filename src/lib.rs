@@ -9,11 +9,9 @@
 #![warn(unused_import_braces)]
 #![warn(unused_qualifications)]
 
-pub mod ir;
 mod prelude;
+mod proc_macro;
 
-use proc_macro2::TokenStream;
-/// `ligen` entry-point called by `#[ligen]`.
-pub fn ligen(_args: TokenStream, input: TokenStream) -> TokenStream {
-    input
-}
+pub mod ir;
+
+pub use proc_macro::ligen;

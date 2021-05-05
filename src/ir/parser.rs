@@ -69,9 +69,24 @@ mod test {
                 }
             }
         };
+
+        let expected = quote! {
+            #[ligen_C]
+            #[ligen_CPP]
+            impl Object {
+                fn private_fn() -> Self {
+                    Self {}
+                }
+
+                pub fn new() -> Object {
+                    Self {}
+                }
+            }
+        };
+
         let (attributes, item) = extract_impl_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
         let token_stream = ligen(attributes, item);
-        assert_eq!(token_stream.to_string(), "impl Object { fn private_fn () -> Self { Self { } } pub fn new () -> Object { Self { } } }");
+        assert_eq!(token_stream.to_string(), expected.to_string());
     }
 }
