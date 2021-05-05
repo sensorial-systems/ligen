@@ -8,7 +8,6 @@ mod function;
 mod identifier;
 mod implementation;
 mod literal;
-mod parser;
 mod types;
 
 pub use argument::*;
@@ -19,5 +18,4 @@ pub use function::*;
 pub use identifier::*;
 pub use implementation::*;
 pub use literal::*;
-pub use parser::*;
 pub use types::*;

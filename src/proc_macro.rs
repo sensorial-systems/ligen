@@ -58,19 +58,85 @@ pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
 
 #[cfg(test)]
 mod test {
-    use super::ligen;
     use quote::quote;
 
+    use crate::ligen;
+    use proc_macro2::TokenStream;
+    use quote::*;
+    use syn::parse_quote::parse;
+
+    fn extract_struct_attributes_and_item(
+        item_impl: &TokenStream,
+    ) -> Result<(TokenStream, TokenStream), &'static str> {
+        let mut item: syn::ItemStruct = parse(item_impl.clone());
+        let ligen_attribute = item
+            .attrs
+            .iter()
+            .find(|attr| attr.path.to_token_stream().to_string() == "ligen")
+            .expect("Couldn't find ligen");
+        let meta = ligen_attribute.parse_meta().expect("Couldn't parse Meta");
+        if let syn::Meta::List(ref meta_list) = meta {
+            item.attrs.clear();
+            Ok((meta_list.nested.to_token_stream(), item.to_token_stream()))
+        } else {
+            Err("Couldn't find attribute.")
+        }
+    }
+
+    fn extract_impl_attributes_and_item(
+        item_impl: &TokenStream,
+    ) -> Result<(TokenStream, TokenStream), &'static str> {
+        let mut item: syn::ItemImpl = parse(item_impl.clone());
+        let ligen_attribute = item
+            .attrs
+            .iter()
+            .find(|attr| attr.path.to_token_stream().to_string() == "ligen")
+            .expect("Couldn't find ligen");
+        let meta = ligen_attribute.parse_meta().expect("Couldn't parse Meta");
+        if let syn::Meta::List(ref meta_list) = meta {
+            item.attrs.clear();
+            Ok((meta_list.nested.to_token_stream(), item.to_token_stream()))
+        } else {
+            Err("Couldn't find attribute.")
+        }
+    }
+
     #[test]
-    fn ligen_main() {
-        assert_eq!(
-            quote! {
-                #[ligen_c(int = "sized")]
-                #[ligen_python]
-                struct Test;
-            }
-                .to_string(),
-            ligen(quote! {c(int = "sized"), python}, quote! {struct Test;}).to_string()
-        );
+    fn item_struct() {
+        let input = quote! {
+            #[ligen(c, cpp)]
+            struct Object {}
+        };
+
+        let expected = quote! {
+            #[ligen_c]
+            #[ligen_cpp]
+            struct Object {}
+        };
+
+
+        let (attributes, item) = extract_struct_attributes_and_item(&input)
+            .expect("Couldn't extract attributes and item.");
+        let token_stream = ligen(attributes, item);
+        assert_eq!(token_stream.to_string(), expected.to_string());
+    }
+
+    #[test]
+    fn item_impl() {
+        let input = quote! {
+            #[ligen(c(integer = "sized"), cpp(float = "sized"))]
+            impl Object {}
+        };
+
+        let expected = quote! {
+            #[ligen_c(integer = "sized")]
+            #[ligen_cpp(float = "sized")]
+            impl Object {}
+        };
+
+        let (attributes, item) = extract_impl_attributes_and_item(&input)
+            .expect("Couldn't extract attributes and item.");
+        let token_stream = ligen(attributes, item);
+        assert_eq!(token_stream.to_string(), expected.to_string());
     }
 }
