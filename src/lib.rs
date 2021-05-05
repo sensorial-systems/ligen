@@ -31,8 +31,6 @@ pub fn ligen(args: TokenStream, item: TokenStream) -> TokenStream {
 
     macro_attributes.for_each(|macro_attribute| stream.append_all(quote! { #macro_attribute }));
 
-    println!("stream: {:#?}", stream);
-
     quote! {
         #stream
         #item
