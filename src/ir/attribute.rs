@@ -3,7 +3,10 @@ use crate::ir::Literal;
 use crate::prelude::*;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path};
+use syn::{
+    AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Result, Token,
+    parse::{Parse, ParseStream},
+};
 
 /// Attribute Enum
 #[derive(Debug, PartialEq, Clone)]
@@ -116,10 +119,28 @@ impl ToTokens for Attribute {
     }
 }
 
+impl Parse for Attributes {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let mut metas: Vec<NestedMeta> = Vec::new();
+
+        while !input.is_empty() {
+            let value = input.parse()?;
+            metas.push(value);
+            if input.is_empty() {
+                break;
+            }
+            input.parse::<Token![,]>()?;
+        }
+        Ok(Attributes::from(metas))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::ir::{Attribute, Attributes, Identifier, Literal};
-    use syn::NestedMeta;
+    use syn::{NestedMeta, parse2};
+    use quote::quote;
+
 
     #[test]
     fn attribute_literal() {
@@ -157,5 +178,23 @@ mod test {
                 }
             )
         )
+    }
+
+    #[test]
+    fn parse_attributes() {
+        assert_eq!(
+            Attributes {
+                attributes: vec![Attribute::Group(
+                    Identifier::new("c"),
+                    Attributes {
+                        attributes: vec![Attribute::Named(
+                            Identifier::new("int"),
+                            Literal::String(String::from("sized"))
+                        )]
+                    }
+                )]
+            },
+            parse2::<Attributes>(quote! {c(int = "sized")}).expect("Failed to parse Attributes")
+        );
     }
 }
