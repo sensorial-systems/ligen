@@ -4,14 +4,14 @@ use syn::FnArg;
 
 #[derive(Debug, PartialEq)]
 /// Argument Struct
-pub struct Argument {
+pub struct Parameter {
     /// identifier field
     pub identifier: Identifier,
     /// type_ field
     pub type_: Type,
 }
 
-impl TryFrom<FnArg> for Argument {
+impl TryFrom<FnArg> for Parameter {
     type Error = &'static str;
 
     fn try_from(fn_arg: FnArg) -> Result<Self, Self::Error> {
@@ -60,7 +60,7 @@ mod test {
 
     use std::convert::TryFrom;
 
-    use super::Argument;
+    use super::Parameter;
     use crate::ir::{Atomic, Borrow, Identifier, Integer, Pointer, Reference, Type};
     use quote::quote;
     use syn::{parse_quote::parse, FnArg};
@@ -68,8 +68,8 @@ mod test {
     #[test]
     fn argument_atomic() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {integer: i32})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {integer: i32})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("integer")
                 },
@@ -81,8 +81,8 @@ mod test {
     #[test]
     fn argument_compound() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("name")
                 },
@@ -96,8 +96,8 @@ mod test {
     #[test]
     fn argument_borrow_constant() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {name: &String})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {name: &String})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("name")
                 },
@@ -113,8 +113,9 @@ mod test {
     #[test]
     fn argument_borrow_mutable() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {name: &mut String})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {name: &mut String}))
+                .expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("name")
                 },
@@ -130,9 +131,9 @@ mod test {
     #[test]
     fn argument_pointer_constant() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {name: *const String}))
+            Parameter::try_from(parse::<FnArg>(quote! {name: *const String}))
                 .expect("Returned Error"),
-            Argument {
+            Parameter {
                 identifier: Identifier {
                     name: String::from("name")
                 },
@@ -148,8 +149,9 @@ mod test {
     #[test]
     fn argument_pointer_mutable() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {name: *mut String})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {name: *mut String}))
+                .expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("name")
                 },
@@ -165,8 +167,8 @@ mod test {
     #[test]
     fn argument_receiver() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("self")
                 },
@@ -180,8 +182,8 @@ mod test {
     #[test]
     fn argument_receiver_reference() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("self")
                 },
@@ -197,8 +199,8 @@ mod test {
     #[test]
     fn argument_receiver_mutable() {
         assert_eq!(
-            Argument::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
-            Argument {
+            Parameter::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
+            Parameter {
                 identifier: Identifier {
                     name: String::from("self")
                 },

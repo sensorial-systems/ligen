@@ -1,4 +1,4 @@
-use crate::ir::{Argument, Attributes, Identifier, Type};
+use crate::ir::{Attributes, Identifier, Parameter, Type};
 use std::convert::{TryFrom, TryInto};
 use syn::{ImplItemMethod, ItemFn};
 
@@ -16,7 +16,7 @@ pub struct Function {
     /// identifier field
     pub identifier: Identifier,
     /// input field
-    pub input: Vec<Argument>,
+    pub input: Vec<Parameter>,
     /// output field
     pub output: Option<Type>,
 }
@@ -32,10 +32,10 @@ macro_rules! impl_function {
                     output,
                     ..
                 } = item_fn.sig;
-                let input: Vec<Argument> = inputs
+                let input: Vec<Parameter> = inputs
                     .clone()
                     .into_iter()
-                    .map(|x| x.try_into().expect("Failed to convert Argument"))
+                    .map(|x| x.try_into().expect("Failed to convert Parameter"))
                     .collect();
                 let output: Option<Type> = match output {
                     syn::ReturnType::Default => None,
@@ -70,7 +70,7 @@ impl_function!(ImplItemMethod);
 #[cfg(test)]
 mod test {
     use super::{Async, Function, ImplItemMethod, ItemFn, Type};
-    use crate::ir::{Argument, Attribute, Attributes, Borrow, Identifier, Literal, Reference};
+    use crate::ir::{Attribute, Attributes, Borrow, Identifier, Literal, Parameter, Reference};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -117,7 +117,7 @@ mod test {
                     name: String::from("test")
                 },
                 input: vec![
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("a")
                         },
@@ -125,7 +125,7 @@ mod test {
                             name: String::from("String")
                         })
                     },
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("b")
                         },
@@ -170,7 +170,7 @@ mod test {
                     name: String::from("test")
                 },
                 input: vec![
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("a")
                         },
@@ -178,7 +178,7 @@ mod test {
                             name: String::from("String")
                         })
                     },
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("b")
                         },
@@ -188,7 +188,7 @@ mod test {
                             })
                         ))))
                     },
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("c")
                         },
@@ -277,7 +277,7 @@ mod test {
                     name: String::from("test")
                 },
                 input: vec![
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("a")
                         },
@@ -285,7 +285,7 @@ mod test {
                             name: String::from("String")
                         })
                     },
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("b")
                         },
@@ -295,7 +295,7 @@ mod test {
                             })
                         ))))
                     },
-                    Argument {
+                    Parameter {
                         identifier: Identifier {
                             name: String::from("c")
                         },
