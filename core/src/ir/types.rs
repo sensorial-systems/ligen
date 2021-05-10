@@ -1,9 +1,14 @@
 use crate::ir::Atomic;
 use crate::ir::Identifier;
-use std::convert::TryFrom;
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
+use std::{
+    convert::TryFrom,
+    fmt::{self, Display},
+};
 use syn::{TypePath, TypePtr, TypeReference};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Type Enum
 pub enum Type {
     /// Atomic variant
@@ -14,7 +19,7 @@ pub enum Type {
     Reference(Reference),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Reference Enum
 pub enum Reference {
     /// Borrow variant
@@ -23,7 +28,7 @@ pub enum Reference {
     Pointer(Pointer),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Borrow Enum
 pub enum Borrow {
     /// Constant variant
@@ -32,7 +37,7 @@ pub enum Borrow {
     Mutable(Box<Type>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Pointer Enum
 pub enum Pointer {
     /// Constant variant
@@ -92,6 +97,41 @@ impl TryFrom<syn::Type> for Type {
             }
 
             _ => Err("Only Path, Reference and Ptr Types are currently supported"),
+        }
+    }
+}
+
+impl ToTokens for Type {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match &self {
+            Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
+            Type::Compound(compound) => tokens.append_all(compound.to_token_stream()),
+            Type::Reference(reference) => match reference {
+                Reference::Borrow(borrow) => match borrow {
+                    Borrow::Constant(constant) => {
+                        let typ = &**constant;
+                        let type_tokens = typ.to_token_stream();
+                        tokens.append_all(quote! {&#type_tokens});
+                    }
+                    Borrow::Mutable(mutable) => {
+                        let typ = &**mutable;
+                        let type_tokens = typ.to_token_stream();
+                        tokens.append_all(quote! {&mut #type_tokens});
+                    }
+                },
+                Reference::Pointer(pointer) => match pointer {
+                    Pointer::Constant(constant) => {
+                        let typ = &**constant;
+                        let type_tokens = typ.to_token_stream();
+                        tokens.append_all(quote! {&#type_tokens});
+                    }
+                    Pointer::Mutable(mutable) => {
+                        let typ = &**mutable;
+                        let type_tokens = typ.to_token_stream();
+                        tokens.append_all(quote! {&mut #type_tokens});
+                    }
+                },
+            },
         }
     }
 }

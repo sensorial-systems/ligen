@@ -1,8 +1,8 @@
 use crate::ir::Attributes;
+use crate::ir::{Attribute, Identifier, Literal};
 use proc_macro2::TokenStream;
 use quote::{quote, TokenStreamExt};
 use syn::parse2;
-use crate::ir::{Attribute, Identifier, Literal};
 
 const PREFIX: &'static str = "ligen_";
 
@@ -12,14 +12,9 @@ pub fn ligen(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let mut attributes = TokenStream::new();
 
-    let macro_attributes = args
-        .attributes
-        .into_iter()
-        .map(to_ligen_macro);
+    let macro_attributes = args.attributes.into_iter().map(to_ligen_macro);
 
-    macro_attributes.for_each(|macro_attribute|
-        attributes.append_all(quote! { #macro_attribute })
-    );
+    macro_attributes.for_each(|macro_attribute| attributes.append_all(quote! { #macro_attribute }));
 
     let tokenstream = quote! {
         #attributes
@@ -54,7 +49,6 @@ pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
         ),
     }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -113,7 +107,6 @@ mod test {
             #[ligen_cpp]
             struct Object {}
         };
-
 
         let (attributes, item) = extract_struct_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");

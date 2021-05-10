@@ -1,5 +1,9 @@
-use proc_macro2::Ident;
-use std::convert::TryFrom;
+use proc_macro2::{Ident, TokenStream};
+use quote::{quote, ToTokens, TokenStreamExt};
+use std::{
+    convert::TryFrom,
+    fmt::{self, Display},
+};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Integer Enum
@@ -83,6 +87,39 @@ impl From<syn::Path> for Atomic {
             syn::Path { segments, .. } => {
                 Self::try_from(segments[0].ident.clone()).expect("Failed to convert from Ident")
             }
+        }
+    }
+}
+
+impl ToTokens for Atomic {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match &self {
+            Atomic::Integer(integer) => {
+                let typ = match integer {
+                    Integer::U8 => quote! {u8},
+                    Integer::U16 => quote! {u16},
+                    Integer::U32 => quote! {u32},
+                    Integer::U64 => quote! {u64},
+                    Integer::U128 => quote! {u128},
+                    Integer::USize => quote! {usize},
+                    Integer::I8 => quote! {i8},
+                    Integer::I16 => quote! {i16},
+                    Integer::I32 => quote! {i32},
+                    Integer::I64 => quote! {i64},
+                    Integer::I128 => quote! {i128},
+                    Integer::ISize => quote! {isize},
+                };
+                tokens.append_all(quote! {#typ})
+            }
+            Atomic::Float(float) => {
+                let typ = match float {
+                    Float::F32 => quote! {f32},
+                    Float::F64 => quote! {f64},
+                };
+                tokens.append_all(quote! {#typ})
+            }
+            Atomic::Boolean => tokens.append_all(quote! {bool}),
+            Atomic::Character => tokens.append_all(quote! {char}),
         }
     }
 }
