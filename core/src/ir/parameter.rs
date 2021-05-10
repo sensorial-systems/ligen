@@ -1,4 +1,6 @@
 use crate::ir::{Borrow, Identifier, Reference, Type};
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
 use syn::FnArg;
 
@@ -55,6 +57,15 @@ impl TryFrom<FnArg> for Parameter {
         }
     }
 }
+
+impl ToTokens for Parameter {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ident = self.identifier.to_token_stream();
+        let typ = self.type_.to_token_stream();
+        tokens.append_all(quote! {#ident: #typ})
+    }
+}
+
 #[cfg(test)]
 mod test {
 
