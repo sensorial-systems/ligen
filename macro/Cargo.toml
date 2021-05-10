@@ -1,6 +1,6 @@
 [package]
 name    = "ligen"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Danilo Guanabara Fernandes"]
 edition = "2018"
 
