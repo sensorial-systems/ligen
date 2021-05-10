@@ -1,16 +1,2 @@
-[package]
-name        = "ligen-core"
-version     = "0.1.2"
-authors     = ["Danilo Guanabara <danguafer@gmail.com>"]
-edition     = "2018"
-description = "Language Interface Generator Core"
-license     = "Apache-2.0"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-proc-macro2 = "1.0.26"
-syn          = { version = "1.0.69", features = [ "full" ] }
-quote       = "1.0.9"
-libloading  = "0.7.0"
-shrinkwraprs = "0.3.0"
+[workspace]
+members = ["core", "macro"]
