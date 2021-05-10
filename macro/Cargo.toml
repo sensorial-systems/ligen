@@ -1,14 +1,15 @@
 [package]
-name        = "ligen"
-version     = "0.1.6"
-authors     = ["Danilo Guanabara <danguafer@gmail.com>"]
-edition     = "2018"
-description = "Language Interface Generator Core"
-license     = "Apache-2.0"
+name          = "ligen"
+version       = "0.1.7"
+authors       = ["Danilo Guanabara <danguafer@gmail.com>"]
+edition       = "2018"
+description   = "Language Interface Generator Core"
+license       = "Apache-2.0"
+documentation = "https://docs.rs/ligen"
 
 [lib]
 proc-macro = true
 
 [dependencies]
 proc-macro2 = "1.0.24"
-ligen-core  = { version = "0", path = "../core" }
+ligen-core  = { version = "0.1.7", path = "../core" }
