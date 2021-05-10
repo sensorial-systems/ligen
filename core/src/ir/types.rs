@@ -2,10 +2,7 @@ use crate::ir::Atomic;
 use crate::ir::Identifier;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use std::{
-    convert::TryFrom,
-    fmt::{self, Display},
-};
+use std::convert::TryFrom;
 use syn::{TypePath, TypePtr, TypeReference};
 
 #[derive(Debug, PartialEq, Clone)]

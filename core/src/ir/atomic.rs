@@ -1,9 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
-use std::{
-    convert::TryFrom,
-    fmt::{self, Display},
-};
+use std::convert::TryFrom;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// Integer Enum
