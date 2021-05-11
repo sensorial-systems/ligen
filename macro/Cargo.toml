@@ -12,4 +12,10 @@ proc-macro = true
 
 [dependencies]
 proc-macro2 = "1.0.24"
-ligen-core  = { version = "0.1.7", path = "../core" }
+ligen-core  = version = "0.1.7"
+
+[patch.crates-io]
+ligen-core = { git = "https://github.com/sensorial-systems/ligen/", branch = "main" }
+
+[patch."https://github.com/sensorial-systems/ligen/"]
+ligen-core = { path = "../core" }
