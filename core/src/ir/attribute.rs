@@ -1,14 +1,10 @@
-use std::convert::TryFrom;
-
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{
-    parse::{Parse, ParseStream},
-    parse2, AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Result, Token,
-};
+use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Token, parse::{Parse, ParseStream}, parse2};
+use std::convert::TryFrom;
 
 /// Attribute Enum
 #[derive(Debug, PartialEq, Clone)]
@@ -27,6 +23,13 @@ pub enum Attribute {
 pub struct Attributes {
     /// attributes field
     pub attributes: Vec<Attribute>,
+}
+
+impl TryFrom<TokenStream> for Attributes {
+    type Error = &'static str;
+    fn try_from(tokenstream: TokenStream) -> Result<Self, Self::Error> {
+        parse2::<Attributes>(tokenstream).map_err(|_| "Failed to parse Attributes")
+    }
 }
 
 impl From<AttributeArgs> for Attributes {
@@ -122,7 +125,7 @@ impl ToTokens for Attribute {
 }
 
 impl Parse for Attributes {
-    fn parse(input: ParseStream) -> Result<Self> {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut metas: Vec<NestedMeta> = Vec::new();
 
         while !input.is_empty() {
@@ -137,18 +140,12 @@ impl Parse for Attributes {
     }
 }
 
-impl TryFrom<TokenStream> for Attributes {
-    type Error = syn::Error;
-    fn try_from(stream: TokenStream) -> Result<Self> {
-        parse2::<Attributes>(stream)
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::ir::{Attribute, Attributes, Identifier, Literal};
+    use syn::{NestedMeta, parse2};
     use quote::quote;
-    use syn::{parse2, NestedMeta};
+
 
     #[test]
     fn attribute_literal() {

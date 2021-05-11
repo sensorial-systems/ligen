@@ -1,7 +1,7 @@
 use crate::ir::{Attributes, Constant, Function, Identifier};
-use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
-use syn::{parse2, ItemImpl};
+use syn::{ItemImpl, parse2};
+use proc_macro2::TokenStream;
 
 #[derive(Debug, PartialEq)]
 /// Function Struct
@@ -21,6 +21,15 @@ pub enum ImplementationItem {
     Constant(Constant),
     /// Method variant
     Method(Function),
+}
+
+impl TryFrom<TokenStream> for Implementation {
+    type Error = &'static str;
+    fn try_from(tokenstream: TokenStream) -> Result<Self, Self::Error> {
+        parse2::<ItemImpl>(tokenstream)
+            .map_err(|_| "Failed to parse to Implementation.")
+            .and_then(|item| item.try_into())
+    }
 }
 
 impl TryFrom<syn::ImplItem> for ImplementationItem {
@@ -59,23 +68,11 @@ impl TryFrom<ItemImpl> for Implementation {
     }
 }
 
-impl TryFrom<TokenStream> for Implementation {
-    type Error = &'static str;
-    fn try_from(impl_item: TokenStream) -> Result<Self, Self::Error> {
-        match parse2::<ItemImpl>(impl_item) {
-            Ok(parsed) => Implementation::try_from(parsed),
-            Err(_) => Err("Failed to parse Implementation from TokenStream"),
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use std::convert::TryFrom;
 
-    use super::{
-        Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
-    };
+    use super::{Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl};
     use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
     use quote::quote;
     use syn::parse_quote::parse;

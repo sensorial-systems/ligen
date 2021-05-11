@@ -2,19 +2,22 @@ use crate::ir::Attributes;
 use crate::ir::{Attribute, Identifier, Literal};
 use proc_macro2::TokenStream;
 use quote::{quote, TokenStreamExt};
-use syn::parse2;
+use std::convert::TryFrom;
 
 const PREFIX: &'static str = "ligen_";
 
 /// `ligen` entry-point called by `#[ligen]`.
 pub fn ligen(args: TokenStream, item: TokenStream) -> TokenStream {
-    let args = parse2::<Attributes>(args).expect("Failed to parse Attributes");
+    let args = Attributes::try_from(args).expect("Failed to parse Attributes.");
 
-    let mut attributes = TokenStream::new();
-
-    let macro_attributes = args.attributes.into_iter().map(to_ligen_macro);
-
-    macro_attributes.for_each(|macro_attribute| attributes.append_all(quote! { #macro_attribute }));
+    let attributes = args
+        .attributes
+        .into_iter()
+        .map(to_ligen_macro)
+        .fold(TokenStream::new(), |mut attributes, macro_attribute| {
+            attributes.append_all(quote! { #macro_attribute });
+            attributes
+        });
 
     let tokenstream = quote! {
         #attributes
