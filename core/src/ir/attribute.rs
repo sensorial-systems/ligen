@@ -1,11 +1,13 @@
+use std::convert::TryFrom;
+
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
-    AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Result, Token,
     parse::{Parse, ParseStream},
+    parse2, AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Result, Token,
 };
 
 /// Attribute Enum
@@ -135,12 +137,18 @@ impl Parse for Attributes {
     }
 }
 
+impl TryFrom<TokenStream> for Attributes {
+    type Error = syn::Error;
+    fn try_from(stream: TokenStream) -> Result<Self> {
+        parse2::<Attributes>(stream)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::ir::{Attribute, Attributes, Identifier, Literal};
-    use syn::{NestedMeta, parse2};
     use quote::quote;
-
+    use syn::{parse2, NestedMeta};
 
     #[test]
     fn attribute_literal() {
