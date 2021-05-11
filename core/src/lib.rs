@@ -13,5 +13,6 @@ mod prelude;
 mod proc_macro;
 
 pub mod ir;
+pub mod utils;
 
 pub use proc_macro::ligen;
