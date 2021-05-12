@@ -1,9 +1,9 @@
 use crate::ir::{Attributes, Constant, Function, Identifier};
-use std::convert::{TryFrom, TryInto};
-use syn::{ItemImpl, parse2};
 use proc_macro2::TokenStream;
+use std::convert::{TryFrom, TryInto};
+use syn::{parse2, ItemImpl};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Function Struct
 pub struct Implementation {
     /// attributes field
@@ -14,7 +14,7 @@ pub struct Implementation {
     pub items: Vec<ImplementationItem>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// ImplItem Enum
 pub enum ImplementationItem {
     /// Constant variant
@@ -72,7 +72,9 @@ impl TryFrom<ItemImpl> for Implementation {
 mod test {
     use std::convert::TryFrom;
 
-    use super::{Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl};
+    use super::{
+        Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
+    };
     use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
     use quote::quote;
     use syn::parse_quote::parse;

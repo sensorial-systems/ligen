@@ -4,7 +4,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
 use syn::FnArg;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Parameter Struct
 pub struct Parameter {
     /// identifier field
