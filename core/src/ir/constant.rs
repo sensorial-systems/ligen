@@ -2,7 +2,7 @@ use crate::ir::{Identifier, Literal, Type};
 use std::convert::TryFrom;
 use syn::{ImplItemConst, ItemConst};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Constant Struct
 pub struct Constant {
     /// identifier field
