@@ -6,7 +6,7 @@ use syn::{ImplItemMethod, ItemFn};
 /// Async Struct
 pub struct Async;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 /// Function Struct
 pub struct Function {
     /// attributes field
