@@ -4,20 +4,22 @@ use proc_macro2::TokenStream;
 use quote::{quote, TokenStreamExt};
 use std::convert::TryFrom;
 
+pub mod context;
+pub use context::*;
+
 const PREFIX: &'static str = "ligen_";
 
 /// `ligen` entry-point called by `#[ligen]`.
-pub fn ligen(args: TokenStream, item: TokenStream) -> TokenStream {
+pub fn ligen(_context: Context, args: TokenStream, item: TokenStream) -> TokenStream {
     let args = Attributes::try_from(args).expect("Failed to parse Attributes.");
 
-    let attributes = args
-        .attributes
-        .into_iter()
-        .map(to_ligen_macro)
-        .fold(TokenStream::new(), |mut attributes, macro_attribute| {
+    let attributes = args.attributes.into_iter().map(to_ligen_macro).fold(
+        TokenStream::new(),
+        |mut attributes, macro_attribute| {
             attributes.append_all(quote! { #macro_attribute });
             attributes
-        });
+        },
+    );
 
     let tokenstream = quote! {
         #attributes
@@ -55,8 +57,11 @@ pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use quote::quote;
 
+    use super::{Context, SourceFile};
     use crate::ligen;
     use proc_macro2::TokenStream;
     use quote::*;
@@ -113,7 +118,16 @@ mod test {
 
         let (attributes, item) = extract_struct_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
-        let token_stream = ligen(attributes, item);
+        let token_stream = ligen(
+            Context {
+                source_file: SourceFile {
+                    is_real: true,
+                    path: PathBuf::from("test"),
+                },
+            },
+            attributes,
+            item,
+        );
         assert_eq!(token_stream.to_string(), expected.to_string());
     }
 
@@ -132,7 +146,16 @@ mod test {
 
         let (attributes, item) = extract_impl_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
-        let token_stream = ligen(attributes, item);
+        let token_stream = ligen(
+            Context {
+                source_file: SourceFile {
+                    is_real: true,
+                    path: PathBuf::from("test"),
+                },
+            },
+            attributes,
+            item,
+        );
         assert_eq!(token_stream.to_string(), expected.to_string());
     }
 }
