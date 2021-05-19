@@ -1,3 +1,5 @@
+//! proc-macro entrypoint.
+
 use crate::ir::Attributes;
 use crate::ir::{Attribute, Identifier, Literal};
 use proc_macro2::TokenStream;
