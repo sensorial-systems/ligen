@@ -21,7 +21,8 @@ impl ToString for BuildType {
 /// Arguments passed from `cargo-ligen`.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arguments {
-    pub name: String,
+    /// The name of the crate
+    pub crate_name: String,
     /// The build type.
     pub build_type: BuildType,
     /// The build target directory.
@@ -40,10 +41,14 @@ impl Arguments {
     }
 
     /// Parses the JSON representation from CARGO_LIGEN_ARGUMENTS.
-    pub fn from_env() -> Self {
-        let json_string = std::env::var("CARGO_LIGEN_ARGUMENTS")
-            .expect("Couldn't set the environment variables.");
-        serde_json::from_str(&json_string).expect("Couldn't parse JSON string.")
+    pub fn from_env() -> Result<Self, String> {
+        match std::env::var("CARGO_LIGEN_ARGUMENTS") {
+            Ok(json_string) => match serde_json::from_str(&json_string) {
+                Ok(arguments) => Ok(arguments),
+                Err(err) => Err(err.to_string()),
+            },
+            Err(_) => Err("Couldn't find CARGO_LIGEN_ARGUMENTS env var".into()),
+        }
     }
 }
 
