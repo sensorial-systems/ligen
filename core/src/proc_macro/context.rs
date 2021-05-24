@@ -1,7 +1,7 @@
 //! Context about the proc-macro execution.
 
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use serde::{Serialize, Deserialize};
 
 /// Release or Debug.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
@@ -9,7 +9,7 @@ pub enum BuildType {
     #[allow(missing_docs)]
     Release,
     #[allow(missing_docs)]
-    Debug
+    Debug,
 }
 
 impl ToString for BuildType {
@@ -21,6 +21,8 @@ impl ToString for BuildType {
 /// Arguments passed from `cargo-ligen`.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arguments {
+    /// The name of the crate
+    pub crate_name: String,
     /// The build type.
     pub build_type: BuildType,
     /// The build target directory.
@@ -28,7 +30,7 @@ pub struct Arguments {
     /// The Cargo.toml manifest path.
     pub manifest_path: PathBuf,
     /// The Cargo.toml workspace manifest, if any.
-    pub workspace_path: Option<PathBuf>
+    pub workspace_path: Option<PathBuf>,
 }
 
 impl Arguments {
@@ -39,9 +41,14 @@ impl Arguments {
     }
 
     /// Parses the JSON representation from CARGO_LIGEN_ARGUMENTS.
-    pub fn from_env() -> Self {
-        let json_string = std::env::var("CARGO_LIGEN_ARGUMENTS").expect("Couldn't set the environment variables.");
-        serde_json::from_str(&json_string).expect("Couldn't parse JSON string.")
+    pub fn from_env() -> Result<Self, String> {
+        match std::env::var("CARGO_LIGEN_ARGUMENTS") {
+            Ok(json_string) => match serde_json::from_str(&json_string) {
+                Ok(arguments) => Ok(arguments),
+                Err(err) => Err(err.to_string()),
+            },
+            Err(_) => Err("Couldn't find CARGO_LIGEN_ARGUMENTS env var".into()),
+        }
     }
 }
 
@@ -51,7 +58,7 @@ pub struct Context {
     /// The current SourceFile.
     pub source_file: SourceFile,
     /// Arguments.
-    pub arguments: Arguments
+    pub arguments: Arguments,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
