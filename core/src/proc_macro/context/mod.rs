@@ -38,7 +38,7 @@ pub struct Arguments {
     /// The Cargo.toml workspace manifest passed with `--manifest-path`.
     pub workspace_path: Option<PathBuf>,
     /// Workspace member to build passed with `--package` or `-p`.
-    pub workpace_member: Option<String>,
+    pub workspace_member_package_id: Option<String>,
 }
 
 impl Arguments {
