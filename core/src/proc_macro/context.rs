@@ -19,7 +19,7 @@ impl ToString for BuildType {
 }
 
 /// Arguments passed from `cargo-ligen`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Arguments {
     /// The name of the crate
     pub crate_name: String,
@@ -27,10 +27,12 @@ pub struct Arguments {
     pub build_type: BuildType,
     /// The build target directory.
     pub target_dir: PathBuf,
-    /// The Cargo.toml manifest path.
+    /// The Cargo.toml manifest path passed with `--target-dir`.
     pub manifest_path: PathBuf,
-    /// The Cargo.toml workspace manifest, if any.
+    /// The Cargo.toml workspace manifest passed with `--manifest-path`.
     pub workspace_path: Option<PathBuf>,
+    /// Workspace member to build passed with `--package` or `-p`.
+    pub workpace_member: Option<String>,
 }
 
 impl Arguments {
