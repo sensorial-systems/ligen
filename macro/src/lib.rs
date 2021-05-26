@@ -1,32 +1,16 @@
 #![feature(proc_macro_span)]
 
-use ligen_core::proc_macro::{Context, SourceFile};
+use ligen_core::proc_macro::{Context, SourceFile, Arguments};
 use proc_macro::TokenStream;
-
-struct SF {
-    source_file: SourceFile,
-}
-
-impl From<proc_macro::SourceFile> for SF {
-    fn from(sf: proc_macro::SourceFile) -> Self {
-        Self {
-            source_file: SourceFile {
-                is_real: sf.is_real(),
-                path: sf.path(),
-            },
-        }
-    }
-}
 
 #[proc_macro_attribute]
 pub fn ligen(args: TokenStream, input: TokenStream) -> TokenStream {
-    let span = proc_macro::Span::call_site().source_file();
-    ligen_core::ligen(
-        Context {
-            source_file: SF::from(span).source_file,
-        },
-        args.into(),
-        input.into(),
-    )
-    .into()
+    let source_file = proc_macro::Span::call_site().source_file();
+    let source_file = SourceFile {
+        is_real: source_file.is_real(),
+        path: source_file.path()
+    };
+    let arguments = Arguments::from_env().expect("Couldn't build Arguments from enviroment variables.");
+    let context = Context { source_file, arguments };
+    ligen_core::ligen(context, args.into(), input.into()).into()
 }
