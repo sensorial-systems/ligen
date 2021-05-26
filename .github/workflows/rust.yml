@@ -10,7 +10,13 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  tests:
+  stable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Tests
+        run: cargo test --verbose
+  nightly:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
