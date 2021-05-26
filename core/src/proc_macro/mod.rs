@@ -63,7 +63,7 @@ mod test {
 
     use quote::quote;
 
-    use super::{Context, SourceFile};
+    use super::{Context, SourceFile, Arguments, BuildType};
     use crate::ligen;
     use proc_macro2::TokenStream;
     use quote::*;
@@ -105,6 +105,23 @@ mod test {
         }
     }
 
+    fn mock_context() -> Context {
+        Context {
+            source_file: SourceFile {
+                is_real: true,
+                path: PathBuf::from("test"),
+            },
+            arguments: Arguments {
+                crate_name: "test".into(),
+                build_type: BuildType::Debug,
+                target_dir: PathBuf::from("test"),
+                manifest_path: PathBuf::from("test"),
+                workspace_path: None,
+                workpace_member: None,
+            }
+        }
+    }
+
     #[test]
     fn item_struct() {
         let input = quote! {
@@ -121,12 +138,7 @@ mod test {
         let (attributes, item) = extract_struct_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
         let token_stream = ligen(
-            Context {
-                source_file: SourceFile {
-                    is_real: true,
-                    path: PathBuf::from("test"),
-                },
-            },
+            mock_context(),
             attributes,
             item,
         );
@@ -149,12 +161,7 @@ mod test {
         let (attributes, item) = extract_impl_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
         let token_stream = ligen(
-            Context {
-                source_file: SourceFile {
-                    is_real: true,
-                    path: PathBuf::from("test"),
-                },
-            },
+            mock_context(),
             attributes,
             item,
         );
