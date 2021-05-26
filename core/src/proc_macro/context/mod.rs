@@ -12,6 +12,12 @@ pub enum BuildType {
     Debug,
 }
 
+impl Default for BuildType {
+    fn default() -> Self {
+        Self::Debug
+    }
+}
+
 impl ToString for BuildType {
     fn to_string(&self) -> String {
         format!("{:#?}", self)
@@ -19,7 +25,7 @@ impl ToString for BuildType {
 }
 
 /// Arguments passed from `cargo-ligen`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Arguments {
     /// The name of the crate
     pub crate_name: String,
@@ -54,7 +60,7 @@ impl Arguments {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 /// Context struct.
 pub struct Context {
     /// The current SourceFile.
@@ -63,7 +69,7 @@ pub struct Context {
     pub arguments: Arguments,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 /// SourceFile struct.
 pub struct SourceFile {
     /// If it's a real file.

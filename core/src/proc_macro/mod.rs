@@ -105,23 +105,6 @@ mod test {
         }
     }
 
-    fn mock_context() -> Context {
-        Context {
-            source_file: SourceFile {
-                is_real: true,
-                path: PathBuf::from("test"),
-            },
-            arguments: Arguments {
-                crate_name: "test".into(),
-                build_type: BuildType::Debug,
-                target_dir: PathBuf::from("test"),
-                manifest_path: PathBuf::from("test"),
-                workspace_path: None,
-                workpace_member: None,
-            }
-        }
-    }
-
     #[test]
     fn item_struct() {
         let input = quote! {
@@ -137,11 +120,7 @@ mod test {
 
         let (attributes, item) = extract_struct_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
-        let token_stream = ligen(
-            mock_context(),
-            attributes,
-            item,
-        );
+        let token_stream = ligen(Default::default(), attributes, item);
         assert_eq!(token_stream.to_string(), expected.to_string());
     }
 
@@ -160,11 +139,7 @@ mod test {
 
         let (attributes, item) = extract_impl_attributes_and_item(&input)
             .expect("Couldn't extract attributes and item.");
-        let token_stream = ligen(
-            mock_context(),
-            attributes,
-            item,
-        );
+        let token_stream = ligen(Default::default(), attributes, item);
         assert_eq!(token_stream.to_string(), expected.to_string());
     }
 }
