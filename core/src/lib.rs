@@ -10,7 +10,7 @@
 #![warn(unused_qualifications)]
 
 mod prelude;
-mod proc_macro;
+pub mod proc_macro;
 
 pub mod ir;
 pub mod utils;
