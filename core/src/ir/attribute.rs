@@ -3,8 +3,11 @@ use crate::ir::Literal;
 use crate::prelude::*;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Token, parse::{Parse, ParseStream}, parse2};
 use std::convert::TryFrom;
+use syn::{
+    parse::{Parse, ParseStream},
+    parse2, AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Token,
+};
 
 /// Attribute Enum
 #[derive(Debug, PartialEq, Clone)]
@@ -124,6 +127,42 @@ impl ToTokens for Attribute {
     }
 }
 
+impl Attribute {
+    /// Function to get a TokenStream of Attribute as a ligen project generator macro
+    pub fn to_package_tokens(&self) -> TokenStream {
+        match self {
+            Attribute::Literal(lit) => {
+                let ident = Identifier::new(format!("ligen_{}_package", &lit.to_string()).as_str());
+
+                quote! {#ident!();}
+            }
+            Attribute::Named(_, _) => panic!("Named variant should only be used inside groups"),
+            Attribute::Group(ident, group) => {
+                let mut gp = TokenStream::new();
+                group
+                    .attributes
+                    .clone()
+                    .into_iter()
+                    .enumerate()
+                    .for_each(|x| {
+                        if let (index, Attribute::Literal(lit)) = x {
+                            let name = Identifier::new(&lit.to_string());
+                            gp.append_all(quote! {#name});
+                            if index + 1 < group.attributes.len() {
+                                gp.append_all(quote! {, })
+                            }
+                        } else {
+                            panic!("Group contains Named variant")
+                        }
+                    });
+
+                let ident = Identifier::new(format!("ligen_{}_package", &ident.name).as_str());
+                quote! {#ident!(#gp);}
+            }
+        }
+    }
+}
+
 impl Parse for Attributes {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut metas: Vec<NestedMeta> = Vec::new();
@@ -143,9 +182,8 @@ impl Parse for Attributes {
 #[cfg(test)]
 mod test {
     use crate::ir::{Attribute, Attributes, Identifier, Literal};
-    use syn::{NestedMeta, parse2};
     use quote::quote;
-
+    use syn::{parse2, NestedMeta};
 
     #[test]
     fn attribute_literal() {
