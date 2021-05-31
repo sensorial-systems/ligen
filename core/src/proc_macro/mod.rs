@@ -31,6 +31,18 @@ pub fn ligen(_context: Context, args: TokenStream, item: TokenStream) -> TokenSt
     tokenstream
 }
 
+/// `ligen_package` macro function called by `ligen_package!()`
+pub fn ligen_package(args: TokenStream) -> TokenStream {
+    let args = Attributes::try_from(args).expect("Failed to parse Attributes.");
+
+    let mut output = TokenStream::new();
+    args.attributes
+        .into_iter()
+        .for_each(|attribute| output.append_all(attribute.to_package_tokens()));
+
+    output
+}
+
 /// Convert Attribute to a Ligen Macro attribute
 pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
     match attribute {
@@ -59,12 +71,8 @@ pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
-
+    use crate::proc_macro::ligen;
     use quote::quote;
-
-    use super::{Context, SourceFile, Arguments, BuildType};
-    use crate::ligen;
     use proc_macro2::TokenStream;
     use quote::*;
     use syn::parse_quote::parse;
