@@ -71,12 +71,8 @@ pub fn to_ligen_macro(attribute: Attribute) -> Attribute {
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
-
+    use crate::proc_macro::ligen;
     use quote::quote;
-
-    use super::{Arguments, BuildType, Context, SourceFile};
-    use crate::ligen;
     use proc_macro2::TokenStream;
     use quote::*;
     use syn::parse_quote::parse;

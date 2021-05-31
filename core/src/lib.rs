@@ -11,9 +11,5 @@
 
 mod prelude;
 pub mod proc_macro;
-
 pub mod ir;
 pub mod utils;
-
-pub use proc_macro::ligen;
-pub use proc_macro::ligen_package;
