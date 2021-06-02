@@ -75,32 +75,15 @@ impl ToTokens for Type {
         match &self {
             Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
             Type::Compound(compound) => tokens.append_all(compound.to_token_stream()),
-            Type::Reference(reference) => match reference {
-                Reference::Borrow(borrow) => match borrow {
-                    Borrow::Constant(constant) => {
-                        let typ = &**constant;
-                        let type_tokens = typ.to_token_stream();
-                        tokens.append_all(quote! {&#type_tokens});
-                    }
-                    Borrow::Mutable(mutable) => {
-                        let typ = &**mutable;
-                        let type_tokens = typ.to_token_stream();
-                        tokens.append_all(quote! {&mut #type_tokens});
-                    }
-                },
-                Reference::Pointer(pointer) => match pointer {
-                    Pointer::Constant(constant) => {
-                        let typ = &**constant;
-                        let type_tokens = typ.to_token_stream();
-                        tokens.append_all(quote! {&#type_tokens});
-                    }
-                    Pointer::Mutable(mutable) => {
-                        let typ = &**mutable;
-                        let type_tokens = typ.to_token_stream();
-                        tokens.append_all(quote! {&mut #type_tokens});
-                    }
-                },
-            },
+            Type::Reference(reference) => {
+                if reference.is_constant() {
+                    tokens.append_all(quote! {&})
+                } else {
+                    tokens.append_all(quote! {&mut })
+                }
+                let type_ = reference.type_();
+                tokens.append_all(quote! {#type_});
+            }
         }
     }
 }
