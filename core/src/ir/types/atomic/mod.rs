@@ -2,43 +2,11 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-/// Integer Enum
-pub enum Integer {
-    /// u8 variant
-    U8,
-    /// u16 variant
-    U16,
-    /// u32 variant
-    U32,
-    /// u64 variant
-    U64,
-    /// u128 variant
-    U128,
-    /// usize variant
-    USize,
-    /// i8 variant
-    I8,
-    /// i16 variant
-    I16,
-    /// i32 variant
-    I32,
-    /// i64 variant
-    I64,
-    /// i128 variant
-    I128,
-    /// isize variant
-    ISize,
-}
+mod integer;
+mod float;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-/// Float Enum
-pub enum Float {
-    /// f32 variant
-    F32,
-    /// f64 variant
-    F64,
-}
+pub use integer::*;
+pub use float::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 /// Atomic Enum
@@ -51,6 +19,17 @@ pub enum Atomic {
     Boolean,
     /// Character variant
     Character,
+}
+
+impl Atomic {
+    /// Returns true if the identifier is an atomic type.
+    pub fn is_atomic(identifier: &str) -> bool {
+        match identifier {
+            "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
+            | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" => true,
+            _ => false
+        }
+    }
 }
 
 impl TryFrom<Ident> for Atomic {
@@ -69,6 +48,8 @@ impl TryFrom<Ident> for Atomic {
             "i64" => Ok(Self::Integer(Integer::I64)),
             "i128" => Ok(Self::Integer(Integer::I128)),
             "isize" => Ok(Self::Integer(Integer::ISize)),
+            "c_char" => Ok(Self::Integer(Integer::I8)),
+            "c_uchar" => Ok(Self::Integer(Integer::U8)),
             "f32" => Ok(Self::Float(Float::F32)),
             "f64" => Ok(Self::Float(Float::F64)),
             "bool" => Ok(Self::Boolean),
@@ -91,30 +72,8 @@ impl From<syn::Path> for Atomic {
 impl ToTokens for Atomic {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match &self {
-            Atomic::Integer(integer) => {
-                let typ = match integer {
-                    Integer::U8 => quote! {u8},
-                    Integer::U16 => quote! {u16},
-                    Integer::U32 => quote! {u32},
-                    Integer::U64 => quote! {u64},
-                    Integer::U128 => quote! {u128},
-                    Integer::USize => quote! {usize},
-                    Integer::I8 => quote! {i8},
-                    Integer::I16 => quote! {i16},
-                    Integer::I32 => quote! {i32},
-                    Integer::I64 => quote! {i64},
-                    Integer::I128 => quote! {i128},
-                    Integer::ISize => quote! {isize},
-                };
-                tokens.append_all(quote! {#typ})
-            }
-            Atomic::Float(float) => {
-                let typ = match float {
-                    Float::F32 => quote! {f32},
-                    Float::F64 => quote! {f64},
-                };
-                tokens.append_all(quote! {#typ})
-            }
+            Atomic::Integer(integer) => integer.to_tokens(tokens),
+            Atomic::Float(float) => float.to_tokens(tokens),
             Atomic::Boolean => tokens.append_all(quote! {bool}),
             Atomic::Character => tokens.append_all(quote! {char}),
         }

@@ -17,12 +17,10 @@ pub enum Type {
 
 impl From<syn::Path> for Type {
     fn from(path: syn::Path) -> Self {
-        match path.clone() {
-            syn::Path { segments, .. } => match segments[0].ident.clone().to_string().as_str() {
-                "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
-                | "i128" | "isize" | "f32" | "f64" | "bool" | "char" => Self::Atomic(path.into()),
-                _ => Self::Compound(segments[0].ident.clone().into()),
-            },
+        if Atomic::is_atomic(path.segments[0].ident.clone().to_string().as_str()) {
+            Self::Atomic(path.into())
+        } else {
+            Self::Compound(path.segments[0].ident.clone().into())
         }
     }
 }
@@ -76,10 +74,21 @@ impl ToTokens for Type {
             Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
             Type::Compound(compound) => tokens.append_all(compound.to_token_stream()),
             Type::Reference(reference) => {
-                if reference.is_constant() {
-                    tokens.append_all(quote! {&})
-                } else {
-                    tokens.append_all(quote! {&mut })
+                match reference {
+                    Reference::Pointer(_) => {
+                        if reference.is_constant() {
+                            tokens.append_all(quote! {*const })
+                        } else {
+                            tokens.append_all(quote! {*mut })
+                        }
+                    },
+                    Reference::Borrow(_) => {
+                        if reference.is_constant() {
+                            tokens.append_all(quote! {&})
+                        } else {
+                            tokens.append_all(quote! {&mut })
+                        }
+                    }
                 }
                 let type_ = reference.type_();
                 tokens.append_all(quote! {#type_});
