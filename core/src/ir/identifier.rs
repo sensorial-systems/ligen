@@ -17,6 +17,12 @@ impl Identifier {
     }
 }
 
+impl From<&str> for Identifier {
+    fn from(name: &str) -> Self {
+        Self { name: name.to_string() }
+    }
+}
+
 impl From<syn::Ident> for Identifier {
     fn from(ident: syn::Ident) -> Self {
         let name = ident.to_string();
