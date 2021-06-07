@@ -9,15 +9,15 @@ pub struct Async;
 #[derive(Debug, PartialEq, Clone)]
 /// Function Struct
 pub struct Function {
-    /// attributes field
+    /// Attributes field.
     pub attributes: Attributes,
-    /// asyncness field
+    /// Asyncness field.
     pub asyncness: Option<Async>,
-    /// identifier field
+    /// Identifier field.
     pub identifier: Identifier,
-    /// input field
-    pub input: Vec<Parameter>,
-    /// output field
+    /// Inputs field.
+    pub inputs: Vec<Parameter>,
+    /// Output field.
     pub output: Option<Type>,
 }
 
@@ -32,7 +32,7 @@ macro_rules! impl_function {
                     output,
                     ..
                 } = item_fn.sig;
-                let input: Vec<Parameter> = inputs
+                let inputs: Vec<Parameter> = inputs
                     .clone()
                     .into_iter()
                     .map(|x| x.try_into().expect("Failed to convert Parameter"))
@@ -56,7 +56,7 @@ macro_rules! impl_function {
                         None => None,
                     },
                     identifier: ident.into(),
-                    input,
+                    inputs,
                     output,
                 }
             }
@@ -84,7 +84,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![],
+                inputs: vec![],
                 output: None
             }
         );
@@ -100,7 +100,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![],
+                inputs: vec![],
                 output: None
             }
         );
@@ -116,7 +116,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![
+                inputs: vec![
                     Parameter {
                         identifier: Identifier {
                             name: String::from("a")
@@ -149,7 +149,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![],
+                inputs: vec![],
                 output: Some(Type::Compound(Identifier {
                     name: String::from("String")
                 }))
@@ -169,7 +169,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![
+                inputs: vec![
                     Parameter {
                         identifier: Identifier {
                             name: String::from("a")
@@ -231,7 +231,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![],
+                inputs: vec![],
                 output: None
             }
         );
@@ -247,7 +247,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![],
+                inputs: vec![],
                 output: None
             }
         );
@@ -276,7 +276,7 @@ mod test {
                 identifier: Identifier {
                     name: String::from("test")
                 },
-                input: vec![
+                inputs: vec![
                     Parameter {
                         identifier: Identifier {
                             name: String::from("a")

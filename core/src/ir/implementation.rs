@@ -167,7 +167,7 @@ mod test {
                     identifier: Identifier {
                         name: String::from("a")
                     },
-                    input: vec![],
+                    inputs: vec![],
                     output: None
                 })]
             }
@@ -203,7 +203,7 @@ mod test {
                         identifier: Identifier {
                             name: String::from("b")
                         },
-                        input: vec![],
+                        inputs: vec![],
                         output: None
                     })
                 ]

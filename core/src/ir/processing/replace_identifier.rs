@@ -23,7 +23,7 @@ impl ReplaceIdentifier for ImplementationItem {
             ImplementationItem::Method(function) => {
                 function.identifier.replace_identifier(old, new);
                 function.output.as_mut().map(|type_| type_.replace_identifier(old, new));
-                for parameter in &mut function.input {
+                for parameter in &mut function.inputs {
                     parameter.replace_identifier(old, new);
                 }
             },

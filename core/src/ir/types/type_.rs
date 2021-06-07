@@ -30,14 +30,20 @@ impl TryFrom<syn::Type> for Type {
     fn try_from(syn_type: syn::Type) -> Result<Self, Self::Error> {
         match syn_type {
             syn::Type::Path(TypePath { path, .. }) => Ok(path.into()),
-            syn::Type::Reference(TypeReference {
-                                     elem, mutability, ..
-                                 }) => {
+            syn::Type::Reference(TypeReference { elem, mutability, .. }) => {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     match mutability {
-                        Some(_m) => Ok(Self::Reference(Reference::Borrow(Borrow::Mutable(
-                            Box::new(path.into()),
-                        )))),
+                        Some(_m) => Ok(
+                            Self::Reference(
+                                Reference::Borrow(
+                                    Borrow::Mutable(
+                                        Box::new(
+                                            path.into()
+                                        ),
+                                    )
+                                )
+                            )
+                        ),
                         None => Ok(Self::Reference(Reference::Borrow(Borrow::Constant(
                             Box::new(path.into()),
                         )))),
