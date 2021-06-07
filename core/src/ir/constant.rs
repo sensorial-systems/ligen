@@ -44,7 +44,7 @@ impl From<ItemConst> for Constant {
 #[cfg(test)]
 mod test {
     use super::{Constant, Identifier, ImplItemConst, ItemConst, Type};
-    use crate::ir::{Borrow, Literal, Reference};
+    use crate::ir::{Literal, Reference, ReferenceKind};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -53,14 +53,14 @@ mod test {
         assert_eq!(
             Constant::from(parse::<ImplItemConst>(quote! {const a: &str = "test";})),
             Constant {
-                identifier: Identifier {
-                    name: String::from("a")
-                },
-                type_: Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                    Type::Compound(Identifier {
-                        name: String::from("str")
-                    })
-                )))),
+                identifier: Identifier::new("a"),
+                type_: Type::Reference(
+                    Reference {
+                        kind: ReferenceKind::Borrow,
+                        is_constant: true,
+                        type_: Box::new(Type::Compound(Identifier::new("str")))
+                    }
+                ),
                 literal: Literal::String(String::from("test"))
             }
         );
@@ -71,14 +71,14 @@ mod test {
         assert_eq!(
             Constant::from(parse::<ItemConst>(quote! {const a: &str = "test";})),
             Constant {
-                identifier: Identifier {
-                    name: String::from("a")
-                },
-                type_: Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                    Type::Compound(Identifier {
-                        name: String::from("str")
-                    })
-                )))),
+                identifier: Identifier::new("a"),
+                type_: Type::Reference(
+                    Reference {
+                        kind: ReferenceKind::Borrow,
+                        is_constant: true,
+                        type_: Box::new(Type::Compound(Identifier::new("str")))
+                    }
+                ),
                 literal: Literal::String(String::from("test"))
             }
         );

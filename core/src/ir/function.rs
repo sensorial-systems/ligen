@@ -70,7 +70,7 @@ impl_function!(ImplItemMethod);
 #[cfg(test)]
 mod test {
     use super::{Async, Function, ImplItemMethod, ItemFn, Type};
-    use crate::ir::{Attribute, Attributes, Borrow, Identifier, Literal, Parameter, Reference};
+    use crate::ir::{Attribute, Attributes, Identifier, Literal, Parameter, Reference, ReferenceKind};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -166,44 +166,42 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("a")
-                        },
-                        type_: Type::Compound(Identifier {
-                            name: String::from("String")
-                        })
+                        identifier: Identifier::new("a"),
+                        type_: Type::Compound(Identifier::new("String"))
                     },
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("b")
-                        },
-                        type_: Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                            Type::Compound(Identifier {
-                                name: String::from("String")
-                            })
-                        ))))
+                        identifier: Identifier::new("b"),
+                        type_: Type::Reference(
+                            Reference {
+                                kind: ReferenceKind::Borrow,
+                                is_constant: true,
+                                type_: Box::new(Type::Compound(Identifier::new("String")))
+                            }
+                        )
                     },
                     Parameter {
                         identifier: Identifier {
                             name: String::from("c")
                         },
-                        type_: Type::Reference(Reference::Borrow(Borrow::Mutable(Box::new(
-                            Type::Compound(Identifier {
-                                name: String::from("String")
-                            })
-                        ))))
+                        type_: Type::Reference(
+                            Reference {
+                                kind: ReferenceKind::Borrow,
+                                is_constant: false,
+                                type_: Box::new(Type::Compound(Identifier::new("String")))
+                            }
+                        )
                     },
                 ],
-                output: Some(Type::Reference(Reference::Borrow(Borrow::Constant(
-                    Box::new(Type::Compound(Identifier {
-                        name: String::from("String")
-                    }))
-                ))))
+                output: Some(Type::Reference(
+                    Reference {
+                        kind: ReferenceKind::Borrow,
+                        is_constant: true,
+                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                    }
+                ))
             }
         );
     }
@@ -289,28 +287,34 @@ mod test {
                         identifier: Identifier {
                             name: String::from("b")
                         },
-                        type_: Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(
-                            Type::Compound(Identifier {
-                                name: String::from("String")
-                            })
-                        ))))
+                        type_: Type::Reference(
+                            Reference {
+                                kind: ReferenceKind::Borrow,
+                                is_constant: true,
+                                type_: Box::new(Type::Compound(Identifier::new("String")))
+                            }
+                        )
                     },
                     Parameter {
                         identifier: Identifier {
                             name: String::from("c")
                         },
-                        type_: Type::Reference(Reference::Borrow(Borrow::Mutable(Box::new(
-                            Type::Compound(Identifier {
-                                name: String::from("String")
-                            })
-                        ))))
+                        type_: Type::Reference(
+                            Reference {
+                                kind: ReferenceKind::Borrow,
+                                is_constant: false,
+                                type_: Box::new(Type::Compound(Identifier::new("String")))
+                            }
+                        )
                     },
                 ],
-                output: Some(Type::Reference(Reference::Borrow(Borrow::Constant(
-                    Box::new(Type::Compound(Identifier {
-                        name: String::from("String")
-                    }))
-                ))))
+                output: Some(Type::Reference(
+                    Reference {
+                        kind: ReferenceKind::Borrow,
+                        is_constant: true,
+                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                    }
+                ))
             }
         );
     }

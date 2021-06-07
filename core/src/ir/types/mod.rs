@@ -1,13 +1,9 @@
 mod type_;
-mod borrow;
 mod reference;
-mod pointer;
 mod atomic;
 
 pub use type_::*;
-pub use borrow::*;
 pub use reference::*;
-pub use pointer::*;
 pub use atomic::*;
 
 // TODO: Can these tests be moved to the modules in the lines above?
@@ -18,11 +14,11 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::ir::{Float, Integer};
+    use crate::ir::{Float, Integer, ReferenceKind};
 
     use super::{
         Atomic::{self, Boolean, Character},
-        Borrow, Pointer, Reference, Type,
+        Reference, Type,
     };
 
     #[test]
@@ -118,9 +114,19 @@ mod test {
     #[test]
     fn types_borrow_constant() {
         assert_eq!(
-            Type::Reference(Reference::Borrow(Borrow::Constant(Box::new(Type::Atomic(
-                Atomic::Integer(Integer::I32)
-            ))))),
+            Type::Reference(
+                Reference {
+                    kind: ReferenceKind::Borrow,
+                    is_constant: true,
+                    type_: Box::new(
+                        Type::Atomic(
+                            Atomic::Integer(
+                                Integer::I32
+                            )
+                        )
+                    )
+                }
+            ),
             parse::<syn::Type>(quote! {&i32})
                 .try_into()
                 .expect("Failed to convert from syn::Type")
@@ -130,9 +136,19 @@ mod test {
     #[test]
     fn types_borrow_mutable() {
         assert_eq!(
-            Type::Reference(Reference::Borrow(Borrow::Mutable(Box::new(Type::Atomic(
-                Atomic::Integer(Integer::I32)
-            ))))),
+            Type::Reference(
+                Reference {
+                    kind: ReferenceKind::Borrow,
+                    is_constant: false,
+                    type_: Box::new(
+                        Type::Atomic(
+                            Atomic::Integer(
+                                Integer::I32
+                            )
+                        )
+                    )
+                }
+            ),
             parse::<syn::Type>(quote! {&mut i32})
                 .try_into()
                 .expect("Failed to convert from syn::Type")
@@ -142,9 +158,17 @@ mod test {
     #[test]
     fn types_pointer_constant() {
         assert_eq!(
-            Type::Reference(Reference::Pointer(Pointer::Constant(Box::new(
-                Type::Atomic(Atomic::Integer(Integer::I32))
-            )))),
+            Type::Reference(Reference {
+                kind: ReferenceKind::Pointer,
+                is_constant: true,
+                type_: Box::new(
+                    Type::Atomic(
+                        Atomic::Integer(
+                            Integer::I32
+                        )
+                    )
+                )
+            }),
             parse::<syn::Type>(quote! {*const i32})
                 .try_into()
                 .expect("Failed to convert from syn::Type")
@@ -154,9 +178,17 @@ mod test {
     #[test]
     fn types_pointer_mutable() {
         assert_eq!(
-            Type::Reference(Reference::Pointer(Pointer::Mutable(Box::new(
-                Type::Atomic(Atomic::Integer(Integer::I32))
-            )))),
+            Type::Reference(Reference {
+                kind: ReferenceKind::Pointer,
+                is_constant: false,
+                type_: Box::new(
+                    Type::Atomic(
+                        Atomic::Integer(
+                            Integer::I32
+                        )
+                    )
+                )
+            }),
             parse::<syn::Type>(quote! {*mut i32})
                 .try_into()
                 .expect("Failed to convert from syn::Type")

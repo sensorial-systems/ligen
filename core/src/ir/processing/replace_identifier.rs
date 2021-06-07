@@ -57,7 +57,7 @@ impl ReplaceIdentifier for Type {
 
 impl ReplaceIdentifier for Reference {
     fn replace_identifier(&mut self, old: &Identifier, new: &Identifier) {
-        self.type_mut().replace_identifier(old, new);
+        self.type_.replace_identifier(old, new);
     }
 }
 

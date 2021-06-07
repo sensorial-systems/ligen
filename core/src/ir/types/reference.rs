@@ -1,38 +1,46 @@
-use crate::ir::Borrow;
-use crate::ir::Pointer;
 use crate::ir::Type;
+use quote::{ToTokens, quote, TokenStreamExt};
+use proc_macro2::TokenStream;
 
-#[derive(Debug, PartialEq, Clone)]
-/// Reference Enum
-pub enum Reference {
-    /// Borrow variant
-    Borrow(Borrow),
-    /// Pointer variant
-    Pointer(Pointer),
+/// Reference kind.
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum ReferenceKind {
+    /// Borrow reference, denoted with &.
+    Borrow,
+    /// Pointer reference, denoted with *.
+    Pointer
 }
 
-impl Reference {
-    /// Returns true if the reference is constant.
-    pub fn is_constant(&self) -> bool {
-        match self {
-            Self::Pointer(pointer) => pointer.is_constant(),
-            Self::Borrow(borrow) => borrow.is_constant(),
-        }
-    }
+/// Reference representation.
+#[derive(Debug, PartialEq, Clone)]
+pub struct Reference {
+    /// Indicates the reference kind.
+    pub kind: ReferenceKind,
+    /// Indicate constness.
+    pub is_constant: bool,
+    /// The type being referenced.
+    pub type_: Box<Type>
+}
 
-    /// Gets the underlying type.
-    pub fn type_mut(&mut self) -> &mut Type {
-        match self {
-            Self::Pointer(pointer) => pointer.type_mut(),
-            Self::Borrow(borrow) => borrow.type_mut()
+impl ToTokens for Reference {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self.kind {
+            ReferenceKind::Pointer => {
+                if self.is_constant {
+                    tokens.append_all(quote! {*const })
+                } else {
+                    tokens.append_all(quote! {*mut })
+                }
+            },
+            ReferenceKind::Borrow => {
+                if self.is_constant {
+                    tokens.append_all(quote! {&})
+                } else {
+                    tokens.append_all(quote! {&mut })
+                }
+            }
         }
-    }
-
-    /// Gets the underlying type.
-    pub fn type_(&self) -> &Type {
-        match self {
-            Self::Pointer(pointer) => pointer.type_(),
-            Self::Borrow(borrow) => borrow.type_()
-        }
+        let type_ = &self.type_;
+        tokens.append_all(quote! {#type_});
     }
 }

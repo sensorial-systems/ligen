@@ -1,7 +1,7 @@
-use crate::ir::{Atomic, Identifier, Reference, Borrow, Pointer};
+use crate::ir::{Atomic, Identifier, Reference, ReferenceKind};
 use std::convert::TryFrom;
 use syn::{TypePath, TypeReference, TypePtr};
-use quote::{ToTokens, quote, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -28,48 +28,25 @@ impl From<syn::Path> for Type {
 impl TryFrom<syn::Type> for Type {
     type Error = &'static str;
     fn try_from(syn_type: syn::Type) -> Result<Self, Self::Error> {
-        match syn_type {
-            syn::Type::Path(TypePath { path, .. }) => Ok(path.into()),
-            syn::Type::Reference(TypeReference { elem, mutability, .. }) => {
+        if let syn::Type::Path(TypePath { path, .. }) = syn_type {
+            Ok(path.into())
+        } else {
+            let reference = match syn_type {
+                syn::Type::Reference(TypeReference { elem, mutability, .. }) => Some((ReferenceKind::Borrow, elem, mutability)),
+                syn::Type::Ptr(TypePtr { elem, mutability, .. }) => Some((ReferenceKind::Pointer, elem, mutability)),
+                _ => None
+            };
+            if let Some((kind, elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
-                    match mutability {
-                        Some(_m) => Ok(
-                            Self::Reference(
-                                Reference::Borrow(
-                                    Borrow::Mutable(
-                                        Box::new(
-                                            path.into()
-                                        ),
-                                    )
-                                )
-                            )
-                        ),
-                        None => Ok(Self::Reference(Reference::Borrow(Borrow::Constant(
-                            Box::new(path.into()),
-                        )))),
-                    }
+                    let is_constant = mutability.is_none();
+                    let type_ = Box::new(path.into());
+                    Ok(Self::Reference(Reference { kind, is_constant, type_ }))
                 } else {
                     Err("Couldn't find path")
                 }
+            } else {
+                Err("Only Path, Reference and Ptr Types are currently supported")
             }
-            syn::Type::Ptr(TypePtr {
-                               elem, mutability, ..
-                           }) => {
-                if let syn::Type::Path(TypePath { path, .. }) = *elem {
-                    match mutability {
-                        Some(_m) => Ok(Self::Reference(Reference::Pointer(Pointer::Mutable(
-                            Box::new(path.into()),
-                        )))),
-                        None => Ok(Self::Reference(Reference::Pointer(Pointer::Constant(
-                            Box::new(path.into()),
-                        )))),
-                    }
-                } else {
-                    Err("Couldn't find path")
-                }
-            }
-
-            _ => Err("Only Path, Reference and Ptr Types are currently supported"),
         }
     }
 }
@@ -79,26 +56,7 @@ impl ToTokens for Type {
         match &self {
             Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
             Type::Compound(compound) => tokens.append_all(compound.to_token_stream()),
-            Type::Reference(reference) => {
-                match reference {
-                    Reference::Pointer(_) => {
-                        if reference.is_constant() {
-                            tokens.append_all(quote! {*const })
-                        } else {
-                            tokens.append_all(quote! {*mut })
-                        }
-                    },
-                    Reference::Borrow(_) => {
-                        if reference.is_constant() {
-                            tokens.append_all(quote! {&})
-                        } else {
-                            tokens.append_all(quote! {&mut })
-                        }
-                    }
-                }
-                let type_ = reference.type_();
-                tokens.append_all(quote! {#type_});
-            }
+            Type::Reference(reference) => tokens.append_all(reference.to_token_stream()),
         }
     }
 }
