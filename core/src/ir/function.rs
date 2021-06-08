@@ -81,9 +81,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![],
                 output: None
             }
@@ -97,9 +95,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![],
                 output: None
             }
@@ -113,25 +109,15 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("a")
-                        },
-                        type_: Type::Compound(Identifier {
-                            name: String::from("String")
-                        })
+                        identifier: Identifier::new("a"),
+                        type_: Type::Compound(Identifier::new("String"))
                     },
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("b")
-                        },
-                        type_: Type::Compound(Identifier {
-                            name: String::from("String")
-                        })
+                        identifier: Identifier::new("b"),
+                        type_: Type::Compound(Identifier::new("String"))
                     },
                 ],
                 output: None
@@ -146,13 +132,9 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![],
-                output: Some(Type::Compound(Identifier {
-                    name: String::from("String")
-                }))
+                output: Some(Type::Compound(Identifier::new("String")))
             }
         );
     }
@@ -183,9 +165,7 @@ mod test {
                         )
                     },
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("c")
-                        },
+                        identifier: Identifier::new("c"),
                         type_: Type::Reference(
                             Reference {
                                 kind: ReferenceKind::Borrow,
@@ -226,9 +206,7 @@ mod test {
                     )]
                 },
                 asyncness: None,
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![],
                 output: None
             }
@@ -242,9 +220,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 asyncness: Some(Async),
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![],
                 output: None
             }
@@ -271,22 +247,14 @@ mod test {
                     )]
                 },
                 asyncness: Some(Async),
-                identifier: Identifier {
-                    name: String::from("test")
-                },
+                identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("a")
-                        },
-                        type_: Type::Compound(Identifier {
-                            name: String::from("String")
-                        })
+                        identifier: Identifier::new("a"),
+                        type_: Type::Compound(Identifier::new("String")
                     },
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("b")
-                        },
+                        identifier: Identifier::new("b"),
                         type_: Type::Reference(
                             Reference {
                                 kind: ReferenceKind::Borrow,
@@ -296,9 +264,7 @@ mod test {
                         )
                     },
                     Parameter {
-                        identifier: Identifier {
-                            name: String::from("c")
-                        },
+                        identifier: Identifier::new("c"),
                         type_: Type::Reference(
                             Reference {
                                 kind: ReferenceKind::Borrow,

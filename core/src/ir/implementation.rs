@@ -86,9 +86,7 @@ mod test {
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier {
-                    name: String::from("Test")
-                },
+                self_: Identifier::new("Test"),
                 items: vec![]
             }
         );
@@ -114,9 +112,7 @@ mod test {
                         }
                     )]
                 },
-                self_: Identifier {
-                    name: String::from("Test")
-                },
+                self_: Identifier::new("Test"),
                 items: vec![]
             }
         );
@@ -133,13 +129,9 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier {
-                    name: String::from("Test")
-                },
+                self_: Identifier::new("Test"),
                 items: vec![ImplementationItem::Constant(Constant {
-                    identifier: Identifier {
-                        name: String::from("a")
-                    },
+                    identifier: Identifier::new("a"),
                     type_: Type::Atomic(Atomic::Integer(Integer::I32)),
                     literal: Literal::Integer(2)
                 })]
@@ -158,15 +150,11 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier {
-                    name: String::from("Test")
-                },
+                self_: Identifier::new("Test"),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
                     asyncness: None,
-                    identifier: Identifier {
-                        name: String::from("a")
-                    },
+                    identifier: Identifier::new("a"),
                     inputs: vec![],
                     output: None
                 })]
@@ -186,23 +174,17 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier {
-                    name: String::from("Test")
-                },
+                self_: Identifier::new("Test"),
                 items: vec![
                     ImplementationItem::Constant(Constant {
-                        identifier: Identifier {
-                            name: String::from("a")
-                        },
+                        identifier: Identifier::new("a"),
                         type_: Type::Atomic(Atomic::Integer(Integer::I32)),
                         literal: Literal::Integer(2)
                     }),
                     ImplementationItem::Method(Function {
                         attributes: Attributes { attributes: vec![] },
                         asyncness: None,
-                        identifier: Identifier {
-                            name: String::from("b")
-                        },
+                        identifier: Identifier::new("b"),
                         inputs: vec![],
                         output: None
                     })

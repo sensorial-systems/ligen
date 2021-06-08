@@ -131,9 +131,7 @@ mod test {
             Parameter::try_from(parse::<FnArg>(quote! {name: *const String}))
                 .expect("Returned Error"),
             Parameter {
-                identifier: Identifier {
-                    name: String::from("name")
-                },
+                identifier: Identifier::new("name"),
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Pointer,
@@ -180,9 +178,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
             Parameter {
-                identifier: Identifier {
-                    name: String::from("self")
-                },
+                identifier: Identifier::new("self"),
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
@@ -199,9 +195,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
             Parameter {
-                identifier: Identifier {
-                    name: String::from("self")
-                },
+                identifier: Identifier::new("self"),
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
