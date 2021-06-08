@@ -251,7 +251,7 @@ mod test {
                 inputs: vec![
                     Parameter {
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String")
+                        type_: Type::Compound(Identifier::new("String"))
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
