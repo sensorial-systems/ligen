@@ -1,4 +1,4 @@
-use crate::ir::{Attributes, Constant, Function, Identifier};
+use crate::ir::{Attributes, Constant, Function, Identifier, Type};
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -65,6 +65,44 @@ impl TryFrom<ItemImpl> for Implementation {
         } else {
             Err("Impl Block Identifier not found")
         }
+    }
+}
+
+impl Implementation {
+    /// Maps the dependencies in the method signatures
+    pub fn dependencies(&self) -> Vec<Identifier> {
+        let mut deps: Vec<Identifier> = vec![];
+        for item in &self.items {
+            if let ImplementationItem::Method(method) = item {
+                let input_deps: Vec<Identifier> = method
+                    .inputs
+                    .clone()
+                    .into_iter()
+                    .filter_map(|parameter| {
+                        if let Type::Compound(ident) = parameter.type_ {
+                            // FIXME: Check if type is a dependency
+                            if !deps.iter().any(|inner| inner.name == ident.name) {
+                                Some(ident)
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                deps.extend(input_deps);
+                if let Some(Type::Compound(ident)) = method.output.clone() {
+                    if !deps.iter().any(|inner| inner.name == ident.name)
+                    // FIXME: Check if type is a dependency
+                        && ident.name != "Self"
+                    {
+                        deps.push(ident);
+                    }
+                }
+            }
+        }
+        deps
     }
 }
 
@@ -190,6 +228,28 @@ mod test {
                     })
                 ]
             }
+        );
+    }
+
+    #[test]
+    fn impl_block_dependencies() {
+        assert_eq!(
+            Implementation::try_from(parse::<ItemImpl>(quote! {
+                impl Person {
+                    pub fn new(name: FullName, age: Age) -> Self { ... }
+                    pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
+                }
+            }))
+            .expect("Failed to build implementation from TokenStream")
+            .dependencies(),
+            vec![
+                Identifier::new("FullName"),
+                Identifier::new("Age"),
+                Identifier::new("A"),
+                Identifier::new("B"),
+                Identifier::new("C"),
+                Identifier::new("D")
+            ]
         );
     }
 }
