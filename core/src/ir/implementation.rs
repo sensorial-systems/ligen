@@ -1,4 +1,4 @@
-use crate::ir::{Attributes, Constant, Function, Identifier};
+use crate::ir::{Attributes, Constant, Function, Identifier, Type};
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -68,6 +68,30 @@ impl TryFrom<ItemImpl> for Implementation {
     }
 }
 
+impl Implementation {
+    /// Maps the dependencies in the method signatures
+    pub fn dependencies(&self) -> Vec<Type> {
+        let mut deps: Vec<Type> = vec![];
+        for item in &self.items {
+            if let ImplementationItem::Method(method) = item {
+                method.inputs.clone().into_iter().for_each(|parameter| {
+                    if !deps.iter().any(|typ| typ == &parameter.type_) {
+                        deps.push(parameter.type_);
+                    }
+                });
+                if let Some(type_) = method.output.clone() {
+                    if !deps.iter().any(|typ| typ == &type_)
+                        && type_ != Type::Compound(Identifier::new("Self"))
+                    {
+                        deps.push(type_);
+                    }
+                }
+            }
+        }
+        deps
+    }
+}
+
 #[cfg(test)]
 mod test {
     use std::convert::TryFrom;
@@ -75,7 +99,9 @@ mod test {
     use super::{
         Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
     };
-    use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
+    use crate::ir::{
+        Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility,
+    };
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -153,6 +179,7 @@ mod test {
                 self_: Identifier::new("Test"),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
+                    visibility: Visibility::Inherited,
                     asyncness: None,
                     identifier: Identifier::new("a"),
                     inputs: vec![],
@@ -183,6 +210,7 @@ mod test {
                     }),
                     ImplementationItem::Method(Function {
                         attributes: Attributes { attributes: vec![] },
+                        visibility: Visibility::Inherited,
                         asyncness: None,
                         identifier: Identifier::new("b"),
                         inputs: vec![],
@@ -190,6 +218,35 @@ mod test {
                     })
                 ]
             }
+        );
+    }
+
+    #[test]
+    fn impl_block_dependencies() {
+        assert_eq!(
+            Implementation::try_from(parse::<ItemImpl>(quote! {
+                impl Person {
+                    pub fn new(name: FullName, age: Age) -> Self { ... }
+                    pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
+                    pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
+                }
+            }))
+            .expect("Failed to build implementation from TokenStream")
+            .dependencies(),
+            vec![
+                Type::Compound(Identifier::new("FullName")),
+                Type::Compound(Identifier::new("Age")),
+                Type::Compound(Identifier::new("A")),
+                Type::Compound(Identifier::new("B")),
+                Type::Compound(Identifier::new("C")),
+                Type::Compound(Identifier::new("D")),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self")))}),
+                Type::Atomic(Atomic::Integer(Integer::I32)),
+                Type::Compound(Identifier::new("String")),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str")))}),
+                Type::Compound(Identifier::new("Vec")),
+                Type::Compound(Identifier::new("Box")),
+            ]
         );
     }
 }

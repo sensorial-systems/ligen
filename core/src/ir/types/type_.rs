@@ -1,8 +1,8 @@
 use crate::ir::{Atomic, Identifier, Reference, ReferenceKind};
-use std::convert::TryFrom;
-use syn::{TypePath, TypeReference, TypePtr};
-use quote::{ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
+use quote::{ToTokens, TokenStreamExt};
+use std::convert::TryFrom;
+use syn::{TypePath, TypePtr, TypeReference};
 
 #[derive(Debug, PartialEq, Clone)]
 /// Type Enum
@@ -32,15 +32,23 @@ impl TryFrom<syn::Type> for Type {
             Ok(path.into())
         } else {
             let reference = match syn_type {
-                syn::Type::Reference(TypeReference { elem, mutability, .. }) => Some((ReferenceKind::Borrow, elem, mutability)),
-                syn::Type::Ptr(TypePtr { elem, mutability, .. }) => Some((ReferenceKind::Pointer, elem, mutability)),
-                _ => None
+                syn::Type::Reference(TypeReference {
+                    elem, mutability, ..
+                }) => Some((ReferenceKind::Borrow, elem, mutability)),
+                syn::Type::Ptr(TypePtr {
+                    elem, mutability, ..
+                }) => Some((ReferenceKind::Pointer, elem, mutability)),
+                _ => None,
             };
             if let Some((kind, elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem {
                     let is_constant = mutability.is_none();
                     let type_ = Box::new(path.into());
-                    Ok(Self::Reference(Reference { kind, is_constant, type_ }))
+                    Ok(Self::Reference(Reference {
+                        kind,
+                        is_constant,
+                        type_,
+                    }))
                 } else {
                     Err("Couldn't find path")
                 }
