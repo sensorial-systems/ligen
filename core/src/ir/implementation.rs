@@ -95,7 +95,7 @@ impl Implementation {
                 if let Some(Type::Compound(ident)) = method.output.clone() {
                     if !deps.iter().any(|inner| inner.name == ident.name)
                     // FIXME: Check if type is a dependency
-                        && ident.name != "Self"
+                        && ident != Identifier::new("Self")
                     {
                         deps.push(ident);
                     }
