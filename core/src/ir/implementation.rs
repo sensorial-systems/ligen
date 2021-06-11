@@ -101,7 +101,7 @@ mod test {
     use super::{
         Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
     };
-    use crate::ir::{Atomic, Attribute, Integer, Literal, Type};
+    use crate::ir::{Atomic, Attribute, Integer, Literal, Type, Visibility};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -179,6 +179,7 @@ mod test {
                 self_: Identifier::new("Test"),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
+                    vis: Visibility::Inherited,
                     asyncness: None,
                     identifier: Identifier::new("a"),
                     inputs: vec![],
@@ -209,6 +210,7 @@ mod test {
                     }),
                     ImplementationItem::Method(Function {
                         attributes: Attributes { attributes: vec![] },
+                        vis: Visibility::Inherited,
                         asyncness: None,
                         identifier: Identifier::new("b"),
                         inputs: vec![],

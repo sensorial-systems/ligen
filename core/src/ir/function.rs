@@ -7,10 +7,20 @@ use syn::{ImplItemMethod, ItemFn};
 pub struct Async;
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum Visibility {
+    Public,
+    Crate,
+    Restricted,
+    Inherited,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 /// Function Struct
 pub struct Function {
     /// Attributes field.
     pub attributes: Attributes,
+    /// Visibility field.
+    pub vis: Visibility,
     /// Asyncness field.
     pub asyncness: Option<Async>,
     /// Identifier field.
@@ -19,6 +29,17 @@ pub struct Function {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
+}
+
+impl From<syn::Visibility> for Visibility {
+    fn from(vis: syn::Visibility) -> Self {
+        match vis {
+            syn::Visibility::Public(_) => Self::Public,
+            syn::Visibility::Crate(_) => Self::Crate,
+            syn::Visibility::Restricted(_) => Self::Restricted,
+            syn::Visibility::Inherited => Self::Inherited,
+        }
+    }
 }
 
 macro_rules! impl_function {
@@ -51,6 +72,7 @@ macro_rules! impl_function {
                             .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                             .collect(),
                     },
+                    vis: Visibility::from(item_fn.vis),
                     asyncness: match asyncness {
                         Some(_x) => Some(Async),
                         None => None,
@@ -70,7 +92,9 @@ impl_function!(ImplItemMethod);
 #[cfg(test)]
 mod test {
     use super::{Async, Function, ImplItemMethod, ItemFn, Type};
-    use crate::ir::{Attribute, Attributes, Identifier, Literal, Parameter, Reference, ReferenceKind};
+    use crate::ir::{
+        Attribute, Attributes, Identifier, Literal, Parameter, Reference, ReferenceKind, Visibility,
+    };
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -80,6 +104,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -94,6 +119,7 @@ mod test {
             Function::from(parse::<ImplItemMethod>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -108,6 +134,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test(a: String, b: String) {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -131,6 +158,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() -> String {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -147,6 +175,7 @@ mod test {
             )),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -156,32 +185,26 @@ mod test {
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
-                        type_: Type::Reference(
-                            Reference {
-                                kind: ReferenceKind::Borrow,
-                                is_constant: true,
-                                type_: Box::new(Type::Compound(Identifier::new("String")))
-                            }
-                        )
+                        type_: Type::Reference(Reference {
+                            kind: ReferenceKind::Borrow,
+                            is_constant: true,
+                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                        })
                     },
                     Parameter {
                         identifier: Identifier::new("c"),
-                        type_: Type::Reference(
-                            Reference {
-                                kind: ReferenceKind::Borrow,
-                                is_constant: false,
-                                type_: Box::new(Type::Compound(Identifier::new("String")))
-                            }
-                        )
+                        type_: Type::Reference(Reference {
+                            kind: ReferenceKind::Borrow,
+                            is_constant: false,
+                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                        })
                     },
                 ],
-                output: Some(Type::Reference(
-                    Reference {
-                        kind: ReferenceKind::Borrow,
-                        is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
-                    }
-                ))
+                output: Some(Type::Reference(Reference {
+                    kind: ReferenceKind::Borrow,
+                    is_constant: true,
+                    type_: Box::new(Type::Compound(Identifier::new("String")))
+                }))
             }
         );
     }
@@ -205,6 +228,7 @@ mod test {
                         }
                     )]
                 },
+                vis: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -219,6 +243,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {async fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Inherited,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -246,6 +271,7 @@ mod test {
                         }
                     )]
                 },
+                vis: Visibility::Inherited,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -255,32 +281,41 @@ mod test {
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
-                        type_: Type::Reference(
-                            Reference {
-                                kind: ReferenceKind::Borrow,
-                                is_constant: true,
-                                type_: Box::new(Type::Compound(Identifier::new("String")))
-                            }
-                        )
+                        type_: Type::Reference(Reference {
+                            kind: ReferenceKind::Borrow,
+                            is_constant: true,
+                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                        })
                     },
                     Parameter {
                         identifier: Identifier::new("c"),
-                        type_: Type::Reference(
-                            Reference {
-                                kind: ReferenceKind::Borrow,
-                                is_constant: false,
-                                type_: Box::new(Type::Compound(Identifier::new("String")))
-                            }
-                        )
+                        type_: Type::Reference(Reference {
+                            kind: ReferenceKind::Borrow,
+                            is_constant: false,
+                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                        })
                     },
                 ],
-                output: Some(Type::Reference(
-                    Reference {
-                        kind: ReferenceKind::Borrow,
-                        is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
-                    }
-                ))
+                output: Some(Type::Reference(Reference {
+                    kind: ReferenceKind::Borrow,
+                    is_constant: true,
+                    type_: Box::new(Type::Compound(Identifier::new("String")))
+                }))
+            }
+        );
+    }
+
+    #[test]
+    fn function_pub() {
+        assert_eq!(
+            Function::from(parse::<ImplItemMethod>(quote! {pub fn test() {}})),
+            Function {
+                attributes: Attributes { attributes: vec![] },
+                vis: Visibility::Public,
+                asyncness: None,
+                identifier: Identifier::new("test"),
+                inputs: vec![],
+                output: None
             }
         );
     }
