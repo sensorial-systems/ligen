@@ -6,11 +6,16 @@ use syn::{ImplItemMethod, ItemFn};
 /// Async Struct
 pub struct Async;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
+/// Function visibility.
 pub enum Visibility {
+    /// Public
     Public,
+    /// Crate
     Crate,
+    /// Restricted
     Restricted,
+    /// Inherited
     Inherited,
 }
 
