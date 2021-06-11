@@ -228,7 +228,7 @@ mod test {
                 impl Person {
                     pub fn new(name: FullName, age: Age) -> Self { ... }
                     pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
-                    pub fn builtin(age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
+                    pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
                 }
             }))
             .expect("Failed to build implementation from TokenStream")
@@ -240,6 +240,7 @@ mod test {
                 Type::Compound(Identifier::new("B")),
                 Type::Compound(Identifier::new("C")),
                 Type::Compound(Identifier::new("D")),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self")))}),
                 Type::Atomic(Atomic::Integer(Integer::I32)),
                 Type::Compound(Identifier::new("String")),
                 Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str")))}),
