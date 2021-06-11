@@ -179,7 +179,7 @@ mod test {
                 self_: Identifier::new("Test"),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
-                    vis: Visibility::Inherited,
+                    visibility: Visibility::Inherited,
                     asyncness: None,
                     identifier: Identifier::new("a"),
                     inputs: vec![],
@@ -210,7 +210,7 @@ mod test {
                     }),
                     ImplementationItem::Method(Function {
                         attributes: Attributes { attributes: vec![] },
-                        vis: Visibility::Inherited,
+                        visibility: Visibility::Inherited,
                         asyncness: None,
                         identifier: Identifier::new("b"),
                         inputs: vec![],

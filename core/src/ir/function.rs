@@ -37,8 +37,8 @@ pub struct Function {
 }
 
 impl From<syn::Visibility> for Visibility {
-    fn from(vis: syn::Visibility) -> Self {
-        match vis {
+    fn from(visibility: syn::Visibility) -> Self {
+        match visibility {
             syn::Visibility::Public(_) => Self::Public,
             syn::Visibility::Crate(_) => Self::Crate,
             syn::Visibility::Restricted(_) => Self::Restricted,
@@ -77,7 +77,7 @@ macro_rules! impl_function {
                             .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                             .collect(),
                     },
-                    vis: Visibility::from(item_fn.vis),
+                    visibility: Visibility::from(item_fn.vis),
                     asyncness: match asyncness {
                         Some(_x) => Some(Async),
                         None => None,
