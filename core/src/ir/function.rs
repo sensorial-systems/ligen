@@ -25,7 +25,7 @@ pub struct Function {
     /// Attributes field.
     pub attributes: Attributes,
     /// Visibility field.
-    pub vis: Visibility,
+    pub visibility: Visibility,
     /// Asyncness field.
     pub asyncness: Option<Async>,
     /// Identifier field.
@@ -109,7 +109,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -124,7 +124,7 @@ mod test {
             Function::from(parse::<ImplItemMethod>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -139,7 +139,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test(a: String, b: String) {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -163,7 +163,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() -> String {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -180,7 +180,7 @@ mod test {
             )),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -233,7 +233,7 @@ mod test {
                         }
                     )]
                 },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -248,7 +248,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {async fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -276,7 +276,7 @@ mod test {
                         }
                     )]
                 },
-                vis: Visibility::Inherited,
+                visibility: Visibility::Inherited,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -316,7 +316,7 @@ mod test {
             Function::from(parse::<ImplItemMethod>(quote! {pub fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                vis: Visibility::Public,
+                visibility: Visibility::Public,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
