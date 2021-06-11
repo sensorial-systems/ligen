@@ -81,7 +81,7 @@ impl Implementation {
                     .filter_map(|parameter| {
                         if let Type::Compound(ident) = parameter.type_ {
                             // FIXME: Check if type is a dependency
-                            if !deps.iter().any(|inner| inner.name == ident.name) {
+                            if !deps.iter().any(|inner| inner == &ident) {
                                 Some(ident)
                             } else {
                                 None
@@ -93,7 +93,7 @@ impl Implementation {
                     .collect();
                 deps.extend(input_deps);
                 if let Some(Type::Compound(ident)) = method.output.clone() {
-                    if !deps.iter().any(|inner| inner.name == ident.name)
+                    if !deps.iter().any(|inner| inner == &ident)
                     // FIXME: Check if type is a dependency
                         && ident != Identifier::new("Self")
                     {
