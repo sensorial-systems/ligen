@@ -8,7 +8,7 @@ use syn::{parse2, ItemImpl};
 pub struct Implementation {
     /// attributes field
     pub attributes: Attributes,
-    /// self_ f  kind: (), is_constant: (), type_: ()kind: (), is_constant: (), type_: () kind: (), is_constant: (), type_: () kind: (), is_constant: (), type_: ()ield
+    /// self_ field
     pub self_: Identifier,
     /// items field
     pub items: Vec<ImplementationItem>,
