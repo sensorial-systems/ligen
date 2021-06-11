@@ -8,7 +8,7 @@ use syn::{parse2, ItemImpl};
 pub struct Implementation {
     /// attributes field
     pub attributes: Attributes,
-    /// self_ field
+    /// self_ f  kind: (), is_constant: (), type_: ()kind: (), is_constant: (), type_: () kind: (), is_constant: (), type_: () kind: (), is_constant: (), type_: ()ield
     pub self_: Identifier,
     /// items field
     pub items: Vec<ImplementationItem>,
@@ -70,31 +70,20 @@ impl TryFrom<ItemImpl> for Implementation {
 
 impl Implementation {
     /// Maps the dependencies in the method signatures
-    pub fn dependencies(&self) -> Vec<Identifier> {
-        let mut deps: Vec<Identifier> = vec![];
+    pub fn dependencies(&self) -> Vec<Type> {
+        let mut deps: Vec<Type> = vec![];
         for item in &self.items {
             if let ImplementationItem::Method(method) = item {
-                let input_deps: Vec<Identifier> = method
-                    .inputs
-                    .clone()
-                    .into_iter()
-                    .filter_map(|parameter| {
-                        if let Type::Compound(ident) = parameter.type_ {
-                            if !deps.iter().any(|inner| inner == &ident) {
-                                Some(ident)
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
-                deps.extend(input_deps);
-                if let Some(Type::Compound(ident)) = method.output.clone() {
-                    if !deps.iter().any(|inner| inner == &ident) && ident != Identifier::new("Self")
+                method.inputs.clone().into_iter().for_each(|parameter| {
+                    if !deps.iter().any(|typ| typ == &parameter.type_) {
+                        deps.push(parameter.type_);
+                    }
+                });
+                if let Some(type_) = method.output.clone() {
+                    if !deps.iter().any(|typ| typ == &type_)
+                        && type_ != Type::Compound(Identifier::new("Self"))
                     {
-                        deps.push(ident);
+                        deps.push(type_);
                     }
                 }
             }
@@ -110,7 +99,9 @@ mod test {
     use super::{
         Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
     };
-    use crate::ir::{Atomic, Attribute, Integer, Literal, Type, Visibility};
+    use crate::ir::{
+        Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility,
+    };
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -243,15 +234,17 @@ mod test {
             .expect("Failed to build implementation from TokenStream")
             .dependencies(),
             vec![
-                Identifier::new("FullName"),
-                Identifier::new("Age"),
-                Identifier::new("A"),
-                Identifier::new("B"),
-                Identifier::new("C"),
-                Identifier::new("D"),
-                Identifier::new("String"),
-                Identifier::new("Vec"),
-                Identifier::new("Box")
+                Type::Compound(Identifier::new("FullName")),
+                Type::Compound(Identifier::new("Age")),
+                Type::Compound(Identifier::new("A")),
+                Type::Compound(Identifier::new("B")),
+                Type::Compound(Identifier::new("C")),
+                Type::Compound(Identifier::new("D")),
+                Type::Atomic(Atomic::Integer(Integer::I32)),
+                Type::Compound(Identifier::new("String")),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str")))}),
+                Type::Compound(Identifier::new("Vec")),
+                Type::Compound(Identifier::new("Box")),
             ]
         );
     }
