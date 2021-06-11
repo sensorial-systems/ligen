@@ -1,4 +1,4 @@
-use crate::ir::{Attributes, Constant, Function, Identifier, Type};
+use crate::ir::{Attributes, Constant, Function, Identifier};
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -74,32 +74,20 @@ impl Implementation {
         let mut deps: Vec<Identifier> = vec![];
         for item in &self.items {
             if let ImplementationItem::Method(method) = item {
-                let input_deps: Vec<Identifier> = method
-                    .inputs
-                    .clone()
-                    .into_iter()
-                    .filter_map(|parameter| {
-                        if let Type::Compound(ident) = parameter.type_ {
-                            // FIXME: Check if type is a dependency
-                            if !deps.iter().any(|inner| inner == &ident) {
-                                Some(ident)
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
+                method.inputs.clone().into_iter().for_each(|parameter| {
+                    if let Some(dep) = parameter.type_.is_dep() {
+                        if !deps.iter().any(|inner| inner == dep) {
+                            deps.push(dep.clone())
                         }
-                    })
-                    .collect();
-                deps.extend(input_deps);
-                if let Some(Type::Compound(ident)) = method.output.clone() {
-                    if !deps.iter().any(|inner| inner == &ident)
-                    // FIXME: Check if type is a dependency
-                        && ident != Identifier::new("Self")
-                    {
-                        deps.push(ident);
                     }
-                }
+                });
+                if let Some(typ) = method.output.clone() {
+                    if let Some(dep) = typ.is_dep() {
+                        if !deps.iter().any(|inner| inner == dep) {
+                            deps.push(dep.clone());
+                        }
+                    }
+                };
             }
         }
         deps
@@ -238,6 +226,7 @@ mod test {
                 impl Person {
                     pub fn new(name: FullName, age: Age) -> Self { ... }
                     pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
+                    pub fn builtin(age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
                 }
             }))
             .expect("Failed to build implementation from TokenStream")
