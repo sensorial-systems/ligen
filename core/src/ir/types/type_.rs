@@ -68,18 +68,3 @@ impl ToTokens for Type {
         }
     }
 }
-
-impl Type {
-    /// Checks if type is not a built-in rust type and returns it.
-    pub fn is_dep(&self) -> Option<&Identifier> {
-        if let Self::Compound(ident) = self {
-            match ident.name.as_str() {
-                // TODO: Add all built-in types
-                "String" | "Self" | "Vec" | "Box" => None,
-                _ => Some(ident),
-            }
-        } else {
-            None
-        }
-    }
-}

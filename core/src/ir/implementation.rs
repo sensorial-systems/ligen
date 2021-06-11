@@ -1,4 +1,4 @@
-use crate::ir::{Attributes, Constant, Function, Identifier};
+use crate::ir::{Attributes, Constant, Function, Identifier, Type};
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -74,20 +74,29 @@ impl Implementation {
         let mut deps: Vec<Identifier> = vec![];
         for item in &self.items {
             if let ImplementationItem::Method(method) = item {
-                method.inputs.clone().into_iter().for_each(|parameter| {
-                    if let Some(dep) = parameter.type_.is_dep() {
-                        if !deps.iter().any(|inner| inner == dep) {
-                            deps.push(dep.clone())
+                let input_deps: Vec<Identifier> = method
+                    .inputs
+                    .clone()
+                    .into_iter()
+                    .filter_map(|parameter| {
+                        if let Type::Compound(ident) = parameter.type_ {
+                            if !deps.iter().any(|inner| inner == &ident) {
+                                Some(ident)
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
                         }
+                    })
+                    .collect();
+                deps.extend(input_deps);
+                if let Some(Type::Compound(ident)) = method.output.clone() {
+                    if !deps.iter().any(|inner| inner == &ident) && ident != Identifier::new("Self")
+                    {
+                        deps.push(ident);
                     }
-                });
-                if let Some(typ) = method.output.clone() {
-                    if let Some(dep) = typ.is_dep() {
-                        if !deps.iter().any(|inner| inner == dep) {
-                            deps.push(dep.clone());
-                        }
-                    }
-                };
+                }
             }
         }
         deps
@@ -239,7 +248,10 @@ mod test {
                 Identifier::new("A"),
                 Identifier::new("B"),
                 Identifier::new("C"),
-                Identifier::new("D")
+                Identifier::new("D"),
+                Identifier::new("String"),
+                Identifier::new("Vec"),
+                Identifier::new("Box")
             ]
         );
     }
