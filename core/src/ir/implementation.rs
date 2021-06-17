@@ -81,7 +81,7 @@ impl Implementation {
                 });
                 if let Some(type_) = method.output.clone() {
                     if !deps.iter().any(|typ| typ == &type_)
-                        && type_ != Type::Compound(Identifier::new("Self"))
+                        && type_ != Type::Compound(Identifier::new("Self").into())
                     {
                         deps.push(type_);
                     }
@@ -234,18 +234,18 @@ mod test {
             .expect("Failed to build implementation from TokenStream")
             .dependencies(),
             vec![
-                Type::Compound(Identifier::new("FullName")),
-                Type::Compound(Identifier::new("Age")),
-                Type::Compound(Identifier::new("A")),
-                Type::Compound(Identifier::new("B")),
-                Type::Compound(Identifier::new("C")),
-                Type::Compound(Identifier::new("D")),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self")))}),
+                Type::Compound(Identifier::new("FullName").into()),
+                Type::Compound(Identifier::new("Age").into()),
+                Type::Compound(Identifier::new("A").into()),
+                Type::Compound(Identifier::new("B").into()),
+                Type::Compound(Identifier::new("C").into()),
+                Type::Compound(Identifier::new("D").into()),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self").into()))}),
                 Type::Atomic(Atomic::Integer(Integer::I32)),
-                Type::Compound(Identifier::new("String")),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str")))}),
-                Type::Compound(Identifier::new("Vec")),
-                Type::Compound(Identifier::new("Box")),
+                Type::Compound(Identifier::new("String").into()),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str").into()))}),
+                Type::Compound(Identifier::new("Vec").into()),
+                Type::Compound(Identifier::new("Box").into()),
             ]
         );
     }

@@ -33,15 +33,15 @@ impl TryFrom<FnArg> for Parameter {
                 mutability,
                 ..
             }) => {
-                let identifier = Identifier::new("self");
+                let identifier = Identifier::new("self").into();
                 let type_ = reference
                     .map(|_| {
                         let kind = ReferenceKind::Borrow;
                         let is_constant = mutability.is_none();
-                        let type_ = Box::new(Type::Compound(Identifier::new("Self")));
+                        let type_ = Box::new(Type::Compound(Identifier::new("Self").into()));
                         Type::Reference(Reference { kind, is_constant, type_ })
                     })
-                    .unwrap_or_else(|| Type::Compound(Identifier::new("Self")));
+                    .unwrap_or_else(|| Type::Compound(Identifier::new("Self").into()));
                 Ok(Self { identifier, type_ })
             },
         }
@@ -83,7 +83,7 @@ mod test {
             Parameter::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
             Parameter {
                 identifier: Identifier::new("name"),
-                type_: Type::Compound(Identifier::new("String"))
+                type_: Type::Compound(Identifier::new("String").into())
             }
         );
     }
@@ -98,7 +98,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
                     }
                 )
 
@@ -117,7 +117,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
                     }
                 )
 
@@ -136,7 +136,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Pointer,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
                     }
                 )
 
@@ -155,7 +155,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Pointer,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("String")))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
                     }
                 )
             }
@@ -167,8 +167,8 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
             Parameter {
-                identifier: Identifier::new("self"),
-                type_: Type::Compound(Identifier::new("Self"))
+                identifier: Identifier::new("self").into(),
+                type_: Type::Compound(Identifier::new("Self").into())
             }
         );
     }
@@ -178,12 +178,12 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
             Parameter {
-                identifier: Identifier::new("self"),
+                identifier: Identifier::new("self").into(),
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("Self")))
+                        type_: Box::new(Type::Compound(Identifier::new("Self").into()))
                     }
                 )
             }
@@ -195,12 +195,12 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
             Parameter {
-                identifier: Identifier::new("self"),
+                identifier: Identifier::new("self").into(),
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("Self")))
+                        type_: Box::new(Type::Compound(Identifier::new("Self").into()))
                     }
                 )
             }

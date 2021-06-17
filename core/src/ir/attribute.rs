@@ -28,6 +28,26 @@ pub struct Attributes {
     pub attributes: Vec<Attribute>,
 }
 
+impl Attributes {
+    /// Get named attribute e.g.: (name = "literal")
+    pub fn get_named(&self, name: &str) -> Option<Literal> {
+        self
+            .attributes
+            .iter()
+            .find_map(|attribute| {
+                if let Attribute::Named(identifier, literal) = attribute {
+                    if identifier.name == name {
+                        Some(literal.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+    }
+}
+
 impl TryFrom<TokenStream> for Attributes {
     type Error = &'static str;
     fn try_from(tokenstream: TokenStream) -> Result<Self, Self::Error> {

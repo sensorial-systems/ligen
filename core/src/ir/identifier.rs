@@ -11,8 +11,8 @@ pub struct Identifier {
 
 impl Identifier {
     /// Create a new Identifier
-    pub fn new(name: &str) -> Self {
-        let name = String::from(name);
+    pub fn new<S: AsRef<str>>(name: S) -> Self {
+        let name = String::from(name.as_ref());
         Self { name }
     }
 }

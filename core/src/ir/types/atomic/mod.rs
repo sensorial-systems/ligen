@@ -7,6 +7,7 @@ mod float;
 
 pub use integer::*;
 pub use float::*;
+use crate::ir::Identifier;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 /// Atomic Enum
@@ -23,8 +24,8 @@ pub enum Atomic {
 
 impl Atomic {
     /// Returns true if the identifier is an atomic type.
-    pub fn is_atomic(identifier: &str) -> bool {
-        match identifier {
+    pub fn is_atomic<I: Into<Identifier>>(identifier: I) -> bool {
+        match identifier.into().name.as_ref() {
             "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
             | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" => true,
             _ => false
@@ -63,7 +64,7 @@ impl From<syn::Path> for Atomic {
     fn from(path: syn::Path) -> Self {
         match path {
             syn::Path { segments, .. } => {
-                Self::try_from(segments[0].ident.clone()).expect("Failed to convert from Ident")
+                Self::try_from(segments.last().unwrap().ident.clone()).expect("Failed to convert from Ident")
             }
         }
     }

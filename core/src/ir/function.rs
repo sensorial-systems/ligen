@@ -145,11 +145,11 @@ mod test {
                 inputs: vec![
                     Parameter {
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String"))
+                        type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
-                        type_: Type::Compound(Identifier::new("String"))
+                        type_: Type::Compound(Identifier::new("String").into())
                     },
                 ],
                 output: None
@@ -167,7 +167,7 @@ mod test {
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
-                output: Some(Type::Compound(Identifier::new("String")))
+                output: Some(Type::Compound(Identifier::new("String").into()))
             }
         );
     }
@@ -186,14 +186,14 @@ mod test {
                 inputs: vec![
                     Parameter {
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String"))
+                        type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: true,
-                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
                         })
                     },
                     Parameter {
@@ -201,14 +201,14 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: false,
-                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
                     is_constant: true,
-                    type_: Box::new(Type::Compound(Identifier::new("String")))
+                    type_: Box::new(Type::Compound(Identifier::new("String").into()))
                 }))
             }
         );
@@ -282,14 +282,14 @@ mod test {
                 inputs: vec![
                     Parameter {
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String"))
+                        type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: true,
-                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
                         })
                     },
                     Parameter {
@@ -297,14 +297,14 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: false,
-                            type_: Box::new(Type::Compound(Identifier::new("String")))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
                     is_constant: true,
-                    type_: Box::new(Type::Compound(Identifier::new("String")))
+                    type_: Box::new(Type::Compound(Identifier::new("String").into()))
                 }))
             }
         );
