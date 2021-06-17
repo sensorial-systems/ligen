@@ -1,6 +1,7 @@
 //! proc-macro prelude.
 
 pub use crate::generator::Generator;
+pub use crate::generator::Context;
 pub use crate::ir;
 pub use crate::ir::processing::ReplaceIdentifier;
 

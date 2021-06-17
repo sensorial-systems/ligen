@@ -2,13 +2,11 @@
 
 pub mod prelude;
 
-mod context;
 mod ligen;
 mod ligen_package;
 mod proc_macro;
 mod proc_macro_attribute;
 
-pub use context::*;
 pub use ligen::*;
 pub use ligen_package::*;
 pub use proc_macro::*;

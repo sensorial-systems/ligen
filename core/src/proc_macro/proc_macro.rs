@@ -18,17 +18,20 @@ pub fn proc_macro(_attributes: TokenStream) -> TokenStream {
             use ligen_core::ir::processing::ReplaceIdentifier;
 
             let source_file = proc_macro::Span::call_site().source_file();
-            let source_file = ligen_c_core::SourceFile {
+            let source_file = ligen_core::generator::SourceFile {
                 is_real: source_file.is_real(),
                 path: source_file.path(),
             };
             let arguments =
-                ligen_core::proc_macro::Arguments::from_env().expect("Failed to get the arguments");
-            let context = ligen_c_core::Context {
+                ligen_core::generator::Arguments::from_env().expect("Failed to get the arguments");
+            let context = Context {
                 source_file,
                 arguments,
             };
-            ligen_c_core::ligen_c_package(context, attributes.into()).into()
+            let attributes: proc_macro2::TokenStream = attributes.into();
+            let attributes = ir::Attributes::try_from(attributes).expect("Couldn't get attributes.");
+            ligen_c_core::generator::ProjectGenerator::generate(&context, attributes);
+            ligen_c_core::generator::FFI::generate_rstring().into()
         }
 
         #[cfg(not(cargo_ligen))]

@@ -1,12 +1,15 @@
 //! Generators.
 
+mod context;
+
+pub use context::*;
+
 pub mod source;
 // TODO: Project generator.
 // pub mod project;
 
 
 use proc_macro2::TokenStream;
-use crate::proc_macro::Context;
 use std::fs::create_dir_all;
 use crate::ir::{Implementation, Attributes};
 

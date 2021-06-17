@@ -1,4 +1,4 @@
-use crate::proc_macro::Context;
+use crate::generator::Context;
 use crate::ir::{Attribute, Literal, Identifier, Attributes};
 
 use proc_macro2::TokenStream;

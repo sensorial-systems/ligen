@@ -1,6 +1,6 @@
 //! Arguments definition module.
 
-use crate::proc_macro::context::BuildType;
+use crate::generator::context::BuildType;
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
