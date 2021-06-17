@@ -1,11 +1,21 @@
 use proc_macro::TokenStream;
 
 #[proc_macro_attribute]
-pub fn ligen(args: TokenStream, input: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::ligen(Default::default(), args.into(), input.into()).into()
+pub fn ligen(attributes: TokenStream, input: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::ligen(Default::default(), attributes.into(), input.into()).into()
 }
 
 #[proc_macro]
-pub fn ligen_package(args: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::ligen_package(args.into()).into()
+pub fn ligen_package(attributes: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::ligen_package(attributes.into()).into()
+}
+
+#[proc_macro]
+pub fn proc_macro_attribute(attributes: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::proc_macro_attribute(attributes.into()).into()
+}
+
+#[proc_macro]
+pub fn proc_macro(attributes: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::proc_macro(attributes.into()).into()
 }
