@@ -5,12 +5,12 @@ pub mod prelude;
 mod ligen;
 mod ligen_package;
 mod proc_macro;
-mod proc_macro_attribute;
 
 pub use ligen::*;
 pub use ligen_package::*;
 pub use proc_macro::*;
-pub use proc_macro_attribute::*;
+
+mod utils;
 
 #[cfg(test)]
 mod test {

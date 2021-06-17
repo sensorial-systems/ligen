@@ -19,7 +19,7 @@ pub trait Generator {
     fn new(context: &Context, attributes: &Attributes) -> Self where Self: Sized;
 
     /// Main function called in the procedural macro.
-    fn generate(&self, context: &Context, implementation: &Implementation) -> TokenStream {
+    fn generate(&self, context: &Context, implementation: Option<&Implementation>) -> TokenStream {
         let target_dir_ligen = &context.arguments.target_dir.join("ligen");
         create_dir_all(target_dir_ligen).expect("Failed to create target directory for the header");
 
@@ -29,13 +29,15 @@ pub trait Generator {
         create_dir_all(project_dir.join("include")).expect("Failed to create include directory");
         create_dir_all(project_dir.join("lib")).expect("Failed to create lib directory");
 
-        self.generate_files(&context, &implementation);
-        self.generate_externs(&context, &implementation)
+        self.generate_files(&context, implementation);
+        self.generate_externs(&context, implementation)
     }
 
     /// Generate FFI externs.
-    fn generate_externs(&self, context: &Context, implementation: &Implementation) -> TokenStream;
+    fn generate_externs(&self, _context: &Context, _implementation: Option<&Implementation>) -> TokenStream {
+        TokenStream::new()
+    }
     
     /// Generate files.
-    fn generate_files(&self, context: &Context, implementation: &Implementation);
+    fn generate_files(&self, context: &Context, implementation: Option<&Implementation>);
 }
