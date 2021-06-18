@@ -10,8 +10,7 @@ pub use ligen::*;
 pub use ligen_package::*;
 pub use proc_macro::*;
 
-mod utils;
-
+// TODO: Can this be moved to a better place?
 #[cfg(test)]
 mod test {
     use crate::proc_macro::ligen;
