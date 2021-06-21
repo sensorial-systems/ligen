@@ -1,5 +1,6 @@
 //! Arguments definition module.
 
+use crate::prelude::*;
 use crate::generator::context::BuildType;
 
 use serde::{Deserialize, Serialize};
@@ -30,7 +31,7 @@ impl Arguments {
     }
 
     /// Parses the JSON representation from CARGO_LIGEN_ARGUMENTS.
-    pub fn from_env() -> Result<Self, String> {
+    pub fn from_env() -> Result<Self> {
         match std::env::var("CARGO_LIGEN_ARGUMENTS") {
             Ok(json_string) => match serde_json::from_str(&json_string) {
                 Ok(arguments) => Ok(arguments),

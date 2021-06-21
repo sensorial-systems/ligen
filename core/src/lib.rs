@@ -9,7 +9,11 @@
 #![warn(unused_import_braces)]
 #![warn(unused_qualifications)]
 
-mod prelude;
+#![cfg_attr(cargo_ligen, feature(proc_macro_span))]
+
+extern crate proc_macro as rust_proc_macro;
+
+pub mod prelude;
 pub mod proc_macro;
 pub mod ir;
 pub mod utils;

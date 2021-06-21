@@ -4,11 +4,12 @@ pub mod prelude;
 
 mod ligen;
 mod ligen_package;
-mod proc_macro;
+mod proc_macros;
 
 pub use ligen::*;
 pub use ligen_package::*;
-pub use proc_macro::*;
+pub use proc_macros::*;
+pub use rust_proc_macro::*;
 
 // TODO: Can this be moved to a better place?
 #[cfg(test)]

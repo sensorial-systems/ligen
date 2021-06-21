@@ -1,7 +1,10 @@
+use crate::prelude::*;
 use crate::ir::{Attributes, Constant, Function, Identifier, Type};
+use crate::proc_macro;
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
+use crate::ir::processing::ReplaceIdentifier;
 
 #[derive(Debug, PartialEq, Clone)]
 /// Function Struct
@@ -24,28 +27,36 @@ pub enum ImplementationItem {
 }
 
 impl TryFrom<TokenStream> for Implementation {
-    type Error = &'static str;
-    fn try_from(tokenstream: TokenStream) -> Result<Self, Self::Error> {
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
         parse2::<ItemImpl>(tokenstream)
-            .map_err(|_| "Failed to parse to Implementation.")
+            .map_err(|_| "Failed to parse to Implementation.".into())
             .and_then(|item| item.try_into())
     }
 }
 
+impl TryFrom<proc_macro::TokenStream> for Implementation {
+    type Error = Error;
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+        let tokenstream: TokenStream = tokenstream.into();
+        tokenstream.try_into()
+    }
+}
+
 impl TryFrom<syn::ImplItem> for ImplementationItem {
-    type Error = &'static str;
-    fn try_from(impl_item: syn::ImplItem) -> Result<Self, Self::Error> {
+    type Error = Error;
+    fn try_from(impl_item: syn::ImplItem) -> Result<Self> {
         match impl_item {
             syn::ImplItem::Const(impl_item_const) => Ok(Self::Constant(impl_item_const.into())),
             syn::ImplItem::Method(impl_item_method) => Ok(Self::Method(impl_item_method.into())),
-            _ => Err("Only Const and Method Impl items are currently supported"),
+            _ => Err("Only Const and Method Impl items are currently supported".into()),
         }
     }
 }
 
 impl TryFrom<ItemImpl> for Implementation {
-    type Error = &'static str;
-    fn try_from(item_impl: ItemImpl) -> Result<Self, Self::Error> {
+    type Error = Error;
+    fn try_from(item_impl: ItemImpl) -> Result<Self> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = *item_impl.self_ty {
             Ok(Self {
                 attributes: Attributes {
@@ -63,13 +74,13 @@ impl TryFrom<ItemImpl> for Implementation {
                     .collect(),
             })
         } else {
-            Err("Impl Block Identifier not found")
+            Err("Impl Block Identifier not found".into())
         }
     }
 }
 
 impl Implementation {
-    /// Maps the dependencies in the method signatures
+    /// Maps the dependencies in the method signatures.
     pub fn dependencies(&self) -> Vec<Type> {
         let mut deps: Vec<Type> = vec![];
         for item in &self.items {
@@ -90,7 +101,30 @@ impl Implementation {
         }
         deps
     }
+
+    /// Replace all the occurrences of `Self` and `self` by the real object name.
+    /// e.g.:
+    /// ```rust
+    /// impl Object {
+    ///     fn f(self: &Self) {}
+    /// }
+    /// ```
+    /// becomes
+    /// ```rust
+    /// impl Object {
+    ///     fn f(object: &Object) {}
+    /// }
+    /// ```
+    pub fn replace_self_with_real_names(&mut self) {
+        let id = self.self_.clone();
+        let mut lower_case_id = id.clone();
+        lower_case_id.name = lower_case_id.name.to_lowercase();
+        self.replace_identifier(&Identifier::from("Self"), &id);
+        self.replace_identifier(&Identifier::from("self"), &lower_case_id);
+    }
 }
+
+
 
 #[cfg(test)]
 mod test {

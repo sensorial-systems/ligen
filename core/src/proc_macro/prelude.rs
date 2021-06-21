@@ -1,11 +1,7 @@
-//! proc-macro prelude.
+//! proc-macro prelude. It's internally used by the procedural macro functions.
 
 pub use crate::generator::Generator;
 pub use crate::generator::Context;
-pub use crate::ir;
-pub use crate::ir::processing::ReplaceIdentifier;
 
-pub use std::convert::TryFrom;
-
-pub use quote::quote;
+pub use std::convert::TryInto;
 pub use quote::TokenStreamExt;

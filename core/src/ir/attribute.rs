@@ -1,9 +1,10 @@
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
+use crate::proc_macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use syn::{
     parse::{Parse, ParseStream},
     parse2, AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Token,
@@ -49,9 +50,17 @@ impl Attributes {
 }
 
 impl TryFrom<TokenStream> for Attributes {
-    type Error = &'static str;
-    fn try_from(tokenstream: TokenStream) -> Result<Self, Self::Error> {
-        parse2::<Attributes>(tokenstream).map_err(|_| "Failed to parse Attributes")
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
+        parse2::<Attributes>(tokenstream).map_err(|_| "Failed to parse Attributes".into())
+    }
+}
+
+impl TryFrom<proc_macro::TokenStream> for Attributes {
+    type Error = Error;
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+        let tokenstream: TokenStream = tokenstream.into();
+        tokenstream.try_into()
     }
 }
 

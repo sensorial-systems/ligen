@@ -8,6 +8,7 @@ pub use arguments::*;
 pub use build_type::*;
 pub use source_file::*;
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -17,4 +18,14 @@ pub struct Context {
     pub source_file: SourceFile,
     /// Arguments.
     pub arguments: Arguments,
+}
+
+impl Context {
+    /// Get the current generator context by getting the arguments from the environment varilables,
+    /// which might fail if they aren't correctly set from `cargo-ligen`.
+    pub fn current() -> Result<Self> {
+        let source_file = SourceFile::current();
+        let arguments = Arguments::from_env()?;
+        Ok(Self { source_file, arguments })
+    }
 }
