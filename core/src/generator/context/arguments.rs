@@ -35,7 +35,7 @@ impl Arguments {
         match std::env::var("CARGO_LIGEN_ARGUMENTS") {
             Ok(json_string) => match serde_json::from_str(&json_string) {
                 Ok(arguments) => Ok(arguments),
-                Err(err) => Err(err.to_string()),
+                Err(err) => Err(err.into()),
             },
             Err(_) => Err("Couldn't find CARGO_LIGEN_ARGUMENTS env var".into()),
         }

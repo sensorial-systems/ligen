@@ -8,6 +8,7 @@ pub use arguments::*;
 pub use build_type::*;
 pub use source_file::*;
 
+#[cfg(cargo_ligen)]
 use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -21,6 +22,7 @@ pub struct Context {
 }
 
 impl Context {
+    #[cfg(cargo_ligen)]
     /// Get the current generator context by getting the arguments from the environment varilables,
     /// which might fail if they aren't correctly set from `cargo-ligen`.
     pub fn current() -> Result<Self> {

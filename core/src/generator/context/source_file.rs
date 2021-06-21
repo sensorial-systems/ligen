@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+#[cfg(cargo_ligen)]
 use crate::proc_macro;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -12,6 +14,7 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
+    #[cfg(cargo_ligen)]
     /// Gets the current source file where the proc-macro is running.
     pub fn current() -> Self {
         proc_macro::Span::call_site().source_file().into()
@@ -24,6 +27,7 @@ impl SourceFile {
     pub fn path(&self) -> PathBuf { self.path.clone() }
 }
 
+#[cfg(cargo_ligen)]
 impl From<proc_macro::SourceFile> for SourceFile {
     fn from(source_file: proc_macro::SourceFile) -> Self {
         let path = source_file.path();

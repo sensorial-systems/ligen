@@ -104,13 +104,13 @@ impl Implementation {
 
     /// Replace all the occurrences of `Self` and `self` by the real object name.
     /// e.g.:
-    /// ```rust
+    /// ```rust,compile_fail
     /// impl Object {
     ///     fn f(self: &Self) {}
     /// }
     /// ```
     /// becomes
-    /// ```rust
+    /// ```rust,compile_fail
     /// impl Object {
     ///     fn f(object: &Object) {}
     /// }

@@ -33,7 +33,7 @@ pub fn define_binding_generator(attributes: TokenStream) -> TokenStream {
             let implementation = input.clone().try_into().ok();
             let mut output: proc_macro2::TokenStream = input.into();
             let generator = #generator_path::new(&context, &attributes);
-            let generated = generator.generate(&context, implementation.as_ref());
+            let generated = generator.generate(&context, implementation.as_ref()).expect("Generator failed.");
             output.append_all(generated);
             output.into()
         }
@@ -64,7 +64,7 @@ pub fn define_project_generator(attributes: TokenStream) -> TokenStream {
             let attributes = attributes.try_into().expect("Failed to parse attributes.");
             let implementation = None;
             let generator = #generator_path::new(&context, &attributes);
-            let generated = generator.generate(&context, implementation.as_ref());
+            let generated = generator.generate(&context, implementation.as_ref()).expect("Generator failed.");
             let output = generated;
             output.into()
         }
