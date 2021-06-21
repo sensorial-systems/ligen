@@ -12,10 +12,10 @@ pub fn ligen_package(attributes: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn proc_macro_attribute(attributes: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::proc_macro_wrapper(attributes.into(), true).into()
+    ligen_core::proc_macro::proc_macro_attribute(attributes.into()).into()
 }
 
 #[proc_macro]
 pub fn proc_macro(attributes: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::proc_macro_wrapper(attributes.into(), false).into()
+    ligen_core::proc_macro::proc_macro(attributes.into()).into()
 }
