@@ -1,24 +1,29 @@
 //! Generators.
 
 mod context;
+mod file;
+mod visitor;
+mod file_generator;
+mod ffi_generator;
 
 pub use context::*;
+pub use visitor::*;
+pub use file::*;
+pub use file_generator::*;
+pub use ffi_generator::*;
+
 use crate::prelude::*;
-
-pub mod file;
-
-use proc_macro2::TokenStream;
 use crate::ir::{Implementation, Attributes};
-use crate::generator::file::FileSet;
 use crate::utils::fs::write_file;
+use proc_macro2::TokenStream;
 
 /// Generator trait.
-pub trait Generator {
+pub trait Generator: FileGenerator + FFIGenerator {
     /// Creates a new generator using contextual information and attributes.
     fn new(context: &Context, attributes: &Attributes) -> Self where Self: Sized;
 
     /// Pre-processes the input. The default implementation returns a transformed input with all the
-    /// `Self` references replaced by the actual object name.
+    /// `Self` and `self` occurrences replaced by the actual object name.
     fn pre_process(&self, _context: &Context, implementation: Option<&Implementation>) -> Option<Implementation> {
         implementation.map(|implementation| {
             let mut implementation = implementation.clone();
@@ -31,16 +36,6 @@ pub trait Generator {
     fn generate(&self, context: &Context, implementation: Option<&Implementation>) -> Result<TokenStream> {
         let implementation = self.pre_process(context, implementation);
         let implementation = implementation.as_ref();
-
-        // let target_dir_ligen = &context.arguments.target_dir.join("ligen");
-        // create_dir_all(target_dir_ligen).expect("Failed to create target directory for the header");
-
-        // let project_dir = target_dir_ligen.join(&context.arguments.crate_name);
-
-        // FIXME: include is C only. Elaborate a more generic way to guarantee the path existence.
-        // create_dir_all(project_dir.join("include")).expect("Failed to create include directory");
-        // create_dir_all(project_dir.join("lib")).expect("Failed to create lib directory");
-
         let file_set = self.generate_files(&context, implementation);
         self.save_file_set(context, file_set)?;
         Ok(self.generate_externs(&context, implementation))
@@ -58,7 +53,7 @@ pub trait Generator {
     }
 
     /// Generate FFI externs.
-    fn generate_externs(&self, _context: &Context, _implementation: Option<&Implementation>) -> TokenStream {
+    fn generate_ffi(&self, _context: &Context, _implementation: Option<&Implementation>) -> TokenStream {
         TokenStream::new()
     }
     
