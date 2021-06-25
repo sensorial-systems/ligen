@@ -38,7 +38,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
         let implementation = implementation.as_ref();
         let file_set = self.generate_files(&context, implementation);
         self.save_file_set(context, file_set)?;
-        Ok(self.generate_externs(&context, implementation))
+        Ok(self.generate_ffi(&context, implementation))
     }
 
     /// Saves the file set.
