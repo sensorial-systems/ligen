@@ -27,11 +27,11 @@ pub fn define_binding_generator(attributes: TokenStream) -> TokenStream {
         #[cfg(cargo_ligen)]
         #[proc_macro_attribute]
         #function_signature {
-            use ligen_core::proc_macro::prelude::*;
+            use ligen::proc_macro::prelude::*;
             let context = Context::current().expect("Couldn't get context.");
             let attributes = attributes.try_into().expect("Failed to parse attributes.");
             let implementation = input.clone().try_into().ok();
-            let mut output: proc_macro2::TokenStream = input.into();
+            let mut output: TokenStream = input.into();
             let generator = #generator_path::new(&context, &attributes);
             let generated = generator.generate(&context, implementation.as_ref()).expect("Generator failed.");
             output.append_all(generated);
@@ -59,7 +59,7 @@ pub fn define_project_generator(attributes: TokenStream) -> TokenStream {
         #[cfg(cargo_ligen)]
         #[proc_macro]
         #function_signature {
-            use ligen_core::proc_macro::prelude::*;
+            use ligen::proc_macro::prelude::*;
             let context = Context::current().expect("Couldn't get context.");
             let attributes = attributes.try_into().expect("Failed to parse attributes.");
             let implementation = None;

@@ -17,6 +17,5 @@ pub struct Struct {
 impl Struct {
     pub fn new() -> Self { ... }
     pub fn print(&self) { ... }
-    pub fn type() -> String { ... }
 }
 ```

@@ -5,3 +5,4 @@ pub use crate::generator::Context;
 
 pub use std::convert::TryInto;
 pub use quote::TokenStreamExt;
+pub use proc_macro2::TokenStream;

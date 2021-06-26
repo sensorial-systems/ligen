@@ -2,5 +2,6 @@
 
 Ligen (Language Interface Generator) is a macro-based extensible multi-language binding generator.
 
-* [macro](ligen/README.md)
-* [core](core/README.md)
+* [ligen](crates/ligen/README.md)
+* [macro](crates/ligen/README.md)
+* [core](crates/core/README.md)

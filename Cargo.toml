@@ -1,5 +1,6 @@
 [workspace]
-members = ["core", "macro"]
-
-[patch.crates-io]
-ligen-core = { path = "./core" }
+members = [
+    "crates/ligen",
+    "crates/macro",
+    "crates/core"
+]
