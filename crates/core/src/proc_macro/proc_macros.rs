@@ -73,7 +73,7 @@ pub fn define_project_generator(attributes: TokenStream) -> TokenStream {
         #[cfg(not(cargo_ligen))]
         #[proc_macro]
         #function_signature {
-            input
+            Default::default()
         }
     }
 }
