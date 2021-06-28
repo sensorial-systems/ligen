@@ -15,7 +15,6 @@ pub use ffi_generator::*;
 use crate::prelude::*;
 use crate::ir::{Implementation, Attributes};
 use crate::utils::fs::write_file;
-use proc_macro2::TokenStream;
 
 /// Generator trait.
 pub trait Generator: FileGenerator + FFIGenerator {
@@ -35,8 +34,10 @@ pub trait Generator: FileGenerator + FFIGenerator {
     /// Main function called in the procedural macro.
     fn generate(&self, context: &Context, implementation: Option<&Implementation>) -> Result<TokenStream> {
         let implementation = self.pre_process(context, implementation);
+        let implementation = implementation.map(|implementation| Visitor::new((), implementation));
         let implementation = implementation.as_ref();
-        let file_set = self.generate_files(&context, implementation);
+        let mut file_set = FileSet::default();
+        self.generate_files(&context, &mut file_set, implementation);
         self.save_file_set(context, file_set)?;
         Ok(self.generate_ffi(&context, implementation))
     }
@@ -45,7 +46,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
     fn save_file_set(&self, context: &Context, file_set: FileSet) -> Result<()> {
         let target_ligen_dir = &context.arguments.target_dir.join("ligen");
         let project_dir = target_ligen_dir.join(&context.arguments.crate_name);
-        for file in file_set.files {
+        for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);
             write_file(&file_path, file.content)?;
         }
@@ -53,10 +54,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
     }
 
     /// Generate FFI externs.
-    fn generate_ffi(&self, _context: &Context, _implementation: Option<&Implementation>) -> TokenStream {
+    fn generate_ffi(&self, _context: &Context, _implementation: Option<&ImplementationVisitor>) -> TokenStream {
         TokenStream::new()
     }
-    
-    /// Generate files.
-    fn generate_files(&self, context: &Context, implementation: Option<&Implementation>) -> FileSet;
 }
