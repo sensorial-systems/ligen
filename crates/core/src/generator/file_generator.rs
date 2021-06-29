@@ -1,6 +1,6 @@
 //! File generator module.
 
-use crate::generator::{FileSet, Context, ImplementationVisitor, FunctionVisitor, ParameterVisitor, VisitorProcessor};
+use crate::generator::{FileSet, Context, ImplementationVisitor, FunctionVisitor, ParameterVisitor, FileProcessorVisitor};
 use crate::ir::ImplementationItem;
 
 /// File generator.
@@ -10,18 +10,18 @@ pub trait FileGenerator {
 }
 
 /// File generator with visitors.
-pub trait VisitorFileGenerator {
+pub trait FileGeneratorVisitors {
     /// Implementation processor.
-    type ImplementationProcessor: VisitorProcessor<Visitor = ImplementationVisitor>;
+    type ImplementationProcessor: FileProcessorVisitor<Visitor = ImplementationVisitor>;
 
     /// Function processor.
-    type FunctionProcessor: VisitorProcessor<Visitor = FunctionVisitor>;
+    type FunctionProcessor: FileProcessorVisitor<Visitor = FunctionVisitor>;
 
     /// Parameter processor.
-    type ParameterProcessor: VisitorProcessor<Visitor = ParameterVisitor>;
+    type ParameterProcessor: FileProcessorVisitor<Visitor = ParameterVisitor>;
 }
 
-impl<T: VisitorFileGenerator> FileGenerator for T {
+impl<T: FileGeneratorVisitors> FileGenerator for T {
     fn generate_files(&self, context: &Context, file_set: &mut FileSet, visitor: Option<&ImplementationVisitor>) {
         if let Some(visitor) = visitor {
             let implementation_processor = T::ImplementationProcessor::default();

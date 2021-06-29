@@ -11,5 +11,4 @@ documentation = "https://docs.rs/ligen"
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "1.0.24"
 ligen-core = { path = "../core" }

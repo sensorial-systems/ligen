@@ -52,9 +52,4 @@ pub trait Generator: FileGenerator + FFIGenerator {
         }
         Ok(())
     }
-
-    /// Generate FFI externs.
-    fn generate_ffi(&self, _context: &Context, _implementation: Option<&ImplementationVisitor>) -> TokenStream {
-        TokenStream::new()
-    }
 }
