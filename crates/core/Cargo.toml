@@ -6,6 +6,7 @@ edition       = "2018"
 description   = "Language Interface Generator Core"
 license       = "Apache-2.0"
 documentation = "https://docs.rs/ligen-core"
+readme        = "../../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
