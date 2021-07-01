@@ -30,10 +30,12 @@
 //!
 //! Here are a few links to get started:
 //! * [List of officially supported languages](https://github.com/search?q=org%3Asensorial-systems+ligen).
-//! * [Usage example](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter).
+//! * [Usage example](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
 
 pub use ligen_core as core;
 pub use ligen_macro as attribute_macro;
 
 pub use ligen_core::*;
 pub use ligen_macro::*;
+
+pub use ligen_core::generator::Generator;

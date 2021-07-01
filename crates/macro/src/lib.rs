@@ -6,8 +6,13 @@ pub fn ligen(attributes: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn ligen_package(attributes: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::ligen_package(attributes.into()).into()
+pub fn ligen_project(attributes: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::ligen_project(attributes.into()).into()
+}
+
+#[proc_macro]
+pub fn ligen_dependencies(attributes: TokenStream) -> TokenStream {
+    ligen_core::proc_macro::ligen_dependencies(attributes.into()).into()
 }
 
 #[proc_macro]

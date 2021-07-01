@@ -16,7 +16,7 @@ pub fn ligen(_context: Context, args: TokenStream, item: TokenStream) -> TokenSt
     let attributes = args.attributes.into_iter().map(to_ligen_macro).fold(
         TokenStream::new(),
         |mut attributes, macro_attribute| {
-            attributes.append_all(quote! { #macro_attribute });
+            attributes.append_all(quote! { #[#macro_attribute] });
             attributes
         },
     );

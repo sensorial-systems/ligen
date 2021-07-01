@@ -3,11 +3,13 @@
 pub mod prelude;
 
 mod ligen;
-mod ligen_package;
+mod ligen_project;
+mod ligen_dependencies;
 mod proc_macros;
 
 pub use ligen::*;
-pub use ligen_package::*;
+pub use ligen_project::*;
+pub use ligen_dependencies::*;
 pub use proc_macros::*;
 pub use rust_proc_macro::*;
 
@@ -64,8 +66,8 @@ mod test {
         };
 
         let expected = quote! {
-            #[ligen_c]
-            #[ligen_cpp]
+            #[ligen_c()]
+            #[ligen_cpp()]
             struct Object {}
         };
 

@@ -91,7 +91,7 @@ impl From<MetaList> for Attribute {
 
 impl From<Path> for Attribute {
     fn from(path: Path) -> Self {
-        Self::Literal(Literal::from(path.segments.first().unwrap().ident.clone()))
+        Self::Group(Identifier::from(path.segments.first().unwrap().ident.clone()), Default::default())
     }
 }
 
@@ -123,70 +123,41 @@ impl From<NestedMeta> for Attribute {
     }
 }
 
+impl ToTokens for Attributes {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        for attribute in &self.attributes {
+            tokens.append_all(quote! { #attribute, });
+        }
+    }
+}
+
 impl ToTokens for Attribute {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Attribute::Literal(lit) => {
-                let ident = Identifier::new(&lit.to_string());
-                tokens.append_all(quote! {#[#ident]})
+            Attribute::Literal(literal) => {
+                tokens.append_all(quote! {#literal})
             }
             Attribute::Named(_, _) => panic!("Named variant should only be used inside groups"),
-            Attribute::Group(ident, group) => {
-                let mut gp = TokenStream::new();
+            Attribute::Group(identifier, group) => {
+                let mut attributes = TokenStream::new();
                 group
                     .attributes
                     .clone()
                     .into_iter()
                     .enumerate()
                     .for_each(|x| {
-                        if let (index, Attribute::Named(ident, lit)) = x {
-                            let name = Identifier::new(&ident.name);
-                            gp.append_all(quote! {#name = #lit});
+                        if let (index, Attribute::Named(identifier, lit)) = x {
+                            let name = Identifier::new(&identifier.name);
+                            attributes.append_all(quote! {#name = #lit});
                             if index + 1 < group.attributes.len() {
-                                gp.append_all(quote! {, })
+                                attributes.append_all(quote! {, })
                             }
                         } else {
                             panic!("Group contains Non Named variant")
                         }
                     });
 
-                tokens.append_all(quote! {#[#ident(#gp)]})
-            }
-        }
-    }
-}
-
-impl Attribute {
-    /// Function to get a TokenStream of Attribute as a ligen project generator macro
-    pub fn to_package_tokens(&self) -> TokenStream {
-        match self {
-            Attribute::Literal(lit) => {
-                let ident = Identifier::new(format!("ligen_{}_package", &lit.to_string()).as_str());
-
-                quote! {#ident!();}
-            }
-            Attribute::Named(_, _) => panic!("Named variant should only be used inside groups"),
-            Attribute::Group(ident, group) => {
-                let mut gp = TokenStream::new();
-                group
-                    .attributes
-                    .clone()
-                    .into_iter()
-                    .enumerate()
-                    .for_each(|x| {
-                        if let (index, Attribute::Literal(lit)) = x {
-                            let name = Identifier::new(&lit.to_string());
-                            gp.append_all(quote! {#name});
-                            if index + 1 < group.attributes.len() {
-                                gp.append_all(quote! {, })
-                            }
-                        } else {
-                            panic!("Group contains Named variant")
-                        }
-                    });
-
-                let ident = Identifier::new(format!("ligen_{}_package", &ident.name).as_str());
-                quote! {#ident!(#gp);}
+                tokens.append_all(quote! {#identifier(#attributes)})
             }
         }
     }
@@ -216,7 +187,7 @@ mod test {
 
     #[test]
     fn attribute_literal() {
-        let args: NestedMeta = syn::parse_quote!(C);
+        let args: NestedMeta = syn::parse_quote!("C");
         let attr: Attribute = args.into();
         assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))))
     }
