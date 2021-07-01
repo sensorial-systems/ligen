@@ -8,5 +8,5 @@ license       = "Apache-2.0"
 documentation = "https://docs.rs/ligen"
 
 [dependencies]
-ligen-macro = "0.1.13"
-ligen-core  = "0.1.13"
+ligen-macro = "0.1.14"
+ligen-core  = "0.1.14"
