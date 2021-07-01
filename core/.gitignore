@@ -1,7 +1,0 @@
-# IntelliJ idea auto-generated files
-.idea
-
-# Rust files
-/target
-**/*.rs.bk
-Cargo.lock
