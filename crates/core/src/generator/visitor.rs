@@ -2,7 +2,6 @@
 
 use crate::ir::{Implementation, Function, Parameter};
 use crate::generator::{Context, FileSet};
-use crate::prelude::*;
 
 /// Generic visitor type.
 #[derive(Debug, Clone)]
@@ -50,22 +49,4 @@ pub trait FileProcessorVisitor: Default {
     /// It has a special behavior for `ParameterVisitor`: It only executes if the `parameter` isn't
     /// the last parameter, which is useful for writing separators.
     fn post_process(&self, _context: &Context, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
-}
-
-/// FFI processor visitor.
-pub trait FFIProcessorVisitor: Default {
-    /// Visitor's type.
-    type Visitor;
-
-    /// Processor executed while visiting the current element and before visiting its children.
-    fn process(&self, _context: &Context, _visitor: &Self::Visitor) -> TokenStream {
-        Default::default()
-    }
-
-    /// Post-processor executed after visiting the current element and its children.
-    /// It has a special behavior for `ParameterVisitor`: It only executes if the `parameter` isn't
-    /// the last parameter, which is useful for writing separators.
-    fn post_process(&self, _context: &Context, _visitor: &Self::Visitor) -> TokenStream {
-        Default::default()
-    }
 }
