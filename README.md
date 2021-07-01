@@ -24,7 +24,6 @@ impl Counter {
   pub fn get_count(&self) -> u32 { self.count }
 }
 ```
-which generates the following file:
 
 ### Getting started
 
