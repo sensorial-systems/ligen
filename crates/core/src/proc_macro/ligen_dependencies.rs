@@ -19,7 +19,7 @@ pub fn ligen_dependencies(attributes: TokenStream) -> TokenStream {
             });
 
             ligen_attributes.append_all(quote! {
-                #identifier(#attribute)
+                #identifier(#attribute),
             })
         }
     }

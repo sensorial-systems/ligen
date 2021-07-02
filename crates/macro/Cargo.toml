@@ -12,4 +12,4 @@ readme        = "../../README.md"
 proc-macro = true
 
 [dependencies]
-ligen-core = "0.1.14"
+ligen-core = { path = "../core" }
