@@ -1,6 +1,6 @@
 [package]
 name          = "ligen-macro"
-version       = "0.1.15"
+version       = "0.1.16-alpha.0"
 authors       = ["Danilo Guanabara <danguafer@gmail.com>"]
 edition       = "2018"
 description   = "Language Interface Generator Core"
