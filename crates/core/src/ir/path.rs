@@ -11,6 +11,13 @@ pub struct Path {
     pub segments: Vec<Identifier>
 }
 
+impl Path {
+    /// Get the last segment of the path.
+    pub fn last(&self) -> Identifier {
+        self.segments.last().unwrap().clone()
+    }
+}
+
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
         let segments = string

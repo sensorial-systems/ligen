@@ -3,7 +3,8 @@
 use crate::prelude::*;
 
 use crate::generator::{Context, ImplementationVisitor, FunctionVisitor};
-use crate::ir::{Parameter, Type, Identifier, Visibility, ImplementationItem};
+use crate::ir::{Type, Identifier, Visibility, ImplementationItem};
+use crate::ir::processing::ReplaceIdentifier;
 
 /// FFI generator.
 pub trait FFIGenerator {
@@ -14,23 +15,29 @@ pub trait FFIGenerator {
 /// A generic FFI generator which can be used for most languages.
 pub trait GenericFFIGenerator {
     /// Generate the function parameters.
-    fn generate_parameters(_context: &Context, inputs: &Vec<Parameter>) -> TokenStream {
-        inputs
+    fn generate_parameters(_context: &Context, function: &FunctionVisitor) -> TokenStream {
+        let object_identifier = function.parent.current.self_.path().last();
+        function
+            .current
+            .inputs
             .iter()
             .fold(TokenStream::new(), |mut tokens, parameter| {
                 let type_ = Self::to_marshal_parameter(&parameter.type_);
-                let identifier = &parameter.identifier;
+                let identifier = self_to_explicit_name(&parameter.identifier, &object_identifier);
                 tokens.append_all(quote! {#identifier: #type_,});
                 tokens
             })
     }
 
     /// Generate the function call arguments and its conversions.
-    fn generate_arguments(_context: &Context, inputs: &Vec<Parameter>) -> TokenStream {
-        inputs
+    fn generate_arguments(_context: &Context, function: &FunctionVisitor) -> TokenStream {
+        let object_identifier = function.parent.current.self_.path().last();
+        function
+            .current
+            .inputs
             .iter()
             .fold(TokenStream::new(), |mut tokens, parameter| {
-                let identifier = &parameter.identifier;
+                let identifier = self_to_explicit_name(&parameter.identifier, &object_identifier);
                 tokens.append_all(quote! {#identifier.into(),});
                 tokens
             })
@@ -73,9 +80,9 @@ pub trait GenericFFIGenerator {
     ) -> TokenStream {
         let implementation = &visitor.parent.current;
         let function = &visitor.current;
-        let parameters = Self::generate_parameters(context, &function.inputs);
+        let parameters = Self::generate_parameters(context, visitor);
         let output = Self::generate_output(context, &function.output);
-        let function_name = format!("{}_{}", implementation.self_.name, function.identifier.name);
+        let function_name = format!("{}_{}", implementation.self_.path().last().name, function.identifier.name);
         let function_identifier = Identifier::new(&function_name);
         quote! {
             #[no_mangle]
@@ -90,7 +97,7 @@ pub trait GenericFFIGenerator {
     ) -> TokenStream {
         let method = &visitor.current;
         let implementation = &visitor.parent.current;
-        let arguments = Self::generate_arguments(context, &method.inputs);
+        let arguments = Self::generate_arguments(context, visitor);
         let self_identifier = &implementation.self_;
         let method_identifier = &method.identifier;
         let result = if let Some(Type::Compound(_identifier)) = method.output.as_ref() {
@@ -124,7 +131,8 @@ pub trait GenericFFIGenerator {
 
     /// Generate drop extern.
     fn generate_drop(visitor: &ImplementationVisitor) -> TokenStream {
-        let object_name = &visitor.current.self_;
+        let self_path = visitor.current.self_.path();
+        let object_name = self_path.last();
         let drop_name = Identifier::new(format!("{}_drop", object_name.name).as_str());
         quote! {
             #[no_mangle]
@@ -151,6 +159,12 @@ pub trait GenericFFIGenerator {
         tokens.append_all(Self::generate_drop(&implementation));
         tokens
     }
+}
+
+fn self_to_explicit_name(identifier: &Identifier, name_identifier: &Identifier) -> Identifier {
+    let mut identifier = identifier.clone();
+    identifier.replace_identifier(&Identifier::new("self"), &Identifier::new(name_identifier.name.to_lowercase()));
+    identifier
 }
 
 impl<T: GenericFFIGenerator> FFIGenerator for T {

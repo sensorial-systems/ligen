@@ -9,11 +9,11 @@ use crate::ir::processing::ReplaceIdentifier;
 #[derive(Debug, PartialEq, Clone)]
 /// Function Struct
 pub struct Implementation {
-    /// attributes field
+    /// Attributes field.
     pub attributes: Attributes,
-    /// self_ field
-    pub self_: Identifier,
-    /// items field
+    /// Self field.
+    pub self_: Type,
+    /// Items field.
     pub items: Vec<ImplementationItem>,
 }
 
@@ -66,7 +66,7 @@ impl TryFrom<ItemImpl> for Implementation {
                         .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                         .collect(),
                 },
-                self_: path.segments[0].ident.clone().into(),
+                self_: path.into(),
                 items: item_impl
                     .items
                     .into_iter()
@@ -102,7 +102,7 @@ impl Implementation {
         deps
     }
 
-    /// Replace all the occurrences of `Self` and `self` by the real object name.
+    /// Replace all the occurrences of `Self` by the real object name.
     /// e.g.:
     /// ```rust,compile_fail
     /// impl Object {
@@ -112,15 +112,14 @@ impl Implementation {
     /// becomes
     /// ```rust,compile_fail
     /// impl Object {
-    ///     fn f(object: &Object) {}
+    ///     fn f(self: &Object) {}
     /// }
     /// ```
-    pub fn replace_self_with_real_names(&mut self) {
-        let id = self.self_.clone();
-        let mut lower_case_id = id.clone();
-        lower_case_id.name = lower_case_id.name.to_lowercase();
-        self.replace_identifier(&Identifier::from("Self"), &id);
-        self.replace_identifier(&Identifier::from("self"), &lower_case_id);
+    pub fn replace_self_with_explicit_names(&mut self) {
+        let identifier = self.self_.path().last();
+        let mut lower_case_identifier = identifier.clone();
+        lower_case_identifier.name = lower_case_identifier.name.to_lowercase();
+        self.replace_identifier(&Identifier::from("Self"), &identifier);
     }
 }
 
@@ -146,7 +145,7 @@ mod test {
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier::new("Test"),
+                self_: Type::Compound(Identifier::new("Test").into()),
                 items: vec![]
             }
         );
@@ -172,7 +171,7 @@ mod test {
                         }
                     )]
                 },
-                self_: Identifier::new("Test"),
+                self_: Type::Compound(Identifier::new("Test").into()),
                 items: vec![]
             }
         );
@@ -189,7 +188,7 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier::new("Test"),
+                self_: Type::Compound(Identifier::new("Test").into()),
                 items: vec![ImplementationItem::Constant(Constant {
                     identifier: Identifier::new("a"),
                     type_: Type::Atomic(Atomic::Integer(Integer::I32)),
@@ -210,7 +209,7 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier::new("Test"),
+                self_: Type::Compound(Identifier::new("Test").into()),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
                     visibility: Visibility::Inherited,
@@ -235,7 +234,7 @@ mod test {
             .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Identifier::new("Test"),
+                self_: Type::Compound(Identifier::new("Test").into()),
                 items: vec![
                     ImplementationItem::Constant(Constant {
                         identifier: Identifier::new("a"),

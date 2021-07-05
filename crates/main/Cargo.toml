@@ -9,5 +9,5 @@ documentation = "https://docs.rs/ligen"
 readme        = "../../README.md"
 
 [dependencies]
-ligen-macro = "=0.1.15"
-ligen-core  = "=0.1.15"
+ligen-macro = { path = "../macro" }
+ligen-core  = { path = "../core"  }

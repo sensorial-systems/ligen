@@ -7,7 +7,7 @@ mod float;
 
 pub use integer::*;
 pub use float::*;
-use crate::ir::Identifier;
+use crate::ir::{Identifier, Path};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 /// Atomic Enum
@@ -30,6 +30,24 @@ impl Atomic {
             | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" => true,
             _ => false
         }
+    }
+}
+
+impl From<Atomic> for Identifier {
+    fn from(atomic: Atomic) -> Self {
+        match atomic {
+            Atomic::Boolean => "bool".into(),
+            Atomic::Character => "char".into(),
+            Atomic::Float(float) => float.into(),
+            Atomic::Integer(integer) => integer.into()
+        }
+    }
+}
+
+impl From<Atomic> for Path {
+    fn from(atomic: Atomic) -> Self {
+        let atomic: Identifier = atomic.into();
+        Path::from(atomic)
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::ir::{Atomic, Reference, ReferenceKind, Path};
+use crate::ir::{Atomic, Reference, ReferenceKind, Path, Identifier};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
@@ -13,6 +13,22 @@ pub enum Type {
     Compound(Path),
     /// Reference variant
     Reference(Reference),
+}
+
+impl Type {
+    /// The Self type.
+    pub fn self_type() -> Type {
+        Type::Compound(Path::from(Identifier::new("Self")))
+    }
+
+    /// Gets the path of the type without the reference.
+    pub fn path(&self) -> Path {
+        match self {
+            Self::Reference(reference) => reference.type_.path(),
+            Self::Compound(path) => path.clone(),
+            Self::Atomic(atomic) => atomic.clone().into()
+        }
+    }
 }
 
 impl From<syn::Path> for Type {

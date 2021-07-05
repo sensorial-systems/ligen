@@ -26,7 +26,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
     fn pre_process(&self, _context: &Context, implementation: Option<&Implementation>) -> Option<Implementation> {
         implementation.map(|implementation| {
             let mut implementation = implementation.clone();
-            implementation.replace_self_with_real_names();
+            implementation.replace_self_with_explicit_names();
             implementation
         })
     }

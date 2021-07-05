@@ -1,5 +1,6 @@
 use quote::{quote, ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
+use crate::ir::Identifier;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 /// Float Enum
@@ -17,5 +18,14 @@ impl ToTokens for Float {
             Float::F64 => quote! {f64},
         };
         tokens.append_all(quote! {#typ})
+    }
+}
+
+impl From<Float> for Identifier {
+    fn from(float: Float) -> Self {
+        match float {
+            Float::F32 => "f32".into(),
+            Float::F64 => "f64".into()
+        }
     }
 }

@@ -1,6 +1,6 @@
 //! Generator visitor module.
 
-use crate::ir::{Implementation, Function, Parameter};
+use crate::ir::{Implementation, Function, Parameter, Type};
 use crate::generator::{Context, FileSet};
 
 /// Generic visitor type.
@@ -36,6 +36,18 @@ pub type FunctionVisitor = Visitor<ImplementationVisitor, Function>;
 
 /// Parameter visitor.
 pub type ParameterVisitor = Visitor<FunctionVisitor, Parameter>;
+
+impl FunctionVisitor {
+    /// Check if the function is a method.
+    // TODO: Use these rules https://doc.rust-lang.org/reference/items/associated-items.html#methods
+    pub fn is_method(&self) -> bool {
+        if let Some(input) = self.current.inputs.get(0) {
+            input.type_.path() == self.parent.current.self_.path() || input.type_ == Type::self_type()
+        } else {
+            false
+        }
+    }
+}
 
 /// File processor visitor.
 pub trait FileProcessorVisitor: Default {

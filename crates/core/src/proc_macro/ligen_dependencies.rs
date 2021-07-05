@@ -76,8 +76,7 @@ pub fn ligen_dependencies(attributes: TokenStream) -> TokenStream {
                             std::ffi::CStr::from_ptr(c_char)
                                 .to_string_lossy()
                                 .to_string(),
-                        )
-                            .expect("Failed to create RString.");
+                        ).expect("Failed to create RString.");
                         Self(string)
                     }
                 }
