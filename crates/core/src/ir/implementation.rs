@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::ir::{Attributes, Constant, Function, Identifier, Type};
-use crate::proc_macro;
+use crate::procedural_macro;
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -35,9 +35,9 @@ impl TryFrom<TokenStream> for Implementation {
     }
 }
 
-impl TryFrom<proc_macro::TokenStream> for Implementation {
+impl TryFrom<procedural_macro::TokenStream> for Implementation {
     type Error = Error;
-    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: procedural_macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
     }

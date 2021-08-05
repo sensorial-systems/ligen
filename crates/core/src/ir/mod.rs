@@ -1,6 +1,7 @@
 //! Ligen intermediate representation.
 
 pub use attribute::*;
+pub use procedural_macro_attributes::*;
 pub use constant::*;
 pub use function::*;
 pub use identifier::*;
@@ -10,6 +11,7 @@ pub use parameter::*;
 pub use types::*;
 pub use path::*;
 
+mod procedural_macro_attributes;
 mod attribute;
 mod constant;
 mod function;

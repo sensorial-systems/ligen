@@ -5,18 +5,18 @@ pub mod prelude;
 mod ligen;
 mod ligen_project;
 mod ligen_dependencies;
-mod proc_macros;
+mod procedural_macro;
 
 pub use ligen::*;
 pub use ligen_project::*;
 pub use ligen_dependencies::*;
-pub use proc_macros::*;
+pub use procedural_macro::*;
 pub use rust_proc_macro::*;
 
 // TODO: Can this be moved to a better place?
 #[cfg(test)]
 mod test {
-    use crate::proc_macro::ligen;
+    use crate::procedural_macro::ligen;
     use quote::quote;
     use proc_macro2::TokenStream;
     use quote::*;

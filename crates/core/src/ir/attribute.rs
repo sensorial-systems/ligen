@@ -1,7 +1,7 @@
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
-use crate::proc_macro;
+use crate::procedural_macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::{TryFrom, TryInto};
@@ -30,7 +30,7 @@ pub struct Attributes {
 }
 
 impl Attributes {
-    /// Get named attribute e.g.: (name = "literal")
+    /// Get named attribute e.g.: name = "literal"
     pub fn get_named(&self, name: &str) -> Option<Literal> {
         self
             .attributes
@@ -49,6 +49,19 @@ impl Attributes {
     }
 }
 
+impl From<Vec<Attribute>> for Attributes {
+    fn from(attributes: Vec<Attribute>) -> Self {
+        Self { attributes }
+    }
+}
+
+impl From<Attribute> for Attributes {
+    fn from(attribute: Attribute) -> Self {
+        let attributes = vec![attribute];
+        Self { attributes }
+    }
+}
+
 impl TryFrom<TokenStream> for Attributes {
     type Error = Error;
     fn try_from(tokenstream: TokenStream) -> Result<Self> {
@@ -56,9 +69,9 @@ impl TryFrom<TokenStream> for Attributes {
     }
 }
 
-impl TryFrom<proc_macro::TokenStream> for Attributes {
+impl TryFrom<procedural_macro::TokenStream> for Attributes {
     type Error = Error;
-    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: procedural_macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
     }
@@ -125,8 +138,12 @@ impl From<NestedMeta> for Attribute {
 
 impl ToTokens for Attributes {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        for attribute in &self.attributes {
-            tokens.append_all(quote! { #attribute, });
+        let length = self.attributes.len();
+        for (index, attribute) in self.attributes.iter().enumerate() {
+            tokens.append_all(quote! { #attribute });
+            if index != length - 1 {
+                tokens.append_all(quote! { , });
+            }
         }
     }
 }

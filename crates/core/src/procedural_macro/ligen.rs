@@ -1,5 +1,5 @@
 use crate::generator::Context;
-use crate::ir::{Attribute, Literal, Identifier, Attributes};
+use crate::ir::{Attribute, Literal, Identifier, Attributes, ProceduralMacroAttributes};
 
 use proc_macro2::TokenStream;
 use quote::TokenStreamExt;
@@ -16,7 +16,8 @@ pub fn ligen(_context: Context, args: TokenStream, item: TokenStream) -> TokenSt
     let attributes = args.attributes.into_iter().map(to_ligen_macro).fold(
         TokenStream::new(),
         |mut attributes, macro_attribute| {
-            attributes.append_all(quote! { #[#macro_attribute] });
+            let procedural_macro_attributes = ProceduralMacroAttributes::from(macro_attribute);
+            attributes.append_all(quote! { #procedural_macro_attributes });
             attributes
         },
     );
