@@ -14,7 +14,7 @@
 extern crate proc_macro as rust_proc_macro;
 
 pub mod prelude;
-pub mod procedural_macro;
+pub mod r#macro;
 pub mod ir;
 pub mod utils;
 pub mod generator;

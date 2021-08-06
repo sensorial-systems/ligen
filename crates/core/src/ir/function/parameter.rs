@@ -1,3 +1,5 @@
+//! Function parameter.
+
 use crate::ir::{Identifier, Reference, Type, ReferenceKind};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -5,7 +7,7 @@ use std::convert::TryFrom;
 use syn::FnArg;
 
 #[derive(Debug, PartialEq, Clone)]
-/// Parameter Struct
+/// Parameter representation.
 pub struct Parameter {
     /// identifier field
     pub identifier: Identifier,
@@ -28,6 +30,7 @@ impl TryFrom<FnArg> for Parameter {
                     Err("Identifier not found")
                 }
             }
+            // TODO: Implement conversion for syn::Receiver.
             FnArg::Receiver(syn::Receiver {
                 reference,
                 mutability,

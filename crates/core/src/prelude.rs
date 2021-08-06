@@ -4,6 +4,8 @@ pub(crate) use shrinkwraprs::Shrinkwrap;
 pub use proc_macro2::TokenStream;
 pub use quote::quote;
 pub use quote::TokenStreamExt;
+pub use std::convert::{TryFrom, TryInto};
+
 
 /// Library error.
 #[derive(Debug) ]
@@ -12,6 +14,8 @@ pub enum Error {
     IO(std::io::Error),
     /// JSON errors.
     JSON(serde_json::Error),
+    /// syn errors.
+    Syn(syn::Error),
     /// Misc errors.
     Message(String),
 }
@@ -37,6 +41,12 @@ impl From<std::io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
         Self::JSON(error)
+    }
+}
+
+impl From<syn::Error> for Error {
+    fn from(error: syn::Error) -> Self {
+        Self::Syn(error)
     }
 }
 

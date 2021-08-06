@@ -1,23 +1,14 @@
-use crate::ir::{Attributes, Identifier, Parameter, Type};
 use std::convert::{TryFrom, TryInto};
+
 use syn::{ImplItemMethod, ItemFn};
+
+use crate::ir::{Attributes, Identifier, Parameter, Type, Visibility};
+
+pub mod parameter;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 /// Async Struct
 pub struct Async;
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-/// Function visibility.
-pub enum Visibility {
-    /// Public
-    Public,
-    /// Crate
-    Crate,
-    /// Restricted
-    Restricted,
-    /// Inherited
-    Inherited,
-}
 
 #[derive(Debug, PartialEq, Clone)]
 /// Function Struct
@@ -96,12 +87,14 @@ impl_function!(ImplItemMethod);
 
 #[cfg(test)]
 mod test {
-    use super::{Async, Function, ImplItemMethod, ItemFn, Type};
+    use quote::quote;
+    use syn::parse_quote::parse;
+
     use crate::ir::{
         Attribute, Attributes, Identifier, Literal, Parameter, Reference, ReferenceKind, Visibility,
     };
-    use quote::quote;
-    use syn::parse_quote::parse;
+
+    use super::{Async, Function, ImplItemMethod, ItemFn, Type};
 
     #[test]
     fn function() {

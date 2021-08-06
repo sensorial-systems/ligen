@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 #[cfg(cargo_ligen)]
-use crate::procedural_macro;
+use crate::r#macro;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 /// SourceFile struct.
@@ -17,7 +17,7 @@ impl SourceFile {
     #[cfg(cargo_ligen)]
     /// Gets the current source file where the proc-macro is running.
     pub fn current() -> Self {
-        procedural_macro::Span::call_site().source_file().into()
+        r#macro::Span::call_site().source_file().into()
     }
 
     /// If it's a real file.
@@ -28,8 +28,8 @@ impl SourceFile {
 }
 
 #[cfg(cargo_ligen)]
-impl From<procedural_macro::SourceFile> for SourceFile {
-    fn from(source_file: procedural_macro::SourceFile) -> Self {
+impl From<r#macro::SourceFile> for SourceFile {
+    fn from(source_file: r#macro::SourceFile) -> Self {
         let path = source_file.path();
         let is_real = source_file.is_real();
         Self { path, is_real }

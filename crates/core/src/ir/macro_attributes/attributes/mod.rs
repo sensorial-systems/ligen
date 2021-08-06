@@ -1,29 +1,21 @@
+mod attribute;
+pub use attribute::*;
+
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
-use crate::procedural_macro;
+use crate::r#macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::{TryFrom, TryInto};
 use syn::{
     parse::{Parse, ParseStream},
-    parse2, AttributeArgs, Meta, MetaList, MetaNameValue, NestedMeta, Path, Token,
+    parse2, AttributeArgs, NestedMeta, Token,
 };
-
-/// Attribute Enum
-#[derive(Debug, PartialEq, Clone)]
-pub enum Attribute {
-    /// Literal Variant
-    Literal(Literal),
-    /// Named Variant
-    Named(Identifier, Literal),
-    /// Group Variant
-    Group(Identifier, Attributes),
-}
 
 #[derive(Shrinkwrap, Default, Debug, PartialEq, Clone)]
 #[shrinkwrap(mutable)]
-/// Attributes Struct
+/// Attributes representation.
 pub struct Attributes {
     /// attributes field
     pub attributes: Vec<Attribute>,
@@ -49,6 +41,17 @@ impl Attributes {
     }
 }
 
+impl TryFrom<Vec<syn::Attribute>> for Attributes {
+    type Error = Error;
+    fn try_from(in_attributes: Vec<syn::Attribute>) -> Result<Self> {
+        let mut attributes = Vec::new();
+        for attribute in in_attributes {
+            attributes.push(attribute.try_into()?);
+        }
+        Ok(Self { attributes })
+    }
+}
+
 impl From<Vec<Attribute>> for Attributes {
     fn from(attributes: Vec<Attribute>) -> Self {
         Self { attributes }
@@ -69,9 +72,9 @@ impl TryFrom<TokenStream> for Attributes {
     }
 }
 
-impl TryFrom<procedural_macro::TokenStream> for Attributes {
+impl TryFrom<r#macro::TokenStream> for Attributes {
     type Error = Error;
-    fn try_from(tokenstream: procedural_macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: r#macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
     }
@@ -84,55 +87,6 @@ impl From<AttributeArgs> for Attributes {
             .map(|nested_meta| Attribute::from(nested_meta.clone()))
             .collect();
         Self { attributes }
-    }
-}
-
-impl From<MetaList> for Attribute {
-    fn from(meta_list: MetaList) -> Self {
-        Self::Group(
-            Identifier::from(meta_list.path.segments.first().unwrap().ident.clone()),
-            Attributes {
-                attributes: meta_list
-                    .nested
-                    .into_iter()
-                    .map(|nested_meta| Attribute::from(nested_meta))
-                    .collect(),
-            },
-        )
-    }
-}
-
-impl From<Path> for Attribute {
-    fn from(path: Path) -> Self {
-        Self::Group(Identifier::from(path.segments.first().unwrap().ident.clone()), Default::default())
-    }
-}
-
-impl From<Meta> for Attribute {
-    fn from(meta: Meta) -> Self {
-        match meta {
-            syn::Meta::Path(path) => Self::from(path),
-            syn::Meta::List(list) => Self::from(list),
-            syn::Meta::NameValue(name_value) => Self::from(name_value),
-        }
-    }
-}
-
-impl From<MetaNameValue> for Attribute {
-    fn from(meta_name_value: MetaNameValue) -> Self {
-        Self::Named(
-            Identifier::from(meta_name_value.path.segments.first().unwrap().ident.clone()),
-            Literal::from(meta_name_value.lit),
-        )
-    }
-}
-
-impl From<NestedMeta> for Attribute {
-    fn from(nested_meta: NestedMeta) -> Self {
-        match nested_meta {
-            NestedMeta::Meta(meta) => Self::from(meta),
-            NestedMeta::Lit(lit) => Self::Literal(Literal::from(lit)),
-        }
     }
 }
 
@@ -187,10 +141,9 @@ impl Parse for Attributes {
         while !input.is_empty() {
             let value = input.parse()?;
             metas.push(value);
-            if input.is_empty() {
-                break;
+            if !input.is_empty() {
+                input.parse::<Token![,]>()?;
             }
-            input.parse::<Token![,]>()?;
         }
         Ok(Attributes::from(metas))
     }

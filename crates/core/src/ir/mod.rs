@@ -1,26 +1,27 @@
 //! Ligen intermediate representation.
 
-pub use attribute::*;
-pub use procedural_macro_attributes::*;
 pub use constant::*;
 pub use function::*;
+pub use function::parameter::*;
 pub use identifier::*;
 pub use implementation::*;
 pub use literal::*;
-pub use parameter::*;
-pub use types::*;
 pub use path::*;
+pub use macro_attributes::*;
+pub use structure::*;
+pub use types::*;
+pub use visibility::*;
 
-mod procedural_macro_attributes;
-mod attribute;
+mod macro_attributes;
 mod constant;
 mod function;
+mod visibility;
 mod identifier;
 mod implementation;
 mod literal;
-mod parameter;
 mod types;
 mod path;
+mod structure;
 
 pub mod processing;
 

@@ -1,6 +1,9 @@
+mod implementation_item;
+pub use implementation_item::*;
+
 use crate::prelude::*;
-use crate::ir::{Attributes, Constant, Function, Identifier, Type};
-use crate::procedural_macro;
+use crate::ir::{Attributes, Identifier, Type};
+use crate::r#macro;
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use syn::{parse2, ItemImpl};
@@ -17,15 +20,6 @@ pub struct Implementation {
     pub items: Vec<ImplementationItem>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-/// ImplItem Enum
-pub enum ImplementationItem {
-    /// Constant variant
-    Constant(Constant),
-    /// Method variant
-    Method(Function),
-}
-
 impl TryFrom<TokenStream> for Implementation {
     type Error = Error;
     fn try_from(tokenstream: TokenStream) -> Result<Self> {
@@ -35,22 +29,11 @@ impl TryFrom<TokenStream> for Implementation {
     }
 }
 
-impl TryFrom<procedural_macro::TokenStream> for Implementation {
+impl TryFrom<r#macro::TokenStream> for Implementation {
     type Error = Error;
-    fn try_from(tokenstream: procedural_macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: r#macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
-    }
-}
-
-impl TryFrom<syn::ImplItem> for ImplementationItem {
-    type Error = Error;
-    fn try_from(impl_item: syn::ImplItem) -> Result<Self> {
-        match impl_item {
-            syn::ImplItem::Const(impl_item_const) => Ok(Self::Constant(impl_item_const.into())),
-            syn::ImplItem::Method(impl_item_method) => Ok(Self::Method(impl_item_method.into())),
-            _ => Err("Only Const and Method Impl items are currently supported".into()),
-        }
     }
 }
 
@@ -129,12 +112,8 @@ impl Implementation {
 mod test {
     use std::convert::TryFrom;
 
-    use super::{
-        Attributes, Constant, Function, Identifier, Implementation, ImplementationItem, ItemImpl,
-    };
-    use crate::ir::{
-        Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility,
-    };
+    use super::*;
+    use crate::ir::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -158,7 +137,7 @@ mod test {
                 #[test(a = "b")]
                 impl Test {}
             }))
-            .expect("Failed to convert from ItemImpl"),
+                .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -185,7 +164,7 @@ mod test {
                     const a: i32 = 2;
                 }
             }))
-            .expect("Failed to convert from ItemImpl"),
+                .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into()),
@@ -206,7 +185,7 @@ mod test {
                     fn a(){}
                 }
             }))
-            .expect("Failed to convert from ItemImpl"),
+                .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into()),
@@ -231,7 +210,7 @@ mod test {
                     fn b(){}
                 }
             }))
-            .expect("Failed to convert from ItemImpl"),
+                .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into()),
@@ -264,8 +243,8 @@ mod test {
                     pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
                 }
             }))
-            .expect("Failed to build implementation from TokenStream")
-            .dependencies(),
+                .expect("Failed to build implementation from TokenStream")
+                .dependencies(),
             vec![
                 Type::Compound(Identifier::new("FullName").into()),
                 Type::Compound(Identifier::new("Age").into()),

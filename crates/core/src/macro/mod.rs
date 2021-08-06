@@ -16,7 +16,7 @@ pub use rust_proc_macro::*;
 // TODO: Can this be moved to a better place?
 #[cfg(test)]
 mod test {
-    use crate::procedural_macro::ligen;
+    use crate::r#macro::ligen;
     use quote::quote;
     use proc_macro2::TokenStream;
     use quote::*;
