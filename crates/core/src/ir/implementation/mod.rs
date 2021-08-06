@@ -3,10 +3,9 @@ pub use implementation_item::*;
 
 use crate::prelude::*;
 use crate::ir::{Attributes, Identifier, Type};
-use crate::r#macro;
+use crate::proc_macro;
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
-use syn::{parse2, ItemImpl};
 use crate::ir::processing::ReplaceIdentifier;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -23,23 +22,23 @@ pub struct Implementation {
 impl TryFrom<TokenStream> for Implementation {
     type Error = Error;
     fn try_from(tokenstream: TokenStream) -> Result<Self> {
-        parse2::<ItemImpl>(tokenstream)
+        syn::parse2::<syn::ItemImpl>(tokenstream)
             .map_err(|_| "Failed to parse to Implementation.".into())
             .and_then(|item| item.try_into())
     }
 }
 
-impl TryFrom<r#macro::TokenStream> for Implementation {
+impl TryFrom<proc_macro::TokenStream> for Implementation {
     type Error = Error;
-    fn try_from(tokenstream: r#macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
     }
 }
 
-impl TryFrom<ItemImpl> for Implementation {
+impl TryFrom<syn::ItemImpl> for Implementation {
     type Error = Error;
-    fn try_from(item_impl: ItemImpl) -> Result<Self> {
+    fn try_from(item_impl: syn::ItemImpl) -> Result<Self> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = *item_impl.self_ty {
             Ok(Self {
                 attributes: Attributes {
@@ -114,13 +113,11 @@ mod test {
 
     use super::*;
     use crate::ir::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function};
-    use quote::quote;
-    use syn::parse_quote::parse;
 
     #[test]
     fn impl_block() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {impl Test {}}))
+            Implementation::try_from(quote! {impl Test {}})
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
@@ -133,11 +130,10 @@ mod test {
     #[test]
     fn impl_block_attributes() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {
+            Implementation::try_from(quote! {
                 #[test(a = "b")]
                 impl Test {}
-            }))
-                .expect("Failed to convert from ItemImpl"),
+            }).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -159,12 +155,11 @@ mod test {
     #[test]
     fn impl_block_items_const() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {
+            Implementation::try_from(quote! {
                 impl Test {
                     const a: i32 = 2;
                 }
-            }))
-                .expect("Failed to convert from ItemImpl"),
+            }).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into()),
@@ -180,12 +175,11 @@ mod test {
     #[test]
     fn impl_block_items_method() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {
+            Implementation::try_from(quote! {
                 impl Test {
                     fn a(){}
                 }
-            }))
-                .expect("Failed to convert from ItemImpl"),
+            }).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into()),
@@ -204,12 +198,12 @@ mod test {
     #[test]
     fn impl_block_items() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {
+            Implementation::try_from(quote! {
                 impl Test {
                     const a: i32 = 2;
                     fn b(){}
                 }
-            }))
+            })
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
@@ -236,13 +230,13 @@ mod test {
     #[test]
     fn impl_block_dependencies() {
         assert_eq!(
-            Implementation::try_from(parse::<ItemImpl>(quote! {
+            Implementation::try_from(quote! {
                 impl Person {
                     pub fn new(name: FullName, age: Age) -> Self { ... }
                     pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
                     pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
                 }
-            }))
+            })
                 .expect("Failed to build implementation from TokenStream")
                 .dependencies(),
             vec![

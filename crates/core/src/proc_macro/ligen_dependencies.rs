@@ -4,7 +4,7 @@ use quote::TokenStreamExt;
 use quote::quote;
 use std::convert::TryFrom;
 
-/// `ligen_dependencies` macro function called by `ligen_dependencies!()`
+/// `ligen_dependencies` proc_macro function called by `ligen_dependencies!()`
 pub fn ligen_dependencies(attributes: TokenStream) -> TokenStream {
     let attributes = Attributes::try_from(attributes).expect("Failed to parse Attributes.");
     let mut dependencies = TokenStream::new();

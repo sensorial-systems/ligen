@@ -4,7 +4,7 @@ pub use attribute::*;
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
-use crate::r#macro;
+use crate::proc_macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::{TryFrom, TryInto};
@@ -72,9 +72,9 @@ impl TryFrom<TokenStream> for Attributes {
     }
 }
 
-impl TryFrom<r#macro::TokenStream> for Attributes {
+impl TryFrom<proc_macro::TokenStream> for Attributes {
     type Error = Error;
-    fn try_from(tokenstream: r#macro::TokenStream) -> Result<Self> {
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
         let tokenstream: TokenStream = tokenstream.into();
         tokenstream.try_into()
     }

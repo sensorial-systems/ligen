@@ -13,7 +13,7 @@ pub use file_generator::*;
 pub use ffi_generator::*;
 
 use crate::prelude::*;
-use crate::ir::{Implementation, Attributes, Object};
+use crate::ir::{Attributes, Object};
 use crate::utils::fs::write_file;
 
 /// Generator trait.
@@ -26,12 +26,14 @@ pub trait Generator: FileGenerator + FFIGenerator {
     fn pre_process(&self, _context: &Context, object: Option<&Object>) -> Option<Object> {
         object.map(|object| {
             let mut object = object.clone();
-            object.replace_self_with_explicit_names();
+            for implementation in &mut object.implementations {
+                implementation.replace_self_with_explicit_names();
+            }
             object
         })
     }
 
-    /// Main function called in the procedural macro.
+    /// Main function called in the procedural proc_macro.
     fn generate(&self, context: &Context, object: Option<&Object>) -> Result<TokenStream> {
         let object = self.pre_process(context, object);
         let object = object.map(|object| Visitor::new((), object));
@@ -39,7 +41,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
         let mut file_set = FileSet::default();
         self.generate_files(&context, &mut file_set, object);
         self.save_file_set(context, file_set)?;
-        Ok(self.generate_ffi(&context, implementation))
+        Ok(self.generate_ffi(&context, object))
     }
 
     /// Saves the file set.

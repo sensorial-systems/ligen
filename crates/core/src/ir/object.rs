@@ -3,7 +3,8 @@
 use crate::ir::{Implementation, Structure, Path};
 
 /// Object representation.
-/// This is a conventional structure created from a composition of different associated type elements.
+/// This is a conventional structure created from a composition of a struct definition and impl
+/// blocks.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
     /// Object path.

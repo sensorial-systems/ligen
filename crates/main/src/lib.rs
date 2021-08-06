@@ -1,5 +1,5 @@
 //! # Ligen
-//! Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
+//! Ligen (Language Interface Generator) is an extensible proc_macro-based multi-language binding
 //! generator.
 //!
 //! We officially support `ligen-c`, a binding generator for the Programming Language C.

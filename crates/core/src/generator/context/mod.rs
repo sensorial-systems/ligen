@@ -1,4 +1,4 @@
-//! Context about the proc-macro execution.
+//! Context about the proc-proc_macro execution.
 
 mod arguments;
 mod build_type;

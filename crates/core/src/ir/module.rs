@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 use crate::ir::{Object, Path, Structure, Implementation};
+use crate::proc_macro;
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use itertools::Itertools;
@@ -10,6 +11,23 @@ use itertools::Itertools;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
     objects: Vec<Object>
+}
+
+impl TryFrom<TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
+        syn::parse2::<syn::File>(tokenstream)
+            .map_err(|_| "Failed to parse to Implementation.".into())
+            .and_then(|item| item.try_into())
+    }
+}
+
+impl TryFrom<proc_macro::TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+        let tokenstream: TokenStream = tokenstream.into();
+        tokenstream.try_into()
+    }
 }
 
 impl TryFrom<syn::File> for Module {
@@ -57,12 +75,11 @@ mod tests {
     use super::*;
     use crate::ir::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field};
     use quote::quote;
-    use syn::parse_quote::parse;
 
     #[test]
     fn object() {
         assert_eq!(
-            Module::try_from(parse::<syn::File>(quote! {
+            Module::try_from(quote! {
                 pub struct Object {
                     pub integer: i32
                 }
@@ -74,7 +91,7 @@ mod tests {
                 }
 
                 pub struct AnotherObject;
-            })).expect("Failed to convert from ItemImpl"),
+            }).expect("Failed to convert from ItemImpl"),
             Module {
                 objects: vec![
                     Object {

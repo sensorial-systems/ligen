@@ -2,14 +2,14 @@
 
 use crate::prelude::*;
 
-use crate::generator::{Context, ImplementationVisitor, FunctionVisitor};
+use crate::generator::{Context, ImplementationVisitor, FunctionVisitor, ObjectVisitor};
 use crate::ir::{Type, Identifier, Visibility, ImplementationItem};
 use crate::ir::processing::ReplaceIdentifier;
 
 /// FFI generator.
 pub trait FFIGenerator {
     /// Generate FFI.
-    fn generate_ffi(&self, context: &Context, visitor: Option<&ImplementationVisitor>) -> TokenStream;
+    fn generate_ffi(&self, context: &Context, visitor: Option<&ObjectVisitor>) -> TokenStream;
 }
 
 /// A generic FFI generator which can be used for most languages.
@@ -142,8 +142,20 @@ pub trait GenericFFIGenerator {
         }
     }
 
+    /// Generate object externs.
+    fn generate(context: &Context, object: &ObjectVisitor) -> TokenStream {
+        object
+            .current
+            .implementations
+            .iter()
+            .fold(TokenStream::new(), |mut tokens, implementation| {
+                tokens.append_all(Self::generate_implementation(context, &object.child(implementation.clone())));
+                tokens
+            })
+    }
+
     /// Generate externs for Constants and Methods.
-    fn generate(context: &Context, implementation: &ImplementationVisitor) -> TokenStream {
+    fn generate_implementation(context: &Context, implementation: &ImplementationVisitor) -> TokenStream {
         let mut tokens =
             implementation
                 .current
@@ -168,9 +180,9 @@ fn self_to_explicit_name(identifier: &Identifier, name_identifier: &Identifier) 
 }
 
 impl<T: GenericFFIGenerator> FFIGenerator for T {
-    fn generate_ffi(&self, context: &Context, implementation: Option<&ImplementationVisitor>) -> TokenStream {
-        implementation
-            .map(|implementation| Self::generate(context, implementation))
+    fn generate_ffi(&self, context: &Context, visitor: Option<&ObjectVisitor>) -> TokenStream {
+        visitor
+            .map(|visitor| Self::generate(context, visitor))
             .unwrap_or_else(|| TokenStream::new())
     }
 }

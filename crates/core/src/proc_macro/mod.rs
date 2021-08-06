@@ -1,4 +1,4 @@
-//! proc-macro entrypoint.
+//! proc-proc_macro entrypoint.
 
 pub mod prelude;
 
@@ -16,7 +16,7 @@ pub use rust_proc_macro::*;
 // TODO: Can this be moved to a better place?
 #[cfg(test)]
 mod test {
-    use crate::r#macro::ligen;
+    use crate::proc_macro::ligen;
     use quote::quote;
     use proc_macro2::TokenStream;
     use quote::*;

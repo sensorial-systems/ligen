@@ -31,6 +31,7 @@ impl<Parent, Current> Visitor<Parent, Current> {
 /// Object visitor.
 pub type ObjectVisitor = Visitor<(), Object>;
 
+/// Structure visitor.
 pub type StructureVisitor = Visitor<ObjectVisitor, Structure>;
 
 /// Implementation visitor.

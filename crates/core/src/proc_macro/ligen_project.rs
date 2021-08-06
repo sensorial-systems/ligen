@@ -4,7 +4,7 @@ use quote::TokenStreamExt;
 use quote::quote;
 use std::convert::TryFrom;
 
-/// `ligen_project` macro function called by `ligen_project!()`
+/// `ligen_project` proc_macro function called by `ligen_project!()`
 pub fn ligen_project(attributes: TokenStream) -> TokenStream {
     let attributes = Attributes::try_from(attributes).expect("Failed to parse Attributes.");
 
@@ -15,7 +15,7 @@ pub fn ligen_project(attributes: TokenStream) -> TokenStream {
 
     output
 }
-/// Function to get a TokenStream of Attribute as a ligen project generator macro
+/// Function to get a TokenStream of Attribute as a ligen project generator proc_macro
 fn to_project_tokens(attribute: &Attribute) -> TokenStream {
     match attribute {
         Attribute::Literal(lit) => {
