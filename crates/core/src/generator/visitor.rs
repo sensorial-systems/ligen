@@ -1,6 +1,6 @@
 //! Generator visitor module.
 
-use crate::ir::{Implementation, Function, Parameter, Type};
+use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure};
 use crate::generator::{Context, FileSet};
 
 /// Generic visitor type.
@@ -28,8 +28,13 @@ impl<Parent, Current> Visitor<Parent, Current> {
     }
 }
 
+/// Object visitor.
+pub type ObjectVisitor = Visitor<(), Object>;
+
+pub type StructureVisitor = Visitor<ObjectVisitor, Structure>;
+
 /// Implementation visitor.
-pub type ImplementationVisitor = Visitor<(), Implementation>;
+pub type ImplementationVisitor = Visitor<ObjectVisitor, Implementation>;
 
 /// Function visitor.
 pub type FunctionVisitor = Visitor<ImplementationVisitor, Function>;

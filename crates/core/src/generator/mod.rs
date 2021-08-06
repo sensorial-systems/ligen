@@ -13,7 +13,7 @@ pub use file_generator::*;
 pub use ffi_generator::*;
 
 use crate::prelude::*;
-use crate::ir::{Implementation, Attributes};
+use crate::ir::{Implementation, Attributes, Object};
 use crate::utils::fs::write_file;
 
 /// Generator trait.
@@ -23,21 +23,21 @@ pub trait Generator: FileGenerator + FFIGenerator {
 
     /// Pre-processes the input. The default implementation returns a transformed input with all the
     /// `Self` and `self` occurrences replaced by the actual object name.
-    fn pre_process(&self, _context: &Context, implementation: Option<&Implementation>) -> Option<Implementation> {
-        implementation.map(|implementation| {
-            let mut implementation = implementation.clone();
-            implementation.replace_self_with_explicit_names();
-            implementation
+    fn pre_process(&self, _context: &Context, object: Option<&Object>) -> Option<Object> {
+        object.map(|object| {
+            let mut object = object.clone();
+            object.replace_self_with_explicit_names();
+            object
         })
     }
 
     /// Main function called in the procedural macro.
-    fn generate(&self, context: &Context, implementation: Option<&Implementation>) -> Result<TokenStream> {
-        let implementation = self.pre_process(context, implementation);
-        let implementation = implementation.map(|implementation| Visitor::new((), implementation));
-        let implementation = implementation.as_ref();
+    fn generate(&self, context: &Context, object: Option<&Object>) -> Result<TokenStream> {
+        let object = self.pre_process(context, object);
+        let object = object.map(|object| Visitor::new((), object));
+        let object = object.as_ref();
         let mut file_set = FileSet::default();
-        self.generate_files(&context, &mut file_set, implementation);
+        self.generate_files(&context, &mut file_set, object);
         self.save_file_set(context, file_set)?;
         Ok(self.generate_ffi(&context, implementation))
     }

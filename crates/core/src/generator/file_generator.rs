@@ -1,12 +1,12 @@
 //! File generator module.
 
-use crate::generator::{FileSet, Context, ImplementationVisitor, FunctionVisitor, ParameterVisitor, FileProcessorVisitor};
+use crate::generator::{FileSet, Context, ImplementationVisitor, FunctionVisitor, ParameterVisitor, FileProcessorVisitor, ObjectVisitor};
 use crate::ir::ImplementationItem;
 
 /// File generator.
 pub trait FileGenerator {
     /// Generate files.
-    fn generate_files(&self, context: &Context, file_set: &mut FileSet, visitor: Option<&ImplementationVisitor>);
+    fn generate_files(&self, context: &Context, file_set: &mut FileSet, visitor: Option<&ObjectVisitor>);
 }
 
 /// File generator with visitors.
