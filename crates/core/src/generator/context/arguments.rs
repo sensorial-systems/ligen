@@ -25,19 +25,14 @@ pub struct Arguments {
 
 impl Arguments {
     /// Generates a JSON representation of Arguments in CARGO_LIGEN_ARGUMENTS.
-    pub fn to_env(&self) {
-        let json = serde_json::to_string(self).expect("Couldn't serialize.");
-        std::env::set_var("CARGO_LIGEN_ARGUMENTS", json);
+    pub fn to_env(&self) -> Result<()> {
+        let json = serde_json::to_string(self)?;
+        Ok(std::env::set_var("CARGO_LIGEN_ARGUMENTS", json))
     }
 
     /// Parses the JSON representation from CARGO_LIGEN_ARGUMENTS.
     pub fn from_env() -> Result<Self> {
-        match std::env::var("CARGO_LIGEN_ARGUMENTS") {
-            Ok(json_string) => match serde_json::from_str(&json_string) {
-                Ok(arguments) => Ok(arguments),
-                Err(err) => Err(err.into()),
-            },
-            Err(_) => Err("Couldn't find CARGO_LIGEN_ARGUMENTS env var".into()),
-        }
+        let json_string = std::env::var("CARGO_LIGEN_ARGUMENTS")?;
+        Ok(serde_json::from_str(&json_string)?)
     }
 }

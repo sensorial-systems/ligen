@@ -4,6 +4,14 @@ generator.
 
 We officially support `ligen-c`, a binding generator for the Programming Language C.
 
+
+### Requirements
+
+1. `rustup install nightly`
+2. `cargo install cargo-ligen`
+
+### How to use
+
 You can add ligen to your codebase by adding `#[ligen]` attributes to the items you want to
 export. It is as simple as this:
 ```rust
@@ -24,6 +32,11 @@ impl Counter {
   pub fn get_count(&self) -> u32 { self.count }
 }
 ```
+
+Then to generate the language bindings run: `cargo ligen`
+
+`cargo ligen` passes all its extra parameters to `cargo build`, so you can use `cargo ligen --release` to
+generate a library with optimized production code (`--debug` is default).
 
 ### Getting started
 

@@ -13,7 +13,7 @@ use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
-/// Context struct.
+/// Context representation.
 pub struct Context {
     /// The current SourceFile.
     pub source_file: SourceFile,

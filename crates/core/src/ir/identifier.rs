@@ -3,7 +3,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
 
 /// Identifier structure
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Identifier {
     /// Name field of Identifier
     pub name: String,

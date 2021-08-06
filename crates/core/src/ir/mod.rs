@@ -1,5 +1,6 @@
 //! Ligen intermediate representation.
 
+pub use module::*;
 pub use constant::*;
 pub use function::*;
 pub use function::parameter::*;
@@ -11,7 +12,9 @@ pub use macro_attributes::*;
 pub use structure::*;
 pub use types::*;
 pub use visibility::*;
+pub use object::*;
 
+mod module;
 mod macro_attributes;
 mod constant;
 mod function;
@@ -22,6 +25,7 @@ mod literal;
 mod types;
 mod path;
 mod structure;
+mod object;
 
 pub mod processing;
 
