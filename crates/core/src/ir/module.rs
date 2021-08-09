@@ -6,11 +6,25 @@ use crate::proc_macro;
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use itertools::Itertools;
+use std::io::Read;
+use std::fs::File;
 
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
-    objects: Vec<Object>
+    /// Objects.
+    pub objects: Vec<Object>
+}
+
+impl Module {
+    /// Gets the root module (lib.rs).
+    pub fn root() -> Result<Self> {
+        let mut file = File::open("src/lib.rs")?;
+        let mut src = String::new();
+        file.read_to_string(&mut src)?;
+        let syntax = syn::parse_file(&src)?;
+        Module::try_from(syntax)
+    }
 }
 
 impl TryFrom<TokenStream> for Module {

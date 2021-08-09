@@ -28,12 +28,19 @@ pub fn define_binding_generator(attributes: TokenStream) -> TokenStream {
         #[proc_macro_attribute]
         #function_signature {
             use ligen::proc_macro::prelude::*;
+            use ligen::ir::{Implementation, Object};
+            use std::convert::TryFrom;
             let context = Context::current().expect("Couldn't get context.");
             let attributes = attributes.try_into().expect("Failed to parse attributes.");
-            let implementation = input.clone().try_into().ok();
+            let implementation = Implementation::try_from(input.clone()).ok();
+            let object = implementation.map(|implementation| Object {
+                path: implementation.self_.path(),
+                structure: None,
+                implementations: vec![implementation]
+            });
             let mut output: TokenStream = input.into();
             let generator = #generator_path::new(&context, &attributes);
-            let generated = generator.generate(&context, implementation.as_ref()).expect("Generator failed.");
+            let generated = generator.generate(&context, object.as_ref()).expect("Generator failed.");
             output.append_all(generated);
             output.into()
         }
@@ -62,9 +69,9 @@ pub fn define_project_generator(attributes: TokenStream) -> TokenStream {
             use ligen::proc_macro::prelude::*;
             let context = Context::current().expect("Couldn't get context.");
             let attributes = attributes.try_into().expect("Failed to parse attributes.");
-            let implementation = None;
+            let object = None;
             let generator = #generator_path::new(&context, &attributes);
-            let generated = generator.generate(&context, implementation.as_ref()).expect("Generator failed.");
+            let generated = generator.generate(&context, object.as_ref()).expect("Generator failed.");
             let output = generated;
             output.into()
         }
