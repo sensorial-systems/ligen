@@ -1,5 +1,6 @@
 //! BuildType definition module.
 
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 
 /// Release or Debug.
@@ -9,6 +10,19 @@ pub enum BuildType {
     Release,
     #[allow(missing_docs)]
     Debug,
+}
+
+impl BuildType {
+    /// Gets BuildType from `PROFILE` environment variable.
+    pub fn from_env() -> Result<Self> {
+        let profile = std::env::var("PROFILE")?;
+        let build_type = if profile == "release" {
+            BuildType::Release
+        } else {
+            BuildType::Debug
+        };
+        Ok(build_type)
+    }
 }
 
 impl Default for BuildType {

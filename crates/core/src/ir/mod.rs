@@ -13,6 +13,7 @@ pub use structure::*;
 pub use types::*;
 pub use visibility::*;
 pub use object::*;
+pub use project::*;
 
 mod module;
 mod macro_attributes;
@@ -26,6 +27,7 @@ mod types;
 mod path;
 mod structure;
 mod object;
+mod project;
 
 pub mod processing;
 

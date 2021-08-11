@@ -1,5 +1,7 @@
 //! File representation.
 
+use crate::prelude::*;
+use crate::utils::fs::write_file;
 use std::path::PathBuf;
 use std::collections::HashMap;
 
@@ -18,22 +20,26 @@ impl File {
         Self { path, content }
     }
 
-    /// Writes the content to the file.
+    /// Writes the content to the file buffer.
     pub fn write<S: AsRef<str>>(&mut self, content: S) {
         self.content.push_str(content.as_ref());
     }
 
-    /// Writes the content to the file and adds a new line.
+    /// Writes the content to the file buffer and adds a new line.
     pub fn writeln<S: AsRef<str>>(&mut self, content: S) {
         self.content.push_str(content.as_ref());
         self.content.push('\n');
+    }
+
+    /// Saves the file.
+    pub fn save(&self) -> Result<()> {
+        write_file(&self.path, &self.content)
     }
 }
 
 /// Structure representing all the file set to be generated.
 #[derive(Debug, Default, Clone)]
 pub struct FileSet {
-    // FIXME: We need a better API.
     pub(crate) files: HashMap<PathBuf, File>
 }
 

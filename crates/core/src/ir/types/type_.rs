@@ -85,6 +85,17 @@ impl ToTokens for Type {
     }
 }
 
+impl std::fmt::Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let display = match &self {
+            Type::Atomic(atomic)       => format!("{}", atomic),
+            Type::Compound(compound)   => format!("{}", compound),
+            Type::Reference(reference) => format!("{}", reference),
+        };
+        f.write_str(&display)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use std::convert::TryInto;

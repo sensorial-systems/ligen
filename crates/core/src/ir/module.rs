@@ -60,12 +60,15 @@ impl TryFrom<syn::File> for Module {
                     }
                 },
                 syn::Item::Impl(implementation) => {
-                    let implementation = Implementation::try_from(implementation)?;
-                    let path = implementation.self_.path();
-                    if let Some((_structure, implementations)) = objects.get_mut(&path) {
-                        implementations.push(implementation);
-                    } else {
-                        objects.insert(path, (None, vec![implementation]));
+                    // TODO: Consider impl Trait for Object?
+                    if implementation.trait_.is_none() {
+                        let implementation = Implementation::try_from(implementation)?;
+                        let path = implementation.self_.path();
+                        if let Some((_structure, implementations)) = objects.get_mut(&path) {
+                            implementations.push(implementation);
+                        } else {
+                            objects.insert(path, (None, vec![implementation]));
+                        }
                     }
                 }
                 _ => ()

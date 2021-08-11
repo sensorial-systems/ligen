@@ -39,6 +39,12 @@ impl ToTokens for Identifier {
     }
 }
 
+impl std::fmt::Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self.name))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::quote;

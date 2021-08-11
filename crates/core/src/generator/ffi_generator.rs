@@ -1,175 +1,150 @@
 //! FFI generator module.
 
-use crate::prelude::*;
-
-use crate::generator::{Context, ImplementationVisitor, FunctionVisitor, ObjectVisitor};
+use crate::generator::{ImplementationVisitor, FunctionVisitor, ObjectVisitor, File, ModuleVisitor, ProjectVisitor};
 use crate::ir::{Type, Identifier, Visibility, ImplementationItem};
 use crate::ir::processing::ReplaceIdentifier;
 
 /// FFI generator.
 pub trait FFIGenerator {
     /// Generate FFI.
-    fn generate_ffi(&self, context: &Context, visitor: Option<&ObjectVisitor>) -> TokenStream;
+    fn generate_ffi(&self, file: &mut File, visitor: &ProjectVisitor);
 }
 
 /// A generic FFI generator which can be used for most languages.
 pub trait GenericFFIGenerator {
     /// Generate the function parameters.
-    fn generate_parameters(_context: &Context, function: &FunctionVisitor) -> TokenStream {
-        let object_identifier = function.parent.current.self_.path().last();
-        function
-            .current
-            .inputs
-            .iter()
-            .fold(TokenStream::new(), |mut tokens, parameter| {
-                let type_ = Self::to_marshal_parameter(&parameter.type_);
-                let identifier = self_to_explicit_name(&parameter.identifier, &object_identifier);
-                tokens.append_all(quote! {#identifier: #type_,});
-                tokens
-            })
+    fn generate_parameters(file: &mut File, visitor: &FunctionVisitor) {
+        let object_identifier = visitor.parent.current.self_.path().last();
+        for parameter in &visitor.current.inputs {
+            let type_ = Self::to_marshal_parameter(&parameter.type_);
+            let identifier = self_to_explicit_name(&parameter.identifier, &object_identifier);
+            file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
+        }
     }
 
     /// Generate the function call arguments and its conversions.
-    fn generate_arguments(_context: &Context, function: &FunctionVisitor) -> TokenStream {
+    fn generate_arguments(file: &mut File, function: &FunctionVisitor) {
         let object_identifier = function.parent.current.self_.path().last();
-        function
-            .current
-            .inputs
-            .iter()
-            .fold(TokenStream::new(), |mut tokens, parameter| {
-                let identifier = self_to_explicit_name(&parameter.identifier, &object_identifier);
-                tokens.append_all(quote! {#identifier.into(),});
-                tokens
-            })
-    }
-
-    /// Marshal type.
-    fn to_marshal_output(type_: &Type) -> TokenStream {
-        match type_ {
-            Type::Compound(path) => match path.segments.last().unwrap().name.as_str() {
-                "String" => quote! { *mut crate::ffi::RString },
-                _ => quote! { *mut #type_ },
-            },
-            _ => quote! { #type_ },
+        for input in &function.current.inputs {
+            let identifier = self_to_explicit_name(&input.identifier, &object_identifier);
+            file.write(format!("{identifier}.into(), ", identifier = identifier));
         }
     }
 
     /// Marshal type.
-    fn to_marshal_parameter(type_: &Type) -> TokenStream {
+    fn to_marshal_output(type_: &Type) -> String {
         match type_ {
             Type::Compound(path) => match path.segments.last().unwrap().name.as_str() {
-                "String" => quote! { crate::ffi::CChar },
-                _ => quote! { *mut #type_ },
+                // FIXME: This must be generalized.
+                "String" => "*mut RString".into(),
+                _ => format!("*mut {type_}", type_ = type_),
             },
-            _ => quote! { #type_ },
+            _ => format!("{type_}", type_ = type_),
+        }
+    }
+
+    /// Marshal type.
+    fn to_marshal_parameter(type_: &Type) -> String {
+        match type_ {
+            Type::Compound(path) => match path.segments.last().unwrap().name.as_str() {
+                // FIXME: This must be generalized.
+                "String" => "CChar".into(),
+                _ => format!("*mut {type_}", type_ = type_),
+            },
+            _ => format!("{type_}", type_ = type_),
         }
     }
 
     /// Generate the function output.
-    fn generate_output(_context: &Context, output: &Option<Type>) -> TokenStream {
+    fn generate_output(file: &mut File, output: &Option<Type>) {
         match output {
-            Some(type_) => Self::to_marshal_output(type_),
-            _ => quote! {()},
+            Some(type_) => file.write(&format!(" -> {}", Self::to_marshal_output(type_))),
+            _ => ()
         }
     }
 
     /// Generate the function
-    fn generate_function_signature(
-        context: &Context,
-        visitor: &FunctionVisitor,
-    ) -> TokenStream {
+    fn generate_function_signature(file: &mut File, visitor: &FunctionVisitor) {
         let implementation = &visitor.parent.current;
         let function = &visitor.current;
-        let parameters = Self::generate_parameters(context, visitor);
-        let output = Self::generate_output(context, &function.output);
         let function_name = format!("{}_{}", implementation.self_.path().last().name, function.identifier.name);
         let function_identifier = Identifier::new(&function_name);
-        quote! {
-            #[no_mangle]
-            pub extern fn #function_identifier(#parameters) -> #output
-        }
+        file.writeln("#[no_mangle]");
+        file.write(format!("pub extern fn {function_identifier}(", function_identifier = function_identifier));
+        Self::generate_parameters(file, visitor);
+        file.write(")");
+        Self::generate_output(file, &function.output);
     }
 
     /// Generate the function
-    fn generate_function_block(
-        context: &Context,
-        visitor: &FunctionVisitor,
-    ) -> TokenStream {
+    fn generate_function_block(file: &mut File, visitor: &FunctionVisitor) {
         let method = &visitor.current;
         let implementation = &visitor.parent.current;
-        let arguments = Self::generate_arguments(context, visitor);
         let self_identifier = &implementation.self_;
         let method_identifier = &method.identifier;
         let result = if let Some(Type::Compound(_identifier)) = method.output.as_ref() {
-            quote! {
-                Box::into_raw(Box::new(result.into()))
-            }
+            "Box::into_raw(Box::new(result.into()))".to_string()
         } else {
-            quote! {result}
+            "result".to_string()
         };
-        quote! {
-            {
-                let result = #self_identifier::#method_identifier(#arguments);
-                #result
-            }
-        }
+        file.writeln(" {");
+        file.write(format!("\tlet result = {}::{}(", self_identifier, method_identifier));
+        Self::generate_arguments(file, visitor);
+        file.writeln(");");
+        file.writeln(format!("\t{}", result));
+        file.writeln("}");
     }
 
     /// Generate an extern function for an implementation method.
-    fn generate_function(
-        context: &Context,
-        visitor: &FunctionVisitor,
-    ) -> TokenStream {
+    fn generate_function(file: &mut File, visitor: &FunctionVisitor) {
         if let Visibility::Public = visitor.current.visibility {
-            let function_signature = Self::generate_function_signature(context, visitor);
-            let method_block = Self::generate_function_block(context, visitor);
-            quote! { #function_signature #method_block }
-        } else {
-            quote! {}
+            Self::generate_function_signature(file, visitor);
+            Self::generate_function_block(file, visitor);
         }
     }
 
     /// Generate drop extern.
-    fn generate_drop(visitor: &ImplementationVisitor) -> TokenStream {
-        let self_path = visitor.current.self_.path();
+    fn generate_drop(file: &mut File, visitor: &ObjectVisitor) {
+        let self_path = &visitor.current.path;
         let object_name = self_path.last();
         let drop_name = Identifier::new(format!("{}_drop", object_name.name).as_str());
-        quote! {
-            #[no_mangle]
-            pub unsafe extern fn #drop_name(object: *mut #object_name) {
-                Box::from_raw(object);
-            }
+        file.writeln("#[no_mangle]");
+        file.writeln(format!("pub unsafe extern fn {}(object: *mut {}) {{", drop_name, object_name));
+        file.writeln("\tBox::from_raw(object);");
+        file.writeln("}");
+    }
+
+    /// Generate project externs.
+    fn generate(file: &mut File, visitor: &ProjectVisitor) {
+        Self::generate_module(file, &visitor.child(visitor.current.root_module.clone()));
+    }
+
+    /// Generate module externs.
+    fn generate_module(file: &mut File, visitor: &ModuleVisitor) {
+        // FIXME: Hardcoded to counter example path.
+        file.writeln(format!("use {}::*;", visitor.parent.current.arguments.crate_name));
+        file.writeln("");
+        for object in &visitor.current.objects {
+            Self::generate_object(file, &visitor.child(object.clone()));
         }
     }
 
     /// Generate object externs.
-    fn generate(context: &Context, object: &ObjectVisitor) -> TokenStream {
-        object
-            .current
-            .implementations
-            .iter()
-            .fold(TokenStream::new(), |mut tokens, implementation| {
-                tokens.append_all(Self::generate_implementation(context, &object.child(implementation.clone())));
-                tokens
-            })
+    fn generate_object(file: &mut File, visitor: &ObjectVisitor) {
+        for implementation in &visitor.current.implementations {
+            Self::generate_implementation(file, &visitor.child(implementation.clone()));
+        }
+        Self::generate_drop(file, visitor);
     }
 
     /// Generate externs for Constants and Methods.
-    fn generate_implementation(context: &Context, implementation: &ImplementationVisitor) -> TokenStream {
-        let mut tokens =
-            implementation
-                .current
-                .items
-                .iter()
-                .fold(TokenStream::new(), |mut tokens, item| {
-                    match item {
-                        ImplementationItem::Constant(_) => unimplemented!("Constants aren't implemented yet."),
-                        ImplementationItem::Method(method) => tokens.append_all(Self::generate_function(context, &implementation.child(method.clone()))),
-                    }
-                    tokens
-                });
-        tokens.append_all(Self::generate_drop(&implementation));
-        tokens
+    fn generate_implementation(file: &mut File, visitor: &ImplementationVisitor) {
+        for item in &visitor.current.items {
+            match item {
+                ImplementationItem::Constant(_) => (),
+                ImplementationItem::Method(method) => Self::generate_function(file, &visitor.child(method.clone())),
+            }
+        }
     }
 }
 
@@ -180,9 +155,7 @@ fn self_to_explicit_name(identifier: &Identifier, name_identifier: &Identifier) 
 }
 
 impl<T: GenericFFIGenerator> FFIGenerator for T {
-    fn generate_ffi(&self, context: &Context, visitor: Option<&ObjectVisitor>) -> TokenStream {
-        visitor
-            .map(|visitor| Self::generate(context, visitor))
-            .unwrap_or_else(|| TokenStream::new())
+    fn generate_ffi(&self, file: &mut File, visitor: &ProjectVisitor) {
+        Self::generate(file, visitor);
     }
 }

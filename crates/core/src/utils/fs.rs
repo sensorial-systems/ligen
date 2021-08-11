@@ -17,7 +17,7 @@ pub fn create_parent_directories(path: &PathBuf) -> Result<()> {
 }
 /// Writes the file content to the specified path. It creates all the parent directories if they
 /// don't exist.
-pub fn write_file(path: &PathBuf, content: String) -> Result<()> {
+pub fn write_file(path: &PathBuf, content: &String) -> Result<()> {
     create_parent_directories(path)?;
     let mut file = fs::File::create(path)?;
     Ok(file.write_all(content.as_bytes())?)

@@ -1,7 +1,7 @@
 //! Generator visitor module.
 
-use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure};
-use crate::generator::{Context, FileSet};
+use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure, Module, Project};
+use crate::generator::FileSet;
 
 /// Generic visitor type.
 #[derive(Debug, Clone)]
@@ -28,8 +28,14 @@ impl<Parent, Current> Visitor<Parent, Current> {
     }
 }
 
+/// Project visitor.
+pub type ProjectVisitor = Visitor<(), Project>;
+
+/// Module visitor.
+pub type ModuleVisitor = Visitor<ProjectVisitor, Module>;
+
 /// Object visitor.
-pub type ObjectVisitor = Visitor<(), Object>;
+pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;
 
 /// Structure visitor.
 pub type StructureVisitor = Visitor<ObjectVisitor, Structure>;
@@ -61,10 +67,10 @@ pub trait FileProcessorVisitor: Default {
     type Visitor;
 
     /// Processor executed while visiting the current element and before visiting its children.
-    fn process(&self, _context: &Context, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
+    fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 
     /// Post-processor executed after visiting the current element and its children.
     /// It has a special behavior for `ParameterVisitor`: It only executes if the `parameter` isn't
     /// the last parameter, which is useful for writing separators.
-    fn post_process(&self, _context: &Context, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
+    fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 }
