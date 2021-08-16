@@ -5,7 +5,6 @@ use crate::ir::{Object, Path, Structure, Implementation};
 use crate::proc_macro;
 use std::convert::TryFrom;
 use std::collections::HashMap;
-use itertools::Itertools;
 use std::io::Read;
 use std::fs::File;
 
@@ -74,15 +73,15 @@ impl TryFrom<syn::File> for Module {
                 _ => ()
             }
         }
-        let objects = objects
+        let mut objects: Vec<_> = objects
             .into_iter()
             .map(|(path, (structure, implementations))| Object {
                 path,
                 structure,
                 implementations
             })
-            .sorted_by(|a, b| a.path.cmp(&b.path))
             .collect();
+        objects.sort_by(|a, b| a.path.cmp(&b.path));
         Ok(Self { objects })
     }
 }

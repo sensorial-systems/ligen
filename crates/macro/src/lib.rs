@@ -11,11 +11,6 @@ pub fn ligen_project(attributes: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
-pub fn ligen_dependencies(attributes: TokenStream) -> TokenStream {
-    ligen_core::proc_macro::ligen_dependencies(attributes.into()).into()
-}
-
-#[proc_macro]
 pub fn define_binding_generator(attributes: TokenStream) -> TokenStream {
     ligen_core::proc_macro::define_binding_generator(attributes.into()).into()
 }

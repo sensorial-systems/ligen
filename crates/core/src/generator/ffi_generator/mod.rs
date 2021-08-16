@@ -1,5 +1,8 @@
 //! FFI generator module.
 
+mod temporary_ffi_project;
+pub use temporary_ffi_project::*;
+
 use crate::generator::{ImplementationVisitor, FunctionVisitor, ObjectVisitor, File, ModuleVisitor, ProjectVisitor};
 use crate::ir::{Type, Identifier, Visibility, ImplementationItem};
 use crate::ir::processing::ReplaceIdentifier;

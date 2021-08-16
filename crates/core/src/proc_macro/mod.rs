@@ -4,12 +4,10 @@ pub mod prelude;
 
 mod ligen;
 mod ligen_project;
-mod ligen_dependencies;
 mod procedural_macro;
 
 pub use ligen::*;
 pub use ligen_project::*;
-pub use ligen_dependencies::*;
 pub use procedural_macro::*;
 pub use rust_proc_macro::*;
 

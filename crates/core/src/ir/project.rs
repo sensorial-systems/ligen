@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use crate::ir::Module;
-use crate::generator::Arguments;
+use crate::generator::{Arguments, TemporaryFFIProject};
 
 /// Project representation.
 #[allow(missing_docs)]
@@ -16,8 +16,13 @@ pub struct Project {
 impl Project {
     /// Read the current project AST.
     pub fn read() -> Result<Self> {
-        let root_module = Module::root()?;
-        let arguments = Arguments::from_env()?;
-        Ok(Self { arguments, root_module })
+        // The project isn't available if we are currently building the TemporaryProject.
+        if TemporaryFFIProject::is_building() {
+            Err(Error::Message("Use if let Ok(project) = Project::read() { ... }.".into()))
+        } else {
+            let root_module = Module::root()?;
+            let arguments = Arguments::from_env()?;
+            Ok(Self { arguments, root_module })
+        }
     }
 }

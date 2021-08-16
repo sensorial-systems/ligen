@@ -35,28 +35,18 @@ pub trait Generator: FileGenerator + FFIGenerator {
 
     /// Main function called in the procedural proc_macro.
     fn generate(&self, root: &Project) -> Result<()> {
-        THIS PROCESS NEEDS TO BE FIXED.
-            RUNNING CARGO BUILD HERE CREATES A CALL LOOP BECAUSE THE GENERATED PROJECT POINTS TO THE PROJECT THAT HAS THE BUILD.RS THAT RUNS THIS PROCESS.
-        // FIXME: This process is a mess. We need to clean this up.
+        let build_type = root.arguments.build_type;
         let root = self.pre_process(root);
-        let temporary_directory = std::env::temp_dir();
-        let cargo_file = File::new(temporary_directory.join("Cargo.toml"), format!(include_str!("Cargo.template.toml"), name = &root.arguments.crate_name, version = "0.1.0", path = root.arguments.manifest_path.parent().expect("Couldn't get manifest_path's parent.").join("examples").join("counter").display()));
-        let mut lib_file = File::new(temporary_directory.join("src").join("lib.rs"), String::new());
         let mut file_set = FileSet::default();
         let visitor = Visitor::new((),root);
         self.generate_files(&mut file_set, &visitor);
         self.save_file_set(file_set, &visitor)?;
-        self.generate_ffi(&mut lib_file, &visitor);
-        lib_file.save()?;
-        cargo_file.save()?;
-        std::process::Command::new("cargo")
-            .arg("build")
-            .arg("--release")
-            .arg("--manifest-path")
-            .arg(cargo_file.path.display().to_string())
-            .status()
-            .expect("Couldn't compile project.");
-        crate::utils::fs::copy(&temporary_directory.join("target").join("release").join(&format!("lib{}.a", visitor.current.arguments.crate_name)), &visitor.current.arguments.target_dir.join("ligen"))?;
+
+        let mut temporary_project = TemporaryFFIProject::new(&visitor.current.arguments.crate_name, &visitor.current.arguments.manifest_path)?;
+        self.generate_ffi(&mut temporary_project.lib_file, &visitor);
+        temporary_project.save_files()?;
+        temporary_project.build(build_type)?;
+        temporary_project.transfer_static_library_to_ligen(&visitor.current.arguments.target_dir, build_type)?;
         Ok(())
     }
 

@@ -5,10 +5,9 @@ use serde::{Deserialize, Serialize};
 
 /// Release or Debug.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[allow(missing_docs)]
 pub enum BuildType {
-    #[allow(missing_docs)]
     Release,
-    #[allow(missing_docs)]
     Debug,
 }
 
