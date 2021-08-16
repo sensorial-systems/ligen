@@ -1,10 +1,13 @@
 //! FFI generator module.
 
 mod temporary_ffi_project;
-pub use temporary_ffi_project::*;
+mod build_type;
 
-use crate::generator::{ImplementationVisitor, FunctionVisitor, ObjectVisitor, File, ModuleVisitor, ProjectVisitor};
-use crate::ir::{Type, Identifier, Visibility, ImplementationItem};
+pub use temporary_ffi_project::*;
+pub use build_type::*;
+
+use crate::generator::{File, FunctionVisitor, ImplementationVisitor, ModuleVisitor, ObjectVisitor, ProjectVisitor};
+use crate::ir::{Identifier, ImplementationItem, Type, Visibility};
 use crate::ir::processing::ReplaceIdentifier;
 
 /// FFI generator.

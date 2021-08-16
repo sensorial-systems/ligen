@@ -59,7 +59,7 @@ impl TemporaryFFIProject {
             .arg("--manifest-path")
             .arg(self.cargo_file.path.display().to_string())
             .arg("--target-dir")
-            .arg(self.temporary_directory.path().join("target").display().to_string())
+            .arg(self.temporary_directory.path().join("../../../target").display().to_string())
             .status()?;
         Ok(())
     }

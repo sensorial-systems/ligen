@@ -1,7 +1,7 @@
 //! Arguments definition module.
 
 use crate::prelude::*;
-use crate::generator::context::BuildType;
+use crate::generator::BuildType;
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};

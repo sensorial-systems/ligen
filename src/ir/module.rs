@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 use crate::ir::{Object, Path, Structure, Implementation};
-use crate::proc_macro;
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;

@@ -3,7 +3,6 @@ pub use implementation_item::*;
 
 use crate::prelude::*;
 use crate::ir::{Attributes, Identifier, Type};
-use crate::proc_macro;
 use proc_macro2::TokenStream;
 use std::convert::{TryFrom, TryInto};
 use crate::ir::processing::ReplaceIdentifier;

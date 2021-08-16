@@ -1,26 +1,21 @@
 //! Generators.
 
-mod context;
 mod file;
 mod visitor;
 mod file_generator;
 mod ffi_generator;
 
-pub use context::*;
 pub use visitor::*;
 pub use file::*;
 pub use file_generator::*;
 pub use ffi_generator::*;
 
 use crate::prelude::*;
-use crate::ir::{Attributes, Project};
+use crate::ir::Project;
 use crate::utils::fs::write_file;
 
 /// Generator trait.
-pub trait Generator: FileGenerator + FFIGenerator {
-    /// Creates a new generator using contextual information and attributes.
-    fn new(context: &Context, attributes: &Attributes) -> Self where Self: Sized;
-
+pub trait Generator: FileGenerator + FFIGenerator + Default {
     /// Pre-processes the input. The default implementation returns a transformed input with all the
     /// `Self` and `self` occurrences replaced by the actual object name.
     fn pre_process(&self, root: &Project) -> Project {

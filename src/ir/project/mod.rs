@@ -1,8 +1,12 @@
 //! Project representation.
 
-use crate::prelude::*;
+mod arguments;
+pub use arguments::Arguments;
+
+use crate::generator::TemporaryFFIProject;
 use crate::ir::Module;
-use crate::generator::{Arguments, TemporaryFFIProject};
+use crate::prelude::*;
+
 
 /// Project representation.
 #[allow(missing_docs)]

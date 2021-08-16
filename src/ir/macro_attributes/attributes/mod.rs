@@ -4,7 +4,6 @@ pub use attribute::*;
 use crate::ir::Identifier;
 use crate::ir::Literal;
 use crate::prelude::*;
-use crate::proc_macro;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use std::convert::{TryFrom, TryInto};
