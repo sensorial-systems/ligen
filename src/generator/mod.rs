@@ -15,7 +15,7 @@ use crate::ir::Project;
 use crate::utils::fs::write_file;
 
 /// Generator trait.
-pub trait Generator: FileGenerator + FFIGenerator + Default {
+pub trait Generator: FileGenerator + FFIGenerator {
     /// Pre-processes the input. The default implementation returns a transformed input with all the
     /// `Self` and `self` occurrences replaced by the actual object name.
     fn pre_process(&self, root: &Project) -> Project {

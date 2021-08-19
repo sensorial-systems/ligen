@@ -7,3 +7,6 @@ pub use quote::TokenStreamExt;
 pub use std::convert::{TryFrom, TryInto};
 
 pub use crate::error::*;
+
+pub use crate::generator::Generator;
+pub use crate::ir::Project;

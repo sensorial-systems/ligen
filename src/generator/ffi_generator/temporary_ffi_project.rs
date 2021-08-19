@@ -55,13 +55,17 @@ impl TemporaryFFIProject {
         if let BuildType::Release = build_type {
             build_command = build_command.arg("--release");
         }
-        build_command
+        let status = build_command
             .arg("--manifest-path")
             .arg(self.cargo_file.path.display().to_string())
             .arg("--target-dir")
-            .arg(self.temporary_directory.path().join("../../../target").display().to_string())
+            .arg(self.temporary_directory.path().join("target").display().to_string())
             .status()?;
-        Ok(())
+        if let Some(0) = status.code() {
+            Ok(())
+        } else {
+            Err(Error::Message("Failed to build temporary project.".into()))
+        }
     }
 
     /// Check if the temporary project is currently building.
@@ -98,6 +102,9 @@ impl TemporaryFFIProject {
             .join(&self.name)
             .join("lib")
             .join(target_file_name);
+
+        println!("From: {}", from_path.display());
+        println!("To: {}", to_path.display());
 
         crate::utils::fs::copy(&from_path, &to_path)
     }
