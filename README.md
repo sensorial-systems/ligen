@@ -4,32 +4,34 @@ generator.
 
 We officially support `ligen-c`, a binding generator for the Programming Language C.
 
-
 ### Requirements
 
-1. `rustup install nightly`
-2. `cargo install cargo-ligen`
+`cargo install cargo-ligen`
 
 ### How to use
 
-You can add ligen to your codebase by adding `#[ligen]` attributes to the items you want to
-export. It is as simple as this:
+Here is an example on how to use the C generator and the CMake project generator in your crate:
+`Cargo.toml`
+```toml
+[dev-dependencies]
+ligen       = "0.1"
+ligen-c     = "0.1"
+ligen-cmake = "0.1"
+```
+
+Now you can use it in your `build.rs` file as following:
 ```rust
-use ligen::ligen;
-use ligen_c::ligen_c;
-use ligen_cpp::ligen_cpp;
+use ligen::prelude::*;
+use ligen_c::Generator as CGenerator;
+use ligen_cmake::Generator as CMakeGenerator;
 
-pub struct Counter {
-  count: u32
-}
-
-#[ligen(c, cpp)]
-impl Counter {
-  pub fn new() -> Self { Self { count: 0 } }
-
-  pub fn count(&mut self) { self.count += 1; }
-
-  pub fn get_count(&self) -> u32 { self.count }
+fn main() {
+    if let Ok(project) = Project::read() {
+        let c_generator = CGenerator::default();
+        let cmake_generator = CMakeGenerator::default();
+        cmake_generator.generate(&project).expect("Couldn't generate CMake project.");
+        c_generator.generate(&project).expect("Couldn't generate C bindings");
+    }
 }
 ```
 
