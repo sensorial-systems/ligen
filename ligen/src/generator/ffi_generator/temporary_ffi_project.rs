@@ -3,17 +3,24 @@
 use crate::prelude::*;
 use crate::generator::{File, BuildType};
 use tempfile::TempDir;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Temporary project to build the externalized FFI functions.
 #[derive(Debug)]
 #[allow(missing_docs)]
 pub struct TemporaryFFIProject {
-    temporary_directory: Option<TempDir>,
-    directory_path: PathBuf,
+    temporary_directory: TempDir,
     name: String,
     pub cargo_file: File,
     pub lib_file: File
+}
+
+#[cfg(debug_assertions)]
+impl Drop for TemporaryFFIProject {
+    fn drop(&mut self) {
+        let temporary_directory = std::mem::replace(&mut self.temporary_directory, TempDir::new().expect("Couldn't create a new temporary directory."));
+        temporary_directory.into_path();
+    }
 }
 
 impl TemporaryFFIProject {
@@ -28,14 +35,7 @@ impl TemporaryFFIProject {
         let cargo_content = TemporaryFFIProject::content_template(&name, "0.1.0", dependency_path);
         let cargo_file = File::new(temporary_path.join("Cargo.toml"), cargo_content);
         let name = name.as_ref().into();
-        let directory_path = temporary_directory.path().to_path_buf();
-        let temporary_directory = if std::env::var("PERSIST_TEMPORARY_DIRECTORY").is_ok() {
-            std::mem::forget(temporary_directory);
-            None
-        } else {
-            Some(temporary_directory)
-        };
-        Ok(Self { name, temporary_directory, directory_path, cargo_file, lib_file })
+        Ok(Self { name, temporary_directory, cargo_file, lib_file })
     }
 
     fn content_template<A, B, P>(name: A, version: B, dependency_path: P) -> String
@@ -67,7 +67,7 @@ impl TemporaryFFIProject {
             .arg("--manifest-path")
             .arg(self.cargo_file.path.display().to_string())
             .arg("--target-dir")
-            .arg(self.directory_path.join("target").display().to_string())
+            .arg(self.temporary_directory.path().join("target").display().to_string())
             .status()?;
         if let Some(0) = status.code() {
             Ok(())
@@ -98,7 +98,8 @@ impl TemporaryFFIProject {
         let target_file_name = Self::to_library_name_convention(&self.name);
 
         let from_path = self
-            .directory_path
+            .temporary_directory
+            .path()
             .join("target")
             .join(build_type.to_string().to_lowercase())
             .join(file_name);
