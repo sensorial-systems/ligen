@@ -1,5 +1,5 @@
 [package]
-name    = "counter"
+name    = "cpp-counter"
 version = "0.1.0"
 authors = ["Danilo Guanabara <danilo@sensorial.systems>"]
 edition = "2018"

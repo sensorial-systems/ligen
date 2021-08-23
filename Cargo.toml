@@ -2,7 +2,13 @@
 members = [
     "ligen",
     "ligen-c",
-    "ligen-cpp",
-    "ligen-cmake",
-    "ligen-csharp",
+    "ligen-cpp/crates/core",
+    "ligen-cpp/crates/macro",
+    "ligen-cpp/crates/main",
+    "ligen-cpp/examples/cpp-counter",
+    "ligen-cmake",    
+    "ligen-csharp/crates/core",
+    "ligen-csharp/crates/macro",
+    "ligen-csharp/crates/main",
+    "ligen-csharp/examples/csharp-counter",
 ]
