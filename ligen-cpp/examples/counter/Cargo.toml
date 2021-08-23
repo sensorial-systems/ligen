@@ -1,0 +1,16 @@
+[package]
+name    = "counter"
+version = "0.1.0"
+authors = ["Danilo Guanabara <danilo@sensorial.systems>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["lib","staticlib"]
+
+[dependencies]
+ligen       = "0.1.15"
+ligen-cmake = "0.1.1"
+ligen-c     = "0.1.2"
+ligen-cpp   = { path = "../../crates/main" }

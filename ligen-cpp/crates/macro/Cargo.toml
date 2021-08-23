@@ -1,0 +1,15 @@
+[package]
+name          = "ligen-cpp-macro"
+version       = "0.1.0"
+authors       = ["Danilo Guanabara <danilo@sensorial.systems>"]
+edition       = "2018"
+description   = "Language interface generator"
+documentation = "https://docs.rs/ligen-cpp"
+readme        = "../../README.md"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+ligen = "0.1"
+ligen-cpp-core = { path = "../core" }

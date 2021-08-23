@@ -2,5 +2,6 @@
 members = [
     "ligen",
     "ligen-c",
+    "ligen-cpp",
     "ligen-cmake",
 ]
