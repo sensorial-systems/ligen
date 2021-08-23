@@ -1,0 +1,15 @@
+[package]
+name          = "ligen-csharp-macro"
+version       = "0.1.0"
+authors       = ["Danilo Guanabara <danguafer@gmail.com>"]
+edition       = "2018"
+description   = "Language interface generator"
+documentation = "https://docs.rs/ligen-csharp"
+readme        = "../../README.md"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+ligen = "0.1"
+ligen-csharp-core = { path = "../core" }
