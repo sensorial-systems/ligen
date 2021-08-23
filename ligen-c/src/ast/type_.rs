@@ -33,6 +33,26 @@ pub enum Atomic {
     LongDouble,
 }
 
+impl AsRef<str> for Atomic {
+    fn as_ref(&self) -> &str {
+        match self {
+            Atomic::Char => "char",
+            Atomic::Short => "short",
+            Atomic::Int => "int",
+            Atomic::LongInt => "long int",
+            Atomic::LongLongInt => "long long int",
+            Atomic::Float => "float",
+            Atomic::Double => "double",
+            Atomic::LongDouble => "long double",
+            Atomic::UnsignedChar => "unsigned char",
+            Atomic::UnsignedShort => "unsigned short",
+            Atomic::UnsignedInt => "unsigned int",
+            Atomic::UnsignedLongInt => "unsigned long int",
+            Atomic::UnsignedLongLongInt => "unsigned long long int",
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 /// Types Enum
 pub enum Types {
@@ -102,7 +122,9 @@ impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
             ir::Type::Atomic(atomic) => Self::Atomic(Atomic::from(atomic)),
-            ir::Type::Compound(compound) => Self::Compound(compound.segments.last().unwrap().clone()),
+            ir::Type::Compound(compound) => {
+                Self::Compound(compound.segments.last().unwrap().clone())
+            }
             ir::Type::Reference(_reference) => {
                 unimplemented!("Conversion from reference to Types isn't implemented yet.")
             }
@@ -144,39 +166,23 @@ impl From<ir::Type> for Type {
 use std::fmt;
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}{}{}",
-            if let Some(_) = self.constness {
-                "const "
-            } else {
-                ""
+        if let Some(_) = self.constness {
+            write!(f, "const ")?;
+        }
+
+        match &self.type_ {
+            Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref())?,
+            Types::Compound(identifier) => match identifier.name.as_str() {
+                "String" => write!(f, "const char*")?,
+                _ => write!(f, "C{}", identifier.name)?,
             },
-            match &self.type_ {
-                Types::Atomic(atomic) => {
-                    match atomic {
-                        Atomic::Char                => "char".to_string(),
-                        Atomic::Short               => "short".to_string(),
-                        Atomic::Int                 => "int".to_string(),
-                        Atomic::LongInt             => "long int".to_string(),
-                        Atomic::LongLongInt         => "long long int".to_string(),
-                        Atomic::Float               => "float".to_string(),
-                        Atomic::Double              => "double".to_string(),
-                        Atomic::LongDouble          => "long double".to_string(),
-                        Atomic::UnsignedChar        => "unsigned char".to_string(),
-                        Atomic::UnsignedShort       => "unsigned short".to_string(),
-                        Atomic::UnsignedInt         => "unsigned int".to_string(),
-                        Atomic::UnsignedLongInt     => "unsigned long int".to_string(),
-                        Atomic::UnsignedLongLongInt => "unsigned long long int".to_string(),
-                    }
-                }
-                Types::Compound(identifier) => match identifier.name.as_str() {
-                    "String" => "const char*".to_string(),
-                    _ => format!("C{}", identifier.name),
-                },
-            },
-            if let Some(_) = self.pointer { "*" } else { "" }
-        )
+        }
+
+        if let Some(_) = self.pointer {
+            write!(f, "*")?
+        }
+
+        Ok(())
     }
 }
 
