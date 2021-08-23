@@ -13,7 +13,7 @@ We officially support `ligen-c`, a binding generator for the Programming Languag
 Here is an example on how to use the C generator and the CMake project generator in your crate:
 `Cargo.toml`
 ```toml
-[dev-dependencies]
+[build-dependencies]
 ligen       = "0.1"
 ligen-c     = "0.1"
 ligen-cmake = "0.1"
