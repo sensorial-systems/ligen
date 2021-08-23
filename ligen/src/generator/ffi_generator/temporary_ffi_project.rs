@@ -15,6 +15,14 @@ pub struct TemporaryFFIProject {
     pub lib_file: File
 }
 
+#[cfg(debug_assertions)]
+impl Drop for TemporaryFFIProject {
+    fn drop(&mut self) {
+        let temporary_directory = std::mem::replace(&mut self.temporary_directory, TempDir::new().expect("Couldn't create a new temporary directory."));
+        temporary_directory.into_path();
+    }
+}
+
 impl TemporaryFFIProject {
     /// Creates a new temporary project which depends on `dependency_path`.
     pub fn new<S, P>(name: S, dependency_path: P) -> Result<Self>
@@ -37,7 +45,7 @@ impl TemporaryFFIProject {
     {
         let name = name.as_ref();
         let version = version.as_ref();
-        let path = dependency_path.as_ref().display();
+        let path = dependency_path.as_ref().display().to_string().replace("\\", "/");
         format!(include_str!("Cargo.template.toml"), name = name, version = version, path = path)
     }
 
@@ -102,9 +110,6 @@ impl TemporaryFFIProject {
             .join(&self.name)
             .join("lib")
             .join(target_file_name);
-
-        println!("From: {}", from_path.display());
-        println!("To: {}", to_path.display());
 
         crate::utils::fs::copy(&from_path, &to_path)
     }
