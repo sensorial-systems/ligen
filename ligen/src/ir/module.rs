@@ -15,13 +15,18 @@ pub struct Module {
 }
 
 impl Module {
-    /// Gets the root module (lib.rs).
-    pub fn root() -> Result<Self> {
-        let mut file = File::open("src/lib.rs")?;
+    /// Loads the module from a file Path.
+    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Result<Self> {
+        let mut file = File::open(path)?;
         let mut src = String::new();
         file.read_to_string(&mut src)?;
         let syntax = syn::parse_file(&src)?;
         Module::try_from(syntax)
+    }
+
+    /// Gets the root module (lib.rs).
+    pub fn root() -> Result<Self> {
+        Self::from_path(std::path::Path::new("src").join("lib.rs"))
     }
 }
 

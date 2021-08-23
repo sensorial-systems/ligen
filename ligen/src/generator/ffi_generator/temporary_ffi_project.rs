@@ -111,6 +111,11 @@ impl TemporaryFFIProject {
             .join("lib")
             .join(target_file_name);
 
+        let from_path = Path::new(&format!("{}", from_path.display()).replace("-", "_")).to_path_buf();
+        let to_path = Path::new(&format!("{}", to_path.display()).replace("-", "_")).to_path_buf();
+        // println!("From: {}", from_path.display());
+        // println!("To: {}", to_path.display());
+
         crate::utils::fs::copy(&from_path, &to_path)
     }
 }
