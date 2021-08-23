@@ -3,13 +3,14 @@
 use crate::prelude::*;
 use crate::generator::{File, BuildType};
 use tempfile::TempDir;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Temporary project to build the externalized FFI functions.
 #[derive(Debug)]
 #[allow(missing_docs)]
 pub struct TemporaryFFIProject {
-    temporary_directory: TempDir,
+    temporary_directory: Option<TempDir>,
+    directory_path: PathBuf,
     name: String,
     pub cargo_file: File,
     pub lib_file: File
@@ -27,7 +28,14 @@ impl TemporaryFFIProject {
         let cargo_content = TemporaryFFIProject::content_template(&name, "0.1.0", dependency_path);
         let cargo_file = File::new(temporary_path.join("Cargo.toml"), cargo_content);
         let name = name.as_ref().into();
-        Ok(Self { name, temporary_directory, cargo_file, lib_file })
+        let directory_path = temporary_directory.path().to_path_buf();
+        let temporary_directory = if std::env::var("PERSIST_TEMPORARY_DIRECTORY").is_ok() {
+            std::mem::forget(temporary_directory);
+            None
+        } else {
+            Some(temporary_directory)
+        };
+        Ok(Self { name, temporary_directory, directory_path, cargo_file, lib_file })
     }
 
     fn content_template<A, B, P>(name: A, version: B, dependency_path: P) -> String
@@ -37,7 +45,7 @@ impl TemporaryFFIProject {
     {
         let name = name.as_ref();
         let version = version.as_ref();
-        let path = dependency_path.as_ref().display();
+        let path = dependency_path.as_ref().display().to_string().replace("\\", "/");
         format!(include_str!("Cargo.template.toml"), name = name, version = version, path = path)
     }
 
@@ -59,7 +67,7 @@ impl TemporaryFFIProject {
             .arg("--manifest-path")
             .arg(self.cargo_file.path.display().to_string())
             .arg("--target-dir")
-            .arg(self.temporary_directory.path().join("target").display().to_string())
+            .arg(self.directory_path.join("target").display().to_string())
             .status()?;
         if let Some(0) = status.code() {
             Ok(())
@@ -90,8 +98,7 @@ impl TemporaryFFIProject {
         let target_file_name = Self::to_library_name_convention(&self.name);
 
         let from_path = self
-            .temporary_directory
-            .path()
+            .directory_path
             .join("target")
             .join(build_type.to_string().to_lowercase())
             .join(file_name);
@@ -102,9 +109,6 @@ impl TemporaryFFIProject {
             .join(&self.name)
             .join("lib")
             .join(target_file_name);
-
-        println!("From: {}", from_path.display());
-        println!("To: {}", to_path.display());
 
         crate::utils::fs::copy(&from_path, &to_path)
     }
