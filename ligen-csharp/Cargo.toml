@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/core",
+    "crates/macro",
+    "crates/main",
+    "examples/counter"
+]
