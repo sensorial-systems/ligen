@@ -87,7 +87,7 @@ impl FileProcessorVisitor for StructureProcessor {
             .collect();
 
         for (type_, identifier) in &fields {
-            file.writeln(format!("\t\t\tpublic readonly {} {};", type_, identifier));
+            file.writeln(format!("\t\tpublic readonly {} {};", type_, identifier));
         }
         file.writeln("");
 
@@ -97,14 +97,14 @@ impl FileProcessorVisitor for StructureProcessor {
             .collect::<Vec<_>>()
             .join(", ");
 
-        file.writeln(format!("\t\t\tpublic {}({})", visitor.current.identifier, arguments));
-        file.writeln("\t\t\t{");
+        file.writeln(format!("\t\tpublic {}({})", visitor.current.identifier, arguments));
+        file.writeln("\t\t{");
 
         for (_, identifier) in fields {
-            file.writeln(format!("\t\t\t\tthis.{identifier} = {identifier};", identifier = identifier));
+            file.writeln(format!("\t\t\tthis.{identifier} = {identifier};", identifier = identifier));
         }
 
-        file.writeln("\t\t\t}");
+        file.writeln("\t\t}");
         file.writeln("\t}");
         file.writeln("}");
 
