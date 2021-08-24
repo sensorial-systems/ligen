@@ -1,6 +1,8 @@
+use crate::prelude::*;
 use crate::generator::{File, ProjectVisitor, FunctionVisitor, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FFIGenerator};
 use crate::ir::{Identifier, ImplementationItem, Type, Visibility};
 use crate::ir::processing::ReplaceIdentifier;
+use crate::conventions::naming::{NamingConvention, SnakeCase};
 
 /// A generic FFI generator which can be used for most languages.
 pub trait GenericFFIGenerator {
@@ -113,8 +115,10 @@ pub trait GenericFFIGenerator {
 
     /// Generate module externs.
     fn generate_module(file: &mut File, visitor: &ModuleVisitor) {
-        // FIXME: Hardcoded to counter example path.
-        file.writeln(format!("use {}::*;", visitor.parent.current.arguments.crate_name.replace("-", "_")));
+        // FIXME: This expect is only needed because `crate_name` isn't implemented as NamingConvention.
+        let crate_name = NamingConvention::try_from(visitor.parent.current.arguments.crate_name.as_str()).expect("Not in a known naming convention.");
+        let crate_name = SnakeCase::from(crate_name);
+        file.writeln(format!("use {}::*;", crate_name));
         file.writeln("");
         for object in &visitor.current.objects {
             Self::generate_object(file, &visitor.child(object.clone()));

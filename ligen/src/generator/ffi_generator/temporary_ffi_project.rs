@@ -4,6 +4,7 @@ use crate::prelude::*;
 use crate::generator::{File, BuildType};
 use tempfile::TempDir;
 use std::path::Path;
+use crate::conventions::naming::{NamingConvention, SnakeCase};
 
 /// Temporary project to build the externalized FFI functions.
 #[derive(Debug)]
@@ -94,8 +95,10 @@ impl TemporaryFFIProject {
     }
     /// Copy the generated static library to ligen's repository.
     pub fn transfer_static_library_to_ligen<P: AsRef<Path>>(&self, target_dir: P, build_type: BuildType) -> Result<()> {
-        let file_name = Self::to_library_name_convention(format!("ffi_{}", self.name));
-        let target_file_name = Self::to_library_name_convention(&self.name);
+        let name = NamingConvention::try_from(self.name.as_str())?;
+        let name = SnakeCase::from(name).to_string();
+        let file_name = Self::to_library_name_convention(format!("ffi_{}", name));
+        let target_file_name = Self::to_library_name_convention(&name);
 
         let from_path = self
             .temporary_directory
@@ -110,11 +113,6 @@ impl TemporaryFFIProject {
             .join(&self.name)
             .join("lib")
             .join(target_file_name);
-
-        let from_path = Path::new(&format!("{}", from_path.display()).replace("-", "_")).to_path_buf();
-        let to_path = Path::new(&format!("{}", to_path.display()).replace("-", "_")).to_path_buf();
-        // println!("From: {}", from_path.display());
-        // println!("To: {}", to_path.display());
 
         crate::utils::fs::copy(&from_path, &to_path)
     }

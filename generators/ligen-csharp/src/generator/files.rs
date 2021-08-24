@@ -59,32 +59,9 @@ impl FileProcessorVisitor for ModuleProcessor {
 impl FileProcessorVisitor for ObjectProcessor {
     type Visitor = ObjectVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor));
-        // includes
-        file.writeln("#pragma once");
-        file.writeln("");
-        file.writeln("#include <stdint.h>");
-        file.writeln("");
-        file.writeln("#ifdef __cplusplus");
-        file.writeln("extern \"C\" {");
-        file.writeln("#endif\n");
-    }
+    fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor));
-
-        // drop function
-        let object_name = &visitor.current.path.last().name;
-        let c_type      = Type::from(ir::Type::Compound(visitor.current.path.clone()));
-        file.writeln(format!("void {name}_drop({type_} self);", name = object_name, type_ = c_type));
-
-        // epilogue
-        file.writeln("");
-        file.writeln("#ifdef __cplusplus");
-        file.writeln("}");
-        file.writeln("#endif");
-    }
+    fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 }
 
 impl FileProcessorVisitor for StructureProcessor {
@@ -92,6 +69,7 @@ impl FileProcessorVisitor for StructureProcessor {
 
     fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
         let file = file_set.entry(&path(&visitor.parent));
+        file.writeln(format!("namespace {}", visitor.parent.parent.parent.current.arguments.crate_name));
         file.writeln(format!("typedef struct Struct_{} {{", visitor.current.identifier));
         file.writeln("\tvoid* self;");
         file.writeln(format!("}} C{};", visitor.current.identifier));

@@ -14,5 +14,5 @@ fn main() {
     }
 }
 
-# 1. Create a single binding of Candle.cs
-# 2. Start marshalling module in ligen to include RString
+// # 1. Create a single binding of Candle.cs
+// # 2. Start marshalling module in ligen to include RString
