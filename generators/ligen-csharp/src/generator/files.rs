@@ -2,7 +2,7 @@ use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, Fun
 use ligen::ir;
 use std::path::PathBuf;
 use crate::ast::{Types, Type};
-use crate::generator::CGenerator;
+use crate::generator::CSharpGenerator;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -33,11 +33,11 @@ pub struct FunctionProcessor;
 pub struct ParameterProcessor;
 
 fn path(visitor: &ObjectVisitor) -> PathBuf {
-    let mut path = PathBuf::from("include");
+    let mut path = PathBuf::from(".");
     for segment in &visitor.current.path.segments {
         path = path.join(segment.to_string());
     }
-    path.with_extension("h")
+    path.with_extension(".cs")
 }
 
 impl FileProcessorVisitor for ProjectProcessor {
@@ -176,7 +176,7 @@ impl FileProcessorVisitor for ParameterProcessor {
     }
 }
 
-impl FileGeneratorVisitors for CGenerator {
+impl FileGeneratorVisitors for CSharpGenerator {
     type ProjectProcessor = ProjectProcessor;
     type ModuleProcessor = ModuleProcessor;
     type ObjectProcessor = ObjectProcessor;

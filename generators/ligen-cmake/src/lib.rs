@@ -5,20 +5,12 @@ use std::path::PathBuf;
 
 /// CMake project generator.
 #[derive(Debug, Clone)]
-pub struct CMakeGenerator {
-    language: Language
-}
+pub struct CMakeGenerator(pub Language);
 
 #[derive(Debug, Clone, Copy)]
 pub enum Language {
     C,
     CPP
-}
-
-impl CMakeGenerator {
-    pub fn new(language: Language) -> Self {
-        Self { language }
-    }
 }
 
 impl Generator for CMakeGenerator {}
@@ -28,7 +20,7 @@ impl FileGenerator for CMakeGenerator {
         let generator_version = env!("CARGO_PKG_VERSION");
         let project_name = &visitor.current.arguments.crate_name;
 
-        let content = match self.language {
+        let content = match self.0 {
             Language::CPP => format!(
                 include_str!("CMakeLists.txt.cpp"),
                 generator_version = generator_version,

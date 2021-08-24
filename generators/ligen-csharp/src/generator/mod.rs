@@ -7,8 +7,8 @@ use ligen::generator::GenericFFIGenerator;
 
 /// Generator structure.
 #[derive(Clone, Copy, Debug, Default)]
-pub struct CGenerator;
+pub struct CSharpGenerator;
 
-impl Generator for CGenerator {}
+impl Generator for CSharpGenerator {}
 
-impl GenericFFIGenerator for CGenerator {}
+impl GenericFFIGenerator for CSharpGenerator {}

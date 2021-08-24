@@ -10,7 +10,8 @@ edition = "2018"
 crate-type = ["lib","staticlib"]
 
 [build-dependencies]
-syn         = "1.0.74"
-ligen       = { path = "../../ligen" }
-ligen-c     = { path = "../../generators/ligen-c" }
-ligen-cmake = { path = "../../generators/ligen-cmake" }
+syn          = "1.0.74"
+ligen        = { path = "../../ligen" }
+ligen-c      = { path = "../../generators/ligen-c" }
+ligen-cmake  = { path = "../../generators/ligen-cmake" }
+ligen-csharp = { path = "../../generators/ligen-csharp" }
