@@ -1,8 +1,9 @@
 use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor};
 use ligen::ir;
 use std::path::PathBuf;
-use crate::ast::{Types, Type};
 use crate::generator::CSharpGenerator;
+use ligen::conventions::naming::{NamingConvention, PascalCase};
+use ligen::prelude::*;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -33,7 +34,7 @@ pub struct FunctionProcessor;
 pub struct ParameterProcessor;
 
 fn path(visitor: &ObjectVisitor) -> PathBuf {
-    let mut path = PathBuf::from(".");
+    let mut path = PathBuf::from("");
     for segment in &visitor.current.path.segments {
         path = path.join(segment.to_string());
     }
@@ -69,10 +70,44 @@ impl FileProcessorVisitor for StructureProcessor {
 
     fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
         let file = file_set.entry(&path(&visitor.parent));
-        file.writeln(format!("namespace {}", visitor.parent.parent.parent.current.arguments.crate_name));
-        file.writeln(format!("typedef struct Struct_{} {{", visitor.current.identifier));
-        file.writeln("\tvoid* self;");
-        file.writeln(format!("}} C{};", visitor.current.identifier));
+        let name = NamingConvention::try_from(visitor.parent.parent.parent.current.arguments.crate_name.as_str()).expect("Not a known naming convention.");
+        let name = PascalCase::from(name);
+        file.writeln(format!("namespace {}", name));
+        file.writeln("{");
+        file.writeln("\tusing System.Runtime.InteropServices;");
+        file.writeln("\t[StructLayout(LayoutKind.Sequential, Pack = 1)]");
+        file.writeln(format!("\tpublic struct {}", visitor.current.identifier));
+        file.writeln("\t{");
+
+        let fields: Vec<_> = visitor
+            .current
+            .fields
+            .iter()
+            .map(|field| (field.type_.clone(), field.identifier.clone()))
+            .collect();
+
+        for (type_, identifier) in &fields {
+            file.writeln(format!("\t\t\tpublic readonly {} {};", type_, identifier));
+        }
+        file.writeln("");
+
+        let arguments = fields
+            .iter()
+            .map(|(type_, identifier)| format!("{} {}", type_, identifier))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        file.writeln(format!("\t\t\tpublic {}({})", visitor.current.identifier, arguments));
+        file.writeln("\t\t\t{");
+
+        for (_, identifier) in fields {
+            file.writeln(format!("\t\t\t\tthis.{identifier} = {identifier};", identifier = identifier));
+        }
+
+        file.writeln("\t\t\t}");
+        file.writeln("\t}");
+        file.writeln("}");
+
     }
 
     fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
@@ -88,70 +123,30 @@ impl FileProcessorVisitor for ImplementationProcessor {
 
 impl FunctionProcessor {
     /// Generate function name.
-    pub fn generate_function_name(&self, visitor: &FunctionVisitor) -> String {
-        // FIXME: This naming convention happens in the extern generator and here. How can we generalize this code?
-        format!("{}_{}", &visitor.parent.current.self_.path().last().name, &visitor.current.identifier.name)
+    pub fn generate_function_name(&self, _visitor: &FunctionVisitor) -> String {
+        Default::default()
     }
 
     /// Generate function output.
-    pub fn generate_function_output(&self, output: &Option<ir::Type>) -> String {
-        let type_ = output
-            .as_ref()
-            .map(|type_| {
-                let typ_ = Type::from(type_.clone());
-                if let Types::Compound(compound) = typ_.type_ {
-                    match compound.name.as_str() {
-                        // FIXME: C prefix should be generalized like in Type::From
-                        "String" => "CRString".to_string(),
-                        _ => Type::from(type_.clone()).to_string(),
-                    }
-                } else {
-                    Type::from(type_.clone()).to_string()
-                }
-            })
-            .unwrap_or_else(|| "void".into());
-        format!("{} ", type_)
+    pub fn generate_function_output(&self, _output: &Option<ir::Type>) -> String {
+        Default::default()
     }
 }
 
 impl FileProcessorVisitor for FunctionProcessor {
     type Visitor = FunctionVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        if let ir::Visibility::Public = visitor.current.visibility {
-            let file = file_set.entry(&path(&visitor.parent.parent));
-            file.write(self.generate_function_output(&visitor.current.output));
-            file.write(self.generate_function_name(&visitor));
-            file.write("(");
-        }
-    }
+    fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        if let ir::Visibility::Public = visitor.current.visibility {
-            let file = file_set.entry(&path(&visitor.parent.parent));
-            file.writeln(");");
-        }
-    }
+    fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 }
 
 impl FileProcessorVisitor for ParameterProcessor {
     type Visitor = ParameterVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent.parent.parent));
+    fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 
-        let mut type_ = Type::from(visitor.current.type_.clone());
-        if let (Some(_pointer), Types::Compound(_type)) = (&type_.pointer, &type_.type_) {
-            type_.pointer = None;
-        }
-        let ident = &visitor.current.identifier.name;
-        file.write(format!("{} {}", type_, ident))
-    }
-
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent.parent.parent));
-        file.write(", ");
-    }
+    fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 }
 
 impl FileGeneratorVisitors for CSharpGenerator {

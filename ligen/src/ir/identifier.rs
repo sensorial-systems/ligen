@@ -1,9 +1,11 @@
 use quote::{quote, ToTokens, TokenStreamExt};
+use crate::prelude::*;
 
 use proc_macro2::TokenStream;
 
 /// Identifier structure
-#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display)]
+#[display(fmt = "{}", name)]
 pub struct Identifier {
     /// Name field of Identifier
     pub name: String,
@@ -36,12 +38,6 @@ impl ToTokens for Identifier {
         tokens.append_all(quote! {
             #identifier
         });
-    }
-}
-
-impl std::fmt::Display for Identifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("{}", self.name))
     }
 }
 

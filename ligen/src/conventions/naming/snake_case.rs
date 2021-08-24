@@ -36,7 +36,6 @@ impl TryFrom<&str> for SnakeCase {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::convert::TryFrom;
 
     #[test]
     fn from_kebab_case() {

@@ -6,11 +6,11 @@ use ligen_csharp::CSharpGenerator;
 fn main() {
     if let Ok(project) = Project::read() {
         // let c_generator = CGenerator::default();
-        // let cmake_generator = CMakeGenerator::new(Language::C);
-        // cmake_generator.generate(&project).expect("Couldn't generate CMake project.");
-        // c_generator.generate(&project).expect("Couldn't generate C bindings");
+        // let cmake_generator = CMakeGenerator(Language::C);
         let csharp_generator = CSharpGenerator::default();
-        csharp_generator.generate(&project).expect("Couldnt generate C# bindings.");
+        // cmake_generator.generate(&project).expect("Failed to generate CMake project.");
+        // c_generator.generate(&project).expect("Failed to generate C bindings");
+        csharp_generator.generate(&project).expect("Failed to generate C# bindings.");
     }
 }
 
