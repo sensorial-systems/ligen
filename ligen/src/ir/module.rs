@@ -1,7 +1,7 @@
 //! Module representation.
 
 use crate::prelude::*;
-use crate::ir::{Object, Path, Structure, Implementation};
+use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier};
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
@@ -10,6 +10,12 @@ use std::fs::File;
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
+    /// Visibility.
+    pub visibility: Visibility,
+    /// Module name.
+    pub name: Identifier,
+    /// Sub-modules.
+    pub modules: Vec<Module>,
     /// Objects.
     pub objects: Vec<Object>
 }
@@ -30,31 +36,24 @@ impl Module {
     }
 }
 
-impl TryFrom<TokenStream> for Module {
-    type Error = Error;
-    fn try_from(tokenstream: TokenStream) -> Result<Self> {
-        syn::parse2::<syn::File>(tokenstream)
-            .map_err(|_| "Failed to parse to Implementation.".into())
-            .and_then(|item| item.try_into())
+impl Module {
+    fn parse_modules(items: &Vec<syn::Item>) -> Result<Vec<Module>> {
+        let mut modules = Vec::new();
+        for item in items {
+            match item {
+                syn::Item::Mod(module) => modules.push(Module::try_from(module.clone())?),
+                _ => ()
+            }
+        }
+        Ok(modules)
     }
-}
 
-impl TryFrom<proc_macro::TokenStream> for Module {
-    type Error = Error;
-    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
-        let tokenstream: TokenStream = tokenstream.into();
-        tokenstream.try_into()
-    }
-}
-
-impl TryFrom<syn::File> for Module {
-    type Error = Error;
-    fn try_from(file: syn::File) -> Result<Self> {
+    fn parse_objects(items: &Vec<syn::Item>) -> Result<Vec<Object>> {
         let mut objects: HashMap<Path, (Option<Structure>, Vec<Implementation>)> = HashMap::new();
-        for item in file.items {
+        for item in items {
             match item {
                 syn::Item::Struct(structure) => {
-                    let structure = Structure::try_from(structure)?;
+                    let structure = Structure::try_from(structure.clone())?;
                     let path = structure.identifier.clone().into();
                     if let Some((optional_structure, _implementations)) = objects.get_mut(&path) {
                         *optional_structure = Some(structure);
@@ -63,9 +62,9 @@ impl TryFrom<syn::File> for Module {
                     }
                 },
                 syn::Item::Impl(implementation) => {
-                    // TODO: Consider impl Trait for Object?
+                    // TODO: Consider `impl Trait for Object`?
                     if implementation.trait_.is_none() {
-                        let implementation = Implementation::try_from(implementation)?;
+                        let implementation = Implementation::try_from(implementation.clone())?;
                         let path = implementation.self_.path();
                         if let Some((_structure, implementations)) = objects.get_mut(&path) {
                             implementations.push(implementation);
@@ -86,7 +85,51 @@ impl TryFrom<syn::File> for Module {
             })
             .collect();
         objects.sort_by(|a, b| a.path.cmp(&b.path));
-        Ok(Self { objects })
+        Ok(objects)
+    }
+}
+
+impl TryFrom<TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
+        syn::parse2::<syn::File>(tokenstream)
+            .map_err(|_| "Failed to parse to Implementation.".into())
+            .and_then(|item| item.try_into())
+    }
+}
+
+impl TryFrom<proc_macro::TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+        let tokenstream: TokenStream = tokenstream.into();
+        tokenstream.try_into()
+    }
+}
+
+impl TryFrom<syn::ItemMod> for Module {
+    type Error = Error;
+    fn try_from(module: syn::ItemMod) -> Result<Self> {
+        let visibility = module.vis.into();
+        let name = module.ident.into();
+        let (modules, objects) = if let Some((_, items)) = module.content {
+            let modules = Module::parse_modules(&items)?;
+            let objects = Module::parse_objects(&items)?;
+            (modules, objects)
+        } else {
+            (Default::default(), Default::default())
+        };
+        Ok(Self { visibility, name, modules, objects })
+    }
+}
+
+impl TryFrom<syn::File> for Module {
+    type Error = Error;
+    fn try_from(file: syn::File) -> Result<Self> {
+        let modules = Module::parse_modules(&file.items)?;
+        let objects = Module::parse_objects(&file.items)?;
+        let visibility = Visibility::Public;
+        let name = "lib".into();
+        Ok(Self { visibility, name, modules, objects })
     }
 }
 

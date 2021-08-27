@@ -70,7 +70,7 @@ impl FileProcessorVisitor for StructureProcessor {
 
     fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
         let file = file_set.entry(&path(&visitor.parent));
-        let name = NamingConvention::try_from(visitor.parent.parent.parent.current.arguments.crate_name.as_str()).expect("Not a known naming convention.");
+        let name = NamingConvention::try_from(visitor.parent.parent.parent_project().arguments.crate_name.as_str()).expect("Not a known naming convention.");
         let name = PascalCase::from(name);
         file.writeln(format!("namespace {}", name));
         file.writeln("{");

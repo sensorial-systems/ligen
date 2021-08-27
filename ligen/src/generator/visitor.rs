@@ -32,7 +32,7 @@ impl<Parent, Current> Visitor<Parent, Current> {
 pub type ProjectVisitor = Visitor<(), Project>;
 
 /// Module visitor.
-pub type ModuleVisitor = Visitor<ProjectVisitor, Module>;
+pub type ModuleVisitor = Visitor<ModuleParent, Module>;
 
 /// Object visitor.
 pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;
@@ -49,6 +49,16 @@ pub type FunctionVisitor = Visitor<ImplementationVisitor, Function>;
 /// Parameter visitor.
 pub type ParameterVisitor = Visitor<FunctionVisitor, Parameter>;
 
+impl ModuleVisitor {
+    /// Returns the parent project.
+    pub fn parent_project(&self) -> &Project {
+        match &self.parent {
+            ModuleParent::Project(visitor) => &visitor.current,
+            ModuleParent::Module(module) => module.parent_project()
+        }
+    }
+}
+
 impl FunctionVisitor {
     /// Check if the function is a method.
     // TODO: Use these rules https://doc.rust-lang.org/reference/items/associated-items.html#methods
@@ -58,6 +68,30 @@ impl FunctionVisitor {
         } else {
             false
         }
+    }
+}
+
+/// All the possibilities of module parents.
+#[derive(Debug, Clone)]
+#[allow(missing_docs)]
+pub enum ModuleParent {
+    Project(ProjectVisitor),
+    Module(Box<ModuleVisitor>)
+}
+
+impl From<&Visitor<ProjectVisitor, Module>> for ModuleVisitor {
+    fn from(visitor: &Visitor<ProjectVisitor, Module>) -> Self {
+        let parent = ModuleParent::Project(visitor.parent.clone());
+        let current = visitor.current.clone();
+        Self { parent, current }
+    }
+}
+
+impl From<&Visitor<ModuleVisitor, Module>> for ModuleVisitor {
+    fn from(visitor: &Visitor<ModuleVisitor, Module>) -> Self {
+        let parent = ModuleParent::Module(visitor.parent.clone().into());
+        let current = visitor.current.clone();
+        Self { parent, current }
     }
 }
 

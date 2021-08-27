@@ -114,11 +114,13 @@ pub trait GenericFFIGenerator {
     }
 
     /// Generate module externs.
-    fn generate_module(file: &mut File, visitor: &ModuleVisitor) {
+    fn generate_module<V: Into<ModuleVisitor>>(file: &mut File, visitor: V) {
+        let visitor = &visitor.into();
         // FIXME: This expect is only needed because `crate_name` isn't implemented as NamingConvention.
-        let crate_name = NamingConvention::try_from(visitor.parent.current.arguments.crate_name.as_str()).expect("Not in a known naming convention.");
+        let crate_name = NamingConvention::try_from(visitor.parent_project().arguments.crate_name.as_str()).expect("Not in a known naming convention.");
         let crate_name = SnakeCase::from(crate_name);
         file.writeln(format!("use {}::*;", crate_name));
+        file.writeln(format!("use {}::ffi::*;", crate_name));
         file.writeln("");
         for object in &visitor.current.objects {
             Self::generate_object(file, &visitor.child(object.clone()));
