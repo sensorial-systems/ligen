@@ -6,6 +6,7 @@ pub use arguments::Arguments;
 use crate::generator::TemporaryFFIProject;
 use crate::ir::Module;
 use crate::prelude::*;
+use crate::conventions::naming::NamingConvention;
 
 
 /// Project representation.
@@ -18,6 +19,11 @@ pub struct Project {
 }
 
 impl Project {
+    /// Get the project name.
+    pub fn name(&self) -> NamingConvention {
+        NamingConvention::try_from(self.arguments.crate_name.as_str()).expect("Couldn't get project name from arguments.crate_name.")
+    }
+
     fn check_build() -> Result<()> {
         // The project isn't available if we are currently building the TemporaryProject.
         if TemporaryFFIProject::is_building() {

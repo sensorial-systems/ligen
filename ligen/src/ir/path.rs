@@ -18,6 +18,13 @@ impl Path {
     }
 }
 
+impl<I: Into<Identifier>> From<Vec<I>> for Path {
+    fn from(from: Vec<I>) -> Self {
+        let segments = from.into_iter().map(|x| x.into()).collect();
+        Self { segments }
+    }
+}
+
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
         let segments = string

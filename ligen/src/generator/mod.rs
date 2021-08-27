@@ -20,11 +20,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
     /// `Self` and `self` occurrences replaced by the actual object name.
     fn pre_process(&self, root: &Project) -> Project {
         let mut root = root.clone();
-        for object in &mut root.root_module.objects {
-            for implementation in &mut object.implementations {
-                implementation.replace_self_with_explicit_names();
-            }
-        }
+        root.root_module.replace_self_with_explicit_names();
         root
     }
 

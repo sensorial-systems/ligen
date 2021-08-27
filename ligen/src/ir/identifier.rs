@@ -2,6 +2,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use crate::prelude::*;
 
 use proc_macro2::TokenStream;
+use crate::conventions::naming::SnakeCase;
 
 /// Identifier structure
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display)]
@@ -19,9 +20,21 @@ impl Identifier {
     }
 }
 
+impl From<SnakeCase> for Identifier {
+    fn from(snake_case: SnakeCase) -> Self {
+        snake_case.to_string().into()
+    }
+}
+
 impl From<&str> for Identifier {
     fn from(name: &str) -> Self {
         Self { name: name.to_string() }
+    }
+}
+
+impl From<String> for Identifier {
+    fn from(name: String) -> Self {
+        name.as_str().into()
     }
 }
 

@@ -1,8 +1,6 @@
-use crate::prelude::*;
 use crate::generator::{File, ProjectVisitor, FunctionVisitor, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FFIGenerator};
 use crate::ir::{Identifier, ImplementationItem, Type, Visibility};
 use crate::ir::processing::ReplaceIdentifier;
-use crate::conventions::naming::{NamingConvention, SnakeCase};
 
 /// A generic FFI generator which can be used for most languages.
 pub trait GenericFFIGenerator {
@@ -116,12 +114,12 @@ pub trait GenericFFIGenerator {
     /// Generate module externs.
     fn generate_module<V: Into<ModuleVisitor>>(file: &mut File, visitor: V) {
         let visitor = &visitor.into();
-        // FIXME: This expect is only needed because `crate_name` isn't implemented as NamingConvention.
-        let crate_name = NamingConvention::try_from(visitor.parent_project().arguments.crate_name.as_str()).expect("Not in a known naming convention.");
-        let crate_name = SnakeCase::from(crate_name);
-        file.writeln(format!("use {}::*;", crate_name));
-        file.writeln(format!("use {}::ffi::*;", crate_name));
+        // FIXME: How to implement Join<Separator> so we can reduce verbosity?
+        file.writeln(format!("use {}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
         file.writeln("");
+        for module in &visitor.current.modules {
+            Self::generate_module(file, &visitor.child(module.clone()));
+        }
         for object in &visitor.current.objects {
             Self::generate_object(file, &visitor.child(object.clone()));
         }

@@ -37,6 +37,32 @@ impl Module {
 }
 
 impl Module {
+    /// Replace all the occurrences of `Self` by the real object name.
+    /// e.g.:
+    /// ```rust,compile_fail
+    /// impl Object {
+    ///     fn f(self: &Self) {}
+    /// }
+    /// ```
+    /// becomes
+    /// ```rust,compile_fail
+    /// impl Object {
+    ///     fn f(self: &Object) {}
+    /// }
+    /// ```
+    pub fn replace_self_with_explicit_names(&mut self) {
+        for module in &mut self.modules {
+            module.replace_self_with_explicit_names();
+        }
+        for object in &mut self.objects {
+            for implementation in &mut object.implementations {
+                implementation.replace_self_with_explicit_names();
+            }
+        }
+    }
+}
+
+impl Module {
     fn parse_modules(items: &Vec<syn::Item>) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         for item in items {
