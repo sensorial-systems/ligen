@@ -47,7 +47,7 @@ impl TryFrom<syn::Type> for Type {
         if let syn::Type::Path(TypePath { path, .. }) = syn_type {
             Ok(path.into())
         } else {
-            let reference = match syn_type {
+            let reference = match &syn_type {
                 syn::Type::Reference(TypeReference {
                     elem, mutability, ..
                 }) => Some((ReferenceKind::Borrow, elem, mutability)),
@@ -57,7 +57,7 @@ impl TryFrom<syn::Type> for Type {
                 _ => None,
             };
             if let Some((kind, elem, mutability)) = reference {
-                if let syn::Type::Path(TypePath { path, .. }) = *elem {
+                if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
                     let is_constant = mutability.is_none();
                     let type_ = Box::new(path.into());
                     Ok(Self::Reference(Reference {
@@ -66,6 +66,8 @@ impl TryFrom<syn::Type> for Type {
                         type_,
                     }))
                 } else {
+                    let backtrace = backtrace::Backtrace::new();
+                    println!("{:#?}", backtrace);
                     Err("Couldn't find path")
                 }
             } else {

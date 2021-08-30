@@ -9,6 +9,9 @@ edition = "2018"
 [lib]
 crate-type = ["lib","staticlib"]
 
+[dependencies]
+ligen-macro = { path = "../../ligen/macro" }
+
 [build-dependencies]
 syn          = "1.0.74"
 ligen        = { path = "../../ligen" }

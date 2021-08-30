@@ -63,3 +63,5 @@ pub mod utils;
 pub mod generator;
 pub mod error;
 pub mod conventions;
+
+pub use ligen_macro::*;
