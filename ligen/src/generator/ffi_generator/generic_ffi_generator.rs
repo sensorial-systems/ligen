@@ -115,7 +115,7 @@ pub trait GenericFFIGenerator {
     fn generate_module<V: Into<ModuleVisitor>>(file: &mut File, visitor: V) {
         let visitor = &visitor.into();
         // FIXME: How to implement Join<Separator> so we can reduce verbosity?
-        file.writeln(format!("use {}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
+        file.writeln(format!("use crate::{}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
         file.writeln("");
         for module in &visitor.current.modules {
             Self::generate_module(file, &visitor.child(module.clone()));

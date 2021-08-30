@@ -10,6 +10,8 @@ use std::fs::File;
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
+//    /// Module path.
+//    pub path: Path,
     /// Visibility.
     pub visibility: Visibility,
     /// Module name.
@@ -20,19 +22,51 @@ pub struct Module {
     pub objects: Vec<Object>
 }
 
-impl Module {
-    /// Loads the module from a file Path.
-    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Result<Self> {
-        let mut file = File::open(path)?;
+impl TryFrom<&std::path::Path> for Module {
+    type Error = Error;
+    fn try_from(from: &std::path::Path) -> Result<Self> {
+        // FIXME: This function needs a cleanup.
+        println!("Path: {}", from.display());
+        let mut file = File::open(from)?;
         let mut src = String::new();
         file.read_to_string(&mut src)?;
-        let syntax = syn::parse_file(&src)?;
-        Module::try_from(syntax)
-    }
+        let file = syn::parse_file(&src)?;
+        let visibility = Visibility::Public;
+        let parent_path = from.parent().expect("Failed to get parent path.");
 
+        // FIXME: This is repetitive.
+        let mut name = from
+            .file_stem()
+            .and_then(|name| name.to_str())
+            .map(|name| name.to_string())
+            .filter(|name| name != "mod");
+        if name.is_none() {
+            name = parent_path
+                .file_stem()
+                .and_then(|parent| parent.to_str())
+                .map(|parent| parent.to_string());
+        }
+        let name = name
+            .ok_or_else(|| Error::Message("Couldn't get module name.".into()))?
+            .into();
+
+        // FIXME: This needs a better generalization.
+        // println!("Parent: {}", parent_path.display());
+        let base_path = if from.ends_with("src/lib.rs") || from.ends_with("mod.rs") {
+            from.parent().expect("Couldn't get parent.").to_path_buf()
+        } else {
+            from.with_extension("")
+        };
+        let modules = Module::parse_modules(&file.items, base_path.as_path())?;
+        let objects = Module::parse_objects(&file.items)?;
+        Ok(Module { visibility, name, modules, objects })
+    }
+}
+
+impl Module {
     /// Gets the root module (lib.rs).
     pub fn root() -> Result<Self> {
-        Self::from_path(std::path::Path::new("src").join("lib.rs"))
+        std::path::Path::new("src").join("lib.rs").as_path().try_into()
     }
 }
 
@@ -63,11 +97,11 @@ impl Module {
 }
 
 impl Module {
-    fn parse_modules(items: &Vec<syn::Item>) -> Result<Vec<Module>> {
+    fn parse_modules(items: &Vec<syn::Item>, base_path: &std::path::Path) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         for item in items {
             match item {
-                syn::Item::Mod(module) => modules.push(Module::try_from(module.clone())?),
+                syn::Item::Mod(module) => modules.push(Module::try_from((module.clone(), base_path))?),
                 _ => ()
             }
         }
@@ -115,47 +149,25 @@ impl Module {
     }
 }
 
-impl TryFrom<TokenStream> for Module {
+impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
     type Error = Error;
-    fn try_from(tokenstream: TokenStream) -> Result<Self> {
-        syn::parse2::<syn::File>(tokenstream)
-            .map_err(|_| "Failed to parse to Implementation.".into())
-            .and_then(|item| item.try_into())
-    }
-}
-
-impl TryFrom<proc_macro::TokenStream> for Module {
-    type Error = Error;
-    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
-        let tokenstream: TokenStream = tokenstream.into();
-        tokenstream.try_into()
-    }
-}
-
-impl TryFrom<syn::ItemMod> for Module {
-    type Error = Error;
-    fn try_from(module: syn::ItemMod) -> Result<Self> {
-        let visibility = module.vis.into();
-        let name = module.ident.into();
-        let (modules, objects) = if let Some((_, items)) = module.content {
-            let modules = Module::parse_modules(&items)?;
+    fn try_from(module: (syn::ItemMod, &std::path::Path)) -> Result<Self> {
+        let (module, base_path) = module;
+        let base_path = base_path.join(module.ident.to_string());
+        if let Some((_, items)) = module.content {
+            let modules = Module::parse_modules(&items, base_path.as_path())?;
             let objects = Module::parse_objects(&items)?;
-            (modules, objects)
+            let name = module.ident.into();
+            let visibility = module.vis.into();
+            Ok(Self { visibility, name, modules, objects })
         } else {
-            (Default::default(), Default::default())
-        };
-        Ok(Self { visibility, name, modules, objects })
-    }
-}
-
-impl TryFrom<syn::File> for Module {
-    type Error = Error;
-    fn try_from(file: syn::File) -> Result<Self> {
-        let modules = Module::parse_modules(&file.items)?;
-        let objects = Module::parse_objects(&file.items)?;
-        let visibility = Visibility::Public;
-        let name = "lib".into();
-        Ok(Self { visibility, name, modules, objects })
+            let mut path = base_path.with_extension("rs");
+            if !path.exists() {
+                path = base_path.join("mod.rs");
+            }
+            let path = path.as_path();
+            path.try_into()
+        }
     }
 }
 

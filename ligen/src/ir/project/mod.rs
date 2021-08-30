@@ -21,13 +21,14 @@ pub struct Project {
 impl Project {
     /// Get the project name.
     pub fn name(&self) -> NamingConvention {
+        // FIXME: Change `arguments.crate_name`'s type to `NamingConvention`.
         NamingConvention::try_from(self.arguments.crate_name.as_str()).expect("Couldn't get project name from arguments.crate_name.")
     }
 
     fn check_build() -> Result<()> {
         // The project isn't available if we are currently building the TemporaryProject.
         if TemporaryFFIProject::is_building() {
-            Err(Error::Message("Use if let Ok(project) = Project::read() { ... }.".into()))
+            Err(Error::Message("Use the following snippet and ignore errors: if let Ok(project) = Project::read() { todo!(\"Your code here.\") }.".into()))
         } else {
             Ok(())
         }
