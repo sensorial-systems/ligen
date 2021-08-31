@@ -32,9 +32,9 @@ pub struct FunctionProcessor;
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ParameterProcessor;
 
-fn path(visitor: &ObjectVisitor) -> PathBuf {
+fn path(object: &ObjectVisitor) -> PathBuf {
     let mut path = PathBuf::from("include");
-    for segment in &visitor.current.path.segments {
+    for segment in &object.path.segments {
         path = path.join(segment.to_string());
     }
     path.with_extension("h")
@@ -59,8 +59,8 @@ impl FileProcessorVisitor for ModuleProcessor {
 impl FileProcessorVisitor for ObjectProcessor {
     type Visitor = ObjectVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor));
+    fn process(&self, file_set: &mut FileSet, object: &Self::Visitor) {
+        let file = file_set.entry(&path(&object));
         // includes
         file.writeln("#pragma once");
         file.writeln("");
@@ -71,12 +71,12 @@ impl FileProcessorVisitor for ObjectProcessor {
         file.writeln("#endif\n");
     }
 
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor));
+    fn post_process(&self, file_set: &mut FileSet, object: &Self::Visitor) {
+        let file = file_set.entry(&path(&object));
 
         // drop function
-        let object_name = &visitor.current.path.last().name;
-        let c_type      = Type::from(ir::Type::Compound(visitor.current.path.clone()));
+        let object_name = &object.path.last().name;
+        let c_type      = Type::from(ir::Type::Compound(object.path.clone()));
         file.writeln(format!("void {name}_drop({type_} self);", name = object_name, type_ = c_type));
 
         // epilogue
@@ -90,11 +90,11 @@ impl FileProcessorVisitor for ObjectProcessor {
 impl FileProcessorVisitor for StructureProcessor {
     type Visitor = StructureVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent));
-        file.writeln(format!("typedef struct Struct_{} {{", visitor.current.identifier));
+    fn process(&self, file_set: &mut FileSet, structure: &Self::Visitor) {
+        let file = file_set.entry(&path(&structure.parent));
+        file.writeln(format!("typedef struct Struct_{} {{", structure.identifier));
         file.writeln("\tvoid* self;");
-        file.writeln(format!("}} {};", visitor.current.identifier));
+        file.writeln(format!("}} {};", structure.identifier));
     }
 
     fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
@@ -110,9 +110,9 @@ impl FileProcessorVisitor for ImplementationProcessor {
 
 impl FunctionProcessor {
     /// Generate function name.
-    pub fn generate_function_name(&self, visitor: &FunctionVisitor) -> String {
+    pub fn generate_function_name(&self, function: &FunctionVisitor) -> String {
         // FIXME: This naming convention happens in the extern generator and here. How can we generalize this code?
-        format!("{}_{}", &visitor.parent.current.self_.path().last().name, &visitor.current.identifier.name)
+        format!("{}_{}", &function.parent.self_.path().last().name, &function.identifier.name)
     }
 
     /// Generate function output.
@@ -139,18 +139,18 @@ impl FunctionProcessor {
 impl FileProcessorVisitor for FunctionProcessor {
     type Visitor = FunctionVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        if let ir::Visibility::Public = visitor.current.visibility {
-            let file = file_set.entry(&path(&visitor.parent.parent));
-            file.write(self.generate_function_output(&visitor.current.output));
-            file.write(self.generate_function_name(&visitor));
+    fn process(&self, file_set: &mut FileSet, function: &Self::Visitor) {
+        if let ir::Visibility::Public = function.visibility {
+            let file = file_set.entry(&path(&function.parent.parent));
+            file.write(self.generate_function_output(&function.output));
+            file.write(self.generate_function_name(&function));
             file.write("(");
         }
     }
 
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        if let ir::Visibility::Public = visitor.current.visibility {
-            let file = file_set.entry(&path(&visitor.parent.parent));
+    fn post_process(&self, file_set: &mut FileSet, function: &Self::Visitor) {
+        if let ir::Visibility::Public = function.visibility {
+            let file = file_set.entry(&path(&function.parent.parent));
             file.writeln(");");
         }
     }
@@ -159,14 +159,14 @@ impl FileProcessorVisitor for FunctionProcessor {
 impl FileProcessorVisitor for ParameterProcessor {
     type Visitor = ParameterVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent.parent.parent));
+    fn process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
+        let file = file_set.entry(&path(&parameter.parent.parent.parent));
 
-        let mut type_ = Type::from(visitor.current.type_.clone());
+        let mut type_ = Type::from(parameter.type_.clone());
         if let (Some(_pointer), Types::Compound(_type)) = (&type_.pointer, &type_.type_) {
             type_.pointer = None;
         }
-        let ident = &visitor.current.identifier.name;
+        let ident = &parameter.identifier.name;
         file.write(format!("{} {}", type_, ident))
     }
 

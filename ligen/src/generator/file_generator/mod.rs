@@ -2,8 +2,8 @@
 
 use crate::generator::{FileSet, ProjectVisitor};
 
-mod file_generator_visitors;
-pub use file_generator_visitors::*;
+mod visitor;
+pub use visitor::*;
 
 /// File generator.
 pub trait FileGenerator {

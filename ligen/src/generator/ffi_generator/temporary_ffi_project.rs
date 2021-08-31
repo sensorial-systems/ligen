@@ -1,7 +1,8 @@
 //! Temporary project to build the externalized FFI functions.
+// FIXME: Separate into CargoProject and CargoBuilder.
 
 use crate::prelude::*;
-use crate::generator::{File, BuildType};
+use crate::generator::{File, BuildProfile};
 use tempfile::TempDir;
 use std::path::Path;
 use crate::conventions::naming::{NamingConvention, SnakeCase};
@@ -19,7 +20,7 @@ pub struct TemporaryFFIProject {
 #[cfg(debug_assertions)]
 impl Drop for TemporaryFFIProject {
     fn drop(&mut self) {
-        let temporary_directory = std::mem::replace(&mut self.temporary_directory, TempDir::new().expect("Couldn't create a new temporary directory."));
+        let temporary_directory = std::mem::replace(&mut self.temporary_directory, TempDir::new().expect("Failed to create a new temporary directory."));
         temporary_directory.into_path();
     }
 }
@@ -57,11 +58,11 @@ impl TemporaryFFIProject {
     }
 
     /// Builds the project.
-    pub fn build(&self, build_type: BuildType) -> Result<()> {
+    pub fn build(&self, build_profile: BuildProfile) -> Result<()> {
         std::env::set_var("IS_BUILDING", "YES");
         let mut build_command = std::process::Command::new("cargo");
         let mut build_command = build_command.arg("build");
-        if let BuildType::Release = build_type {
+        if let BuildProfile::Release = build_profile {
             build_command = build_command.arg("--release");
         }
         let status = build_command
@@ -94,7 +95,7 @@ impl TemporaryFFIProject {
         name
     }
     /// Copy the generated static library to ligen's repository.
-    pub fn transfer_static_library_to_ligen<P: AsRef<Path>>(&self, target_dir: P, build_type: BuildType) -> Result<()> {
+    pub fn transfer_static_library_to_ligen<P: AsRef<Path>>(&self, target_dir: P, build_profile: BuildProfile) -> Result<()> {
         let name = NamingConvention::try_from(self.name.as_str())?;
         let name = SnakeCase::from(name).to_string();
         let file_name = Self::to_library_name_convention(format!("ffi_{}", name));
@@ -104,7 +105,7 @@ impl TemporaryFFIProject {
             .temporary_directory
             .path()
             .join("target")
-            .join(build_type.to_string().to_lowercase())
+            .join(build_profile.to_string().to_lowercase())
             .join(file_name);
 
         let to_path = target_dir

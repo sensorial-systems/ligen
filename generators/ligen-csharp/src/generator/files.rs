@@ -2,8 +2,7 @@ use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, Fun
 use ligen::ir;
 use std::path::PathBuf;
 use crate::generator::CSharpGenerator;
-use ligen::conventions::naming::{NamingConvention, PascalCase};
-use ligen::prelude::*;
+use ligen::conventions::naming::PascalCase;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -33,12 +32,12 @@ pub struct FunctionProcessor;
 #[derive(Default, Clone, Copy, Debug)]
 pub struct ParameterProcessor;
 
-fn path(visitor: &ObjectVisitor) -> PathBuf {
+fn path(object: &ObjectVisitor) -> PathBuf {
     let mut path = PathBuf::from("");
-    for segment in &visitor.current.path.segments {
+    for segment in &object.path.segments {
         path = path.join(segment.to_string());
     }
-    path.with_extension(".cs")
+    path.with_extension("cs")
 }
 
 impl FileProcessorVisitor for ProjectProcessor {
@@ -68,19 +67,18 @@ impl FileProcessorVisitor for ObjectProcessor {
 impl FileProcessorVisitor for StructureProcessor {
     type Visitor = StructureVisitor;
 
-    fn process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent));
-        let name = NamingConvention::try_from(visitor.parent.parent.parent_project().arguments.crate_name.as_str()).expect("Not a known naming convention.");
-        let name = PascalCase::from(name);
+    fn process(&self, file_set: &mut FileSet, structure: &Self::Visitor) {
+        let file = file_set.entry(&path(&structure.parent));
+        let name = structure.parent.parent.parent_project().name();
+        let name = PascalCase::from(name.clone());
         file.writeln(format!("namespace {}", name));
         file.writeln("{");
         file.writeln("\tusing System.Runtime.InteropServices;");
         file.writeln("\t[StructLayout(LayoutKind.Sequential, Pack = 1)]");
-        file.writeln(format!("\tpublic struct {}", visitor.current.identifier));
+        file.writeln(format!("\tpublic struct {}", structure.identifier));
         file.writeln("\t{");
 
-        let fields: Vec<_> = visitor
-            .current
+        let fields: Vec<_> = structure
             .fields
             .iter()
             .map(|field| (field.type_.clone(), field.identifier.clone()))
@@ -97,7 +95,7 @@ impl FileProcessorVisitor for StructureProcessor {
             .collect::<Vec<_>>()
             .join(", ");
 
-        file.writeln(format!("\t\tpublic {}({})", visitor.current.identifier, arguments));
+        file.writeln(format!("\t\tpublic {}({})", structure.identifier, arguments));
         file.writeln("\t\t{");
 
         for (_, identifier) in fields {

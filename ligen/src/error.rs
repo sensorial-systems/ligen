@@ -13,6 +13,14 @@ pub enum Error {
     Environment(std::env::VarError),
     /// Misc errors.
     Message(String),
+    /// Cargo error.
+    Cargo(cargo_toml::Error)
+}
+
+impl From<cargo_toml::Error> for Error {
+    fn from(error: cargo_toml::Error) -> Self {
+        Self::Cargo(error)
+    }
 }
 
 impl From<&str> for Error {

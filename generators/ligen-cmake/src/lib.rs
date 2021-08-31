@@ -16,9 +16,9 @@ pub enum Language {
 impl Generator for CMakeGenerator {}
 
 impl FileGenerator for CMakeGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) {
+    fn generate_files(&self, file_set: &mut FileSet, project: &ProjectVisitor) {
         let generator_version = env!("CARGO_PKG_VERSION");
-        let project_name = &visitor.current.arguments.crate_name;
+        let project_name = &project.name().to_string();
 
         let content = match self.0 {
             Language::CPP => format!(

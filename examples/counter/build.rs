@@ -4,7 +4,7 @@ use ligen_cmake::{CMakeGenerator, Language};
 // use ligen_csharp::CSharpGenerator;
 
 fn main() {
-    if let Ok(project) = Project::read() {
+    if let Ok(project) = Project::current() {
         let c_generator = CGenerator::default();
         let cmake_generator = CMakeGenerator(Language::C);
         // let csharp_generator = CSharpGenerator::default();

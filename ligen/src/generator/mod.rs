@@ -26,26 +26,25 @@ pub trait Generator: FileGenerator + FFIGenerator {
 
     /// Main function called in the procedural proc_macro.
     fn generate(&self, root: &Project) -> Result<()> {
-        let build_type = root.arguments.build_type;
         let root = self.pre_process(root);
         let mut file_set = FileSet::default();
         let visitor = Visitor::new((),root);
         self.generate_files(&mut file_set, &visitor);
         self.save_file_set(file_set, &visitor)?;
 
-        let mut temporary_project = TemporaryFFIProject::new(&visitor.current.arguments.crate_name, &visitor.current.arguments.manifest_path)?;
+        // TODO: Separate Project and Builder.
+        let mut temporary_project = TemporaryFFIProject::new(&visitor.name().to_string(), &visitor.path())?;
         self.generate_ffi(&mut temporary_project.lib_file, &visitor);
         temporary_project.save_files()?;
-        temporary_project.build(build_type)?;
-        temporary_project.transfer_static_library_to_ligen(&visitor.current.arguments.target_dir, build_type)?;
+        temporary_project.build(BUILD_PROFILE)?;
+        temporary_project.transfer_static_library_to_ligen(&visitor.target_dir(), BUILD_PROFILE)?;
         Ok(())
     }
 
     /// Saves the file set.
-    fn save_file_set(&self, file_set: FileSet, visitor: &ProjectVisitor) -> Result<()> {
-        let arguments = &visitor.current.arguments;
-        let target_ligen_dir = &arguments.target_dir.join("ligen");
-        let project_dir = target_ligen_dir.join(&arguments.crate_name);
+    fn save_file_set(&self, file_set: FileSet, project: &ProjectVisitor) -> Result<()> {
+        let target_ligen_dir = project.target_dir().join("ligen");
+        let project_dir = target_ligen_dir.join(&project.name().to_string());
         for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);
             write_file(&file_path, &file.content)?;

@@ -1,15 +1,18 @@
 //! Generator visitor module.
 
+use crate::prelude::*;
 use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure, Module, Project, Path};
 use crate::generator::FileSet;
 use crate::conventions::naming::SnakeCase;
 
 /// Generic visitor type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Shrinkwrap)]
+#[shrinkwrap(mutable)]
 pub struct Visitor<Parent, Current> {
     /// Visitor's parent.
     pub parent: Parent,
     /// Currently visited.
+    #[shrinkwrap(main_field)]
     pub current: Current
 }
 
@@ -63,7 +66,7 @@ impl ModuleVisitor {
     pub fn path(&self) -> Path {
         let mut segments = Vec::new();
         match &self.parent {
-            ModuleParent::Project(project) => segments.push(SnakeCase::from(project.current.name()).into()),
+            ModuleParent::Project(project) => segments.push(SnakeCase::from(project.current.name().clone()).into()),
             ModuleParent::Module(module) => {
                 segments.append(&mut module.path().segments);
                 segments.push(self.current.name.clone());
