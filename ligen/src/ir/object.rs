@@ -9,6 +9,7 @@ use crate::ir::{Implementation, Structure, Path};
 pub struct Object {
     /// Object path.
     pub path: Path,
+    // FIXME: All objects has a structure. Remove Option.
     /// Object structure. If it's None, then the object is an opaque type.
     pub structure: Option<Structure>,
     /// Object implementations blocks.

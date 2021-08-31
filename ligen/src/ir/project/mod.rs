@@ -80,31 +80,3 @@ impl TryFrom<&std::path::Path> for Project {
         Ok(Self { path, name, root_module, target_dir, manifest_path })
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::ir::Project;
-    use std::convert::TryFrom;
-    use std::path::PathBuf;
-
-    fn project_directory() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("test-project")
-    }
-
-    #[test]
-    fn project_from_cargo() {
-        project(project_directory().join("Cargo.toml"));
-    }
-
-    #[test]
-    fn project_from_directory() {
-        project(project_directory());
-    }
-
-    fn project(path: PathBuf) {
-        let project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
-        assert_eq!(project.name().to_string(), "test-project");
-    }
-}

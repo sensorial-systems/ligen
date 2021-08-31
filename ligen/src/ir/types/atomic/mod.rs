@@ -33,6 +33,18 @@ impl Atomic {
     }
 }
 
+impl From<Integer> for Atomic {
+    fn from(integer: Integer) -> Self {
+        Self::Integer(integer)
+    }
+}
+
+impl From<Float> for Atomic {
+    fn from(float: Float) -> Self {
+        Self::Float(float)
+    }
+}
+
 impl From<Atomic> for Identifier {
     fn from(atomic: Atomic) -> Self {
         match atomic {

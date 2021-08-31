@@ -1,4 +1,4 @@
-use crate::ir::{Atomic, Reference, ReferenceKind, Path, Identifier};
+use crate::ir::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
@@ -28,6 +28,36 @@ impl Type {
             Self::Compound(path) => path.clone(),
             Self::Atomic(atomic) => atomic.clone().into()
         }
+    }
+}
+
+impl From<Path> for Type {
+    fn from(path: Path) -> Self {
+        Self::Compound(path)
+    }
+}
+
+impl From<Reference> for Type {
+    fn from(reference: Reference) -> Self {
+        Self::Reference(reference)
+    }
+}
+
+impl From<Atomic> for Type {
+    fn from(atomic: Atomic) -> Self {
+        Self::Atomic(atomic)
+    }
+}
+
+impl From<Integer> for Type {
+    fn from(integer: Integer) -> Self {
+        Self::Atomic(integer.into())
+    }
+}
+
+impl From<Float> for Type {
+    fn from(float: Float) -> Self {
+        Self::Atomic(float.into())
     }
 }
 

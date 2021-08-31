@@ -58,17 +58,9 @@ impl TryFrom<&std::path::Path> for Module {
         } else {
             from.with_extension("")
         };
-        let modules = Module::parse_modules(&file.items, base_path.as_path())?;
-        let objects = Module::parse_objects(&file.items)?;
         let ignored = should_ignore(&file.items);
+        let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
         Ok(Module { ignored, visibility, name, modules, objects })
-    }
-}
-
-impl Module {
-    /// Gets the root module (lib.rs).
-    pub fn root() -> Result<Self> {
-        std::path::Path::new("src").join("lib.rs").as_path().try_into()
     }
 }
 
@@ -99,7 +91,7 @@ impl Module {
 }
 
 // FIXME: Find a better place for this function.
-fn should_ignore(items: &Vec<syn::Item>) -> bool {
+fn should_ignore(items: &[syn::Item]) -> bool {
     items
         .iter()
         .find(|item| {
@@ -112,8 +104,19 @@ fn should_ignore(items: &Vec<syn::Item>) -> bool {
         .is_some()
 }
 
+// FIXME: Find a better place for this function.
+fn extract_modules_and_objects(ignored: bool, items: &[syn::Item], base_path: &std::path::Path) -> Result<(Vec<Module>, Vec<Object>)> {
+    if ignored {
+        Ok((Default::default(), Default::default()))
+    } else {
+        let modules = Module::parse_modules(&items, base_path)?;
+        let objects = Module::parse_objects(&items)?;
+        Ok((modules, objects))
+    }
+}
+
 impl Module {
-    fn parse_modules(items: &Vec<syn::Item>, base_path: &std::path::Path) -> Result<Vec<Module>> {
+    fn parse_modules(items: &[syn::Item], base_path: &std::path::Path) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         for item in items {
             match item {
@@ -129,7 +132,7 @@ impl Module {
         Ok(modules)
     }
 
-    fn parse_objects(items: &Vec<syn::Item>) -> Result<Vec<Object>> {
+    fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
         let mut objects: HashMap<Path, (Option<Structure>, Vec<Implementation>)> = HashMap::new();
         for item in items {
             match item {
@@ -176,11 +179,10 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
         let (module, base_path) = module;
         let base_path = base_path.join(module.ident.to_string());
         if let Some((_, items)) = module.content {
-            let modules = Module::parse_modules(&items, base_path.as_path())?;
-            let objects = Module::parse_objects(&items)?;
+            let ignored = should_ignore(&items);
+            let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
-            let ignored = should_ignore(&items);
             Ok(Self { ignored, visibility, name, modules, objects })
         } else {
             let mut path = base_path.with_extension("rs");
