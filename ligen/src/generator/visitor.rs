@@ -1,7 +1,7 @@
 //! Generator visitor module.
 
 use crate::prelude::*;
-use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure, Module, Project, Path};
+use crate::ir::{Implementation, Function, Parameter, Type, Object, Structure, Module, Project, Path, Enumeration};
 use crate::generator::FileSet;
 use crate::conventions::naming::SnakeCase;
 
@@ -40,6 +40,9 @@ pub type ModuleVisitor = Visitor<ModuleParent, Module>;
 
 /// Object visitor.
 pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;
+
+/// Enumeration visitor.
+pub type EnumerationVisitor = Visitor<ObjectVisitor, Enumeration>;
 
 /// Structure visitor.
 pub type StructureVisitor = Visitor<ObjectVisitor, Structure>;

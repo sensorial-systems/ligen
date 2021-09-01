@@ -1,7 +1,7 @@
 //! Module representation.
 
 use crate::prelude::*;
-use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier};
+use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration};
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
@@ -133,16 +133,27 @@ impl Module {
     }
 
     fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
-        let mut objects: HashMap<Path, (Option<Structure>, Vec<Implementation>)> = HashMap::new();
+        let mut objects: HashMap<Path, (Option<TypeDefinition>, Vec<Implementation>)> = HashMap::new();
         for item in items {
             match item {
+                syn::Item::Enum(enumeration) => {
+                    let enumeration = Enumeration::try_from(enumeration.clone())?;
+                    let path = enumeration.identifier.clone().into();
+                    let definition = Some(TypeDefinition::Enumeration(enumeration));
+                    if let Some((optional_definition, _)) = objects.get_mut(&path) {
+                        *optional_definition = definition;
+                    } else {
+                        objects.insert(path, (definition, Default::default()));
+                    }
+                },
                 syn::Item::Struct(structure) => {
                     let structure = Structure::try_from(structure.clone())?;
                     let path = structure.identifier.clone().into();
-                    if let Some((optional_structure, _implementations)) = objects.get_mut(&path) {
-                        *optional_structure = Some(structure);
+                    let definition = Some(TypeDefinition::Structure(structure));
+                    if let Some((optional_definition, _implementations)) = objects.get_mut(&path) {
+                        *optional_definition = definition;
                     } else {
-                        objects.insert(path, (Some(structure), Default::default()));
+                        objects.insert(path, (definition, Default::default()));
                     }
                 },
                 syn::Item::Impl(implementation) => {
@@ -150,7 +161,7 @@ impl Module {
                     if implementation.trait_.is_none() {
                         let implementation = Implementation::try_from(implementation.clone())?;
                         let path = implementation.self_.path();
-                        if let Some((_structure, implementations)) = objects.get_mut(&path) {
+                        if let Some((_definition, implementations)) = objects.get_mut(&path) {
                             implementations.push(implementation);
                         } else {
                             objects.insert(path, (None, vec![implementation]));
@@ -162,9 +173,9 @@ impl Module {
         }
         let mut objects: Vec<_> = objects
             .into_iter()
-            .map(|(path, (structure, implementations))| Object {
+            .map(|(path, (definition, implementations))| Object {
+                definition: definition.expect(&format!("Type definition for {} not found.", path)),
                 path,
-                structure,
                 implementations
             })
             .collect();

@@ -37,7 +37,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
         self.generate_ffi(&mut temporary_project.lib_file, &visitor);
         temporary_project.save_files()?;
         temporary_project.build(BUILD_PROFILE)?;
-        temporary_project.transfer_static_library_to_ligen(&visitor.target_dir(), BUILD_PROFILE)?;
+        temporary_project.transfer_libraries_to_ligen(&visitor.target_dir(), BUILD_PROFILE)?;
         Ok(())
     }
 

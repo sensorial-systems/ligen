@@ -22,6 +22,7 @@ impl TryFrom<syn::Field> for Field {
     fn try_from(field: syn::Field) -> Result<Self> {
         let attributes = field.attrs.try_into()?;
         let visibility = field.vis.into();
+        // FIXME: This default unwrap is weird. "none_identifier" doesn't really mean anything. Shouldn't it be treated differently?
         let identifier = field.ident.map(|identifier| identifier.into()).unwrap_or(Identifier::new("none_identifier"));
         let type_ = field.ty.try_into()?;
         Ok(Self { attributes, visibility, identifier, type_ })

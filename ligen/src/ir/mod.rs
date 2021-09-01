@@ -9,7 +9,6 @@ pub use implementation::*;
 pub use literal::*;
 pub use path::*;
 pub use macro_attributes::*;
-pub use structure::*;
 pub use types::*;
 pub use visibility::*;
 pub use object::*;
@@ -25,7 +24,6 @@ mod implementation;
 mod literal;
 mod types;
 mod path;
-mod structure;
 mod object;
 mod project;
 

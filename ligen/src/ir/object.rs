@@ -1,6 +1,6 @@
 //! Object representation with its structure and implementation items.
 
-use crate::ir::{Implementation, Structure, Path};
+use crate::ir::{Implementation, Path, TypeDefinition};
 
 /// Object representation.
 /// This is a conventional structure created from a composition of a struct definition and impl
@@ -9,9 +9,8 @@ use crate::ir::{Implementation, Structure, Path};
 pub struct Object {
     /// Object path.
     pub path: Path,
-    // FIXME: All objects has a structure. Remove Option.
-    /// Object structure. If it's None, then the object is an opaque type.
-    pub structure: Option<Structure>,
+    /// Object type definition.
+    pub definition: TypeDefinition,
     /// Object implementations blocks.
     pub implementations: Vec<Implementation>
 }

@@ -95,7 +95,7 @@ impl TemporaryFFIProject {
         name
     }
     /// Copy the generated static library to ligen's repository.
-    pub fn transfer_static_library_to_ligen<P: AsRef<Path>>(&self, target_dir: P, build_profile: BuildProfile) -> Result<()> {
+    pub fn transfer_libraries_to_ligen<P: AsRef<Path>>(&self, target_dir: P, build_profile: BuildProfile) -> Result<()> {
         let name = NamingConvention::try_from(self.name.as_str())?;
         let name = SnakeCase::from(name).to_string();
         let file_name = Self::to_library_name_convention(format!("ffi_{}", name));

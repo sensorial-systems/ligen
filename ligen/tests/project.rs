@@ -1,4 +1,4 @@
-use ligen::ir::{Project, Visibility, Module, Object, Structure, Field, Integer, Implementation, Path, ImplementationItem, Function, Parameter};
+use ligen::ir::{Project, Visibility, Module, Object, Structure, Field, Integer, Implementation, Path, ImplementationItem, Function, Parameter, TypeDefinition};
 use std::convert::TryFrom;
 use std::path::PathBuf;
 
@@ -40,7 +40,7 @@ fn project(path: PathBuf) {
         objects: vec![
             Object {
                 path: "RootObject".into(),
-                structure: Some(Structure {
+                definition: TypeDefinition::Structure(Structure {
                     attributes: Default::default(),
                     visibility: Visibility::Public,
                     identifier: "RootObject".into(),

@@ -1,4 +1,4 @@
-use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor};
+use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor};
 use ligen::ir;
 use std::path::PathBuf;
 use crate::ast::{Types, Type};
@@ -19,6 +19,9 @@ pub struct ObjectProcessor;
 /// Structure processor.
 #[derive(Default, Clone, Copy, Debug)]
 pub struct StructureProcessor;
+
+#[derive(Default, Clone, Copy, Debug)]
+pub struct EnumerationProcessor;
 
 /// Implementation processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -85,6 +88,15 @@ impl FileProcessorVisitor for ObjectProcessor {
         file.writeln("}");
         file.writeln("#endif");
     }
+}
+
+impl FileProcessorVisitor for EnumerationProcessor {
+    type Visitor = EnumerationVisitor;
+
+    fn process(&self, _file_set: &mut FileSet, _enumeration: &Self::Visitor) {
+    }
+
+    fn post_process(&self, _file_set: &mut FileSet, _enumeration: &Self::Visitor) {}
 }
 
 impl FileProcessorVisitor for StructureProcessor {
@@ -180,6 +192,7 @@ impl FileGeneratorVisitors for CGenerator {
     type ProjectProcessor = ProjectProcessor;
     type ModuleProcessor = ModuleProcessor;
     type ObjectProcessor = ObjectProcessor;
+    type EnumerationProcessor = EnumerationProcessor;
     type StructureProcessor = StructureProcessor;
     type ImplementationProcessor = ImplementationProcessor;
     type FunctionProcessor = FunctionProcessor;

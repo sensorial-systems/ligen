@@ -1,4 +1,4 @@
-use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor};
+use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor};
 use ligen::ir;
 use std::path::PathBuf;
 use crate::generator::CSharpGenerator;
@@ -19,6 +19,10 @@ pub struct ObjectProcessor;
 /// Structure processor.
 #[derive(Default, Clone, Copy, Debug)]
 pub struct StructureProcessor;
+
+/// Enumeration processor.
+#[derive(Default, Clone, Copy, Debug)]
+pub struct EnumerationProcessor;
 
 /// Implementation processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -62,6 +66,30 @@ impl FileProcessorVisitor for ObjectProcessor {
     fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 
     fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
+}
+
+impl FileProcessorVisitor for EnumerationProcessor {
+    type Visitor = EnumerationVisitor;
+
+    fn process(&self, file_set: &mut FileSet, enumeration: &Self::Visitor) {
+        let file = file_set.entry(&path(&enumeration.parent));
+        let name = enumeration.parent.parent.parent_project().name();
+        let name = PascalCase::from(name.clone());
+        file.writeln(format!("namespace {}", name));
+        file.writeln("{");
+        file.writeln(format!("\tpublic enum {}", enumeration.identifier));
+        file.writeln("\t{");
+
+        for variant in &enumeration.variants {
+            file.writeln(format!("\t\t{},", variant.identifier));
+        }
+        file.writeln("\t}");
+        file.writeln("}");
+    }
+
+    fn post_process(&self, _file_set: &mut FileSet, _enumeration: &Self::Visitor) {
+
+    }
 }
 
 impl FileProcessorVisitor for StructureProcessor {
@@ -152,6 +180,7 @@ impl FileGeneratorVisitors for CSharpGenerator {
     type ModuleProcessor = ModuleProcessor;
     type ObjectProcessor = ObjectProcessor;
     type StructureProcessor = StructureProcessor;
+    type EnumerationProcessor = EnumerationProcessor;
     type ImplementationProcessor = ImplementationProcessor;
     type FunctionProcessor = FunctionProcessor;
     type ParameterProcessor = ParameterProcessor;

@@ -1,7 +1,7 @@
 //! File generator with visitors.
 
-use crate::generator::{FileSet, ProjectVisitor, ImplementationVisitor, FunctionVisitor, ParameterVisitor, FileProcessorVisitor, ObjectVisitor, StructureVisitor, ModuleVisitor, FileGenerator};
-use crate::ir::ImplementationItem;
+use crate::generator::{FileSet, ProjectVisitor, ImplementationVisitor, FunctionVisitor, ParameterVisitor, FileProcessorVisitor, ObjectVisitor, StructureVisitor, ModuleVisitor, FileGenerator, EnumerationVisitor};
+use crate::ir::{ImplementationItem, TypeDefinition};
 
 /// File generator with visitors.
 pub trait FileGeneratorVisitors {
@@ -13,6 +13,9 @@ pub trait FileGeneratorVisitors {
 
     /// Object processor.
     type ObjectProcessor: FileProcessorVisitor<Visitor = ObjectVisitor>;
+
+    /// Enumeration processor.
+    type EnumerationProcessor: FileProcessorVisitor<Visitor = EnumerationVisitor>;
 
     /// Structure processor.
     type StructureProcessor: FileProcessorVisitor<Visitor = StructureVisitor>;
@@ -30,7 +33,7 @@ pub trait FileGeneratorVisitors {
     fn process_project(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) {
         let project_processor = Self::ProjectProcessor::default();
         project_processor.process(file_set, &visitor);
-        self.process_module(file_set, &visitor.child(visitor.current.root_module.clone()));
+        self.process_module(file_set, &visitor.child(visitor.root_module.clone()));
         project_processor.post_process(file_set, &visitor);
     }
 
@@ -39,10 +42,10 @@ pub trait FileGeneratorVisitors {
         let visitor = &visitor.into();
         let module_processor = Self::ModuleProcessor::default();
         module_processor.process(file_set, visitor);
-        for module in &visitor.current.modules {
+        for module in &visitor.modules {
             self.process_module(file_set, &visitor.child(module.clone()));
         }
-        for object in &visitor.current.objects {
+        for object in &visitor.objects {
             self.process_object(file_set, &visitor.child(object.clone()));
         }
         module_processor.post_process(file_set, visitor);
@@ -52,13 +55,21 @@ pub trait FileGeneratorVisitors {
     fn process_object(&self, file_set: &mut FileSet, visitor: &ObjectVisitor) {
         let object_processor = Self::ObjectProcessor::default();
         object_processor.process(file_set, visitor);
-        if let Some(structure) = visitor.current.structure.as_ref() {
-            self.process_structure(file_set, &visitor.child(structure.clone()));
+        match &visitor.definition {
+            TypeDefinition::Structure(structure) => self.process_structure(file_set, &visitor.child(structure.clone())),
+            TypeDefinition::Enumeration(enumeration) => self.process_enumeration(file_set, &visitor.child(enumeration.clone()))
         }
-        for implementation in &visitor.current.implementations {
+        for implementation in &visitor.implementations {
             self.process_implementation(file_set, &visitor.child(implementation.clone()));
         }
         object_processor.post_process(file_set, visitor);
+    }
+
+    /// Process enumeration.
+    fn process_enumeration(&self, file_set: &mut FileSet, visitor: &EnumerationVisitor) {
+        let enumeration_processor = Self::EnumerationProcessor::default();
+        enumeration_processor.process(file_set, visitor);
+        enumeration_processor.post_process(file_set, visitor);
     }
 
     /// Process structure.
@@ -72,7 +83,7 @@ pub trait FileGeneratorVisitors {
     fn process_implementation(&self, file_set: &mut FileSet, visitor: &ImplementationVisitor) {
         let implementation_processor = Self::ImplementationProcessor::default();
         implementation_processor.process(file_set, visitor);
-        for item in &visitor.current.items {
+        for item in &visitor.items {
             match item {
                 ImplementationItem::Constant(_) => (),
                 ImplementationItem::Method(function) => self.process_function(file_set, &visitor.child(function.clone()))
@@ -85,8 +96,8 @@ pub trait FileGeneratorVisitors {
     fn process_function(&self, file_set: &mut FileSet, visitor: &FunctionVisitor) {
         let function_processor = Self::FunctionProcessor::default();
         function_processor.process(file_set, visitor);
-        for (index, parameter) in visitor.current.inputs.iter().enumerate() {
-            let is_last = index == visitor.current.inputs.len() - 1;
+        for (index, parameter) in visitor.inputs.iter().enumerate() {
+            let is_last = index == visitor.inputs.len() - 1;
             self.process_parameter(file_set, &visitor.child(parameter.clone()), is_last)
         }
         function_processor.post_process(file_set, visitor);
