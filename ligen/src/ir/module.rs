@@ -10,8 +10,6 @@ use std::fs::File;
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
-//    /// Module path.
-//    pub path: Path,
     /// Ignored.
     pub ignored: bool,
     /// Visibility.
@@ -206,6 +204,7 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
     }
 }
 
+// FIXME: Reactivate tests.
 // #[cfg(test)]
 // mod tests {
 //     use super::*;

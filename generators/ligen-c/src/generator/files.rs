@@ -37,7 +37,7 @@ pub struct ParameterProcessor;
 
 fn path(object: &ObjectVisitor) -> PathBuf {
     let mut path = PathBuf::from("include");
-    for segment in &object.path.segments {
+    for segment in &object.path().segments {
         path = path.join(segment.to_string());
     }
     path.with_extension("h")

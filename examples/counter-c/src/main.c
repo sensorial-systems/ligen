@@ -1,6 +1,6 @@
-#include <Counter.h>
-#include <RString.h>
-#include <Person.h>
+#include <counter/person/sub_counter/Counter.h>
+#include <counter/ffi/rstring/RString.h>
+#include <counter/person/Person.h>
 
 #include <stdio.h>
 #include <assert.h>
