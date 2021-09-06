@@ -88,7 +88,8 @@ impl Module {
     }
 }
 
-// FIXME: Find a better place for this function.
+// TODO: ligen_macro::ignore!() should be used as ligen_macro::ligen!(ignore) and
+//  ligen_macro::ligen! should be translated as an attribute of the owning module like it is #![ligen]
 fn should_ignore(items: &[syn::Item]) -> bool {
     items
         .iter()
