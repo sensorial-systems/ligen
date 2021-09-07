@@ -9,7 +9,7 @@ pub use integer::*;
 pub use float::*;
 use crate::ir::{Identifier, Path};
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 /// Atomic Enum
 pub enum Atomic {
     /// Integer variant

@@ -1,7 +1,7 @@
 //! Module representation.
 
 use crate::prelude::*;
-use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration};
+use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute};
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
@@ -10,6 +10,8 @@ use std::fs::File;
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
+    /// Attributes.
+    pub attributes: Attributes,
     /// Ignored.
     pub ignored: bool,
     /// Visibility.
@@ -56,9 +58,10 @@ impl TryFrom<&std::path::Path> for Module {
         } else {
             from.with_extension("")
         };
+        let attributes = Module::parse_ligen_attributes(&file.attrs, &file.items)?;
         let ignored = should_ignore(&file.items);
         let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
-        Ok(Module { ignored, visibility, name, modules, objects })
+        Ok(Module { attributes, ignored, visibility, name, modules, objects })
     }
 }
 
@@ -131,6 +134,24 @@ impl Module {
         Ok(modules)
     }
 
+    fn parse_ligen_attributes(attrs: &Vec<syn::Attribute>, items: &[syn::Item]) -> Result<Attributes> {
+        let mut attributes: Attributes = attrs.clone().try_into()?;
+        for item in items {
+            match item {
+                syn::Item::Macro(call) => {
+                    let attribute = Attribute::try_from(call.clone())?;
+                    if let Attribute::Group(identifier, _) = &attribute {
+                        if *identifier == Identifier::from("ligen") {
+                            attributes.attributes.push(attribute);
+                        }
+                    }
+                },
+                _ => ()
+            }
+        }
+        Ok(attributes)
+    }
+
     fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
         let mut objects: HashMap<Path, (Option<TypeDefinition>, Vec<Implementation>)> = HashMap::new();
         for item in items {
@@ -193,7 +214,8 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
             let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
-            Ok(Self { ignored, visibility, name, modules, objects })
+            let attributes = Module::parse_ligen_attributes(&module.attrs, &items)?;
+            Ok(Self { attributes, ignored, visibility, name, modules, objects })
         } else {
             let mut path = base_path.with_extension("rs");
             if !path.exists() {
@@ -205,84 +227,97 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
     }
 }
 
-// FIXME: Reactivate tests.
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::ir::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field};
-//     use quote::quote;
-//
-//     #[test]
-//     fn object() {
-//         let module = quote! {
-//             pub struct Object {
-//                 pub integer: i32
-//             }
-//
-//             impl Object {
-//                 pub fn new(integer: i32) -> Self {
-//                     Self { integer }
-//                 }
-//             }
-//
-//             pub struct AnotherObject;
-//         };
-//         let module: syn::File = syn::parse2(module).expect("Couldn't parse.");
-//         assert_eq!(
-//             Module::try_from(module).expect("Failed to convert from ItemImpl"),
-//             Module {
-//                 ignored: false,
-//                 objects: vec![
-//                     Object {
-//                         path: "AnotherObject".into(),
-//                         structure: Some(Structure {
-//                             attributes: Default::default(),
-//                             visibility: Visibility::Public,
-//                             identifier: "AnotherObject".into(),
-//                             fields: Default::default(),
-//                         }),
-//                         implementations: Default::default()
-//                     },
-//                     Object {
-//                         path: "Object".into(),
-//                         structure: Some(Structure {
-//                             attributes: Default::default(),
-//                             visibility: Visibility::Public,
-//                             identifier: "Object".into(),
-//                             fields: vec![
-//                                 Field {
-//                                     attributes: Default::default(),
-//                                     visibility: Visibility::Public,
-//                                     identifier: "integer".into(),
-//                                     type_: Type::Atomic(Atomic::Integer(Integer::I32))
-//                                 }
-//                             ]
-//                         }),
-//                         implementations: vec![
-//                             Implementation {
-//                                 attributes: Default::default(),
-//                                 self_: Type::Compound("Object".into()),
-//                                 items: vec![
-//                                     ImplementationItem::Method(Function {
-//                                         attributes: Default::default(),
-//                                         visibility: Visibility::Public,
-//                                         asyncness: None,
-//                                         identifier: "new".into(),
-//                                         inputs: vec![
-//                                             Parameter {
-//                                                 identifier: "integer".into(),
-//                                                 type_: Type::Atomic(Atomic::Integer(Integer::I32))
-//                                             }
-//                                         ],
-//                                         output: Some(Type::Compound("Self".into()))
-//                                     }
-//                                     )
-//                                 ]
-//                             }
-//                         ]
-//                     }
-//                 ]
-//             }
-//         );
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ir::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute};
+    use quote::quote;
+
+    #[test]
+    fn object() {
+        let module = quote! {
+            #[ligen(attribute)]
+            mod objects {
+                ligen!(ignore);
+
+                pub struct Object {
+                    pub integer: i32
+                }
+
+                impl Object {
+                    pub fn new(integer: i32) -> Self {
+                        Self { integer }
+                    }
+                }
+
+                pub struct AnotherObject;
+            }
+        };
+
+        let module: syn::ItemMod = syn::parse2(module).expect("Couldn't parse.");
+        assert_eq!(
+            Module::try_from((module, std::path::Path::new(""))).expect("Failed to convert from ItemImpl"),
+            Module {
+                attributes: vec![
+                    Attribute::Group("ligen".into(), Attribute::Group("attribute".into(), Default::default()).into()),
+                    Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()),
+                ].into(),
+                visibility: Visibility::Inherited,
+                name: "objects".into(),
+                ignored: false,
+                modules: Default::default(),
+                objects: vec![
+                    Object {
+                        path: "AnotherObject".into(),
+                        definition: TypeDefinition::Structure(Structure {
+                            attributes: Default::default(),
+                            visibility: Visibility::Public,
+                            identifier: "AnotherObject".into(),
+                            fields: Default::default(),
+                        }),
+                        implementations: Default::default()
+                    },
+                    Object {
+                        path: "Object".into(),
+                        definition: TypeDefinition::Structure(Structure {
+                            attributes: Default::default(),
+                            visibility: Visibility::Public,
+                            identifier: "Object".into(),
+                            fields: vec![
+                                Field {
+                                    attributes: Default::default(),
+                                    visibility: Visibility::Public,
+                                    identifier: "integer".into(),
+                                    type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                }
+                            ]
+                        }),
+                        implementations: vec![
+                            Implementation {
+                                attributes: Default::default(),
+                                self_: Type::Compound("Object".into()),
+                                items: vec![
+                                    ImplementationItem::Method(Function {
+                                        attributes: Default::default(),
+                                        visibility: Visibility::Public,
+                                        asyncness: None,
+                                        identifier: "new".into(),
+                                        inputs: vec![
+                                            Parameter {
+                                                attributes: Default::default(),
+                                                identifier: "integer".into(),
+                                                type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                            }
+                                        ],
+                                        output: Some(Type::Compound("Self".into()))
+                                    }
+                                    )
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        );
+    }
+}

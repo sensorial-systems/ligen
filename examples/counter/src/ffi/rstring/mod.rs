@@ -1,3 +1,8 @@
+use ligen_macro::ligen;
+
+ligen!(MarshalTo(String, *mut RString));
+ligen!(MarshalFrom(String, CChar));
+
 use std::os::raw::c_char;
 
 pub struct RString(std::ffi::CString);

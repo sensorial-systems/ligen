@@ -4,7 +4,7 @@ use quote::{ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
 use syn::{TypePath, TypePtr, TypeReference};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
 /// Type Enum
 pub enum Type {
     /// Atomic variant

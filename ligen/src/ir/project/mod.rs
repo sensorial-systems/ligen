@@ -15,7 +15,6 @@ pub struct Project {
     path: PathBuf,
     name: NamingConvention,
     manifest_path: PathBuf,
-    target_dir: PathBuf,
     pub root_module: Module,
 }
 
@@ -27,11 +26,6 @@ impl Project {
     /// Get manifest path.
     pub fn manifest_path(&self) -> PathBuf {
         self.manifest_path.clone()
-    }
-
-    /// Get the target dir.
-    pub fn target_dir(&self) -> PathBuf {
-        self.target_dir.clone()
     }
 
     /// Get the project name.
@@ -76,32 +70,6 @@ impl TryFrom<&Path> for Project {
         let crate_name = package.name;
         let name = NamingConvention::try_from(crate_name.as_str())?;
         let root_module = Module::try_from(root_module.as_path())?;
-        let target_dir = target_dir_from_out_dir(None)?;
-        Ok(Self { path, name, root_module, target_dir, manifest_path })
-    }
-}
-
-fn target_dir_from_out_dir(out_dir: Option<String>) -> Result<PathBuf> {
-    let out_dir = if let Some(out_dir) = out_dir {
-        out_dir
-    } else {
-        std::env::var("OUT_DIR")?
-    };
-    let path = Path::new(&out_dir);
-    if let Some(ancestor) = path.ancestors().collect::<Vec<_>>().get(4) {
-        Ok(ancestor.to_path_buf())
-    } else {
-        Err(Error::Message("OUT_DIR isn't in the expected format.".into()))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn target_dir() {
-        let path = target_dir_from_out_dir(Some("target/debug/build/counter-cb2a7557d006cbbc/out".into())).expect("Failed to get target dir.");
-        assert_eq!(Path::new("target"), path.as_path());
+        Ok(Self { path, name, root_module, manifest_path })
     }
 }

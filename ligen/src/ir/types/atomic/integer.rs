@@ -2,7 +2,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
 use crate::ir::Identifier;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Hash, Copy, Clone, PartialEq, Eq)]
 /// Integer Enum
 pub enum Integer {
     /// u8 variant

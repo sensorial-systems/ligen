@@ -28,11 +28,10 @@ fn relative_dir(path: PathBuf) -> PathBuf {
 fn project(path: PathBuf) {
     let project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
     let manifest_path = relative_dir(project.manifest_path());
-    let target_dir = relative_dir(project.target_dir());
     assert_eq!(project.name().to_string(), "test-project");
     assert_eq!(manifest_path, PathBuf::from("tests/test-project/Cargo.toml"));
-    assert_eq!(target_dir, PathBuf::from("tests/test-project/target"));
     assert_eq!(project.root_module, Module {
+        attributes: Default::default(),
         name: "lib".into(),
         visibility: Visibility::Public,
         ignored: false,
@@ -65,6 +64,7 @@ fn project(path: PathBuf) {
                                 identifier: "new".into(),
                                 inputs: vec! [
                                     Parameter {
+                                        attributes: Default::default(),
                                         identifier: "n".into(),
                                         type_: Integer::I32.into()
                                     }

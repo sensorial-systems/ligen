@@ -15,6 +15,13 @@ pub enum Attribute {
     Group(Identifier, Attributes),
 }
 
+impl TryFrom<syn::ItemMacro> for Attribute {
+    type Error = Error;
+    fn try_from(call: syn::ItemMacro) -> Result<Self> {
+        Ok(Self::Group(call.mac.path.segments.last().expect("Failed to get identifier from syn::ItemMacro").ident.clone().into(), call.mac.tokens.try_into()?))
+    }
+}
+
 impl From<syn::MetaList> for Attribute {
     fn from(meta_list: syn::MetaList) -> Self {
         Self::Group(

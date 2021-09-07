@@ -2,7 +2,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use proc_macro2::TokenStream;
 use crate::ir::Identifier;
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
 /// Float Enum
 pub enum Float {
     /// f32 variant

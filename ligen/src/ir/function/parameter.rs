@@ -1,41 +1,47 @@
 //! Function parameter.
 
-use crate::ir::{Identifier, Reference, Type, ReferenceKind};
+use crate::prelude::*;
+use crate::ir::{Identifier, Reference, Type, ReferenceKind, Attributes};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use syn::FnArg;
 
 #[derive(Debug, PartialEq, Clone)]
 /// Parameter representation.
 pub struct Parameter {
-    /// identifier field
+    /// Attributes.
+    pub attributes: Attributes,
+    /// Identifier.
     pub identifier: Identifier,
-    /// type_ field
+    /// Type.
     pub type_: Type,
 }
 
 impl TryFrom<FnArg> for Parameter {
-    type Error = &'static str;
+    type Error = Error;
 
-    fn try_from(fn_arg: FnArg) -> Result<Self, Self::Error> {
+    fn try_from(fn_arg: FnArg) -> Result<Self> {
         match fn_arg {
-            FnArg::Typed(syn::PatType { pat, ty, .. }) => {
+            FnArg::Typed(syn::PatType { pat, ty, attrs, .. }) => {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self {
+                        attributes: attrs.try_into()?,
                         identifier: ident.into(),
                         type_: Type::try_from(*ty).expect("Failed to convert from Type"),
                     })
                 } else {
-                    Err("Identifier not found")
+                    Err(Error::Message("Identifier not found".into()))
                 }
             }
             // TODO: Implement conversion for syn::Receiver.
             FnArg::Receiver(syn::Receiver {
+                attrs,
                 reference,
                 mutability,
                 ..
             }) => {
+                let attributes = attrs.try_into()?;
                 let identifier = Identifier::new("self").into();
                 let type_ = reference
                     .map(|_| {
@@ -45,7 +51,7 @@ impl TryFrom<FnArg> for Parameter {
                         Type::Reference(Reference { kind, is_constant, type_ })
                     })
                     .unwrap_or_else(|| Type::Compound(Identifier::new("Self").into()));
-                Ok(Self { identifier, type_ })
+                Ok(Self { attributes, identifier, type_ })
             },
         }
     }
@@ -65,15 +71,18 @@ mod test {
     use std::convert::TryFrom;
 
     use super::Parameter;
-    use crate::ir::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind};
+    use crate::ir::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind, Attribute};
     use quote::quote;
     use syn::{parse_quote::parse, FnArg};
 
     #[test]
     fn parameter_atomic() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {integer: i32})).expect("Returned Error"),
+            Parameter::try_from(parse::<FnArg>(quote! {
+                #[attribute] integer: i32
+            })).expect("Returned Error"),
             Parameter {
+                attributes: Attribute::Group("attribute".into(), Default::default()).into(),
                 identifier: Identifier::new("integer"),
                 type_: Type::Atomic(Atomic::Integer(Integer::I32))
             }
@@ -85,6 +94,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("name"),
                 type_: Type::Compound(Identifier::new("String").into())
             }
@@ -96,6 +106,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {name: &String})).expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("name"),
                 type_: Type::Reference(
                     Reference {
@@ -115,6 +126,7 @@ mod test {
             Parameter::try_from(parse::<FnArg>(quote! {name: &mut String}))
                 .expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("name"),
                 type_: Type::Reference(
                     Reference {
@@ -134,6 +146,7 @@ mod test {
             Parameter::try_from(parse::<FnArg>(quote! {name: *const String}))
                 .expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("name"),
                 type_: Type::Reference(
                     Reference {
@@ -153,6 +166,7 @@ mod test {
             Parameter::try_from(parse::<FnArg>(quote! {name: *mut String}))
                 .expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("name"),
                 type_: Type::Reference(
                     Reference {
@@ -170,6 +184,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
                 type_: Type::Compound(Identifier::new("Self").into())
             }
@@ -181,6 +196,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
                 type_: Type::Reference(
                     Reference {
@@ -198,6 +214,7 @@ mod test {
         assert_eq!(
             Parameter::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
             Parameter {
+                attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
                 type_: Type::Reference(
                     Reference {

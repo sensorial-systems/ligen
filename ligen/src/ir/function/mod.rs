@@ -137,10 +137,12 @@ mod test {
                 identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("a"),
                         type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Compound(Identifier::new("String").into())
                     },
@@ -178,10 +180,12 @@ mod test {
                 identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("a"),
                         type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
@@ -190,6 +194,7 @@ mod test {
                         })
                     },
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
@@ -274,10 +279,12 @@ mod test {
                 identifier: Identifier::new("test"),
                 inputs: vec![
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("a"),
                         type_: Type::Compound(Identifier::new("String").into())
                     },
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
@@ -286,6 +293,7 @@ mod test {
                         })
                     },
                     Parameter {
+                        attributes: Default::default(),
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,

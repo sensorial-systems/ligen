@@ -3,7 +3,7 @@ use quote::{ToTokens, quote, TokenStreamExt};
 use proc_macro2::TokenStream;
 
 /// Reference kind.
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub enum ReferenceKind {
     /// Borrow reference, denoted with &.
     Borrow,
@@ -12,7 +12,7 @@ pub enum ReferenceKind {
 }
 
 /// Reference representation.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone)]
 pub struct Reference {
     /// Indicates the reference kind.
     pub kind: ReferenceKind,

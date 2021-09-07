@@ -13,6 +13,7 @@ pub use ffi_generator::*;
 use crate::prelude::*;
 use crate::ir::Project;
 use crate::utils::fs::write_file;
+use crate::generator::ffi_generator::cargo::Cargo;
 
 /// Generator trait.
 pub trait Generator: FileGenerator + FFIGenerator {
@@ -37,13 +38,13 @@ pub trait Generator: FileGenerator + FFIGenerator {
         self.generate_ffi(&mut temporary_project.lib_file, &visitor);
         temporary_project.save_files()?;
         temporary_project.build(BUILD_PROFILE)?;
-        temporary_project.transfer_libraries_to_ligen(&visitor.target_dir(), BUILD_PROFILE)?;
+        temporary_project.transfer_libraries_to_ligen(&Cargo::target_dir()?, BUILD_PROFILE)?;
         Ok(())
     }
 
     /// Saves the file set.
     fn save_file_set(&self, file_set: FileSet, project: &ProjectVisitor) -> Result<()> {
-        let target_ligen_dir = project.target_dir().join("ligen");
+        let target_ligen_dir = Cargo::target_dir()?.join("ligen");
         let project_dir = target_ligen_dir.join(&project.name().to_string());
         for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);

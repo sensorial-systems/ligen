@@ -1,5 +1,6 @@
 # IntelliJ idea auto-generated files
 .idea
+.gradle
 
 # Rust files
 /target
