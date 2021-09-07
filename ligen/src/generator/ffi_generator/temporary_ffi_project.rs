@@ -1,5 +1,6 @@
 //! Temporary project to build the externalized FFI functions.
 // FIXME: Separate into CargoProject and CargoBuilder.
+// TODO: Speed up build process by sharing the same target folder.
 
 use crate::prelude::*;
 use crate::generator::{File, BuildProfile};
