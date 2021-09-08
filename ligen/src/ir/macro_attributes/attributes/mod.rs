@@ -38,6 +38,15 @@ impl Attributes {
                 }
             })
     }
+
+    /// Check if `Attributes` contains the specified `attribute`.
+    pub fn contains(&self, attribute: &Attribute) -> bool {
+        self
+            .attributes
+            .iter()
+            .find(|inner_attribute| **inner_attribute == *attribute)
+            .is_some()
+    }
 }
 
 impl TryFrom<Vec<syn::Attribute>> for Attributes {

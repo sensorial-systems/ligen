@@ -59,7 +59,7 @@ impl TryFrom<&std::path::Path> for Module {
             from.with_extension("")
         };
         let attributes = Module::parse_ligen_attributes(&file.attrs, &file.items)?;
-        let ignored = should_ignore(&file.items);
+        let ignored = attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()));
         let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
         Ok(Module { attributes, ignored, visibility, name, modules, objects })
     }
@@ -89,21 +89,6 @@ impl Module {
             }
         }
     }
-}
-
-// TODO: ligen_macro::ignore!() should be used as ligen_macro::ligen!(ignore) and
-//  ligen_macro::ligen! should be translated as an attribute of the owning module like it is #![ligen]
-fn should_ignore(items: &[syn::Item]) -> bool {
-    items
-        .iter()
-        .find(|item| {
-            if let syn::Item::Macro(call) = item {
-                call.mac.path.segments.last().expect("Couldn't get last segment.").ident.to_string() == "ignore"
-            } else {
-                false
-            }
-        })
-        .is_some()
 }
 
 // FIXME: Find a better place for this function.
@@ -210,11 +195,11 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
         let (module, base_path) = module;
         let base_path = base_path.join(module.ident.to_string());
         if let Some((_, items)) = module.content {
-            let ignored = should_ignore(&items);
+            let attributes = Module::parse_ligen_attributes(&module.attrs, &items)?;
+            let ignored = attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()));
             let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
-            let attributes = Module::parse_ligen_attributes(&module.attrs, &items)?;
             Ok(Self { attributes, ignored, visibility, name, modules, objects })
         } else {
             let mut path = base_path.with_extension("rs");
@@ -238,7 +223,7 @@ mod tests {
         let module = quote! {
             #[ligen(attribute)]
             mod objects {
-                ligen!(ignore);
+                ligen!(another_attribute);
 
                 pub struct Object {
                     pub integer: i32
@@ -260,7 +245,7 @@ mod tests {
             Module {
                 attributes: vec![
                     Attribute::Group("ligen".into(), Attribute::Group("attribute".into(), Default::default()).into()),
-                    Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()),
+                    Attribute::Group("ligen".into(), Attribute::Group("another_attribute".into(), Default::default()).into()),
                 ].into(),
                 visibility: Visibility::Inherited,
                 name: "objects".into(),

@@ -9,7 +9,7 @@ impl RootObject {
 }
 
 pub mod inline_ignored {
-    ligen_macro::ignore!();
+    ligen_macro::ligen!(ignore);
 
     pub trait Trait {
 
