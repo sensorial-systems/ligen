@@ -12,8 +12,6 @@ use std::fs::File;
 pub struct Module {
     /// Attributes.
     pub attributes: Attributes,
-    /// Ignored.
-    pub ignored: bool,
     /// Visibility.
     pub visibility: Visibility,
     /// Module name.
@@ -22,6 +20,17 @@ pub struct Module {
     pub modules: Vec<Module>,
     /// Objects.
     pub objects: Vec<Object>
+}
+
+impl Module {
+    /// Tells if ligen is ignoring this module.
+    pub fn ignored(&self) -> bool {
+        Self::ignored_from_attributes(&self.attributes)
+    }
+
+    fn ignored_from_attributes(attributes: &Attributes) -> bool {
+        attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()))
+    }
 }
 
 impl TryFrom<&std::path::Path> for Module {
@@ -59,9 +68,9 @@ impl TryFrom<&std::path::Path> for Module {
             from.with_extension("")
         };
         let attributes = Module::parse_ligen_attributes(&file.attrs, &file.items)?;
-        let ignored = attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()));
+        let ignored = Module::ignored_from_attributes(&attributes);
         let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
-        Ok(Module { attributes, ignored, visibility, name, modules, objects })
+        Ok(Module { attributes, visibility, name, modules, objects })
     }
 }
 
@@ -109,7 +118,7 @@ impl Module {
             match item {
                 syn::Item::Mod(module) => {
                     let module = Module::try_from((module.clone(), base_path))?;
-                    if !module.ignored {
+                    if !module.ignored() {
                         modules.push(module)
                     }
                 },
@@ -196,11 +205,11 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
         let base_path = base_path.join(module.ident.to_string());
         if let Some((_, items)) = module.content {
             let attributes = Module::parse_ligen_attributes(&module.attrs, &items)?;
-            let ignored = attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()));
+            let ignored = Module::ignored_from_attributes(&attributes);
             let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
-            Ok(Self { attributes, ignored, visibility, name, modules, objects })
+            Ok(Self { attributes, visibility, name, modules, objects })
         } else {
             let mut path = base_path.with_extension("rs");
             if !path.exists() {
@@ -249,7 +258,6 @@ mod tests {
                 ].into(),
                 visibility: Visibility::Inherited,
                 name: "objects".into(),
-                ignored: false,
                 modules: Default::default(),
                 objects: vec![
                     Object {

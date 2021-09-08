@@ -34,7 +34,6 @@ fn project(path: PathBuf) {
         attributes: Default::default(),
         name: "lib".into(),
         visibility: Visibility::Public,
-        ignored: false,
         modules: Default::default(),
         objects: vec![
             Object {
