@@ -134,9 +134,9 @@ impl Module {
             match item {
                 syn::Item::Macro(call) => {
                     let attribute = Attribute::try_from(call.clone())?;
-                    if let Attribute::Group(identifier, _) = &attribute {
-                        if *identifier == Identifier::from("ligen") {
-                            attributes.attributes.push(attribute);
+                    if let Attribute::Group(identifier, grouped_attributes) = &attribute {
+                        if *identifier == Identifier::from("inner_ligen") {
+                            attributes.attributes.push(Attribute::Group("ligen".into(), grouped_attributes.clone()));
                         }
                     }
                 },
@@ -232,7 +232,7 @@ mod tests {
         let module = quote! {
             #[ligen(attribute)]
             mod objects {
-                ligen!(another_attribute);
+                inner_ligen!(another_attribute);
 
                 pub struct Object {
                     pub integer: i32

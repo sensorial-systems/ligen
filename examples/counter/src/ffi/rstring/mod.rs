@@ -1,7 +1,5 @@
-use ligen_macro::ligen;
-
-ligen!(MarshalTo(String, *mut RString));
-ligen!(MarshalFrom(String, CChar));
+// inner_ligen!(MarshalTo(String, *mut RString));
+// inner_ligen!(MarshalFrom(String, CChar));
 
 use std::os::raw::c_char;
 

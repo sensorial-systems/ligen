@@ -1,4 +1,4 @@
-ligen_macro::ignore!();
+ligen_macro::inner_ligen!(ignore);
 
 pub struct Ignored;
 

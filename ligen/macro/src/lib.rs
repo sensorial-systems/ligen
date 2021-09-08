@@ -4,3 +4,8 @@ use proc_macro::TokenStream;
 pub fn ligen(_attributes: TokenStream, input: TokenStream) -> TokenStream {
     input
 }
+
+#[proc_macro]
+pub fn inner_ligen(_input: TokenStream) -> TokenStream {
+    Default::default()
+}
