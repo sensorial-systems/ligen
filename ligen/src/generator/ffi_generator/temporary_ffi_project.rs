@@ -21,6 +21,7 @@ pub struct TemporaryFFIProject {
 #[cfg(debug_assertions)]
 impl Drop for TemporaryFFIProject {
     fn drop(&mut self) {
+        eprintln!("TemporaryFFIProject: {}", self.temporary_directory.path().display());
         let temporary_directory = std::mem::replace(&mut self.temporary_directory, TempDir::new().expect("Failed to create a new temporary directory."));
         temporary_directory.into_path();
     }

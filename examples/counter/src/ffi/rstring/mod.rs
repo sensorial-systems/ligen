@@ -1,3 +1,5 @@
+use ligen_macro::ligen;
+
 // inner_ligen!(MarshalTo(String, *mut RString));
 // inner_ligen!(MarshalFrom(String, CChar));
 

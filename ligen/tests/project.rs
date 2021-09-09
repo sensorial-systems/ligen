@@ -1,8 +1,8 @@
-use ligen::ir::{Project, Visibility, Module, Object, Structure, Field, Integer, Implementation, Path, ImplementationItem, Function, Parameter, TypeDefinition};
+use ligen::ir::{Project, Visibility, Module, Object, Structure, Implementation, Path, ImplementationItem, Function, TypeDefinition, Attribute, Import};
 use std::convert::TryFrom;
 use std::path::PathBuf;
 
-fn project_directory() -> PathBuf {
+pub fn project_directory() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("test-project")
@@ -34,40 +34,35 @@ fn project(path: PathBuf) {
         attributes: Default::default(),
         name: "lib".into(),
         visibility: Visibility::Public,
+        imports: vec![
+            Import {
+                attributes: Default::default(),
+                visibility: Visibility::Inherited,
+                path: Path::from("ligen_macro::ligen"),
+                renaming: None
+            }
+        ],
         modules: Default::default(),
         objects: vec![
             Object {
-                path: "RootObject".into(),
+                path: "Object".into(),
                 definition: TypeDefinition::Structure(Structure {
-                    attributes: Default::default(),
+                    attributes: Attribute::Group("repr".into(), Attribute::Group("C".into(), Default::default()).into()).into(),
                     visibility: Visibility::Public,
-                    identifier: "RootObject".into(),
-                    fields: vec![
-                        Field {
-                            attributes: Default::default(),
-                            visibility: Visibility::Public,
-                            identifier: "n".into(),
-                            type_: Integer::I32.into(),
-                        }
-                    ]
+                    identifier: "Object".into(),
+                    fields: Default::default()
                 }),
                 implementations: vec![
                     Implementation {
                         attributes: Default::default(),
-                        self_: Path::from("RootObject").into(),
+                        self_: Path::from("Object").into(),
                         items: vec![
                             ImplementationItem::Method(Function {
                                 attributes: Default::default(),
                                 visibility: Visibility::Public,
                                 asyncness: None,
                                 identifier: "new".into(),
-                                inputs: vec! [
-                                    Parameter {
-                                        attributes: Default::default(),
-                                        identifier: "n".into(),
-                                        type_: Integer::I32.into()
-                                    }
-                                ],
+                                inputs: Default::default(),
                                 output: Some(Path::from("Self").into())
                             })
                         ]

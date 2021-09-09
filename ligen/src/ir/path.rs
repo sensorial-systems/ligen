@@ -5,7 +5,7 @@ use quote::quote;
 use proc_macro2::TokenStream;
 
 /// A fully qualified path.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Path {
     /// The path segments.
     pub segments: Vec<Identifier>
@@ -15,6 +15,11 @@ impl Path {
     /// Get the last segment of the path.
     pub fn last(&self) -> Identifier {
         self.segments.last().unwrap().clone()
+    }
+
+    /// Join the current path with another path.
+    pub fn join<T: Into<Path>>(&mut self, another: T) {
+        self.segments.append(&mut another.into().segments);
     }
 }
 

@@ -14,6 +14,7 @@ use crate::prelude::*;
 use crate::ir::Project;
 use crate::utils::fs::write_file;
 use crate::generator::ffi_generator::cargo::Cargo;
+use crate::marshalling::Marshaller;
 
 /// Generator trait.
 pub trait Generator: FileGenerator + FFIGenerator {
@@ -33,9 +34,11 @@ pub trait Generator: FileGenerator + FFIGenerator {
         self.generate_files(&mut file_set, &visitor);
         self.save_file_set(file_set, &visitor)?;
 
+        let marshaller = Marshaller::new();
+
         // TODO: Separate Project and Builder.
         let mut temporary_project = TemporaryFFIProject::new(&visitor.name().to_string(), &visitor.path())?;
-        self.generate_ffi(&mut temporary_project.lib_file, &visitor);
+        self.generate_ffi(&marshaller, &mut temporary_project.lib_file, &visitor);
         temporary_project.save_files()?;
         temporary_project.build(BUILD_PROFILE)?;
         temporary_project.transfer_libraries_to_ligen(&Cargo::target_dir()?, BUILD_PROFILE)?;

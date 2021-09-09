@@ -1,5 +1,8 @@
 //! Module representation.
 
+mod import;
+pub use import::*;
+
 use crate::prelude::*;
 use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute};
 use std::convert::TryFrom;
@@ -16,6 +19,8 @@ pub struct Module {
     pub visibility: Visibility,
     /// Module name.
     pub name: Identifier,
+    /// Imports.
+    pub imports: Vec<Import>,
     /// Sub-modules.
     pub modules: Vec<Module>,
     /// Objects.
@@ -70,7 +75,8 @@ impl TryFrom<&std::path::Path> for Module {
         let attributes = Module::parse_ligen_attributes(&file.attrs, &file.items)?;
         let ignored = Module::ignored_from_attributes(&attributes);
         let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
-        Ok(Module { attributes, visibility, name, modules, objects })
+        let imports = Imports::try_from(file.items.as_slice())?.0;
+        Ok(Module { attributes, imports, visibility, name, modules, objects })
     }
 }
 
@@ -209,7 +215,8 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
             let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
-            Ok(Self { attributes, visibility, name, modules, objects })
+            let imports = Imports::try_from(items.as_slice())?.0;
+            Ok(Self { attributes, visibility, name, imports, modules, objects })
         } else {
             let mut path = base_path.with_extension("rs");
             if !path.exists() {
@@ -258,6 +265,7 @@ mod tests {
                 ].into(),
                 visibility: Visibility::Inherited,
                 name: "objects".into(),
+                imports: Default::default(),
                 modules: Default::default(),
                 objects: vec![
                     Object {

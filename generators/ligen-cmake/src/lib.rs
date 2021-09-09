@@ -2,6 +2,7 @@ use ligen::prelude::*;
 use ligen::generator::{FileSet, FileGenerator, FFIGenerator, ProjectVisitor};
 use ligen::generator::File;
 use std::path::PathBuf;
+use ligen::marshalling::Marshaller;
 
 /// CMake project generator.
 #[derive(Debug, Clone)]
@@ -38,5 +39,5 @@ impl FileGenerator for CMakeGenerator {
 }
 
 impl FFIGenerator for CMakeGenerator {
-    fn generate_ffi(&self, _file: &mut File, _implementation: &ProjectVisitor) {}
+    fn generate_ffi(&self, _marshaller: &Marshaller, _file: &mut File, _implementation: &ProjectVisitor) {}
 }

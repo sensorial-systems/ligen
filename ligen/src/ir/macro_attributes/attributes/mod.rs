@@ -76,7 +76,6 @@ impl From<Attribute> for Attributes {
 impl TryFrom<TokenStream> for Attributes {
     type Error = Error;
     fn try_from(tokenstream: TokenStream) -> Result<Self> {
-        println!("{}", tokenstream.to_string());
         parse2::<Attributes>(tokenstream).map_err(|_| "Failed to parse Attributes".into())
     }
 }
