@@ -1,6 +1,9 @@
 use crate::generator::{Visitor, ImplementationVisitor};
 use crate::ir::{Function, Type};
 
+### Create MethodVisitor and FunctionVisitor.
+### Dev Strategy: Replace "counter" example with something else and start with a simple function to test custom marshallers for String and other external objects such as rust_decimal::Decimal.
+
 /// Function visitor.
 pub type FunctionVisitor = Visitor<ImplementationVisitor, Function>;
 

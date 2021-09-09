@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute};
+use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function};
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
@@ -23,6 +23,8 @@ pub struct Module {
     pub imports: Vec<Import>,
     /// Sub-modules.
     pub modules: Vec<Module>,
+    /// Functions.
+    pub functions: Vec<Function>,
     /// Objects.
     pub objects: Vec<Object>
 }
@@ -76,7 +78,8 @@ impl TryFrom<&std::path::Path> for Module {
         let ignored = Module::ignored_from_attributes(&attributes);
         let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
         let imports = Imports::try_from(file.items.as_slice())?.0;
-        Ok(Module { attributes, imports, visibility, name, modules, objects })
+        let functions = extract_functions(file.items.as_slice());
+        Ok(Module { attributes, imports, visibility, name, modules, functions, objects })
     }
 }
 
@@ -104,6 +107,16 @@ impl Module {
             }
         }
     }
+}
+
+fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
+    let mut functions = Vec::new();
+    for item in items {
+        if let syn::Item::Fn(function) = item {
+            functions.push(function.clone().into());
+        }
+    }
+    functions
 }
 
 // FIXME: Find a better place for this function.
@@ -216,7 +229,8 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
             let name = module.ident.into();
             let visibility = module.vis.into();
             let imports = Imports::try_from(items.as_slice())?.0;
-            Ok(Self { attributes, visibility, name, imports, modules, objects })
+            let functions = extract_functions(items.as_slice());
+            Ok(Self { attributes, visibility, name, imports, modules, functions, objects })
         } else {
             let mut path = base_path.with_extension("rs");
             if !path.exists() {
@@ -267,6 +281,7 @@ mod tests {
                 name: "objects".into(),
                 imports: Default::default(),
                 modules: Default::default(),
+                functions: Default::default(),
                 objects: vec![
                     Object {
                         path: "AnotherObject".into(),

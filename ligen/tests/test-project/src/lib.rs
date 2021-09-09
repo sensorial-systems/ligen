@@ -1,6 +1,5 @@
 use ligen_macro::ligen;
 
-#[repr(C)]
 pub struct Object;
 
 impl Object {

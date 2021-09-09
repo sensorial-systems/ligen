@@ -25,6 +25,7 @@ fn relative_dir(path: PathBuf) -> PathBuf {
         .to_path_buf()
 }
 
+// FIXME: This test is no longer worked because I changed test-project's code.
 fn project(path: PathBuf) {
     let project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
     let manifest_path = relative_dir(project.manifest_path());
@@ -43,6 +44,7 @@ fn project(path: PathBuf) {
             }
         ],
         modules: Default::default(),
+        functions: Default::default(),
         objects: vec![
             Object {
                 path: "Object".into(),
