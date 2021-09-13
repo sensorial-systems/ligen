@@ -13,3 +13,15 @@ pub enum TypeDefinition {
     Structure(Structure),
     Enumeration(Enumeration)
 }
+
+impl From<Structure> for TypeDefinition {
+    fn from(structure: Structure) -> Self {
+        Self::Structure(structure)
+    }
+}
+
+impl From<Enumeration> for TypeDefinition {
+    fn from(enumeration: Enumeration) -> Self {
+        Self::Enumeration(enumeration)
+    }
+}

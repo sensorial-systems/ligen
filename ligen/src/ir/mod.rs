@@ -25,7 +25,7 @@ mod literal;
 mod types;
 mod path;
 mod object;
-mod project;
+pub mod project;
 
 pub mod processing;
 

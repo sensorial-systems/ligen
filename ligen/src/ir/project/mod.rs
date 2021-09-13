@@ -12,9 +12,9 @@ use std::ffi::OsString;
 #[allow(missing_docs)]
 #[derive(Debug, Clone)]
 pub struct Project {
-    path: PathBuf,
-    name: NamingConvention,
-    manifest_path: PathBuf,
+    pub path: PathBuf,
+    pub name: NamingConvention,
+    pub manifest_path: PathBuf,
     pub root_module: Module,
 }
 

@@ -48,6 +48,9 @@ pub trait FileGeneratorVisitors {
         for object in &visitor.objects {
             self.process_object(file_set, &visitor.child(object.clone()));
         }
+        for function in &visitor.functions {
+            self.process_function(file_set, &visitor.child(function.clone()))
+        }
         module_processor.post_process(file_set, visitor);
     }
 
@@ -93,14 +96,15 @@ pub trait FileGeneratorVisitors {
     }
 
     /// Process function.
-    fn process_function(&self, file_set: &mut FileSet, visitor: &FunctionVisitor) {
+    fn process_function<V: Into<FunctionVisitor>>(&self, file_set: &mut FileSet, visitor: V) {
+        let visitor = visitor.into();
         let function_processor = Self::FunctionProcessor::default();
-        function_processor.process(file_set, visitor);
+        function_processor.process(file_set, &visitor);
         for (index, parameter) in visitor.inputs.iter().enumerate() {
             let is_last = index == visitor.inputs.len() - 1;
             self.process_parameter(file_set, &visitor.child(parameter.clone()), is_last)
         }
-        function_processor.post_process(file_set, visitor);
+        function_processor.post_process(file_set, &visitor);
     }
 
     /// Process parameter.

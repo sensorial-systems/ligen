@@ -3,6 +3,8 @@ use std::convert::{TryFrom, TryInto};
 use syn::{ImplItemMethod, ItemFn};
 
 use crate::ir::{Attributes, Identifier, Parameter, Type, Visibility};
+use proc_macro2::TokenStream;
+use syn::parse_quote::parse;
 
 pub mod parameter;
 
@@ -25,6 +27,13 @@ pub struct Function {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
+}
+
+#[allow(unused_qualifications)]
+impl From<TokenStream> for Function {
+    fn from(tokenstream: TokenStream) -> Self {
+        parse::<syn::ImplItemMethod>(tokenstream).into()
+    }
 }
 
 impl From<syn::Visibility> for Visibility {

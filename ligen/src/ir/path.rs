@@ -85,7 +85,7 @@ impl ToTokens for Path {
 impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let segments: Vec<_> = self.segments.iter().map(|identifier| identifier.to_string()).collect();
-        f.write_str(&segments.join(", "))
+        f.write_str(&segments.join("::"))
     }
 }
 
