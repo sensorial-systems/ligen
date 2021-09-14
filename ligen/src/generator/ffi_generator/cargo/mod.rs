@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn target_dir() {
-        let path = target_dir_from_out_dir(Some("target/debug/build/counter-cb2a7557d006cbbc/out".into())).expect("Failed to get target dir.");
+        let path = target_dir_from_out_dir(Some("target/debug/build/example-cb2a7557d006cbbc/out".into())).expect("Failed to get target dir.");
         assert_eq!(Path::new("target"), path.as_path());
     }
 }

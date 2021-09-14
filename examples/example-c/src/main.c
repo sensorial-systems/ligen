@@ -3,10 +3,8 @@
 //#include <counter/person/Person.h>
 //
 //#include <stdio.h>
-//#include <assert.h>
 //#include <string.h>
 //
-//#define assert_eq(a, b) { printf("assert(%d == %d)\n", a, b); assert(a == b); }
 //#define string_assert_eq(a, b) { printf("assert(\"%s\" == \"%s\")\n", a, b); assert(!strcmp(a, b)); }
 //
 //int main(int argc, char **argv) {
@@ -34,10 +32,10 @@
 //}
 
 #include <stdio.h>
-#include <counter.h>
+#include <example.h>
+#include <assert.h>
 
 int main(int argc, char **argv) {
-//    printf("Hello from C\n");
-    hello();
+    assert(4 == add(1, 3));
     return 0;
 }

@@ -4,13 +4,13 @@ members = [
     "generators/ligen-c",
     "generators/ligen-cmake",
     "generators/ligen-csharp",
-    "examples/counter"
+    "examples/example"
 #    "ligen-cpp/crates/core",
 #    "ligen-cpp/crates/macro",
 #    "ligen-cpp/crates/main",
-#    "ligen-cpp/examples/cpp-counter",
+#    "ligen-cpp/examples/cpp-example",
 #    "ligen-csharp/crates/core",
 #    "ligen-csharp/crates/macro",
 #    "ligen-csharp/crates/main",
-#    "ligen-csharp/examples/csharp-counter",
+#    "ligen-csharp/examples/csharp-example",
 ]
