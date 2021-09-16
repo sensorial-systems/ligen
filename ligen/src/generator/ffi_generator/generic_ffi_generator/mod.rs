@@ -1,5 +1,5 @@
 use crate::generator::{File, ProjectVisitor, FunctionVisitor, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FFIGenerator, FunctionParent};
-use crate::ir::{Identifier, ImplementationItem, Type, Visibility};
+use crate::ir::{Identifier, ImplementationItem, Visibility};
 use crate::marshalling::Marshaller;
 
 /// A generic FFI generator which can be used for most languages.
@@ -22,9 +22,13 @@ pub trait GenericFFIGenerator {
     }
 
     /// Generate the function output.
-    fn generate_output(marshaller: &Marshaller, file: &mut File, output: &Option<Type>) {
-        match output {
-            Some(type_) => file.write(&format!(" -> {}", marshaller.marshal_output(&type_))),
+    fn generate_output(marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
+        match &visitor.current.output {
+            Some(type_) => {
+                // let fully_qualified_path = visitor.module().find_fully_qualified_path_of_type(type_).unwrap();
+                // let type_ = marshaller.marshal_output(fully_qualified_path);
+                file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
+            },
             _ => ()
         }
     }
@@ -44,7 +48,7 @@ pub trait GenericFFIGenerator {
         file.write(format!("pub extern fn {function_identifier}(", function_identifier = function_identifier));
         Self::generate_parameters(marshaller, file, visitor);
         file.write(")");
-        Self::generate_output(marshaller, file, &visitor.output);
+        Self::generate_output(marshaller, file, &visitor);
     }
 
     /// Generate the function
@@ -56,7 +60,7 @@ pub trait GenericFFIGenerator {
         file.write(format!("\tlet result = {}(", function_path));
         Self::generate_arguments(file, visitor);
         file.writeln(");");
-        file.writeln("\tresult.into()");
+        file.writeln("\tresult.marshal_into()");
         file.writeln("}");
     }
 

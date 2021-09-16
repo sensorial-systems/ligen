@@ -12,7 +12,7 @@ pub struct Field {
     /// Field visibility.
     pub visibility: Visibility,
     /// Field identifier.
-    pub identifier: Identifier,
+    pub identifier: Option<Identifier>,
     /// Field type.
     pub type_: Type
 }
@@ -22,8 +22,7 @@ impl TryFrom<syn::Field> for Field {
     fn try_from(field: syn::Field) -> Result<Self> {
         let attributes = field.attrs.try_into()?;
         let visibility = field.vis.into();
-        // FIXME: This default unwrap is weird. "none_identifier" doesn't really mean anything. Shouldn't it be treated differently?
-        let identifier = field.ident.map(|identifier| identifier.into()).unwrap_or(Identifier::new("none_identifier"));
+        let identifier = field.ident.map(|identifier| identifier.into());
         let type_ = field.ty.try_into()?;
         Ok(Self { attributes, visibility, identifier, type_ })
     }
@@ -34,13 +33,13 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::ir::{Field, Identifier, Type, Atomic, Integer, Visibility};
+    use crate::ir::{Field, Visibility, Path};
 
     #[test]
-    fn parameter_atomic() {
+    fn field() {
         let structure = parse::<syn::ItemStruct>(quote! {
             struct Structure {
-                integer: i32
+                instant: std::time::Instant
             }
         });
         assert_eq!(
@@ -48,8 +47,8 @@ mod tests {
             Field {
                 attributes: Default::default(),
                 visibility: Visibility::Inherited,
-                identifier: Identifier::new("integer"),
-                type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                identifier: Some("instant".into()),
+                type_: Path::from("std::time::Instant").into()
             }
         );
     }

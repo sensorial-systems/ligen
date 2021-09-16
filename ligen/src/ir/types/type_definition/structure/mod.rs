@@ -57,7 +57,7 @@ mod tests {
                     Field {
                         attributes: Default::default(),
                         visibility: Visibility::Inherited,
-                        identifier: Identifier::new("integer"),
+                        identifier: Some("integer".into()),
                         type_: Type::Atomic(Atomic::Integer(Integer::I32))
                     }
                 ]

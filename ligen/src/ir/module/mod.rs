@@ -9,6 +9,8 @@ use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
 use std::fs::File;
+use proc_macro2::TokenStream;
+use syn::parse_quote::parse;
 
 /// Module representation.
 #[derive(Debug, Clone, PartialEq)]
@@ -33,6 +35,38 @@ impl Module {
     /// Tells if ligen is ignoring this module.
     pub fn ignored(&self) -> bool {
         Self::ignored_from_attributes(&self.attributes)
+    }
+
+    /// Find the Type definition.
+    pub fn find_definition(&self, path: &Path) -> Option<TypeDefinition> {
+        if let Some(identifier) = path.segments.first() {
+            if *identifier == self.name {
+                let mut path = path.clone();
+                path.segments.remove(0);
+                if path.segments.len() > 1 {
+                    self
+                        .modules
+                        .iter()
+                        .filter_map(|module| module.find_definition(&path))
+                        .next()
+                } else {
+                    if let Some(identifier) = path.segments.first() {
+                        self
+                            .objects
+                            .iter()
+                            .filter(|object| object.definition.identifier() == identifier)
+                            .map(|object| object.definition.clone())
+                            .next()
+                    } else {
+                        None
+                    }
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
     }
 
     fn ignored_from_attributes(attributes: &Attributes) -> bool {
@@ -106,6 +140,11 @@ impl Module {
                 implementation.replace_self_with_explicit_names();
             }
         }
+    }
+
+    /// Replace wild card imports with actual imports.
+    pub fn replace_wildcard_imports(&mut self) {
+        
     }
 }
 
@@ -217,6 +256,14 @@ impl Module {
     }
 }
 
+#[allow(unused_qualifications)]
+impl TryFrom<TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
+        (parse::<syn::ItemMod>(tokenstream), std::path::Path::new("")).try_into()
+    }
+}
+
 impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
     type Error = Error;
     fn try_from(module: (syn::ItemMod, &std::path::Path)) -> Result<Self> {
@@ -303,7 +350,7 @@ mod tests {
                                 Field {
                                     attributes: Default::default(),
                                     visibility: Visibility::Public,
-                                    identifier: "integer".into(),
+                                    identifier: Some("integer".into()),
                                     type_: Type::Atomic(Atomic::Integer(Integer::I32))
                                 }
                             ]

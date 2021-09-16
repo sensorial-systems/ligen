@@ -5,12 +5,14 @@ use crate::generator::{GenericFFIGenerator, File, ProjectVisitor, ModuleVisitor,
 use crate::marshalling::Marshaller;
 use crate::conventions::naming::{NamingConvention, KebabCase};
 use std::path::PathBuf;
+use std::convert::TryInto;
 
 pub struct Generator;
 
 impl GenericFFIGenerator for Generator {}
 
-fn mock_module(root_module: Module) -> ProjectVisitor {
+fn mock_module<M: TryInto<Module>>(root_module: M) -> ProjectVisitor {
+    let root_module = root_module.try_into().map_err(|_| Error::Message("Shouldn't fail".into())).unwrap();
     let mut project = Project {
         name: NamingConvention::KebabCase(KebabCase::try_from("project-mock").unwrap()),
         root_module,
@@ -25,7 +27,7 @@ fn mock_function(function: TokenStream) -> FunctionVisitor {
     let function = Function::from(function);
     let module = Module {
         attributes: Default::default(),
-        name: "module_mock".into(),
+        name: "crate".into(),
         visibility: Visibility::Public,
         imports: Default::default(),
         objects: Default::default(),
@@ -42,7 +44,7 @@ fn mock_method(method: TokenStream) -> Result<FunctionVisitor> {
     let function = Function::from(method);
     let module = Module {
         attributes: Default::default(),
-        name: "module_mock".into(),
+        name: "crate".into(),
         visibility: Visibility::Public,
         imports: Default::default(),
         modules: Default::default(),
@@ -94,7 +96,7 @@ fn test_static_method() -> Result<()> {
     ffi.push_str("#[no_mangle]\n");
     ffi.push_str("pub extern fn ObjectMock_add(a: f32, b: f32, ) -> f32 {\n");
     ffi.push_str("\tlet result = project_mock::ObjectMock::add(a.into(), b.into(), );\n");
-    ffi.push_str("\tresult.into()\n");
+    ffi.push_str("\tresult.marshal_into()\n");
     ffi.push_str("}\n");
     assert_eq!(file.content, ffi);
     Ok(())
@@ -114,7 +116,7 @@ fn test_method() -> Result<()> {
     ffi.push_str("#[no_mangle]\n");
     ffi.push_str("pub extern fn ObjectMock_add(self: &ObjectMock, b: f32, ) -> f32 {\n");
     ffi.push_str("\tlet result = project_mock::ObjectMock::add(self.into(), b.into(), );\n");
-    ffi.push_str("\tresult.into()\n");
+    ffi.push_str("\tresult.marshal_into()\n");
     ffi.push_str("}\n");
     assert_eq!(file.content, ffi);
     Ok(())
@@ -134,7 +136,7 @@ fn test_function() -> Result<()> {
     ffi.push_str("#[no_mangle]\n");
     ffi.push_str("pub extern fn add(a: f32, b: f32, ) -> f32 {\n");
     ffi.push_str("\tlet result = project_mock::add(a.into(), b.into(), );\n");
-    ffi.push_str("\tresult.into()\n");
+    ffi.push_str("\tresult.marshal_into()\n");
     ffi.push_str("}\n");
     assert_eq!(file.content, ffi);
     Ok(())
@@ -156,7 +158,35 @@ fn test_marshalled_function() -> Result<()> {
     ffi.push_str("#[no_mangle]\n");
     ffi.push_str("pub extern fn subtract(a: f64, b: f64, ) -> f32 {\n");
     ffi.push_str("\tlet result = project_mock::subtract(a.into(), b.into(), );\n");
-    ffi.push_str("\tresult.into()\n");
+    ffi.push_str("\tresult.marshal_into()\n");
+    ffi.push_str("}\n");
+    assert_eq!(file.content, ffi);
+    Ok(())
+}
+
+#[test]
+fn test_opaque_definition() -> Result<()> {
+    let mut marshaller = Marshaller::new();
+    let project_visitor = mock_module(quote! {
+        mod mock_module {
+            #[ligen(opaque)]
+            pub struct Instant(std::instant::Instant);
+
+            pub fn now() -> Instant {
+                Instant(std::instant::Instant::now())
+            }
+        }
+    });
+    let module_visitor = ModuleVisitor::from(&project_visitor.child(project_visitor.root_module.clone()));
+    marshaller.register_module(&module_visitor);
+    let function_visitor = FunctionVisitor::from(&module_visitor.child(project_visitor.current.root_module.functions[0].clone()));
+    let mut file = File::new(PathBuf::from(""), Default::default());
+    Generator::generate_function(&marshaller, &mut file, function_visitor);
+    let mut ffi = String::new();
+    ffi.push_str("#[no_mangle]\n");
+    ffi.push_str("pub extern fn now() -> *mut mock_module::Instant {\n");
+    ffi.push_str("\tlet result = project_mock::now();\n");
+    ffi.push_str("\tresult.marshal_into()\n");
     ffi.push_str("}\n");
     assert_eq!(file.content, ffi);
     Ok(())

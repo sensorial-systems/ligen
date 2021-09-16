@@ -62,4 +62,12 @@ impl FunctionVisitor {
             FunctionParent::Implementation(implementation) => implementation.path()
         }
     }
+
+    /// Get the owner module.
+    pub fn module(&self) -> &ModuleVisitor {
+        match &self.parent {
+            FunctionParent::Module(module) => module,
+            FunctionParent::Implementation(implementation) => implementation.module()
+        }
+    }
 }

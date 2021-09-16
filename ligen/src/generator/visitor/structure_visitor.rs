@@ -1,4 +1,4 @@
-use crate::generator::{Visitor, ObjectVisitor};
+use crate::generator::{Visitor, ObjectVisitor, ModuleVisitor};
 use crate::ir::{Structure, Path};
 
 /// Structure visitor.
@@ -9,4 +9,10 @@ impl StructureVisitor {
     pub fn path(&self) -> Path {
         self.parent.path()
     }
+
+    /// Get the parent module.
+    pub fn parent_module(&self) -> &ModuleVisitor {
+        &self.parent.parent
+    }
+
 }

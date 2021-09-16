@@ -11,4 +11,9 @@ impl ObjectVisitor {
         segments.append(&mut self.current.path.segments.clone());
         segments.into()
     }
+
+    /// Get the parent module.
+    pub fn module(&self) -> &ModuleVisitor {
+        &self.parent
+    }
 }

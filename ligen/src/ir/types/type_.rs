@@ -63,10 +63,10 @@ impl From<Float> for Type {
 
 impl From<syn::Path> for Type {
     fn from(path: syn::Path) -> Self {
-        if Atomic::is_atomic(path.segments.last().unwrap().ident.clone()) {
+        if Atomic::is_atomic(path.clone()) {
             Self::Atomic(path.into())
         } else {
-            Self::Compound(path.segments[0].ident.clone().into())
+            Self::Compound(path.into())
         }
     }
 }

@@ -18,8 +18,36 @@ impl Path {
     }
 
     /// Join the current path with another path.
-    pub fn join<T: Into<Path>>(&mut self, another: T) {
-        self.segments.append(&mut another.into().segments);
+    pub fn join<T: Into<Path>>(self, another: T) -> Self {
+        let mut this = self;
+        this.segments.append(&mut another.into().segments);
+        this
+    }
+
+    /// Returns the Path without the first segment.
+    pub fn without_first(mut self) -> Self {
+        self.pop_front();
+        self
+    }
+
+    /// Returns the Path without the last segment.
+    pub fn without_last(mut self) -> Self {
+        self.pop_back();
+        self
+    }
+
+    /// Removes the first element and returns it, or None if the Path is empty.
+    pub fn pop_front(&mut self) -> Option<Identifier> {
+        if self.segments.len() > 0 {
+            Some(self.segments.remove(0))
+        } else {
+            None
+        }
+    }
+
+    /// Removes the last element and returns it, or None if the Path is empty.
+    pub fn pop_back(&mut self) -> Option<Identifier> {
+        self.segments.pop()
     }
 }
 

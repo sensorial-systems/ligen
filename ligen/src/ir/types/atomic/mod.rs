@@ -24,8 +24,10 @@ pub enum Atomic {
 
 impl Atomic {
     /// Returns true if the identifier is an atomic type.
-    pub fn is_atomic<I: Into<Identifier>>(identifier: I) -> bool {
-        match identifier.into().name.as_ref() {
+    pub fn is_atomic<P: Into<Path>>(path: P) -> bool {
+        let path = path.into();
+        let identifier = path.last();
+        match identifier.name.as_ref() {
             "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
             | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" => true,
             _ => false

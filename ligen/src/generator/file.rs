@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::collections::HashMap;
 
 /// Structure representing a file path and its content.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct File {
     /// File path.
     pub path: PathBuf,

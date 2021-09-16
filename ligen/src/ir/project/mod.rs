@@ -1,10 +1,10 @@
 //! Project representation.
 
-use crate::generator::TemporaryFFIProject;
+use crate::generator::{TemporaryFFIProject, ModuleVisitor, ProjectVisitor};
 use crate::ir::Module;
 use crate::prelude::*;
 use crate::conventions::naming::NamingConvention;
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 use std::ffi::OsString;
 
 
@@ -20,9 +20,10 @@ pub struct Project {
 
 impl Project {
     /// Project path.
-    pub fn path(&self) -> &Path {
+    pub fn path(&self) -> &std::path::Path {
         self.path.as_path()
     }
+
     /// Get manifest path.
     pub fn manifest_path(&self) -> PathBuf {
         self.manifest_path.clone()
@@ -47,11 +48,22 @@ impl Project {
         let path = std::env::current_dir()?;
         Self::try_from(path.as_path())
     }
+
+    /// Constructs the project visitor.
+    pub fn visitor(&self) -> ProjectVisitor {
+        ProjectVisitor::new((), self.clone())
+    }
+
+    /// Constructs the root module visitor.
+    pub fn root_module_visitor(&self) -> ModuleVisitor {
+        let project_visitor = self.visitor();
+        (&project_visitor.child(self.root_module.clone())).into()
+    }
 }
 
-impl TryFrom<&Path> for Project {
+impl TryFrom<&std::path::Path> for Project {
     type Error = Error;
-    fn try_from(path: &Path) -> Result<Self> {
+    fn try_from(path: &std::path::Path) -> Result<Self> {
         Self::check_build()?;
 
         let path = if path.file_name() == Some(&OsString::from("Cargo.toml")) {
@@ -69,7 +81,9 @@ impl TryFrom<&Path> for Project {
         let package = manifest.package.ok_or_else(|| Error::Message("Package not found in Cargo.toml.".into()))?;
         let crate_name = package.name;
         let name = NamingConvention::try_from(crate_name.as_str())?;
-        let root_module = Module::try_from(root_module.as_path())?;
+        let mut root_module = Module::try_from(root_module.as_path())?;
+        // TODO: Use SnakeCase::from(name.clone()).into() instead?
+        root_module.name = "crate".into();
         Ok(Self { path, name, root_module, manifest_path })
     }
 }

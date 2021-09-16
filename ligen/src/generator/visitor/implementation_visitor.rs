@@ -1,4 +1,4 @@
-use crate::generator::{Visitor, ObjectVisitor};
+use crate::generator::{Visitor, ObjectVisitor, ModuleVisitor};
 use crate::ir::{Implementation, Path};
 
 /// Implementation visitor.
@@ -8,5 +8,10 @@ impl ImplementationVisitor {
     /// Returns the module path.
     pub fn path(&self) -> Path {
         self.parent.path()
+    }
+
+    /// Get the owner module.
+    pub fn module(&self) -> &ModuleVisitor {
+        &self.parent.parent
     }
 }

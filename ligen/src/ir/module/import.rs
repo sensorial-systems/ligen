@@ -58,12 +58,12 @@ impl TryFrom<ImportsBuilder> for Imports {
         let mut builder = builder;
         match builder.tree {
             syn::UseTree::Path(use_path) => {
-                builder.path.join(use_path.ident);
+                builder.path = builder.path.join(use_path.ident);
                 builder.tree = (*use_path.tree).clone();
                 builder.try_into()
             },
             syn::UseTree::Name(name) => {
-                builder.path.join(name.ident);
+                builder.path = builder.path.join(name.ident);
                 Ok(Self(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
@@ -72,7 +72,7 @@ impl TryFrom<ImportsBuilder> for Imports {
                 }]))
             },
             syn::UseTree::Rename(rename) => {
-                builder.path.join(rename.ident);
+                builder.path = builder.path.join(rename.ident);
                 Ok(Self(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
@@ -81,7 +81,7 @@ impl TryFrom<ImportsBuilder> for Imports {
                 }]))
             },
             syn::UseTree::Glob(_) => {
-                builder.path.join("*");
+                builder.path = builder.path.join("*");
                 Ok(Self(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,

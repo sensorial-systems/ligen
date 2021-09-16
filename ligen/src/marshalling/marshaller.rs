@@ -1,5 +1,7 @@
-use crate::ir::Type;
+use crate::ir::{Type, TypeDefinition, Attribute, Reference, ReferenceKind};
+use crate::generator::{ModuleVisitor, ProjectVisitor, StructureVisitor};
 use std::collections::HashMap;
+
 // TODO: Remove this if it isn't used.
 // pub trait MarshallFrom<T>: Sized {
 //     fn marshal_from(from: T) -> Self;
@@ -28,6 +30,42 @@ impl Marshaller {
         let map_into = HashMap::default();
         let map_from = HashMap::default();
         Self { map_input: map_into, map_output: map_from }
+    }
+
+    /// Register marshallers in project.
+    pub fn register_project(&mut self, project: &ProjectVisitor) {
+        let module = ModuleVisitor::from(&project.child(project.root_module.clone()));
+        self.register_module(&module);
+    }
+
+    /// Register marshallers in module.
+    pub fn register_module(&mut self, module: &ModuleVisitor) {
+        for child_module in &module.current.modules {
+            let module = ModuleVisitor::from(&module.child(child_module.clone()));
+            self.register_module(&module);
+        }
+        for object in &module.current.objects {
+            let object = module.child(object.clone());
+            match &object.current.definition {
+                TypeDefinition::Structure(structure) => self.register_structure(&object.child(structure.clone())),
+                _ => ()
+            }
+        }
+    }
+
+    /// Register masrhallers in definition.
+    pub fn register_structure(&mut self, structure: &StructureVisitor) {
+        if structure.current.attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("opaque".into(), Default::default()).into())) {
+            let type_ = Type::Compound(structure.path());
+            let opaque_type = Type::Reference(Reference {
+                kind: ReferenceKind::Pointer,
+                is_constant: false,
+                type_: type_.clone().into()
+            });
+            self.add_input_marshalling(type_.clone(), opaque_type.clone());
+            self.add_output_marshalling(type_, opaque_type);
+            println!("{:#?}", self);
+        }
     }
 
     /// Add type mapping.

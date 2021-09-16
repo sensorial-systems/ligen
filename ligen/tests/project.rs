@@ -1,4 +1,4 @@
-use ligen::ir::Project;
+use ligen::ir::{Project, Path, Identifier, TypeDefinition, Structure, Attribute, Visibility, Field};
 use std::convert::TryFrom;
 use std::path::PathBuf;
 use ligen::generator::{GenericFFIGenerator, FFIGenerator, File, ProjectVisitor};
@@ -30,11 +30,13 @@ fn relative_dir(path: PathBuf) -> PathBuf {
 
 // FIXME: This test is no longer worked because I changed test-project's code.
 fn project(path: PathBuf) {
-    let project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
+    let mut project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
+    project.root_module.replace_wildcard_imports();
     let manifest_path = relative_dir(project.manifest_path());
     assert_eq!(project.name().to_string(), "example");
     assert_eq!(manifest_path, PathBuf::from("../examples/example/Cargo.toml"));
-    println!("{:#?}", project);
+    assert_eq!(project.root_module.name, "crate".into());
+    // println!("{:#?}", project);
     // assert_eq!(project.root_module, Module {
     //     attributes: Default::default(),
     //     name: "lib".into(),
@@ -71,18 +73,49 @@ fn project(path: PathBuf) {
     //     ]
     // });
 
-    ffi_generation(project);
+    let absolute_path = find_absolute_path(&project);
+    definition_finder(absolute_path, &project);
+    ffi_generation(&project);
 }
 
 struct Generator;
 
 impl GenericFFIGenerator for Generator {}
 
-fn ffi_generation(project: Project) {
+fn ffi_generation(project: &Project) {
     let generator = Generator;
     let marshaller = Marshaller::new();
     let mut file = File::new("lib.rs".into(), "".into());
-    let project_visitor = ProjectVisitor::from(project);
+    let project_visitor = ProjectVisitor::from(project.clone());
     generator.generate_ffi(&marshaller, &mut file, &project_visitor);
-    println!("{}", file.content);
+    // println!("{}", file.content);
+}
+
+fn definition_finder(path: Path, project: &Project) {
+    let expected_definition = TypeDefinition::Structure(Structure {
+        attributes: Attribute::Group("ligen".into(), Attribute::Group(Identifier::new("opaque").into(), Default::default()).into()).into(),
+        identifier: "Instant".into(),
+        visibility: Visibility::Public,
+        fields: vec![
+            Field {
+                attributes: Default::default(),
+                visibility: Visibility::Inherited,
+                identifier: None,
+                type_: Path::from("std::time::Instant").into()
+            }
+        ]
+    });
+    assert_eq!(project.root_module.find_definition(&path), Some(expected_definition));
+}
+
+fn find_absolute_path(project: &Project) -> Path {
+    let module_visitor = project.root_module_visitor();
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"crate::time::instant::Instant".into()), "Failed in absolute path case.");
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"Instant".into()), "Failed in import case.");
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
+    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
+    // assert_eq!(Some("crate::time::duration::Duration".into()), module_visitor.find_absolute_path(&"Duration".into()), "Failed in re-exported case.");
+    module_visitor.find_absolute_path(&"Instant".into()).unwrap()
 }
