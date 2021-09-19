@@ -5,8 +5,9 @@ mod enumeration;
 
 pub use structure::*;
 pub use enumeration::*;
-use crate::ir::Identifier;
+use crate::ir::{Identifier, Visibility};
 
+// TODO: Bring common properties from Structure and Enumeration to TypeDefinition.
 /// All the possible ways to define a type.
 #[derive(Debug, Clone, PartialEq)]
 #[allow(missing_docs)]
@@ -21,6 +22,14 @@ impl TypeDefinition {
         match self {
             Self::Structure(structure) => &structure.identifier,
             Self::Enumeration(enumeration) => &enumeration.identifier
+        }
+    }
+
+    /// Get the type definition visibility.
+    pub fn visibility(&self) -> &Visibility {
+        match self {
+            Self::Structure(structure) => &structure.visibility,
+            Self::Enumeration(enumeration) => &enumeration.visibility
         }
     }
 }

@@ -142,9 +142,76 @@ impl Module {
         }
     }
 
+    /// Find the module with the specified path.
+    pub fn find_module(&self, path: &Path) -> Option<&Module> {
+        let mut path = path.clone();
+        if let Some(identifier) = path.pop_front() {
+            let module = self
+                .modules
+                .iter()
+                .find(|module| identifier == module.name);
+            if let Some(module) = module {
+                if path.segments.is_empty() {
+                    Some(module)
+                } else {
+                    module.find_module(&path)
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
     /// Replace wild card imports with actual imports.
     pub fn replace_wildcard_imports(&mut self) {
-        
+        for module in &mut self.modules {
+            module.replace_wildcard_imports();
+        }
+        let wildcard_imports: Vec<_> = self
+            .imports
+            .iter()
+            .filter(|import| import.path.last() == "*".into())
+            .cloned()
+            .collect();
+        let mut imports: Vec<_> = self
+            .imports
+            .iter()
+            .filter(|import| import.path.last() != "*".into())
+            .cloned()
+            .collect();
+        for import in wildcard_imports {
+            let module_path = import.path.clone().without_last();
+            if let Some(module) = self.find_module(&module_path) {
+                for object in &module.objects {
+                    if let Visibility::Public = object.definition.visibility() {
+                        imports.push(Import {
+                            attributes: import.attributes.clone(),
+                            visibility: import.visibility.clone(),
+                            renaming: import.renaming.clone(),
+                            path: module_path.clone().join(object.definition.identifier().clone())
+                        })
+                    }
+                }
+                for internal_import in &module.imports {
+                    if let Visibility::Public = internal_import.visibility {
+                        let identifier = if let Some(renaming) = &internal_import.renaming {
+                            renaming.clone()
+                        } else {
+                            internal_import.path.last()
+                        };
+                        imports.push(Import {
+                            attributes: import.attributes.clone(),
+                            visibility: import.visibility.clone(),
+                            renaming: import.renaming.clone(),
+                            path: module_path.clone().join(identifier)
+                        })
+                    }
+                }
+            }
+        }
+        self.imports = imports;
     }
 }
 
@@ -296,7 +363,79 @@ mod tests {
     use quote::quote;
 
     #[test]
-    fn object() {
+    fn imports() -> Result<()> {
+        let module = quote! {
+            mod root {
+                mod object {
+                    pub struct Object1;
+                }
+                mod objects {
+                    pub struct Object2;
+                    pub struct Object3;
+                    struct Object4;
+                    mod deeper {
+                        pub struct Object5;
+                        pub struct Object6;
+                        struct Object7;
+                    }
+                    mod deeper2 {
+                        pub struct Object8;
+                        pub struct Object9;
+                        pub struct ObjectA;
+                    }
+                    pub use deeper::*;
+                    pub use deeper2::Object8;
+                    use deeper2::Object9;
+                    pub use deeper2::ObjectA as ObjectTen;
+                }
+                pub use object::Object1;
+                pub use objects::*;
+            }
+        };
+        let expected_module = quote! {
+            mod root {
+                mod object {
+                    pub struct Object1;
+                }
+                mod objects {
+                    pub struct Object2;
+                    pub struct Object3;
+                    struct Object4;
+                    mod deeper {
+                        pub struct Object5;
+                        pub struct Object6;
+                        struct Object7;
+                    }
+                    mod deeper2 {
+                        pub struct Object8;
+                        pub struct Object9;
+                        pub struct ObjectA;
+                    }
+                    pub use deeper::Object5;
+                    pub use deeper::Object6;
+                    pub use deeper2::Object8;
+                    use deeper2::Object9;
+                    pub use deeper2::ObjectA as ObjectTen;
+                }
+                pub use object::Object1;
+                pub use objects::Object2;
+                pub use objects::Object3;
+                pub use objects::Object5;
+                pub use objects::Object6;
+                pub use objects::Object8;
+                pub use objects::ObjectTen;
+            }
+        };
+
+        let expected_module = Module::try_from(expected_module)?;
+        let mut module = Module::try_from(module)?;
+        module.replace_wildcard_imports();
+        assert_eq!(module, expected_module);
+        Ok(())
+    }
+
+    #[test]
+    fn object() -> Result<()> {
         let module = quote! {
             #[ligen(attribute)]
             mod objects {
@@ -315,10 +454,9 @@ mod tests {
                 pub struct AnotherObject;
             }
         };
-
-        let module: syn::ItemMod = syn::parse2(module).expect("Couldn't parse.");
+        let module = Module::try_from(module)?;
         assert_eq!(
-            Module::try_from((module, std::path::Path::new(""))).expect("Failed to convert from ItemImpl"),
+            module,
             Module {
                 attributes: vec![
                     Attribute::Group("ligen".into(), Attribute::Group("attribute".into(), Default::default()).into()),
@@ -382,5 +520,6 @@ mod tests {
                 ]
             }
         );
+        Ok(())
     }
 }

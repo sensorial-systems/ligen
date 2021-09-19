@@ -1,31 +1,26 @@
-// pub mod person;
-// pub mod ffi;
-// pub mod ignored;
+// use ligen_macro::ligen;
+
+pub mod time;
+pub use time::Instant;
+pub use time::instant::Instant as RenamedInstant;
+pub use time::duration::*;
 
 pub fn add(a: u32, b: u32) -> u32 {
     a + b
 }
 
-#[repr(C)]
-pub struct Instant(std::time::Instant);
-
-impl Instant {
-    fn now() -> Self {
-        Self(std::time::Instant::now())
-    }
-
-    fn elapsed(&self) -> std::time::Duration {
-        self.0.elapsed()
-    }
+pub fn now() -> Instant {
+    Instant::now()
 }
 
-pub fn now() -> *mut Instant {
-    let instant = Instant::now();
-    Box::into_raw(Box::new(instant))
-}
-
-pub fn elapsed(instant: *mut Instant) {
+pub fn elapsed(instant: *mut Instant) -> *mut Duration {
     unsafe {
-        println!("{:#?}", (*instant).elapsed())
+        Box::into_raw(Box::new((*instant).elapsed()))
+    }
+}
+
+pub fn print_duration(duration: *mut Duration) {
+    unsafe {
+        println!("{:#?}", (*duration).0);
     }
 }

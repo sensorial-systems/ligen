@@ -36,6 +36,9 @@
 #include <assert.h>
 
 int main(int argc, char **argv) {
+    Instant* instant = now();
+    Duration* duration = elapsed(instant);
+    print_duration(duration);
     assert(4 == add(1, 3));
     return 0;
 }

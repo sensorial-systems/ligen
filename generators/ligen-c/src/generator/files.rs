@@ -4,6 +4,8 @@ use std::path::PathBuf;
 use crate::ast::{Types, Type};
 use crate::generator::CGenerator;
 use ligen::ir::Path;
+use ligen::ir::processing::ReplaceIdentifier;
+use ligen::conventions::naming::SnakeCase;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -55,7 +57,28 @@ impl FileProcessorVisitor for ProjectProcessor {
 impl FileProcessorVisitor for ModuleProcessor {
     type Visitor = ModuleVisitor;
 
-    fn process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
+    fn process(&self, file_set: &mut FileSet, module: &Self::Visitor) {
+        let file = file_set.entry(&path(&module.path()));
+        file.writeln("#pragma once");
+        for import in &module.current.imports {
+            // TODO: Differ between absolute and relative imports. (crate::... == absolute, external_crate::... == absolute, super, self, relative)
+            // This logic should belong somewhere else in `ligen`.
+            let mut import = import.clone();
+            import.path.segments.pop();
+            let snake_case = SnakeCase::from(module.parent_project().name.clone());
+            let path = if import.path.segments[0] == "crate".into() {
+                import.path.segments[0].replace_identifier(&"crate".into(), &snake_case.to_string().into());
+                import.path
+            } else {
+                let mut path = module.path();
+                path.segments.append(&mut import.path.segments);
+                path
+            };
+            let path: Vec<_> = path.segments.iter().map(|x| x.to_string()).collect();
+            let path = path.join("/");
+            file.writeln(format!("#include <{}.h>", path));
+        }
+    }
 
     fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}
 }
@@ -63,31 +86,31 @@ impl FileProcessorVisitor for ModuleProcessor {
 impl FileProcessorVisitor for ObjectProcessor {
     type Visitor = ObjectVisitor;
 
-    fn process(&self, file_set: &mut FileSet, object: &Self::Visitor) {
-        let file = file_set.entry(&path(&object.path()));
+    fn process(&self, _file_set: &mut FileSet, object: &Self::Visitor) {
+        // let file = file_set.entry(&path(&object.parent.path()));
         // includes
-        file.writeln("#pragma once");
-        file.writeln("");
-        file.writeln("#include <stdint.h>");
-        file.writeln("");
-        file.writeln("#ifdef __cplusplus");
-        file.writeln("extern \"C\" {");
-        file.writeln("#endif\n");
+        // file.writeln("#pragma once");
+        // file.writeln("");
+        // file.writeln("#ifdef __cplusplus");
+        // file.writeln("extern \"C\" {");
+        // file.writeln("#endif\n");
     }
 
     fn post_process(&self, file_set: &mut FileSet, object: &Self::Visitor) {
-        let file = file_set.entry(&path(&object.path()));
+        let file = file_set.entry(&path(&object.module_path()));
 
         // drop function
         let object_name = &object.path.last().name;
-        let c_type      = Type::from(ir::Type::Compound(object.path.clone()));
+        let type_ = ir::Type::Compound(object.path.clone()).into();
+        let reference = ir::Reference { is_constant: false, kind: ir::ReferenceKind::Pointer, type_ };
+        let c_type = Type::from(ir::Type::Reference(reference));
         file.writeln(format!("void {name}_drop({type_} self);", name = object_name, type_ = c_type));
 
         // epilogue
-        file.writeln("");
-        file.writeln("#ifdef __cplusplus");
-        file.writeln("}");
-        file.writeln("#endif");
+        // file.writeln("");
+        // file.writeln("#ifdef __cplusplus");
+        // file.writeln("}");
+        // file.writeln("#endif");
     }
 }
 
@@ -104,9 +127,9 @@ impl FileProcessorVisitor for StructureProcessor {
     type Visitor = StructureVisitor;
 
     fn process(&self, file_set: &mut FileSet, structure: &Self::Visitor) {
-        let file = file_set.entry(&path(&structure.path()));
-        file.writeln(format!("typedef struct Struct_{} {{", structure.identifier));
-        file.writeln("\tvoid* self;");
+        let file = file_set.entry(&path(&structure.module_path()));
+        file.writeln("typedef struct {");
+        file.writeln("\tvoid* opaque;");
         file.writeln(format!("}} {};", structure.identifier));
     }
 
@@ -171,6 +194,9 @@ impl FileProcessorVisitor for FunctionProcessor {
         if let ir::Visibility::Public = function.visibility {
             let file = file_set.entry(&path(&function.path()));
             file.writeln(");");
+            if path(&function.path()).display().to_string().contains("Instant.h") {
+                panic!("{}", file.content);
+            }
         }
     }
 }
@@ -179,19 +205,20 @@ impl FileProcessorVisitor for ParameterProcessor {
     type Visitor = ParameterVisitor;
 
     fn process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
-        let file = file_set.entry(&path(&parameter.parent.path()));
+        if let ir::Visibility::Public = parameter.parent.visibility {
+            let file = file_set.entry(&path(&parameter.parent.module_path()));
 
-        let mut type_ = Type::from(parameter.type_.clone());
-        if let (Some(_pointer), Types::Compound(_type)) = (&type_.pointer, &type_.type_) {
-            type_.pointer = None;
+            let type_ = Type::from(parameter.type_.clone());
+            let ident = &parameter.identifier.name;
+            file.write(format!("{} {}", type_, ident));
         }
-        let ident = &parameter.identifier.name;
-        file.write(format!("{} {}", type_, ident))
     }
 
-    fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {
-        let file = file_set.entry(&path(&visitor.parent.path()));
-        file.write(", ");
+    fn post_process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
+        if let ir::Visibility::Public = parameter.parent.visibility {
+            let file = file_set.entry(&path(&parameter.parent.module_path()));
+            file.write(", ");
+        }
     }
 }
 
@@ -205,3 +232,6 @@ impl FileGeneratorVisitors for CGenerator {
     type FunctionProcessor = FunctionProcessor;
     type ParameterProcessor = ParameterProcessor;
 }
+
+#[cfg(test)]
+mod tests;
