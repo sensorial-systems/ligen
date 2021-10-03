@@ -1,13 +1,14 @@
 use crate::generator::{File, ProjectVisitor, FunctionVisitor, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FFIGenerator, FunctionParent};
-use crate::ir::{Identifier, ImplementationItem, Visibility};
+use crate::ir::{Identifier, ImplementationItem, Visibility, Type, Path};
 use crate::marshalling::Marshaller;
+use crate::conventions::naming::SnakeCase;
 
 /// A generic FFI generator which can be used for most languages.
 pub trait GenericFFIGenerator {
     /// Generate the function parameters.
     fn generate_parameters(marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
         for parameter in &visitor.current.inputs {
-            let type_ = marshaller.mashal_input(&parameter.type_);
+            let type_ = marshaller.marshal_input(&parameter.type_);
             let identifier = &parameter.identifier;
             file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
         }
@@ -27,7 +28,14 @@ pub trait GenericFFIGenerator {
             Some(type_) => {
                 // let fully_qualified_path = visitor.module().find_fully_qualified_path_of_type(type_).unwrap();
                 // let type_ = marshaller.marshal_output(fully_qualified_path);
-                file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
+                if let Some(path) = visitor.parent_module().find_absolute_path(&type_.path()) {
+                    // FIXME: This is awefully long.
+                    let path = Path::from(SnakeCase::from(visitor.parent_module().parent_project().name.clone()).to_string()).join(path.without_first());
+                    println!("Path: {}", path);
+                    file.write(&format!(" -> {}", marshaller.marshal_output(&Type::Compound(path))))
+                } else {
+                    file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
+                }
             },
             _ => ()
         }

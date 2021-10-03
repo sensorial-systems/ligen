@@ -56,6 +56,7 @@ impl Marshaller {
     /// Register masrhallers in definition.
     pub fn register_structure(&mut self, structure: &StructureVisitor) {
         if structure.current.attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("opaque".into(), Default::default()).into())) {
+            println!("Path: {}", structure.path());
             let type_ = Type::Compound(structure.path());
             let opaque_type = Type::Reference(Reference {
                 kind: ReferenceKind::Pointer,
@@ -64,7 +65,6 @@ impl Marshaller {
             });
             self.add_input_marshalling(type_.clone(), opaque_type.clone());
             self.add_output_marshalling(type_, opaque_type);
-            println!("{:#?}", self);
         }
     }
 
@@ -79,7 +79,7 @@ impl Marshaller {
     }
 
     /// Marshal input.
-    pub fn mashal_input(&self, type_: &Type) -> Type {
+    pub fn marshal_input(&self, type_: &Type) -> Type {
         let type_ = if let Some(type_) = self.map_input.get(type_) {
             type_
         } else {
@@ -108,7 +108,7 @@ mod tests {
     fn atomic_to() {
         let marshaller = Marshaller::new();
         let type_ = Type::Atomic(Atomic::Integer(Integer::I32));
-        assert_eq!(marshaller.mashal_input(&type_).to_string(), "i32");
+        assert_eq!(marshaller.marshal_input(&type_).to_string(), "i32");
     }
 
     #[test]
@@ -116,18 +116,18 @@ mod tests {
         let marshaller = Marshaller::new();
         let type_ = Type::Compound("Object".into());
         let type_ = Type::Reference(Reference { is_constant: false, kind: ReferenceKind::Borrow, type_: type_.into() });
-        assert_eq!(marshaller.mashal_input(&type_).to_string(), "&mut Object");
+        assert_eq!(marshaller.marshal_input(&type_).to_string(), "&mut Object");
 
         let type_ = Type::Compound("Object".into());
         let type_ = Type::Reference(Reference { is_constant: true, kind: ReferenceKind::Pointer, type_: type_.into() });
-        assert_eq!(marshaller.mashal_input(&type_).to_string(), "*const Object");
+        assert_eq!(marshaller.marshal_input(&type_).to_string(), "*const Object");
     }
 
     #[test]
     fn compound_to() {
         let marshaller = Marshaller::new();
         let type_ = Type::Compound("Object".into());
-        assert_eq!(marshaller.mashal_input(&type_).to_string(), "Object");
+        assert_eq!(marshaller.marshal_input(&type_).to_string(), "Object");
     }
 
     #[test]
@@ -135,7 +135,7 @@ mod tests {
         let mut marshaller = Marshaller::new();
         marshaller.add_input_marshalling(Type::Compound("String".into()), Type::Reference(Reference { type_: Type::Compound("FFIString".into()).into(), kind: ReferenceKind::Pointer, is_constant: false }));
         let type_ = Type::Compound("String".into());
-        assert_eq!(marshaller.mashal_input(&type_).to_string(), "*mut FFIString");
+        assert_eq!(marshaller.marshal_input(&type_).to_string(), "*mut FFIString");
     }
 
     #[test]

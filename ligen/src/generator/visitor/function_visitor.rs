@@ -63,11 +63,11 @@ impl FunctionVisitor {
         }
     }
 
-    /// Get the owner module.
-    pub fn module(&self) -> &ModuleVisitor {
+    /// Get the parent module.
+    pub fn parent_module(&self) -> &ModuleVisitor {
         match &self.parent {
             FunctionParent::Module(module) => module,
-            FunctionParent::Implementation(implementation) => implementation.module()
+            FunctionParent::Implementation(implementation) => implementation.parent_module()
         }
     }
 }

@@ -108,11 +108,11 @@ impl TryFrom<&std::path::Path> for Module {
         } else {
             from.with_extension("")
         };
-        let attributes = Module::parse_ligen_attributes(&file.attrs, &file.items)?;
-        let ignored = Module::ignored_from_attributes(&attributes);
-        let (modules, objects) = extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
+        let attributes = Self::parse_ligen_attributes(&file.attrs, &file.items)?;
+        let ignored = Self::ignored_from_attributes(&attributes);
+        let (modules, objects) = Self::extract_modules_and_objects(ignored, &file.items, base_path.as_path())?;
         let imports = Imports::try_from(file.items.as_slice())?.0;
-        let functions = extract_functions(file.items.as_slice());
+        let functions = Self::extract_functions(file.items.as_slice());
         Ok(Module { attributes, imports, visibility, name, modules, functions, objects })
     }
 }
@@ -213,30 +213,32 @@ impl Module {
         }
         self.imports = imports;
     }
-}
 
-fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
-    let mut functions = Vec::new();
-    for item in items {
-        if let syn::Item::Fn(function) = item {
-            functions.push(function.clone().into());
-        }
-    }
-    functions
-}
 
-// FIXME: Find a better place for this function.
-fn extract_modules_and_objects(ignored: bool, items: &[syn::Item], base_path: &std::path::Path) -> Result<(Vec<Module>, Vec<Object>)> {
-    if ignored {
-        Ok((Default::default(), Default::default()))
-    } else {
-        let modules = Module::parse_modules(&items, base_path)?;
-        let objects = Module::parse_objects(&items)?;
-        Ok((modules, objects))
-    }
 }
 
 impl Module {
+    fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
+        let mut functions = Vec::new();
+        for item in items {
+            if let syn::Item::Fn(function) = item {
+                functions.push(function.clone().into());
+            }
+        }
+        functions
+    }
+
+    // FIXME: Find a better place for this function.
+    fn extract_modules_and_objects(ignored: bool, items: &[syn::Item], base_path: &std::path::Path) -> Result<(Vec<Module>, Vec<Object>)> {
+        if ignored {
+            Ok((Default::default(), Default::default()))
+        } else {
+            let modules = Module::parse_modules(&items, base_path)?;
+            let objects = Module::parse_objects(&items)?;
+            Ok((modules, objects))
+        }
+    }
+
     fn parse_modules(items: &[syn::Item], base_path: &std::path::Path) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         for item in items {
@@ -339,11 +341,11 @@ impl TryFrom<(syn::ItemMod, &std::path::Path)> for Module {
         if let Some((_, items)) = module.content {
             let attributes = Module::parse_ligen_attributes(&module.attrs, &items)?;
             let ignored = Module::ignored_from_attributes(&attributes);
-            let (modules, objects) = extract_modules_and_objects(ignored, &items, base_path.as_path())?;
+            let (modules, objects) = Self::extract_modules_and_objects(ignored, &items, base_path.as_path())?;
             let name = module.ident.into();
             let visibility = module.vis.into();
             let imports = Imports::try_from(items.as_slice())?.0;
-            let functions = extract_functions(items.as_slice());
+            let functions = Self::extract_functions(items.as_slice());
             Ok(Self { attributes, visibility, name, imports, modules, functions, objects })
         } else {
             let mut path = base_path.with_extension("rs");
@@ -361,6 +363,7 @@ mod tests {
     use super::*;
     use crate::ir::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute};
     use quote::quote;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn imports() -> Result<()> {
@@ -411,19 +414,19 @@ mod tests {
                         pub struct Object9;
                         pub struct ObjectA;
                     }
-                    pub use deeper::Object5;
-                    pub use deeper::Object6;
                     pub use deeper2::Object8;
                     use deeper2::Object9;
                     pub use deeper2::ObjectA as ObjectTen;
+                    pub use deeper::Object5;
+                    pub use deeper::Object6;
                 }
                 pub use object::Object1;
                 pub use objects::Object2;
                 pub use objects::Object3;
-                pub use objects::Object5;
-                pub use objects::Object6;
                 pub use objects::Object8;
                 pub use objects::ObjectTen;
+                pub use objects::Object5;
+                pub use objects::Object6;
             }
         };
 

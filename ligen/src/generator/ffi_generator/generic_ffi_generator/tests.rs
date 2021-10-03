@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 use crate::prelude::*;
-use crate::ir::{Project, Module, Visibility, Function, Type, Float, Object, Structure, Implementation, ImplementationItem};
+use crate::ir::{Project, Module, Visibility, Function, Type, Float, Object, Structure, Implementation, ImplementationItem, Reference, ReferenceKind};
 use crate::generator::{GenericFFIGenerator, File, ProjectVisitor, ModuleVisitor, FunctionVisitor};
 use crate::marshalling::Marshaller;
 use crate::conventions::naming::{NamingConvention, KebabCase};
@@ -83,7 +83,7 @@ fn mock_method(method: TokenStream) -> Result<FunctionVisitor> {
 }
 
 #[test]
-fn test_static_method() -> Result<()> {
+fn static_method() -> Result<()> {
     let marshaller = Marshaller::new();
     let function_visitor = mock_method(quote! {
         pub fn add(a: f32, b: f32) -> f32 {
@@ -103,7 +103,7 @@ fn test_static_method() -> Result<()> {
 }
 
 #[test]
-fn test_method() -> Result<()> {
+fn method() -> Result<()> {
     let marshaller = Marshaller::new();
     let function_visitor = mock_method(quote! {
         pub fn add(&self, b: f32) -> f32 {
@@ -123,7 +123,7 @@ fn test_method() -> Result<()> {
 }
 
 #[test]
-fn test_function() -> Result<()> {
+fn function() -> Result<()> {
     let marshaller = Marshaller::new();
     let function_visitor = mock_function(quote! {
         pub fn add(a: f32, b: f32) -> f32 {
@@ -143,7 +143,7 @@ fn test_function() -> Result<()> {
 }
 
 #[test]
-fn test_marshalled_function() -> Result<()> {
+fn marshalled_function() -> Result<()> {
     let mut marshaller = Marshaller::new();
     marshaller.add_input_marshalling(Type::Compound("Instant".into()), Float::F64.into());
     marshaller.add_output_marshalling(Type::Compound("Duration".into()), Float::F32.into());
@@ -165,7 +165,7 @@ fn test_marshalled_function() -> Result<()> {
 }
 
 #[test]
-fn test_opaque_definition() -> Result<()> {
+fn opaque_definition() -> Result<()> {
     let mut marshaller = Marshaller::new();
     let project_visitor = mock_module(quote! {
         mod mock_module {
@@ -179,12 +179,15 @@ fn test_opaque_definition() -> Result<()> {
     });
     let module_visitor = ModuleVisitor::from(&project_visitor.child(project_visitor.root_module.clone()));
     marshaller.register_module(&module_visitor);
+    let type_ = Type::Compound("project_mock::module_mock::Instant".into());
+    assert_eq!(marshaller.marshal_input(&type_), Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: type_.clone().into() }));
+    assert_eq!(marshaller.marshal_output(&type_), Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: type_.clone().into() }));
     let function_visitor = FunctionVisitor::from(&module_visitor.child(project_visitor.current.root_module.functions[0].clone()));
     let mut file = File::new(PathBuf::from(""), Default::default());
     Generator::generate_function(&marshaller, &mut file, function_visitor);
     let mut ffi = String::new();
     ffi.push_str("#[no_mangle]\n");
-    ffi.push_str("pub extern fn now() -> *mut mock_module::Instant {\n");
+    ffi.push_str("pub extern fn now() -> *mut project_mock::module_mock::Instant {\n");
     ffi.push_str("\tlet result = project_mock::now();\n");
     ffi.push_str("\tresult.marshal_into()\n");
     ffi.push_str("}\n");

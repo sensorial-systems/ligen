@@ -10,8 +10,8 @@ impl ImplementationVisitor {
         self.parent.path()
     }
 
-    /// Get the owner module.
-    pub fn module(&self) -> &ModuleVisitor {
+    /// Get the parent module.
+    pub fn parent_module(&self) -> &ModuleVisitor {
         &self.parent.parent
     }
 }
