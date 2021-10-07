@@ -315,6 +315,7 @@ impl Module {
         let mut objects: Vec<_> = objects
             .into_iter()
             .map(|(path, (definition, implementations))| Object {
+                // FIXME: This shouldn't use expect
                 definition: definition.expect(&format!("Type definition for {} not found.", path)),
                 path,
                 implementations

@@ -13,6 +13,7 @@ crate-type = ["lib", "staticlib"]
 ligen-macro = { path = "../../ligen/macro" }
 
 [build-dependencies]
+# FIXME: Is syn really necessary?
 syn          = "1.0.74"
 ligen        = { path = "../../ligen" }
 ligen-c      = { path = "../../generators/ligen-c" }

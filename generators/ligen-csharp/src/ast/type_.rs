@@ -7,48 +7,51 @@ use crate::ast::Identifier;
 pub enum Atomic {
     /// Char variant
     Char,
+    /// Bool variant
+    Bool,
+    /// Byte variant
+    Byte,
+    /// SByte variant
+    SByte,
     /// Short variant
     Short,
+    /// UShort variant
+    UShort,
     /// Int variant
     Int,
-    /// LongInt variant
-    LongInt,
-    /// LongLongInt variant
-    LongLongInt,
-    /// UnsignedChar variant
-    UnsignedChar,
-    /// UnsignedShort variant
-    UnsignedShort,
     /// UnsignedInt variant
-    UnsignedInt,
-    /// UnsignedLongInt variant
-    UnsignedLongInt,
-    /// UnsignedLongLongInt variant
-    UnsignedLongLongInt,
+    UInt,
+    /// Long variant
+    Long,
+    /// ULong variant
+    ULong,
+    /// NInt variant
+    NInt,
+    /// NUint variant
+    NUInt,
     /// Float variant
     Float,
-    /// Dobule variant
+    /// Double variant
     Double,
-    /// LongDouble variant
-    LongDouble,
 }
 
 impl AsRef<str> for Atomic {
     fn as_ref(&self) -> &str {
         match self {
-            Atomic::Char => "char",
             Atomic::Short => "short",
+            Atomic::UShort => "ushort",
             Atomic::Int => "int",
-            Atomic::LongInt => "long int",
-            Atomic::LongLongInt => "long long int",
+            Atomic::UInt => "uint",
+            Atomic::Long => "long",
+            Atomic::ULong => "ulong",
             Atomic::Float => "float",
             Atomic::Double => "double",
-            Atomic::LongDouble => "long double",
-            Atomic::UnsignedChar => "unsigned char",
-            Atomic::UnsignedShort => "unsigned short",
-            Atomic::UnsignedInt => "unsigned int",
-            Atomic::UnsignedLongInt => "unsigned long int",
-            Atomic::UnsignedLongLongInt => "unsigned long long int",
+            Atomic::NInt => "nint",
+            Atomic::NUInt => "nuint",
+            Atomic::Char => "char",
+            Atomic::Byte => "byte",
+            Atomic::SByte => "sbyte",
+            Atomic::Bool => "bool"
         }
     }
 }
@@ -96,14 +99,14 @@ impl From<ir::Atomic> for Atomic {
     fn from(atomic: ir::Atomic) -> Self {
         match atomic {
             ir::Atomic::Integer(integer) => match integer {
-                ir::Integer::U8 => Atomic::UnsignedChar,
-                ir::Integer::U16 => Atomic::UnsignedShort,
-                ir::Integer::U32 => Atomic::UnsignedInt,
-                ir::Integer::U64 => Atomic::UnsignedLongLongInt,
-                ir::Integer::I8 => Atomic::Char,
+                ir::Integer::U8 => Atomic::Byte,
+                ir::Integer::U16 => Atomic::UShort,
+                ir::Integer::U32 => Atomic::UInt,
+                ir::Integer::U64 => Atomic::ULong,
+                ir::Integer::I8 => Atomic::SByte,
                 ir::Integer::I16 => Atomic::Short,
                 ir::Integer::I32 => Atomic::Int,
-                ir::Integer::I64 => Atomic::LongLongInt,
+                ir::Integer::I64 => Atomic::Long,
                 ir::Integer::U128 | ir::Integer::USize | ir::Integer::I128 | ir::Integer::ISize => {
                     panic!("Atomic types u128, usize, i128 and isize not implemented")
                 }
@@ -112,8 +115,8 @@ impl From<ir::Atomic> for Atomic {
                 ir::Float::F32 => Atomic::Float,
                 ir::Float::F64 => Atomic::Double,
             },
-            ir::Atomic::Boolean => panic!("Boolean not implemented"),
-            ir::Atomic::Character => panic!("16bit char not implemented"),
+            ir::Atomic::Boolean => Atomic::Bool,
+            ir::Atomic::Character => Atomic::Char,
         }
     }
 }
@@ -163,77 +166,63 @@ impl From<ir::Type> for Type {
     }
 }
 
+use std::collections::HashMap;
+
+lazy_static::lazy_static! {
+    /// Type rename map.
+    pub static ref RENAME_MAP: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("FFICoinbaseParameters".into(), "CoinbaseParameters".into());
+        map
+    };
+
+    /// Type maps.
+    pub static ref MAP: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("String".into(), "string".into());
+        map.insert("FFIString".into(), "string".into());
+        map.insert("FFICoinbaseParameters".into(), "CoinbaseParameters".into());
+        map
+    };
+    /// Type marshalling.
+    pub static ref MAP_MARSHALLING: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("String".into(), "[MarshalAs(UnmanagedType.LPStr)]".into());
+        map.insert("FFIString".into(), "[MarshalAs(UnmanagedType.LPStr)]".into());
+        map
+    };
+}
+
 use std::fmt;
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(_) = self.constness {
-            write!(f, "const ")?;
+        if self.pointer.is_some() {
+            write!(f, "IntPtr")?;
+        } else {
+            match &self.type_ {
+                Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref())?,
+                Types::Compound(identifier) => {
+                    if let Some(mapped) = MAP.get(&identifier.name) {
+                        write!(f, "{}", mapped)?;
+                    } else {
+                        write!(f, "{}", identifier.name)?;
+                    }
+                }
+            }
         }
-
-        match &self.type_ {
-            Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref())?,
-            Types::Compound(identifier) => match identifier.name.as_str() {
-                "String" => write!(f, "const char*")?,
-                _ => write!(f, "C{}", identifier.name)?,
-            },
-        }
-
-        if let Some(_) = self.pointer {
-            write!(f, "*")?
-        }
-
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::{Atomic, Const, Pointer, Type, Types};
+    use super::Type;
+    use ligen::ir::{Reference, ReferenceKind};
 
     #[test]
     fn ast_type_atomic() {
-        let types: Vec<Type> = vec![
-            Atomic::Char,
-            Atomic::Short,
-            Atomic::Int,
-            Atomic::LongInt,
-            Atomic::LongLongInt,
-            Atomic::Float,
-            Atomic::Double,
-            Atomic::LongDouble,
-            Atomic::UnsignedChar,
-            Atomic::UnsignedShort,
-            Atomic::UnsignedInt,
-            Atomic::UnsignedLongInt,
-            Atomic::UnsignedLongLongInt,
-        ]
-        .into_iter()
-        .map(|atomic| Type::new(Some(Const), Types::Atomic(atomic), Some(Pointer)))
-        .collect();
-
-        let expected: Vec<String> = vec![
-            "char",
-            "short",
-            "int",
-            "long int",
-            "long long int",
-            "float",
-            "double",
-            "long double",
-            "unsigned char",
-            "unsigned short",
-            "unsigned int",
-            "unsigned long int",
-            "unsigned long long int",
-        ]
-        .into_iter()
-        .map(|ty| format!("const {}*", ty))
-        .collect();
-
-        let mut iter = types.iter().zip(expected.iter());
-
-        while let Some((value, expected_value)) = iter.next() {
-            assert_eq!(format!("{}", value), *expected_value);
-        }
+        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: ligen::ir::Type::Compound("i8".into()).into() });
+        let in_type = Type::from(out_type);
+        println!("{:#?}", in_type);
     }
 }

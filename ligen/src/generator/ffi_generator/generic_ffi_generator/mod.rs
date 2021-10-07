@@ -9,7 +9,7 @@ pub trait GenericFFIGenerator {
     fn generate_parameters(marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
         for parameter in &visitor.current.inputs {
             let type_ = marshaller.marshal_input(&parameter.type_);
-            let identifier = &parameter.identifier;
+            let identifier = &parameter.identifier.name.replace("self", "self_");
             file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
         }
     }
@@ -17,8 +17,8 @@ pub trait GenericFFIGenerator {
     /// Generate the function call arguments and its conversions.
     fn generate_arguments(file: &mut File, function: &FunctionVisitor) {
         for input in &function.current.inputs {
-            let identifier = &input.identifier;
-            file.write(format!("{identifier}.into(), ", identifier = identifier));
+            let identifier = &input.identifier.name.replace("self", "self_");
+            file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
         }
     }
 
@@ -28,14 +28,14 @@ pub trait GenericFFIGenerator {
             Some(type_) => {
                 // let fully_qualified_path = visitor.module().find_fully_qualified_path_of_type(type_).unwrap();
                 // let type_ = marshaller.marshal_output(fully_qualified_path);
-                if let Some(path) = visitor.parent_module().find_absolute_path(&type_.path()) {
-                    // FIXME: This is awefully long.
-                    let path = Path::from(SnakeCase::from(visitor.parent_module().parent_project().name.clone()).to_string()).join(path.without_first());
-                    println!("Path: {}", path);
-                    file.write(&format!(" -> {}", marshaller.marshal_output(&Type::Compound(path))))
-                } else {
-                    file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
-                }
+                file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
+                // if let Some(path) = visitor.parent_module().find_absolute_path(&type_.path()) {
+                //     // FIXME: This is awefully long.
+                //     let path = Path::from(SnakeCase::from(visitor.parent_module().parent_project().name.clone()).to_string()).join(path.without_first());
+                //     file.write(&format!(" -> {}", marshaller.marshal_output(&Type::Compound(path))))
+                // } else {
+                //     file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
+                // }
             },
             _ => ()
         }
@@ -53,7 +53,7 @@ pub trait GenericFFIGenerator {
         };
         let function_identifier = Identifier::new(&function_name);
         file.writeln("#[no_mangle]");
-        file.write(format!("pub extern fn {function_identifier}(", function_identifier = function_identifier));
+        file.write(format!("pub extern \"cdecl\" fn {function_identifier}(", function_identifier = function_identifier));
         Self::generate_parameters(marshaller, file, visitor);
         file.write(")");
         Self::generate_output(marshaller, file, &visitor);
@@ -87,13 +87,15 @@ pub trait GenericFFIGenerator {
         let object_name = self_path.last();
         let drop_name = Identifier::new(format!("{}_drop", object_name.name).as_str());
         file.writeln("#[no_mangle]");
-        file.writeln(format!("pub unsafe extern fn {}(object: *mut {}) {{", drop_name, object_name));
+        // FIXME: Hardcoded calling convention.
+        file.writeln(format!("pub unsafe extern \"cdecl\" fn {}(object: *mut {}) {{", drop_name, object_name));
         file.writeln("\tBox::from_raw(object);");
         file.writeln("}");
     }
 
     /// Generate project externs.
     fn generate(marshaller: &Marshaller, file: &mut File, visitor: &ProjectVisitor) {
+        file.writeln("#![allow(unused_imports)]");
         Self::generate_module(marshaller, file, &visitor.child(visitor.current.root_module.clone()));
     }
 
@@ -101,6 +103,7 @@ pub trait GenericFFIGenerator {
     fn generate_module<V: Into<ModuleVisitor>>(marshaller: &Marshaller, file: &mut File, visitor: V) {
         let visitor = &visitor.into();
         // FIXME: How to implement Join<Separator> so we can reduce verbosity?
+        file.writeln("use ligen::marshalling::*;");
         file.writeln(format!("use {}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
         file.writeln("");
         for module in &visitor.current.modules {

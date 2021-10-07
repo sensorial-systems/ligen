@@ -96,8 +96,6 @@ impl TryFrom<syn::Type> for Type {
                         type_,
                     }))
                 } else {
-                    let backtrace = backtrace::Backtrace::new();
-                    println!("{:#?}", backtrace);
                     Err("Couldn't find path")
                 }
             } else {

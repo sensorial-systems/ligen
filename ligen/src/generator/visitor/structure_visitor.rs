@@ -14,5 +14,4 @@ impl StructureVisitor {
     pub fn parent_module(&self) -> &ModuleVisitor {
         &self.parent.parent
     }
-
 }

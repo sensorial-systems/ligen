@@ -2,20 +2,29 @@ use crate::ir::{Type, TypeDefinition, Attribute, Reference, ReferenceKind};
 use crate::generator::{ModuleVisitor, ProjectVisitor, StructureVisitor};
 use std::collections::HashMap;
 
-// TODO: Remove this if it isn't used.
-// pub trait MarshallFrom<T>: Sized {
-//     fn marshal_from(from: T) -> Self;
-// }
-//
-// pub trait MarshallInto<T>: Sized {
-//     fn marshal_into(self) -> T;
-// }
-//
-// impl<T, U: MarshallFrom<T>> MarshallInto<U> for T {
-//     fn marshal_into(self) -> U {
-//         U::marshal_from(self)
-//     }
-// }
+/// Marshal type from.
+pub trait MarshalFrom<T>: Sized {
+    /// Performs the marshalling.
+    fn marshal_from(from: T) -> Self;
+}
+
+/// Marshal type into.
+pub trait MarshalInto<T>: Sized {
+    /// Performs the marshalling.
+    fn marshal_into(self) -> T;
+}
+
+impl<T, U: MarshalFrom<T>> MarshalInto<U> for T {
+    fn marshal_into(self) -> U {
+        U::marshal_from(self)
+    }
+}
+
+impl<T> MarshalFrom<T> for T {
+    fn marshal_from(from: Self) -> Self {
+        from
+    }
+}
 
 /// Marshaller.
 #[derive(Debug)]
@@ -103,6 +112,21 @@ impl Marshaller {
 mod tests {
     use super::*;
     use crate::ir::{Atomic, Integer, Reference, ReferenceKind};
+
+    struct A;
+    struct B;
+
+    impl MarshalFrom<A> for B {
+        fn marshal_from(_a: A) -> Self {
+            B
+        }
+    }
+
+    #[test]
+    fn marshal_trait() {
+        B::marshal_from(A);
+        B::marshal_from(B);
+    }
 
     #[test]
     fn atomic_to() {

@@ -12,3 +12,4 @@ readme        = "../../README.md"
 
 [dependencies]
 ligen = { path = "../../ligen" }
+lazy_static = "1.4.0"
