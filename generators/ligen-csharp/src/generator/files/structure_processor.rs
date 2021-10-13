@@ -10,7 +10,13 @@ impl FileProcessorVisitor for StructureProcessor {
     fn process(&self, file_set: &mut FileSet, structure: &Self::Visitor) {
         let file = file_set.entry(&path(structure.parent_module()));
 
-        let name = crate::ast::RENAME_MAP.get(&structure.identifier.name).unwrap_or(&structure.identifier.name);
+        let name = structure
+            .parent_module()
+            .parent_project()
+            .root_module
+            .get_literal_from_path(format!("ligen::csharp::marshal::{}::name", structure.current.identifier))
+            .map(|literal| literal.to_string())
+            .unwrap_or(structure.current.identifier.name.clone());
 
         let fields: Vec<_> = structure
             .fields
@@ -21,8 +27,13 @@ impl FileProcessorVisitor for StructureProcessor {
 
         for (type_, identifier) in &fields {
             file.write("\t\t");
-            if let Some(marshalling) = crate::ast::MAP_MARSHALLING.get(&type_.path().last().name) {
-                file.write(format!("{} ", marshalling));
+            let marshalling = structure
+                .parent_module()
+                .parent_project()
+                .root_module
+                .get_literal_from_path(format!("ligen::csharp::marshal::{}::MarshalAs", type_.path().last()));
+            if let Some(marshalling) = marshalling {
+                file.write(format!("[MarshalAs({})] ", marshalling));
             }
             file.writeln(format!("public readonly {} {};", Type::from(type_.clone()), identifier));
         }
@@ -32,8 +43,13 @@ impl FileProcessorVisitor for StructureProcessor {
             let arguments = fields
                 .iter()
                 .map(|(type_, identifier)| {
-                    let marshalling = crate::ast::MAP_MARSHALLING.get(&type_.path().last().name)
-                        .map(|value| format!(" {}", value))
+                    let marshalling = structure
+                        .parent_module()
+                        .parent_project()
+                        .root_module
+                        .get_literal_from_path(format!("ligen::csharp::marshal::{}::MarshalAs", type_.path().last()));
+                    let marshalling = marshalling
+                        .map(|value| format!(" [MarshalAs({})]", value))
                         .unwrap_or("".into());
                     format!("{}{} {}", marshalling, Type::from(type_.clone()), identifier)
                 })

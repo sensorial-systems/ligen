@@ -9,8 +9,14 @@ impl FileProcessorVisitor for ParameterProcessor {
 
     fn process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
         let file = file_set.entry(&path(parameter.parent.parent_module()));
-        if let Some(marshalling) = crate::ast::MAP_MARSHALLING.get(&parameter.current.type_.path().last().name) {
-            file.write(format!("{} ", marshalling));
+        let marshalling = parameter
+            .parent
+            .parent_module()
+            .parent_project()
+            .root_module
+            .get_literal_from_path(format!("ligen::csharp::marshal::{}::MarshalAs", parameter.current.type_.path().last()));
+        if let Some(marshalling) = marshalling {
+            file.write(format!("[MarshalAs({})] ", marshalling));
         }
         file.write(format!("{} {}", Type::from(parameter.current.type_.clone()), parameter.current.identifier));
     }

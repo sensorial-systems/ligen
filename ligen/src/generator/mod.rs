@@ -11,7 +11,7 @@ pub use file_generator::*;
 pub use ffi_generator::*;
 
 use crate::prelude::*;
-use crate::ir::{Project, Type};
+use crate::ir::Project;
 use crate::utils::fs::write_file;
 use crate::generator::ffi_generator::cargo::Cargo;
 use crate::marshalling::Marshaller;
@@ -34,7 +34,7 @@ pub trait Generator: FileGenerator + FFIGenerator {
         self.generate_files(&mut file_set, &visitor);
         self.save_file_set(file_set, &visitor)?;
 
-        let marshaller = create_marshaller();
+        let marshaller = Marshaller::new();
 
         // TODO: Separate Project and Builder.
         let mut temporary_project = TemporaryFFIProject::new(&visitor.name().to_string(), &visitor.path())?;
@@ -55,14 +55,4 @@ pub trait Generator: FileGenerator + FFIGenerator {
         }
         Ok(())
     }
-}
-
-// FIXME: Hardcoded values.
-fn create_marshaller() -> Marshaller {
-    let mut marshaller = Marshaller::new();
-    marshaller.add_input_marshalling(Type::Compound("Decimal".into()), Type::Compound("decimal".into()));
-    marshaller.add_input_marshalling(Type::Compound("String".into()), Type::Compound("FFIString".into()));
-    marshaller.add_input_marshalling(Type::Compound("AskBid".into()), Type::Compound("FFIAskBid".into()));
-    marshaller.add_input_marshalling(Type::Compound("CoinbaseParameters".into()), Type::Compound("FFICoinbaseParameters".into()));
-    marshaller
 }

@@ -9,6 +9,7 @@ crate-type = ["staticlib", "dylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ligen = {{ path = "C:/Users/dangu/dev/sensorial/systems/ligen/ligen" }}
+# FIXME: Hardcoded path.
+ligen = {{ path = "/home/danilo/dev/sensorial/systems/ligen/ligen" }}
 # FIXME: Hardcoded features.
 {name} = {{ path = "{path}", features = ["bindings"] }}

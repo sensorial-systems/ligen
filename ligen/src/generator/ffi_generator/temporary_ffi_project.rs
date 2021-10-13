@@ -68,7 +68,7 @@ impl TemporaryFFIProject {
         if let Some(0) = status.code() {
             Ok(())
         } else {
-            Err(Error::Message("Failed to build temporary project.".into()))
+            Err(Error::Message("Failed to build the FFI (Foreign Function Interface) library.".into()))
         }
     }
 

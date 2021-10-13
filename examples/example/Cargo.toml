@@ -16,6 +16,6 @@ ligen-macro = { path = "../../ligen/macro" }
 # FIXME: Is syn really necessary?
 syn          = "1.0.74"
 ligen        = { path = "../../ligen" }
-ligen-c      = { path = "../../generators/ligen-c" }
-ligen-cmake  = { path = "../../generators/ligen-cmake" }
+#ligen-c      = { path = "../../generators/ligen-c" }
+#ligen-cmake  = { path = "../../generators/ligen-cmake" }
 ligen-csharp = { path = "../../generators/ligen-csharp" }

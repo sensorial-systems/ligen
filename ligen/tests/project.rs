@@ -28,7 +28,7 @@ fn relative_dir(path: PathBuf) -> PathBuf {
         .to_path_buf()
 }
 
-// FIXME: This test is no longer worked because I changed test-project's code.
+// FIXME: This test is no longer working because I changed test-project's code.
 fn project(path: PathBuf) {
     let mut project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
     project.root_module.replace_wildcard_imports();

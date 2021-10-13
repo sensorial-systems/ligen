@@ -166,51 +166,17 @@ impl From<ir::Type> for Type {
     }
 }
 
-use std::collections::HashMap;
-
-lazy_static::lazy_static! {
-    /// Type rename map.
-    pub static ref RENAME_MAP: HashMap<String, String> = {
-        let mut map = HashMap::new();
-        map.insert("FFICoinbaseParameters".into(), "CoinbaseParameters".into());
-        map
-    };
-
-    /// Type maps.
-    pub static ref MAP: HashMap<String, String> = {
-        let mut map = HashMap::new();
-        map.insert("String".into(), "string".into());
-        map.insert("FFIString".into(), "string".into());
-        map.insert("FFICoinbaseParameters".into(), "CoinbaseParameters".into());
-        map
-    };
-    /// Type marshalling.
-    pub static ref MAP_MARSHALLING: HashMap<String, String> = {
-        let mut map = HashMap::new();
-        map.insert("String".into(), "[MarshalAs(UnmanagedType.LPStr)]".into());
-        map.insert("FFIString".into(), "[MarshalAs(UnmanagedType.LPStr)]".into());
-        map
-    };
-}
-
 use std::fmt;
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.pointer.is_some() {
-            write!(f, "IntPtr")?;
+            write!(f, "IntPtr")
         } else {
             match &self.type_ {
-                Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref())?,
-                Types::Compound(identifier) => {
-                    if let Some(mapped) = MAP.get(&identifier.name) {
-                        write!(f, "{}", mapped)?;
-                    } else {
-                        write!(f, "{}", identifier.name)?;
-                    }
-                }
+                Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref()),
+                Types::Compound(identifier) => write!(f, "{}", identifier.name)
             }
         }
-        Ok(())
     }
 }
 

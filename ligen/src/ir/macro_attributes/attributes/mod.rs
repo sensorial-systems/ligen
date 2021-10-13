@@ -1,7 +1,7 @@
 mod attribute;
 pub use attribute::*;
 
-use crate::ir::Identifier;
+use crate::ir::{Identifier, Path};
 use crate::ir::Literal;
 use crate::prelude::*;
 use proc_macro2::TokenStream;
@@ -21,15 +21,60 @@ pub struct Attributes {
 }
 
 impl Attributes {
+    /// Get the group identified by `path`.
+    pub fn get_subgroup<I: Into<Identifier>, P: IntoIterator<Item = I>>(&self, path: P) -> Option<&Attributes> {
+        let mut group = self;
+        for segment in path {
+            if let Some(new_group) = group.get_group(segment) {
+                group = new_group
+            } else {
+                return None;
+            }
+        }
+        Some(group)
+    }
+
+    /// Get a literal from the `path`.
+    pub fn get_literal_from_path<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
+        let mut path = path.into();
+        path
+            .pop_back()
+            .and_then(|last| {
+                self
+                    .get_subgroup(path.segments)
+                    .and_then(|group| group.get_named(last))
+            })
+    }
+
+    /// Get the group identified by `name`.
+    pub fn get_group<I: Into<Identifier>>(&self, name: I) -> Option<&Attributes> {
+        let name = name.into();
+        self
+            .attributes
+            .iter()
+            .find_map(|attribute| {
+                if let Attribute::Group(identifier, attributes) = attribute {
+                    if *identifier == name {
+                        Some(attributes)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+    }
+
     /// Get named attribute e.g.: name = "literal"
-    pub fn get_named(&self, name: &str) -> Option<Literal> {
+    pub fn get_named<I: Into<Identifier>>(&self, name: I) -> Option<&Literal> {
+        let name = name.into();
         self
             .attributes
             .iter()
             .find_map(|attribute| {
                 if let Attribute::Named(identifier, literal) = attribute {
-                    if identifier.name == name {
-                        Some(literal.clone())
+                    if *identifier == name {
+                        Some(literal)
                     } else {
                         None
                     }
@@ -181,6 +226,24 @@ mod test {
                 Literal::String(String::from("sized"))
             )
         )
+    }
+
+    #[test]
+    fn get_literal() {
+        let args: NestedMeta = syn::parse_quote!(
+            c(
+                marshal_as(
+                    name = "hello",
+                    uuid = 5
+                ),
+                int = "sized"
+            )
+        );
+        let attribute: Attribute = args.into();
+        let attributes: Attributes = attribute.into();
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "int"]), Some(&Literal::String("sized".into())));
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "name"]), Some(&Literal::String("hello".into())));
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "uuid"]), Some(&Literal::Integer(5)));
     }
 
     #[test]

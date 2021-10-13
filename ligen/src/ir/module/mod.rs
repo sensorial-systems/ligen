@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function};
+use crate::ir::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function, Literal};
 use std::convert::TryFrom;
 use std::collections::HashMap;
 use std::io::Read;
@@ -32,6 +32,19 @@ pub struct Module {
 }
 
 impl Module {
+    /// FIXME: This is a temporary workaround.
+    pub fn get_literal_from_path<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
+        let path = path.into();
+        if let Some(literal) = self.attributes.get_literal_from_path(path.clone()) {
+            Some(literal)
+        } else {
+            self
+                .modules
+                .iter()
+                .find_map(|module| module.get_literal_from_path(path.clone()))
+        }
+    }
+
     /// Tells if ligen is ignoring this module.
     pub fn ignored(&self) -> bool {
         Self::ignored_from_attributes(&self.attributes)
