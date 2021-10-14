@@ -1,5 +1,4 @@
 use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
-use ligen::ir;
 use crate::ast::Type;
 use std::path::PathBuf;
 use crate::generator::CSharpGenerator;

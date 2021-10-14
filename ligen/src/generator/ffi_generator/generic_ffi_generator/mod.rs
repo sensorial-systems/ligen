@@ -91,15 +91,15 @@ pub trait GenericFFIGenerator {
     }
 
     /// Generate drop extern.
-    fn generate_drop(file: &mut File, visitor: &ObjectVisitor) {
-        let self_path = &visitor.current.path;
-        let object_name = self_path.last();
-        let drop_name = Identifier::new(format!("{}_drop", object_name.name).as_str());
-        file.writeln("#[no_mangle]");
-        // FIXME: Hardcoded calling convention.
-        file.writeln(format!("pub unsafe extern \"cdecl\" fn {}(object: *mut {}) {{", drop_name, object_name));
-        file.writeln("\tBox::from_raw(object);");
-        file.writeln("}");
+    fn generate_drop(_file: &mut File, _visitor: &ObjectVisitor) {
+        // let self_path = &visitor.current.path;
+        // let object_name = self_path.last();
+        // let drop_name = Identifier::new(format!("{}_drop", object_name.name).as_str());
+        // file.writeln("#[no_mangle]");
+        // // FIXME: Hardcoded calling convention.
+        // file.writeln(format!("pub unsafe extern \"cdecl\" fn {}(object: *mut {}) {{", drop_name, object_name));
+        // file.writeln("\tBox::from_raw(object);");
+        // file.writeln("}");
     }
 
     /// Generate project externs.
