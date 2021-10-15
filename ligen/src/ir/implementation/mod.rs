@@ -73,7 +73,7 @@ impl Implementation {
                 });
                 if let Some(type_) = method.output.clone() {
                     if !deps.iter().any(|typ| typ == &type_)
-                        && type_ != Type::Compound(Identifier::new("Self").into())
+                        && type_ != Type::from(Identifier::new("Self"))
                     {
                         deps.push(type_);
                     }

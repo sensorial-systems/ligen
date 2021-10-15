@@ -22,9 +22,10 @@ pub struct Attributes {
 
 impl Attributes {
     /// Get the group identified by `path`.
-    pub fn get_subgroup<I: Into<Identifier>, P: IntoIterator<Item = I>>(&self, path: P) -> Option<&Attributes> {
+    pub fn get_subgroup<P: Into<Path>>(&self, path: P) -> Option<&Attributes> {
+        let path = path.into();
         let mut group = self;
-        for segment in path {
+        for segment in path.segments {
             if let Some(new_group) = group.get_group(segment) {
                 group = new_group
             } else {

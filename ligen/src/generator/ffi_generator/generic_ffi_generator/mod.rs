@@ -7,11 +7,12 @@ pub trait GenericFFIGenerator {
     /// Generate the function parameters.
     fn generate_parameters(_marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
         for parameter in &visitor.current.inputs {
+            let last_name = parameter.type_.path().last();
             let type_ = visitor
                 .parent_module()
                 .parent_project()
                 .root_module
-                .get_literal_from_path(format!("ligen::ffi::{}::name", parameter.type_.path().last())).map(|literal| literal.to_string()).unwrap_or(parameter.type_.to_string());
+                .get_literal_from_path(format!("ligen::ffi::{}::name", last_name)).map(|literal| parameter.type_.to_string().replace(&format!("{}", last_name), &literal.to_string())).unwrap_or(parameter.type_.to_string());
             let identifier = &parameter.identifier.name.replace("self", "self_");
             file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
         }
@@ -31,11 +32,12 @@ pub trait GenericFFIGenerator {
             Some(type_) => {
                 // let fully_qualified_path = visitor.module().find_fully_qualified_path_of_type(type_).unwrap();
                 // let type_ = marshaller.marshal_output(fully_qualified_path);
+                let last_name = type_.path().last();
                 let type_ = visitor
                     .parent_module()
                     .parent_project()
                     .root_module
-                    .get_literal_from_path(format!("ligen::ffi::{}::name", type_.path().last())).map(|literal| literal.to_string()).unwrap_or(type_.to_string());
+                    .get_literal_from_path(format!("ligen::ffi::{}::name", last_name)).map(|literal| type_.to_string().replace(&format!("{}", last_name), &literal.to_string())).unwrap_or(type_.to_string());
 
                 file.write(&format!(" -> {}", type_))
                 // if let Some(path) = visitor.parent_module().find_absolute_path(&type_.path()) {

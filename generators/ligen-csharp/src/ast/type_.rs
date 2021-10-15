@@ -125,7 +125,7 @@ impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
             ir::Type::Atomic(atomic) => Self::Atomic(Atomic::from(atomic)),
-            ir::Type::Compound(compound) => {
+            ir::Type::Compound(compound, _) => {
                 Self::Compound(compound.segments.last().unwrap().clone())
             }
             ir::Type::Reference(_reference) => {
@@ -156,7 +156,7 @@ impl From<ir::Type> for Type {
                 type_: Types::Atomic(type_.into()),
                 pointer: None,
             },
-            ir::Type::Compound(path) => Self {
+            ir::Type::Compound(path, _) => Self {
                 constness: None,
                 type_: Types::Compound(path.segments.last().unwrap().clone()),
                 pointer: None,

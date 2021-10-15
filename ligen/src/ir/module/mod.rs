@@ -33,6 +33,19 @@ pub struct Module {
 
 impl Module {
     /// FIXME: This is a temporary workaround.
+    pub fn get_attributes_from_path<P: Into<Path>>(&self, path: P) -> Option<&Attributes> {
+        let path = path.into();
+        if let Some(attributes) = self.attributes.get_subgroup(path.clone()) {
+            Some(attributes)
+        } else {
+            self
+                .modules
+                .iter()
+                .find_map(|module| module.get_attributes_from_path(path.clone()))
+        }
+    }
+
+    /// FIXME: This is a temporary workaround.
     pub fn get_literal_from_path<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         let path = path.into();
         if let Some(literal) = self.attributes.get_literal_from_path(path.clone()) {

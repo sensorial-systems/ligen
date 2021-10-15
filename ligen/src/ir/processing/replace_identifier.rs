@@ -55,7 +55,7 @@ impl ReplaceIdentifier for Type {
             Type::Reference(reference) => {
                 reference.replace_identifier(old, new);
             },
-            Type::Compound(compound) => {
+            Type::Compound(compound, _) => {
                 compound.replace_identifier(old, new);
             },
             _ => ()

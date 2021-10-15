@@ -1,1 +1,1 @@
-{{marshalling}} {{type}} {{identifier}}
+{{marshalling}} {{{type}}} {{identifier}}

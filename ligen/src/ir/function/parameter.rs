@@ -47,10 +47,10 @@ impl TryFrom<FnArg> for Parameter {
                     .map(|_| {
                         let kind = ReferenceKind::Borrow;
                         let is_constant = mutability.is_none();
-                        let type_ = Box::new(Type::Compound(Identifier::new("Self").into()));
+                        let type_ = Box::new(Type::from(Identifier::new("Self")));
                         Type::Reference(Reference { kind, is_constant, type_ })
                     })
-                    .unwrap_or_else(|| Type::Compound(Identifier::new("Self").into()));
+                    .unwrap_or_else(|| Type::from(Identifier::new("Self")));
                 Ok(Self { attributes, identifier, type_ })
             },
         }

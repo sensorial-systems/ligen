@@ -15,6 +15,8 @@ impl FileProcessorVisitor for ModuleProcessor {
         file.writeln("{");
         file.writeln("\tusing System;");
         file.writeln("\tusing System.Runtime.InteropServices;");
+        file.writeln("\tusing System.Collections.Generic;");
+
     }
 
     fn post_process(&self, file_set: &mut FileSet, visitor: &Self::Visitor) {

@@ -1,4 +1,4 @@
-use crate::ir::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float};
+use crate::ir::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float, Generics};
 use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
@@ -10,7 +10,7 @@ pub enum Type {
     /// Atomic variant
     Atomic(Atomic),
     /// Compound variant
-    Compound(Path),
+    Compound(Path, Generics),
     /// Reference variant
     Reference(Reference),
 }
@@ -18,22 +18,28 @@ pub enum Type {
 impl Type {
     /// The Self type.
     pub fn self_type() -> Type {
-        Type::Compound(Path::from(Identifier::new("Self")))
+        Type::from(Identifier::new("Self"))
     }
 
     /// Gets the path of the type without the reference.
     pub fn path(&self) -> Path {
         match self {
             Self::Reference(reference) => reference.type_.path(),
-            Self::Compound(path) => path.clone(),
+            Self::Compound(path, _) => path.clone(),
             Self::Atomic(atomic) => atomic.clone().into()
         }
     }
 }
 
+impl From<Identifier> for Type {
+    fn from(identifier: Identifier) -> Self {
+        Self::Compound(identifier.into(), Default::default())
+    }
+}
+
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        Self::Compound(path)
+        Self::Compound(path, Default::default())
     }
 }
 
@@ -66,7 +72,12 @@ impl From<syn::Path> for Type {
         if Atomic::is_atomic(path.clone()) {
             Self::Atomic(path.into())
         } else {
-            Self::Compound(path.into())
+            let generics = path
+                .segments
+                .last()
+                .map(|segment| Generics::from(segment.arguments.clone()))
+                .unwrap_or_default();
+            Self::Compound(path.into(), generics)
         }
     }
 }
@@ -109,7 +120,10 @@ impl ToTokens for Type {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match &self {
             Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
-            Type::Compound(compound) => tokens.append_all(compound.to_token_stream()),
+            Type::Compound(compound, generics) => {
+                tokens.append_all(compound.to_token_stream());
+                tokens.append_all(generics.to_token_stream());
+            },
             Type::Reference(reference) => tokens.append_all(reference.to_token_stream()),
         }
     }
@@ -118,9 +132,9 @@ impl ToTokens for Type {
 impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
-            Type::Atomic(atomic)       => format!("{}", atomic),
-            Type::Compound(compound)   => format!("{}", compound),
-            Type::Reference(reference) => format!("{}", reference),
+            Type::Atomic(atomic)               => format!("{}", atomic),
+            Type::Compound(compound, generics) => format!("{}{}", compound, generics),
+            Type::Reference(reference)         => format!("{}", reference),
         };
         f.write_str(&display)
     }

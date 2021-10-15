@@ -66,7 +66,7 @@ impl Marshaller {
     pub fn register_structure(&mut self, structure: &StructureVisitor) {
         if structure.current.attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("opaque".into(), Default::default()).into())) {
             println!("Path: {}", structure.path());
-            let type_ = Type::Compound(structure.path());
+            let type_ = Type::from(structure.path());
             let opaque_type = Type::Reference(Reference {
                 kind: ReferenceKind::Pointer,
                 is_constant: false,
