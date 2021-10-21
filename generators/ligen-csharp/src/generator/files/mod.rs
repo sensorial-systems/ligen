@@ -1,5 +1,5 @@
 use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
-use crate::ast::Type;
+// use crate::ast::Type;
 use std::path::PathBuf;
 use crate::generator::CSharpGenerator;
 use ligen::conventions::naming::{PascalCase, SnakeCase};
@@ -14,6 +14,7 @@ mod enumeration_processor;
 mod implementation_processor;
 mod function_processor;
 mod parameter_processor;
+pub mod type_;
 
 pub use project_processor::*;
 pub use module_processor::*;

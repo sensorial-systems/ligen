@@ -10,6 +10,6 @@ crate-type = ["staticlib", "dylib"]
 
 [dependencies]
 # FIXME: Hardcoded path.
-ligen = {{ path = "/home/danilo/dev/sensorial/systems/ligen/ligen" }}
+ligen = {{ path = "../../../../../../sensorial/systems/ligen/ligen" }}
 # FIXME: Hardcoded features.
 {name} = {{ path = "{path}", features = ["bindings"] }}

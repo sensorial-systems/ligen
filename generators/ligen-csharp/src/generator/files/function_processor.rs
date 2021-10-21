@@ -1,7 +1,7 @@
 use super::*;
 use handlebars::Handlebars;
 use serde_json::{json, Value};
-use ligen::ir::Module;
+use crate::generator::files::type_::generate_type;
 
 /// Parameter processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -28,29 +28,6 @@ impl FunctionProcessor {
             .collect()
     }
 
-    pub fn generate_type(module: &Module, kind: &str, type_: &ligen::ir::Type) -> String {
-        let generics = if let ligen::ir::Type::Compound(_, generics) = &type_ {
-            if generics.types.is_empty() {
-                Default::default()
-            } else {
-                let types = generics
-                    .types
-                    .iter()
-                    .map(|type_| Self::generate_type(module, kind, type_))
-                    .collect::<Vec<_>>();
-                format!("<{}>", types.join(", "))
-            }
-        } else {
-            Default::default()
-        };
-        let type_ = Type::from(type_.clone()).to_string();
-        let type_ = module
-            .get_literal_from_path(format!("ligen::csharp::{}::{}::name", kind, type_))
-            .map(|type_| type_.to_string())
-            .unwrap_or(type_);
-        format!("{}{}", type_, generics)
-    }
-
     pub fn generate_parameter(kind: &str, parameter: &ParameterVisitor) -> String {
         let renderer = Handlebars::new();
         let root_module = &parameter.parent.parent_module().parent_project().root_module;
@@ -62,7 +39,7 @@ impl FunctionProcessor {
             Value::Null
         };
         let template = include_str!("parameter.template.cs");
-        let type_ = Self::generate_type(root_module, kind, &parameter.type_);
+        let type_ = generate_type(root_module, kind, &parameter.type_);
         let values = json!({
             "marshalling": marshalling,
             "type": type_,
@@ -89,13 +66,13 @@ impl FileProcessorVisitor for FunctionProcessor {
                 .current
                 .output
                 .as_ref()
-                .map(|type_| Self::generate_type(root_module, "ffi", type_))
+                .map(|type_| generate_type(root_module, "ffi", type_))
                 .unwrap_or("void".into());
             let return_type = function
                 .current
                 .output
                 .as_ref()
-                .map(|type_| Self::generate_type(root_module, "marshal", type_))
+                .map(|type_| generate_type(root_module, "marshal", type_))
                 .unwrap_or("void".into());
             let ffi_parameters = Self::generate_parameters("ffi", function);
             let mut parameters = Self::generate_parameters("marshal", function);

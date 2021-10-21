@@ -22,17 +22,11 @@ impl FileProcessorVisitor for ObjectProcessor {
             match &visitor.current.definition {
                 TypeDefinition::Enumeration(_) => {
                     file.writeln(format!("\tpublic enum {}", name));
+                    file.writeln("\t{");
                 },
                 TypeDefinition::Structure(_) => {
-                    file.writeln("\t[StructLayout(LayoutKind.Sequential, Pack = 1)]");
-                    file.write(format!("\tpublic struct {}", name));
-                    if let Some(generics) = root_module.get_literal_from_path(format!("ligen::csharp::marshal::{}::generics", identifier)) {
-                        file.write(generics.to_string());
-                    }
-                    file.writeln("");
                 }
             }
-            file.writeln("\t{");
         }
     }
 
