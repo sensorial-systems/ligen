@@ -7,14 +7,20 @@ pub trait GenericFFIGenerator {
     /// Generate the function parameters.
     fn generate_parameters(_marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
         for parameter in &visitor.current.inputs {
-            let last_name = parameter.type_.path().last();
-            let type_ = visitor
-                .parent_module()
-                .parent_project()
-                .root_module
-                .get_literal_from_path(format!("ligen::ffi::{}::name", last_name)).map(|literal| parameter.type_.to_string().replace(&format!("{}", last_name), &literal.to_string())).unwrap_or(parameter.type_.to_string());
+            let root_module = &visitor.parent_module().parent_project().root_module;
+            let identifier = parameter.type_.path().last();
+            let is_opaque = root_module
+                .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                .map(|literal| literal.to_string() == "true")
+                .unwrap_or_default();
+            let type_ = root_module
+                .get_literal_from_path(format!("ligen::ffi::{}::name", identifier)).map(|literal| parameter.type_.to_string().replace(&format!("{}", identifier), &literal.to_string())).unwrap_or(parameter.type_.to_string());
             let identifier = &parameter.identifier.name.replace("self", "self_");
-            file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
+            if is_opaque {
+                file.write(format!("{identifier}: *mut {type_}, ", identifier = identifier, type_ = type_))
+            } else {
+                file.write(format!("{identifier}: {type_}, ", identifier = identifier, type_ = type_))
+            }
         }
     }
 
@@ -22,7 +28,19 @@ pub trait GenericFFIGenerator {
     fn generate_arguments(file: &mut File, function: &FunctionVisitor) {
         for input in &function.current.inputs {
             let identifier = &input.identifier.name.replace("self", "self_");
-            file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
+            let type_identifier = input.type_.path().last();
+            let is_opaque = function
+                .parent_module()
+                .parent_project()
+                .root_module
+                .get_literal_from_path(format!("ligen::ffi::{}::opaque", type_identifier))
+                .map(|literal| literal.to_string() == "true")
+                .unwrap_or_default();
+            if is_opaque {
+                file.write(format!("{identifier}.as_mut().unwrap(), ", identifier = identifier));
+            } else {
+                file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
+            }
         }
     }
 
@@ -30,23 +48,19 @@ pub trait GenericFFIGenerator {
     fn generate_output(_marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
         match &visitor.current.output {
             Some(type_) => {
-                // let fully_qualified_path = visitor.module().find_fully_qualified_path_of_type(type_).unwrap();
-                // let type_ = marshaller.marshal_output(fully_qualified_path);
-                let last_name = type_.path().last();
-                let type_ = visitor
-                    .parent_module()
-                    .parent_project()
-                    .root_module
-                    .get_literal_from_path(format!("ligen::ffi::{}::name", last_name)).map(|literal| type_.to_string().replace(&format!("{}", last_name), &literal.to_string())).unwrap_or(type_.to_string());
-
-                file.write(&format!(" -> {}", type_))
-                // if let Some(path) = visitor.parent_module().find_absolute_path(&type_.path()) {
-                //     // FIXME: This is awefully long.
-                //     let path = Path::from(SnakeCase::from(visitor.parent_module().parent_project().name.clone()).to_string()).join(path.without_first());
-                //     file.write(&format!(" -> {}", marshaller.marshal_output(&Type::Compound(path))))
-                // } else {
-                //     file.write(&format!(" -> {}", marshaller.marshal_output(type_)))
-                // }
+                let identifier = type_.path().last();
+                let root_module = &visitor.parent_module().parent_project().root_module;
+                let is_opaque = root_module
+                    .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                    .map(|literal| literal.to_string() == "true")
+                    .unwrap_or_default();
+                let type_ = root_module
+                    .get_literal_from_path(format!("ligen::ffi::{}::name", identifier)).map(|literal| type_.to_string().replace(&identifier.name, &literal.to_string())).unwrap_or(type_.to_string());
+                if is_opaque {
+                    file.write(&format!(" -> *mut {}", type_))
+                } else {
+                    file.write(&format!(" -> {}", type_))
+                }
             },
             _ => ()
         }
@@ -63,6 +77,7 @@ pub trait GenericFFIGenerator {
             }
         };
         let function_identifier = Identifier::new(&function_name);
+        file.writeln("#[allow(unused_unsafe)]");
         file.writeln("#[no_mangle]");
         file.write(format!("pub extern \"cdecl\" fn {function_identifier}(", function_identifier = function_identifier));
         Self::generate_parameters(marshaller, file, visitor);
@@ -72,14 +87,33 @@ pub trait GenericFFIGenerator {
 
     /// Generate the function
     fn generate_function_block(_marshaller: &Marshaller, file: &mut File, visitor: &FunctionVisitor) {
+        let root_module = &visitor.parent_module().parent_project().root_module;
         let method = &visitor.current;
         let method_identifier = &method.identifier;
         let function_path = format!("{}::{}", visitor.path(), method_identifier.name);
+        let is_opaque = if let Some(type_) = &visitor.current.output {
+            let identifier = type_.path().last();
+            root_module
+                .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                .map(|literal| literal.to_string() == "true")
+                .unwrap_or_default()
+        } else {
+            false
+        };
         file.writeln(" {");
-        file.write(format!("\tlet result = {}(", function_path));
+        file.writeln(format!("\tprintln!(\"Calling {}\");", visitor.current.identifier));
+        file.writeln("\tlet result = unsafe {");
+        file.write(format!("\t\t{}(", function_path));
         Self::generate_arguments(file, visitor);
-        file.writeln(");");
-        file.writeln("\tresult.marshal_into()");
+        file.writeln(")");
+        file.writeln("\t};");
+        file.writeln(format!("\tprintln!(\"Called {}\");", visitor.current.identifier));
+
+        if is_opaque {
+            file.writeln("\tBox::into_raw(Box::new(result.marshal_into()))");
+        } else {
+            file.writeln("\tresult.marshal_into()");
+        }
         file.writeln("}");
     }
 

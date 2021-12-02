@@ -1,6 +1,6 @@
 [package]
-name = "ffi_{name}"
-version = "{version}"
+name = "ffi_rust"
+version = "0.1.0"
 edition = "2018"
 
 [lib]
@@ -10,8 +10,8 @@ crate-type = ["staticlib", "dylib"]
 
 [dependencies]
 # FIXME: Hardcoded path.
-ligen = {{ path = "../../../../../../sensorial/systems/ligen/ligen" }}
+#ligen = { path = "../../../../../../sensorial/systems/ligen/ligen" }
 # FIXME: Hardcoded features.
-{name} = {{ path = "{path}", features = ["bindings"] }}
+rust = { path = "C:/Users/dangu/dev/sensorial/systems/ligen/generators/ligen-csharp/tests/rust", features = ["bindings"] }
 
 [workspace]

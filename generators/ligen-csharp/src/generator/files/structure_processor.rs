@@ -35,29 +35,41 @@ impl FileProcessorVisitor for StructureProcessor {
                 .and_then(|path| std::fs::read_to_string(&path).ok())
                 .unwrap_or_default();
 
-            let fields: Vec<_> = visitor
-                .current
-                .fields
-                .iter()
-                .filter(|field| field.identifier.is_some())
-                .map(|field| (field.type_.clone(), field.identifier.clone().unwrap()))
-                .collect();
+            let is_opaque = root_module
+                .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                .map(|literal| literal.to_string() == "true")
+                .unwrap_or_default();
 
-            let ffi_fields = fields
-                .iter()
-                .fold(String::default(), |acc, (type_, identifier)| {
-                    let marshalling = root_module
-                        .get_literal_from_path(format!("ligen::csharp::marshal::{}::MarshalAs", type_.path().last()))
-                        .map(|literal| format!("[MarshalAs({})] ", literal))
-                        .unwrap_or_default();
-                    let kind = if marshalling.is_empty() { "ffi" } else { "marshal" };
-                    let type_ = generate_type(root_module, kind, &type_);
-                    format!("{}\t\t{}public readonly {} {};\n", acc, marshalling, type_, identifier)
-                });
-
-            let constructor = if fields.is_empty() {
-                String::default()
+            let (ffi_fields, parameters, initialization) = if is_opaque {
+                let ffi_fields = "\t\tprivate readonly IntPtr opaque;\n".to_string();
+                let initialization = "\t\t\tthis.opaque = opaque;\n".to_string();
+                let parameters = "IntPtr opaque".to_string();
+                (ffi_fields, parameters, initialization)
             } else {
+                let fields: Vec<_> = visitor
+                    .current
+                    .fields
+                    .iter()
+                    .filter(|field| field.identifier.is_some())
+                    .map(|field| (field.type_.clone(), field.identifier.clone().unwrap()))
+                    .collect();
+
+                let ffi_fields = fields
+                    .iter()
+                    .fold(String::default(), |acc, (type_, identifier)| {
+                        let marshalling = root_module
+                            .get_literal_from_path(format!("ligen::csharp::marshal::{}::MarshalAs", type_.path().last()))
+                            .map(|literal| format!("[MarshalAs({})] ", literal))
+                            .unwrap_or_default();
+                        let kind = if marshalling.is_empty() { "ffi" } else { "marshal" };
+                        let type_ = generate_type(root_module, kind, &type_);
+                        format!("{}\t\t{}public readonly {} {};\n", acc, marshalling, type_, identifier)
+                    });
+                let initialization = fields
+                    .iter()
+                    .fold(String::default(), |acc, (_, identifier)|
+                        format!("{acc}\t\t\tthis.{identifier} = {identifier};\n", acc = acc, identifier = identifier)
+                    );
                 let parameters = fields
                     .iter()
                     .map(|(type_, identifier)| {
@@ -71,11 +83,12 @@ impl FileProcessorVisitor for StructureProcessor {
                     .collect::<Vec<_>>()
                     .join(", ");
 
-                let initialization = fields
-                    .iter()
-                    .fold(String::default(), |acc, (_, identifier)|
-                        format!("{acc}\t\t\tthis.{identifier} = {identifier};\n", acc = acc, identifier = identifier)
-                    );
+                (ffi_fields, parameters, initialization)
+            };
+
+            let constructor = if parameters.is_empty() {
+                String::default()
+            } else {
                 format!("\t\tpublic {}({})\n\t\t{{\n{}\t\t}}", ffi_name, parameters, initialization)
             };
 

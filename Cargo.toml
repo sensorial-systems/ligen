@@ -4,7 +4,8 @@ members = [
 #    "generators/ligen-c",
 #    "generators/ligen-cmake",
     "generators/ligen-csharp",
-    "examples/example"
+    "examples/example",
+    "generators/ligen-csharp/tests/rust"
 #    "ligen-cpp/crates/core",
 #    "ligen-cpp/crates/macro",
 #    "ligen-cpp/crates/main",
