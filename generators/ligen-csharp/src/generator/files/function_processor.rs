@@ -88,8 +88,9 @@ impl FileProcessorVisitor for FunctionProcessor {
             };
             let parameters = parameters.join(", ");
             let arguments = arguments.join(", ");
-            // FIXME: Hardcoded DllImport.
+            let ffi_project = format!("ffi_{}", SnakeCase::from(function.parent_module().parent_project().name.clone()));
             let values = json!({
+                "ffi_project": ffi_project,
                 "ffi_name": ffi_name,
                 "ffi_return_type": ffi_return_type,
                 "ffi_parameters": ffi_parameters,

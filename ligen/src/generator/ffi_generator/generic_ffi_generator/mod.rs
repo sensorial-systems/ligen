@@ -39,7 +39,7 @@ pub trait GenericFFIGenerator {
             if is_opaque {
                 file.write(format!("{identifier}.as_mut().unwrap(), ", identifier = identifier));
             } else {
-                file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
+                file.write(format!("{identifier}.into(), ", identifier = identifier));
             }
         }
     }
@@ -110,9 +110,9 @@ pub trait GenericFFIGenerator {
         file.writeln(format!("\tprintln!(\"Called {}\");", visitor.current.identifier));
 
         if is_opaque {
-            file.writeln("\tBox::into_raw(Box::new(result.marshal_into()))");
+            file.writeln("\tBox::into_raw(Box::new(result.into()))");
         } else {
-            file.writeln("\tresult.marshal_into()");
+            file.writeln("\tresult.into()");
         }
         file.writeln("}");
     }
@@ -148,7 +148,7 @@ pub trait GenericFFIGenerator {
     fn generate_module<V: Into<ModuleVisitor>>(marshaller: &Marshaller, file: &mut File, visitor: V) {
         let visitor = &visitor.into();
         // FIXME: How to implement Join<Separator> so we can reduce verbosity?
-        file.writeln("use ligen::marshalling::*;");
+        // file.writeln("use ligen::marshalling::*;");
         file.writeln(format!("use {}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
         file.writeln("");
         for module in &visitor.current.modules {

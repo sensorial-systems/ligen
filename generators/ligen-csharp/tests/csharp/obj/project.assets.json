@@ -826,6 +826,15 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
+      "System.Memory/4.5.4": {
+        "type": "package",
+        "compile": {
+          "ref/netcoreapp2.1/_._": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/_._": {}
+        }
+      },
       "System.ObjectModel/4.0.12": {
         "type": "package",
         "dependencies": {
@@ -1252,6 +1261,19 @@
         },
         "runtime": {
           "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
+        }
+      },
+      "Openlimits/0.1.15": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "System.Memory": "4.5.4"
+        },
+        "compile": {
+          "bin/placeholder/Openlimits.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Openlimits.dll": {}
         }
       }
     }
@@ -3322,6 +3344,29 @@
         "system.linq.expressions.nuspec"
       ]
     },
+    "System.Memory/4.5.4": {
+      "sha512": "1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw==",
+      "type": "package",
+      "path": "system.memory/4.5.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/System.Memory.dll",
+        "lib/net461/System.Memory.xml",
+        "lib/netcoreapp2.1/_._",
+        "lib/netstandard1.1/System.Memory.dll",
+        "lib/netstandard1.1/System.Memory.xml",
+        "lib/netstandard2.0/System.Memory.dll",
+        "lib/netstandard2.0/System.Memory.xml",
+        "ref/netcoreapp2.1/_._",
+        "system.memory.4.5.4.nupkg.sha512",
+        "system.memory.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.ObjectModel/4.0.12": {
       "sha512": "tAgJM1xt3ytyMoW4qn4wIqgJYm7L7TShRZG4+Q4Qsi2PCcj96pXN7nRywS9KkB3p/xDUjc2HSwP9SROyPYDYKQ==",
       "type": "package",
@@ -4942,6 +4987,11 @@
         "system.xml.xpath.xmldocument.4.3.0.nupkg.sha512",
         "system.xml.xpath.xmldocument.nuspec"
       ]
+    },
+    "Openlimits/0.1.15": {
+      "type": "project",
+      "path": "../../../../target/ligen/rust/Rust.csproj",
+      "msbuildProject": "../../../../target/ligen/rust/Rust.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -4949,6 +4999,7 @@
       "Microsoft.NET.Test.Sdk >= 16.9.4",
       "NUnit >= 3.13.1",
       "NUnit3TestAdapter >= 3.17.0",
+      "Openlimits >= 0.1.15",
       "coverlet.collector >= 3.0.2"
     ]
   },
@@ -4958,11 +5009,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\tests.csproj",
+      "projectUniqueName": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\csharp\\tests.csproj",
       "projectName": "tests",
-      "projectPath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\tests.csproj",
+      "projectPath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\csharp\\tests.csproj",
       "packagesPath": "C:\\Users\\dangu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\obj\\",
+      "outputPath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\csharp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\dangu\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -4978,7 +5029,11 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\target\\ligen\\rust\\Rust.csproj": {
+              "projectPath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\target\\ligen\\rust\\Rust.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

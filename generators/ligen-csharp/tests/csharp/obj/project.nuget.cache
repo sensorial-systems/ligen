@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DrAdLHhUX2OIyqnBbFdODs5y3ggibFeZE+DreXE6gEP7+80NZmjgdICY0NnV0Hbm0Dsnn9aea/dKITCch65m4g==",
+  "dgSpecHash": "sXyMqUNjnlwLCj99uG8DzAkq7p/MJ1bN/MfsdofyJ/dWGKrNQqYHQbFlv00NBEtswjKmqVaAuk9nY49bRBhs6w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\tests.csproj",
+  "projectFilePath": "C:\\Users\\dangu\\dev\\sensorial\\systems\\ligen\\generators\\ligen-csharp\\tests\\csharp\\tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dangu\\.nuget\\packages\\coverlet.collector\\3.0.2\\coverlet.collector.3.0.2.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\microsoft.codecoverage\\16.9.4\\microsoft.codecoverage.16.9.4.nupkg.sha512",
@@ -40,6 +40,7 @@
     "C:\\Users\\dangu\\.nuget\\packages\\system.io.filesystem.primitives\\4.3.0\\system.io.filesystem.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\system.linq.expressions\\4.1.0\\system.linq.expressions.4.1.0.nupkg.sha512",
+    "C:\\Users\\dangu\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\system.objectmodel\\4.0.12\\system.objectmodel.4.0.12.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\system.reflection\\4.3.0\\system.reflection.4.3.0.nupkg.sha512",
     "C:\\Users\\dangu\\.nuget\\packages\\system.reflection.emit\\4.0.1\\system.reflection.emit.4.0.1.nupkg.sha512",
