@@ -3,6 +3,7 @@ use proc_macro2::TokenStream;
 use quote::{ToTokens, TokenStreamExt};
 use std::convert::TryFrom;
 use syn::{TypePath, TypePtr, TypeReference};
+use std::ops::Deref;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
 /// Type Enum
@@ -27,6 +28,14 @@ impl Type {
             Self::Reference(reference) => reference.type_.path(),
             Self::Compound(path, _) => path.clone(),
             Self::Atomic(atomic) => atomic.clone().into()
+        }
+    }
+
+    /// Transforms Type::Reference to Type::Compound
+    pub fn drop_reference(&self) -> Self {
+        match self {
+            Self::Reference(reference) => reference.type_.deref().clone(),
+            _ => self.clone()
         }
     }
 }

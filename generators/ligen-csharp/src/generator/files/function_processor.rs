@@ -81,7 +81,10 @@ impl FileProcessorVisitor for FunctionProcessor {
             let static_ = if function.is_method() {
                 parameters.remove(0);
                 arguments.remove(0);
-                arguments.insert(0, "this".into());
+                // FIXME: Hardcoded is_opaque
+                let is_opaque = true;
+                let self_ = if is_opaque { "this.opaque" } else { "this" };
+                arguments.insert(0, self_.into());
                 ""
             } else {
                 "static"

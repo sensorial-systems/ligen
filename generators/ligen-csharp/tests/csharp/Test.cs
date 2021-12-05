@@ -1,19 +1,11 @@
-using NUnit.Framework;
+using System;
 using Rust;
 
-namespace tests {
-    public class Tests {
-        [SetUp]
-        public void Setup() {}
-
-        [Test]
-        public void Add() {
-            Assert.AreEqual(3, Test.Add(1, 2));
+namespace csharp {
+    class Program {
+        static void Main(string[] args) {
+            Console.WriteLine(Test.Add(1, 2));
+            Console.WriteLine(Test.GetName());
         }
-
-//        [Test]
-//        public void GetName() {
-//            Assert.AreEqual("Name", Test.GetName());
-//        }
     }
 }

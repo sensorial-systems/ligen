@@ -13,8 +13,15 @@ pub trait GenericFFIGenerator {
                 .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
                 .map(|literal| literal.to_string() == "true")
                 .unwrap_or_default();
+            let type_ = if is_opaque { parameter.type_.drop_reference() } else { parameter.type_.clone() };
             let type_ = root_module
-                .get_literal_from_path(format!("ligen::ffi::{}::name", identifier)).map(|literal| parameter.type_.to_string().replace(&format!("{}", identifier), &literal.to_string())).unwrap_or(parameter.type_.to_string());
+                .get_literal_from_path(format!("ligen::ffi::{}::name", identifier))
+                .map(|literal| {
+                        type_
+                            .to_string()
+                            .replace(&identifier.name, &literal.to_string())
+                })
+                .unwrap_or(type_.to_string());
             let identifier = &parameter.identifier.name.replace("self", "self_");
             if is_opaque {
                 file.write(format!("{identifier}: *mut {type_}, ", identifier = identifier, type_ = type_))
@@ -39,7 +46,7 @@ pub trait GenericFFIGenerator {
             if is_opaque {
                 file.write(format!("{identifier}.as_mut().unwrap(), ", identifier = identifier));
             } else {
-                file.write(format!("{identifier}.into(), ", identifier = identifier));
+                file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
             }
         }
     }
@@ -101,18 +108,16 @@ pub trait GenericFFIGenerator {
             false
         };
         file.writeln(" {");
-        file.writeln(format!("\tprintln!(\"Calling {}\");", visitor.current.identifier));
         file.writeln("\tlet result = unsafe {");
         file.write(format!("\t\t{}(", function_path));
         Self::generate_arguments(file, visitor);
         file.writeln(")");
         file.writeln("\t};");
-        file.writeln(format!("\tprintln!(\"Called {}\");", visitor.current.identifier));
 
         if is_opaque {
-            file.writeln("\tBox::into_raw(Box::new(result.into()))");
+            file.writeln("\tBox::into_raw(Box::new(result.marshal_into()))");
         } else {
-            file.writeln("\tresult.into()");
+            file.writeln("\tresult.marshal_into()");
         }
         file.writeln("}");
     }
@@ -148,7 +153,7 @@ pub trait GenericFFIGenerator {
     fn generate_module<V: Into<ModuleVisitor>>(marshaller: &Marshaller, file: &mut File, visitor: V) {
         let visitor = &visitor.into();
         // FIXME: How to implement Join<Separator> so we can reduce verbosity?
-        // file.writeln("use ligen::marshalling::*;");
+        file.writeln("use ligen::marshalling::*;");
         file.writeln(format!("use {}::*;", visitor.path().segments.iter().map(|x| x.name.clone()).collect::<Vec<_>>().join("::")));
         file.writeln("");
         for module in &visitor.current.modules {

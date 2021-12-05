@@ -5,7 +5,9 @@ impl Test {
         a + b
     }
 
-    // pub fn get_name() -> String {
-    //     "Name".into()
-    // }
+    pub fn get_name() -> String {
+        "Name".into()
+    }
 }
+
+pub mod string;
