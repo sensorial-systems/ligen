@@ -79,10 +79,19 @@ impl FileProcessorVisitor for FunctionProcessor {
             let ffi_parameters = ffi_parameters.join(", ");
             let mut arguments = Self::generate_arguments(function);
             let static_ = if function.is_method() {
+                let is_opaque = if let FunctionParent::Implementation(_) = &function.parent {
+                    let type_ = &function.current.inputs[0].type_;
+                    let identifier = type_.path().last();
+                    root_module
+                        .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                        .map(|literal| literal.to_string() == "true")
+                        .unwrap_or_default()
+                } else {
+                    false
+                };
+
                 parameters.remove(0);
                 arguments.remove(0);
-                // FIXME: Hardcoded is_opaque
-                let is_opaque = true;
                 let self_ = if is_opaque { "this.opaque" } else { "this" };
                 arguments.insert(0, self_.into());
                 ""

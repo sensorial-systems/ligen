@@ -53,22 +53,26 @@ impl TemporaryFFIProject {
 
     /// Builds the project.
     pub fn build(&self, build_profile: BuildProfile) -> Result<()> {
-        std::env::set_var("IS_BUILDING", "YES");
-        let mut build_command = std::process::Command::new("cargo");
-        let mut build_command = build_command.arg("build");
-        if let BuildProfile::Release = build_profile {
-            build_command = build_command.arg("--release");
-        }
-        let status = build_command
-            .arg("--manifest-path")
-            .arg(self.cargo_file.path.display().to_string())
-            .arg("--target-dir")
-            .arg(self.path.join("target").display().to_string())
-            .status()?;
-        if let Some(0) = status.code() {
-            Ok(())
+        if !Self::is_building() {
+            std::env::set_var("IS_BUILDING", "YES");
+            let mut build_command = std::process::Command::new("cargo");
+            let mut build_command = build_command.arg("build");
+            if let BuildProfile::Release = build_profile {
+                build_command = build_command.arg("--release");
+            }
+            let status = build_command
+                .arg("--manifest-path")
+                .arg(self.cargo_file.path.display().to_string())
+                .arg("--target-dir")
+                .arg(self.path.join("target").display().to_string())
+                .status()?;
+            if let Some(0) = status.code() {
+                Ok(())
+            } else {
+                Err(Error::Message("Failed to build the FFI (Foreign Function Interface) library.".into()))
+            }
         } else {
-            Err(Error::Message("Failed to build the FFI (Foreign Function Interface) library.".into()))
+            Err(Error::Message("Project is currently being built.".into()))
         }
     }
 
