@@ -44,7 +44,11 @@ pub trait GenericFFIGenerator {
                 .map(|literal| literal.to_string() == "true")
                 .unwrap_or_default();
             if is_opaque {
-                file.write(format!("{identifier}.as_mut().unwrap(), ", identifier = identifier));
+                if let crate::ir::Type::Reference(_reference) = &input.type_ {
+                    file.write(format!("{identifier}.as_mut().unwrap(), ", identifier = identifier));
+                } else {
+                    file.write(format!("{identifier}.read().marshal_into(), ", identifier = identifier));
+                }
             } else {
                 file.write(format!("{identifier}.marshal_into(), ", identifier = identifier));
             }
