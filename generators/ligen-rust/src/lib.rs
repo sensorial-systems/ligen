@@ -1,7 +1,7 @@
 use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
-use handlebars::{Handlebars, handlebars_helper};
+use handlebars::handlebars_helper;
 use ligen_ir::Type;
 use serde_json::Value;
 // use ligen_ir::Project;
@@ -196,8 +196,22 @@ use serde_json::Value;
 //     }
 // }
 
+use handlebars::Handlebars as Template;
+
 #[derive(Debug, Default)]
 pub struct RustGenerator;
+pub use ligen_traits::prelude::*;
+
+impl RustGenerator {
+    pub fn get_template(&self) -> Result<Template> {
+        let tpl_extension = "hbs";
+        let dir_path = format!("{}\\src\\templates", env!("CARGO_MANIFEST_DIR"));
+        let mut template = Template::new();
+        // template.register_helper("display_type", Box::new(display_type));
+        template.register_templates_directory(tpl_extension, dir_path).expect("Couldn't load templates");
+        Ok(template)
+    }
+}
 
 impl Generator for RustGenerator {
     fn base_path(&self) -> PathBuf {
@@ -206,22 +220,13 @@ impl Generator for RustGenerator {
 }
 
 impl FileGenerator for RustGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) {
-        let mut handlebars = Handlebars::new();
-        let value = serde_json::to_value(&visitor.current).expect("Failed to serialize project.");
-        handlebars.register_template_string("import", include_str!("import.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("arguments", include_str!("arguments.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("parameters", include_str!("parameters.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("method", include_str!("method.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("implementation", include_str!("implementation.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("object", include_str!("object.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("module", include_str!("module.template")).expect("Failed to register module template.");
-        handlebars.register_template_string("project", include_str!("project.template")).expect("Failed to render template.");
-        handlebars_helper!(display_type: |value: Value| format!("{}", serde_json::from_value::<Type>(value).unwrap()));
-        handlebars.register_helper("display_type", Box::new(display_type));
-        let content = handlebars.render("project", &value).expect("Failed to render template.");
+    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> Result<()> {
+        let template = self.get_template()?;
+        let value = serde_json::to_value(&visitor.current)?;
+        let content = template.render("project", &value).map_err(|e| Error::Message(format!("{}", e)))?;
         let file = file_set.entry(&PathBuf::from_str("hello.rs").unwrap());
         file.writeln(content);
+        Ok(())
     }
 }
 

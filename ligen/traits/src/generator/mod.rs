@@ -32,7 +32,7 @@ pub trait Generator: FileGenerator {
         let root = self.pre_process(root);
         let mut file_set = FileSet::default();
         let visitor = Visitor::new((),root);
-        self.generate_files(&mut file_set, &visitor);
+        self.generate_files(&mut file_set, &visitor)?;
         self.save_file_set(file_set, &visitor)?;
         Ok(())
     }

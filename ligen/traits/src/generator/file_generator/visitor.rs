@@ -1,5 +1,6 @@
 //! File generator with visitors.
 
+use crate::prelude::*;
 use crate::generator::{FileSet, ProjectVisitor, ImplementationVisitor, FunctionVisitor, ParameterVisitor, ObjectVisitor, StructureVisitor, ModuleVisitor, FileGenerator, EnumerationVisitor};
 use ligen_ir::{ImplementationItem, TypeDefinition};
 use crate::generator::file_processor_visitor::FileProcessorVisitor;
@@ -119,7 +120,8 @@ pub trait FileGeneratorVisitors {
 }
 
 impl<T: FileGeneratorVisitors> FileGenerator for T {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) {
+    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> Result<()> {
         self.process_project(file_set, visitor);
+        Ok(())
     }
 }
