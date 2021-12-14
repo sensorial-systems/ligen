@@ -1,9 +1,14 @@
 [workspace]
 members = [
     "ligen",
+    "ligen/ir",
+    "ligen/utils",
+    "ligen/traits",
 #    "generators/ligen-c",
 #    "generators/ligen-cmake",
     "generators/ligen-csharp",
+    "generators/ligen-cargo",
+    "generators/ligen-rust",
     "examples/example",
 #    "generators/ligen-csharp/tests/rust"
 #    "ligen-cpp/crates/core",

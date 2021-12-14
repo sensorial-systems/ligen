@@ -1,8 +1,9 @@
-use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
+use ligen::traits::generator::{ImplementationVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
+use ligen::traits::generator::file_processor_visitor::FileProcessorVisitor;
 // use crate::ast::Type;
 use std::path::PathBuf;
 use crate::generator::CSharpGenerator;
-use ligen::conventions::naming::{PascalCase, SnakeCase};
+use ligen::utils::conventions::naming::{PascalCase, SnakeCase};
 use std::convert::TryFrom;
 use ligen::ir::TypeDefinition;
 

@@ -55,14 +55,10 @@
 #![warn(unused_import_braces)]
 #![warn(unused_qualifications)]
 
-extern crate proc_macro;
+pub use ligen_macro::*;
 
 pub mod prelude;
-pub mod ir;
-pub mod utils;
-pub mod generator;
-pub mod error;
-pub mod conventions;
-pub mod marshalling;
+pub use ligen_ir as ir;
+pub use ligen_utils as utils;
+pub use ligen_traits as traits;
 
-pub use ligen_macro::*;

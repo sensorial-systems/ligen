@@ -1,0 +1,14 @@
+[package]
+name = "ligen-ir"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn          = { version = "1.0.73", features = [ "full" ] }
+proc-macro2  = "1.0.26"
+quote        = "1.0.9"
+ligen-utils  = { path = "../utils" }
+cargo_toml   = "0.10.0"
+serde        = { version = "1.0.131", features = [ "derive" ] }

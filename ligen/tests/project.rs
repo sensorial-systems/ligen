@@ -1,8 +1,7 @@
 use ligen::ir::{Project, Path, Identifier, TypeDefinition, Structure, Attribute, Visibility, Field};
 use std::convert::TryFrom;
 use std::path::PathBuf;
-use ligen::generator::{GenericFFIGenerator, FFIGenerator, File, ProjectVisitor};
-use ligen::marshalling::Marshaller;
+use ligen_cargo::CargoProject;
 
 pub fn project_directory() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -30,10 +29,10 @@ fn relative_dir(path: PathBuf) -> PathBuf {
 
 // FIXME: This test is no longer working because I changed test-project's code.
 fn project(path: PathBuf) {
-    let mut project = Project::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
+    let mut project = CargoProject::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
     project.root_module.replace_wildcard_imports();
-    let manifest_path = relative_dir(project.manifest_path());
-    assert_eq!(project.name().to_string(), "example");
+    let manifest_path = relative_dir(project.manifest_path.clone());
+    assert_eq!(project.name.to_string(), "example");
     assert_eq!(manifest_path, PathBuf::from("../examples/example/Cargo.toml"));
     assert_eq!(project.root_module.name, "crate".into());
     // println!("{:#?}", project);
@@ -73,22 +72,10 @@ fn project(path: PathBuf) {
     //     ]
     // });
 
+    let project = Project::try_from(project).unwrap();
+
     let absolute_path = find_absolute_path(&project);
     definition_finder(absolute_path, &project);
-    ffi_generation(&project);
-}
-
-struct Generator;
-
-impl GenericFFIGenerator for Generator {}
-
-fn ffi_generation(project: &Project) {
-    let generator = Generator;
-    let marshaller = Marshaller::new();
-    let mut file = File::new("lib.rs".into(), "".into());
-    let project_visitor = ProjectVisitor::from(project.clone());
-    generator.generate_ffi(&marshaller, &mut file, &project_visitor);
-    // println!("{}", file.content);
 }
 
 fn definition_finder(path: Path, project: &Project) {

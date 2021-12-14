@@ -1,0 +1,7 @@
+{{>import this }}
+{{#each objects }}
+{{>object this }}
+{{/each}}
+{{#each modules }}
+{{>module this }}
+{{/each }}
