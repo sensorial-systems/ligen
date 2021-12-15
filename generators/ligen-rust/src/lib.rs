@@ -197,18 +197,27 @@ use serde_json::Value;
 // }
 
 use handlebars::Handlebars as Template;
+use ligen_traits::prelude::{Error, Result as LigenResult};
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
-pub use ligen_traits::prelude::*;
 
 impl RustGenerator {
-    pub fn get_template(&self) -> Result<Template> {
+    pub fn get_template(&self) -> LigenResult<Template> {
         let tpl_extension = "hbs";
         let dir_path = format!("{}\\src\\templates", env!("CARGO_MANIFEST_DIR"));
         let mut template = Template::new();
-        // template.register_helper("display_type", Box::new(display_type));
+        handlebars_helper!(display_type: |value: Value| serde_json::from_value::<Type>(value).unwrap());
+        template.register_helper("display_type", Box::new(display_type));
         template.register_templates_directory(tpl_extension, dir_path).expect("Couldn't load templates");
+        template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
+        template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
+        template.register_template_string("import", include_str!("templates/import.hbs")).expect("Failed to load import template.");
+        template.register_template_string("method", include_str!("templates/method.hbs")).expect("Failed to load method template.");
+        template.register_template_string("module", include_str!("templates/module.hbs")).expect("Failed to load module template.");
+        template.register_template_string("object", include_str!("templates/object.hbs")).expect("Failed to load object template.");
+        template.register_template_string("parameters", include_str!("templates/parameters.hbs")).expect("Failed to load parameters template.");
+        template.register_template_string("project", include_str!("templates/project.hbs")).expect("Failed to load project template.");
         Ok(template)
     }
 }
@@ -220,7 +229,7 @@ impl Generator for RustGenerator {
 }
 
 impl FileGenerator for RustGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> Result<()> {
+    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> LigenResult<()> {
         let template = self.get_template()?;
         let value = serde_json::to_value(&visitor.current)?;
         let content = template.render("project", &value).map_err(|e| Error::Message(format!("{}", e)))?;
