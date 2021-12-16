@@ -1,24 +1,9 @@
 //! Import representation.
 
 use crate::prelude::*;
-use crate::{Path, Attributes, Visibility, Identifier};
+use ligen_ir::{Path, Attributes, Visibility, Identifier, Imports};
 
-/// Import representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Import {
-    /// Attributes.
-    pub attributes: Attributes,
-    /// Visibility.
-    pub visibility: Visibility,
-    /// Path of the imported object.
-    pub path: Path,
-    /// Optional renaming.
-    pub renaming: Option<Identifier>
-}
-
-/// Multiple imports.
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct Imports(pub Vec<Import>);
+new_type!(item);
 
 #[derive(Debug, Clone, PartialEq)]
 struct ImportsBuilder {
@@ -28,9 +13,9 @@ struct ImportsBuilder {
     pub tree: syn::UseTree
 }
 
-impl TryFrom<&[syn::Item]> for Imports {
+impl TryFrom<&[synItem]> for Imports {
     type Error = Error;
-    fn try_from(items: &[syn::Item]) -> Result<Self> {
+    fn try_from(items: &[synItem]) -> Result<Self> {
         let mut imports = Imports::default();
         for item in items {
             if let syn::Item::Use(import) = item {
@@ -41,9 +26,9 @@ impl TryFrom<&[syn::Item]> for Imports {
     }
 }
 
-impl TryFrom<syn::ItemUse> for Imports {
+impl TryFrom<synItemUse> for Imports {
     type Error = Error;
-    fn try_from(import: syn::ItemUse) -> Result<Self> {
+    fn try_from(import: synItemUse) -> Result<Self> {
         let attributes = Attributes::try_from(import.attrs)?;
         let visibility = Visibility::from(import.vis);
         let path = Path::default();

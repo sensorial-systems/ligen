@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
+pub mod prelude;
 pub mod convert;
 pub mod traits;
 // use ligen_ir::Project;

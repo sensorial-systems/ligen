@@ -1,19 +1,8 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use crate::{Identifier, Reference, Type, ReferenceKind, Attributes};
+use ligen_ir::{Identifier, Reference, Type, ReferenceKind, Attributes};
 use syn::FnArg;
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// Parameter representation.
-pub struct Parameter {
-    /// Attributes.
-    pub attributes: Attributes,
-    /// Identifier.
-    pub identifier: Identifier,
-    /// Type.
-    pub type_: Type,
-}
 
 impl TryFrom<FnArg> for Parameter {
     type Error = Error;

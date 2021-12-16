@@ -30,7 +30,6 @@ mod types;
 mod path;
 mod object;
 pub mod project;
-pub mod visitor;
 
 pub mod processing;
 

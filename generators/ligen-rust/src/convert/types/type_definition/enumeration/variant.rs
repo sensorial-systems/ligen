@@ -1,16 +1,8 @@
 //! Enumeration variant representation.
 
 use crate::prelude::*;
-use crate::{Attributes, Identifier};
-
-/// Enumeration representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Variant {
-    /// Attributes field.
-    pub attributes: Attributes,
-    /// Variant identifier.
-    pub identifier: Identifier
-}
+use ligen_ir::{Attributes, Identifier};
+use ligen_ir::Variant;
 
 impl TryFrom<syn::Variant> for Variant {
     type Error = Error;

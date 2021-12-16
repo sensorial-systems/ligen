@@ -1,17 +1,6 @@
-use crate::{Identifier, Literal, Type};
+use ligen_ir::{Identifier, Literal, Type, Constant};
 use crate::prelude::*;
 use syn::{ImplItemConst, ItemConst};
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// Constant Struct
-pub struct Constant {
-    /// identifier field
-    pub identifier: Identifier,
-    /// type_ field
-    pub type_: Type,
-    /// literal field
-    pub literal: Literal,
-}
 
 impl From<ImplItemConst> for Constant {
     fn from(item_const: ImplItemConst) -> Self {

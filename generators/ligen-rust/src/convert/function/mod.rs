@@ -1,31 +1,10 @@
 use crate::prelude::*;
 use syn::{ImplItemMethod, ItemFn};
 
-use crate::{Attributes, Identifier, Parameter, Type, Visibility};
+use ligen_ir::{Attributes, Identifier, Parameter, Type, Visibility, Function};
 use syn::parse_quote::parse;
 
 pub mod parameter;
-
-#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-/// Async Struct
-pub struct Async;
-
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// Function Struct
-pub struct Function {
-    /// Attributes field.
-    pub attributes: Attributes,
-    /// Visibility field.
-    pub visibility: Visibility,
-    /// Asyncness field.
-    pub asyncness: Option<Async>,
-    /// Identifier field.
-    pub identifier: Identifier,
-    /// Inputs field.
-    pub inputs: Vec<Parameter>,
-    /// Output field.
-    pub output: Option<Type>,
-}
 
 #[allow(unused_qualifications)]
 impl From<TokenStream> for Function {

@@ -1,22 +1,6 @@
 use crate::prelude::*;
 use syn::{Ident, Lit};
-
-/// Literal Enum
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-pub enum Literal {
-    /// String variant
-    String(String),
-    /// Bool variant
-    Bool(bool),
-    /// Char variant
-    Char(char),
-    /// Integer variant
-    Integer(i64),
-    /// UnsignedInteger variant
-    UnsignedInteger(u64),
-    /// Float variant
-    Float(f64),
-}
+use ligen_ir::Literal;
 
 impl From<Lit> for Literal {
     fn from(lit: Lit) -> Self {
