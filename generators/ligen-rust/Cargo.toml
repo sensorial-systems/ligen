@@ -8,5 +8,5 @@ edition = "2018"
 [dependencies]
 ligen-ir     = { path = "../../ligen/ir" }
 ligen-traits = { path = "../../ligen/traits" }
-handlebars = { version = "4.1.6", features = [ "dir_source"] }
+handlebars = "4.1.6"
 serde_json = "1.0.73"

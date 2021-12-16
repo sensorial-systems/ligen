@@ -46,11 +46,26 @@ impl BuildSystem for CargoBuilder {
         if let BuildProfile::Release = profile {
             build_command = build_command.arg("--release");
         }
+        let project_path = project
+            .path
+            .join("target")
+            .join("ligen")
+            .join("rust")
+            .join(format!("{}", project.name));
+        let manifest_path = project_path
+            .join("Cargo.toml")
+            .display()
+            .to_string();
+        let target_dir = project_path
+            .join("target")
+            .display()
+            .to_string();
+        println!("Building {}", manifest_path);
         let status = build_command
             .arg("--manifest-path")
-            .arg(project.manifest_path.display().to_string())
+            .arg(manifest_path)
             .arg("--target-dir")
-            .arg(project.path.join("target").display().to_string())
+            .arg(target_dir)
             .status()?;
         if let Some(0) = status.code() {
             Ok(())

@@ -197,6 +197,7 @@ use serde_json::Value;
 // }
 
 use handlebars::Handlebars as Template;
+use handlebars::*;
 use ligen_traits::prelude::{Error, Result as LigenResult};
 
 #[derive(Debug, Default)]
@@ -204,12 +205,8 @@ pub struct RustGenerator;
 
 impl RustGenerator {
     pub fn get_template(&self) -> LigenResult<Template> {
-        let tpl_extension = "hbs";
-        let dir_path = format!("{}\\src\\templates", env!("CARGO_MANIFEST_DIR"));
         let mut template = Template::new();
-        handlebars_helper!(display_type: |value: Value| serde_json::from_value::<Type>(value).unwrap());
-        template.register_helper("display_type", Box::new(display_type));
-        template.register_templates_directory(tpl_extension, dir_path).expect("Couldn't load templates");
+        template.register_template_string("identifier", include_str!("templates/identifier.hbs")).expect("Failed to load identifier template.");
         template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
         template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
         template.register_template_string("import", include_str!("templates/import.hbs")).expect("Failed to load import template.");
@@ -219,6 +216,36 @@ impl RustGenerator {
         template.register_template_string("parameters", include_str!("templates/parameters.hbs")).expect("Failed to load parameters template.");
         template.register_template_string("project", include_str!("templates/project.hbs")).expect("Failed to load project template.");
         Ok(template)
+    }
+
+    pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {
+        handlebars_helper!(display_type: |value: Value| serde_json::from_value::<Type>(value).unwrap().to_string());
+        let root_module = visitor.current.root_module.clone();
+        template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
+            let param = h
+                .param(0)
+                .map(|value| value.value().clone())
+                .filter(|value| !value.is_null());
+            let content = if let Some(param) = param {
+                let type_ = serde_json::from_value::<Type>(param).unwrap();
+                let identifier = type_.path().last();
+                let is_opaque = root_module
+                    .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                    .map(|literal| literal.to_string() == "true")
+                    .unwrap_or_default();
+                let (type_, opacity) = if is_opaque {
+                    (type_.drop_reference().to_string(), "*mut ")
+                } else {
+                    ("*const u8".to_string(), "")
+                };
+                format!("{}{}", opacity, type_)
+            } else {
+                format!("()")
+            };
+            out.write(&content)?;
+            Ok(())
+        }));
+        template.register_helper("display_type", Box::new(display_type));
     }
 }
 
@@ -230,10 +257,11 @@ impl Generator for RustGenerator {
 
 impl FileGenerator for RustGenerator {
     fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> LigenResult<()> {
-        let template = self.get_template()?;
+        let mut template = self.get_template()?;
+        self.get_functions(&mut template, visitor);
         let value = serde_json::to_value(&visitor.current)?;
         let content = template.render("project", &value).map_err(|e| Error::Message(format!("{}", e)))?;
-        let file = file_set.entry(&PathBuf::from_str("hello.rs").unwrap());
+        let file = file_set.entry(&PathBuf::from_str("src").unwrap().join("lib.rs"));
         file.writeln(content);
         Ok(())
     }

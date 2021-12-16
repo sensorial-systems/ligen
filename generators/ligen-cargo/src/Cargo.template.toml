@@ -13,21 +13,3 @@ crate-type = ["staticlib", "dylib"]
 ligen = {{ path = "../../../../../../sensorial/systems/ligen/ligen" }}
 # FIXME: Hardcoded features.
 {name} = {{ path = "{path}", features = ["bindings"] }}
-
-#[package]
-#name = "ffi_{name}"
-#version = "{version}"
-#edition = "2018"
-#
-#[lib]
-#crate-type = ["staticlib", "dylib"]
-#
-## See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-#
-#[dependencies]
-## FIXME: Hardcoded path.
-#ligen = {{ path = "../../../../../../../../ligen" }}
-## FIXME: Hardcoded features.
-#{name} = {{ path = "{path}" }}
-#
-#[workspace]
