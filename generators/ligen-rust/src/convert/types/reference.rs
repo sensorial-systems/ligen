@@ -1,48 +1,28 @@
-use ligen_ir::{Type, ReferenceKind};
+use ligen_ir::ReferenceKind;
 use crate::prelude::*;
 use ligen_ir::Reference;
+use crate::traits::AsRust;
 
-impl std::fmt::Display for Reference {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl AsRust for Reference {
+    fn as_rust(&self) -> String {
+        let mut string = String::new();
         match self.kind {
             ReferenceKind::Pointer => {
                 if self.is_constant {
-                    f.write_str("*const ")?;
+                    string.push_str("*const ");
                 } else {
-                    f.write_str("*mut ")?;
+                    string.push_str(("*mut ");
                 }
             },
             ReferenceKind::Borrow => {
                 if self.is_constant {
-                    f.write_str("&")?;
+                    string.push_str(("&");
                 } else {
-                    f.write_str("&mut ")?;
+                    string.push_str(("&mut ");
                 }
             }
         }
-        f.write_str(&self.type_.to_string())
-    }
-}
-
-impl ToTokens for Reference {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self.kind {
-            ReferenceKind::Pointer => {
-                if self.is_constant {
-                    tokens.append_all(quote! {*const })
-                } else {
-                    tokens.append_all(quote! {*mut })
-                }
-            },
-            ReferenceKind::Borrow => {
-                if self.is_constant {
-                    tokens.append_all(quote! {&})
-                } else {
-                    tokens.append_all(quote! {&mut })
-                }
-            }
-        }
-        let type_ = &self.type_;
-        tokens.append_all(quote! {#type_});
+        string.push_str(&self.type_.as_rust());
+        string
     }
 }

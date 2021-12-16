@@ -1,9 +1,10 @@
-use crate::Type;
 use crate::prelude::*;
+use ligen_ir::Generics;
+use crate::traits::AsRust;
 
 impl From<syn::PathArguments> for Generics {
     fn from(from: syn::PathArguments) -> Self {
-        let types = match from {
+        let types = match from.0 {
             syn::PathArguments::AngleBracketed(arguments) => {
                 arguments
                     .args
@@ -20,26 +21,18 @@ impl From<syn::PathArguments> for Generics {
     }
 }
 
-impl ToTokens for Generics {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        if !self.types.is_empty() {
-            tokens.append_separated(self.types.iter(), quote! {,})
-        }
-    }
-}
-
-impl std::fmt::Display for Generics {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl AsRust for Generics {
+    fn as_rust(&self) -> String {
         if self.types.is_empty() {
-            f.write_str("")
+            "".into()
         } else {
             let generics = self
                 .types
                 .iter()
-                .map(|generic| format!("{}", generic))
+                .map(|generic| format!("{}", generic.as_rust()))
                 .collect::<Vec<String>>()
                 .join(", ");
-            f.write_str(&format!("<{}>", generics))
+            format!("<{}>", generics)
         }
     }
 }

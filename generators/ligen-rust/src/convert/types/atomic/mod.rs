@@ -5,9 +5,9 @@ mod float;
 
 pub use integer::*;
 pub use float::*;
-use ligen_ir::{Identifier, Path, Integer};
+use ligen_ir::{Integer, Atomic};
 use syn::Ident;
-use ligen_ir::Atomic;
+use crate::traits::AsRust;
 
 impl TryFrom<Ident> for Atomic {
     type Error = Error;
@@ -46,26 +46,14 @@ impl From<syn::Path> for Atomic {
     }
 }
 
-impl ToTokens for Atomic {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl AsRust for Atomic {
+    fn as_rust(&self) -> String {
         match &self {
-            Atomic::Integer(integer) => integer.to_tokens(tokens),
-            Atomic::Float(float) => float.to_tokens(tokens),
-            Atomic::Boolean => tokens.append_all(quote! {bool}),
-            Atomic::Character => tokens.append_all(quote! {char}),
-        }
-    }
-}
-
-impl std::fmt::Display for Atomic {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let display = match &self {
-            Atomic::Integer(integer) => format!("{}", integer),
-            Atomic::Float(float)     => format!("{}", float),
+            Atomic::Integer(integer) => integer.as_rust(),
+            Atomic::Float(float)     => float.as_rust(),
             Atomic::Boolean          => "bool".into(),
             Atomic::Character        => "char".into(),
-        };
-        f.write_str(&display)
+        }
     }
 }
 

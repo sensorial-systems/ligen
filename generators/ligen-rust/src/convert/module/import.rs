@@ -1,9 +1,7 @@
 //! Import representation.
 
 use crate::prelude::*;
-use ligen_ir::{Path, Attributes, Visibility, Identifier, Imports};
-
-new_type!(item);
+use ligen_ir::{Path, Attributes, Visibility, Imports};
 
 #[derive(Debug, Clone, PartialEq)]
 struct ImportsBuilder {
@@ -13,20 +11,20 @@ struct ImportsBuilder {
     pub tree: syn::UseTree
 }
 
-impl TryFrom<&[synItem]> for Imports {
-    type Error = Error;
-    fn try_from(items: &[synItem]) -> Result<Self> {
-        let mut imports = Imports::default();
-        for item in items {
-            if let syn::Item::Use(import) = item {
-                imports.0.append(&mut Imports::try_from(import.clone())?.0);
-            }
-        }
-        Ok(imports)
-    }
-}
+// impl TryFrom<&[synItem]> for Imports {
+//     type Error = Error;
+//     fn try_from(items: &[synItem]) -> Result<Self> {
+//         let mut imports = Imports::default();
+//         for item in items {
+//             if let syn::Item::Use(import) = item {
+//                 imports.0.append(&mut Imports::try_from(import.clone())?.0);
+//             }
+//         }
+//         Ok(imports)
+//     }
+// }
 
-impl TryFrom<synItemUse> for Imports {
+impl TryFrom<syn::ItemUse> for Imports {
     type Error = Error;
     fn try_from(import: synItemUse) -> Result<Self> {
         let attributes = Attributes::try_from(import.attrs)?;

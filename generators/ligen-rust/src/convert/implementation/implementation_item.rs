@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen_ir::{Constant, Function, ImplementationItem};
+use ligen_ir::ImplementationItem;
 
 impl TryFrom<syn::ImplItem> for ImplementationItem {
     type Error = Error;

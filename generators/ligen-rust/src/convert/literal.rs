@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use syn::{Ident, Lit};
 use ligen_ir::Literal;
+use crate::traits::AsRust;
 
 impl From<Lit> for Literal {
     fn from(lit: Lit) -> Self {
@@ -25,47 +26,16 @@ impl From<Ident> for Literal {
     }
 }
 
-impl std::fmt::Display for Literal {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl AsRust for Literal {
+    fn as_rust(&self) -> String {
         match self {
-            Literal::String(value) => write!(f, "{}", value),
-            Literal::Bool(value) => write!(f, "{}", value),
-            Literal::Char(value) => write!(f, "{}", value),
-            Literal::Integer(value) => write!(f, "{}", value),
-            Literal::UnsignedInteger(value) => write!(f, "{}", value),
-            Literal::Float(value) => write!(f, "{}", value),
+            Literal::String(value) => format!(f, "{}", value),
+            Literal::Bool(value) => format!(f, "{}", value),
+            Literal::Char(value) => format!(f, "{}", value),
+            Literal::Integer(value) => format!(f, "{}", value),
+            Literal::UnsignedInteger(value) => format!(f, "{}", value),
+            Literal::Float(value) => format!(f, "{}", value),
         }
-    }
-}
-
-impl ToTokens for Literal {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self.clone() {
-            Literal::String(x) => {
-                let y = proc_macro2::Literal::string(&x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Bool(x) => {
-                let y = proc_macro2::Ident::new(&x.to_string(), proc_macro2::Span::call_site());
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Char(x) => {
-                let y = proc_macro2::Literal::character(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Integer(x) => {
-                let y = proc_macro2::Literal::i64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::UnsignedInteger(x) => {
-                let y = proc_macro2::Literal::u64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Float(x) => {
-                let y = proc_macro2::Literal::f64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-        };
     }
 }
 

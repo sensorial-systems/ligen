@@ -1,7 +1,6 @@
 //! Enumeration variant representation.
 
 use crate::prelude::*;
-use ligen_ir::{Attributes, Identifier};
 use ligen_ir::Variant;
 
 impl TryFrom<syn::Variant> for Variant {

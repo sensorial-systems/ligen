@@ -1,7 +1,7 @@
 //! Structure field representation.
 
 use crate::prelude::*;
-use ligen_ir::{Identifier, Type, Visibility, Attributes, Field};
+use ligen_ir::Field;
 
 impl TryFrom<syn::Field> for Field {
     type Error = Error;

@@ -1,14 +1,14 @@
 use crate::Identifier;
 use crate::prelude::*;
-use std::path::PathBuf;
 use ligen_ir::Path;
+use crate::traits::AsRust;
 
 impl From<syn::Path> for Path {
     fn from(path: syn::Path) -> Self {
-        let segments = path
+        let segments = path.0
             .segments
             .iter()
-            .map(|segment| segment.ident.clone().into())
+            .map(|segment| syn::Ident(segment.ident.clone()).into())
             .collect();
         Self { segments }
     }
@@ -21,20 +21,10 @@ impl From<syn::Ident> for Path {
     }
 }
 
-impl ToTokens for Path {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let mut segments = self.segments.iter();
-        tokens.append_all(segments.next().unwrap().to_token_stream());
-        for segment in segments {
-            tokens.append_all(quote! { ::#segment })
-        }
-    }
-}
-
-impl std::fmt::Display for Path {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl AsRust for Path {
+    fn as_rust(&self) -> String {
         let segments: Vec<_> = self.segments.iter().map(|identifier| identifier.to_string()).collect();
-        f.write_str(&segments.join("::"))
+        segments.join("::")
     }
 }
 

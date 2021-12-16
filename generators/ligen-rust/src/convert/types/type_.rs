@@ -1,7 +1,7 @@
-use ligen_ir::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float, Generics, Type};
+use ligen_ir::{Atomic, Reference, ReferenceKind, Generics, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
-use std::ops::Deref;
+use crate::traits::AsRust;
 
 impl From<syn::Path> for Type {
     fn from(path: syn::Path) -> Self {
@@ -52,27 +52,13 @@ impl TryFrom<syn::Type> for Type {
     }
 }
 
-impl ToTokens for Type {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl AsRust for Type {
+    fn as_rust(&self) -> String {
         match &self {
-            Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
-            Type::Compound(compound, generics) => {
-                tokens.append_all(compound.to_token_stream());
-                tokens.append_all(generics.to_token_stream());
-            },
-            Type::Reference(reference) => tokens.append_all(reference.to_token_stream()),
-        }
-    }
-}
-
-impl std::fmt::Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let display = match &self {
             Type::Atomic(atomic)               => format!("{}", atomic),
             Type::Compound(compound, generics) => format!("{}{}", compound, generics),
             Type::Reference(reference)         => format!("{}", reference),
-        };
-        f.write_str(&display)
+        }
     }
 }
 

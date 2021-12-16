@@ -4,7 +4,7 @@ mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use ligen_ir::{Attributes, Visibility, Identifier, Structure};
+use ligen_ir::Structure;
 
 impl TryFrom<syn::ItemStruct> for Structure {
     type Error = Error;

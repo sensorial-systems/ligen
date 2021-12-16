@@ -1,7 +1,7 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use ligen_ir::{Identifier, Reference, Type, ReferenceKind, Attributes};
+use ligen_ir::{Identifier, Reference, Type, ReferenceKind, Parameter};
 use syn::FnArg;
 
 impl TryFrom<FnArg> for Parameter {
@@ -40,14 +40,6 @@ impl TryFrom<FnArg> for Parameter {
                 Ok(Self { attributes, identifier, type_ })
             },
         }
-    }
-}
-
-impl ToTokens for Parameter {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let ident = self.identifier.to_token_stream();
-        let typ = self.type_.to_token_stream();
-        tokens.append_all(quote! {#ident: #typ})
     }
 }
 

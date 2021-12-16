@@ -2,24 +2,24 @@ mod implementation_item;
 pub use implementation_item::*;
 
 use crate::prelude::*;
-use ligen_ir::{Attributes, Identifier, Type, Implementation};
+use ligen_ir::{Attributes, Implementation};
 
-impl TryFrom<TokenStream> for Implementation {
-    type Error = Error;
-    fn try_from(tokenstream: TokenStream) -> Result<Self> {
-        syn::parse2::<syn::ItemImpl>(tokenstream)
-            .map_err(|_| "Failed to parse to Implementation.".into())
-            .and_then(|item| item.try_into())
-    }
-}
-
-impl TryFrom<proc_macro::TokenStream> for Implementation {
-    type Error = Error;
-    fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
-        let tokenstream: TokenStream = tokenstream.into();
-        tokenstream.try_into()
-    }
-}
+// impl TryFrom<TokenStream> for Implementation {
+//     type Error = Error;
+//     fn try_from(tokenstream: TokenStream) -> Result<Self> {
+//         syn::parse2::<syn::ItemImpl>(tokenstream)
+//             .map_err(|_| "Failed to parse to Implementation.".into())
+//             .and_then(|item| item.try_into())
+//     }
+// }
+//
+// impl TryFrom<proc_macro::TokenStream> for Implementation {
+//     type Error = Error;
+//     fn try_from(tokenstream: proc_macro::TokenStream) -> Result<Self> {
+//         let tokenstream: TokenStream = tokenstream.into();
+//         tokenstream.try_into()
+//     }
+// }
 
 impl TryFrom<syn::ItemImpl> for Implementation {
     type Error = Error;

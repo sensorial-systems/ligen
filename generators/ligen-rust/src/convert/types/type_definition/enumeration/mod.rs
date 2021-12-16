@@ -4,7 +4,7 @@ mod variant;
 pub use variant::*;
 
 use crate::prelude::*;
-use ligen_ir::{Attributes, Visibility, Identifier, Enumeration};
+use ligen_ir::Enumeration;
 
 impl TryFrom<syn::ItemEnum> for Enumeration {
     type Error = Error;

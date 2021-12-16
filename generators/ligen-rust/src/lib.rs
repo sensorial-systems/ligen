@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
+extern crate proc_macro;
+
 pub mod prelude;
 pub mod convert;
 pub mod traits;

@@ -59,10 +59,10 @@ impl From<syn::NestedMeta> for Attribute {
     }
 }
 
-impl TryFrom<syn::Attribute> for Attribute {
-    type Error = Error;
-    fn try_from(attribute: syn::Attribute) -> Result<Self> {
-        let meta = attribute.parse_meta()?;
-        Ok(meta.into())
-    }
-}
+// impl TryFrom<syn::Attribute> for Attribute {
+//     type Error = Error;
+//     fn try_from(attribute: syn::Attribute) -> Result<Self> {
+//         let meta = attribute.parse_meta()?;
+//         Ok(meta.into())
+//     }
+// }

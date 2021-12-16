@@ -1,28 +1,17 @@
 use crate::prelude::*;
 use syn::{ImplItemMethod, ItemFn};
 
-use ligen_ir::{Attributes, Identifier, Parameter, Type, Visibility, Function};
+use ligen_ir::{Attributes, Parameter, Type, Visibility, Function};
 use syn::parse_quote::parse;
 
 pub mod parameter;
 
-#[allow(unused_qualifications)]
-impl From<TokenStream> for Function {
-    fn from(tokenstream: TokenStream) -> Self {
-        parse::<syn::ImplItemMethod>(tokenstream).into()
-    }
-}
-
-impl From<syn::Visibility> for Visibility {
-    fn from(visibility: syn::Visibility) -> Self {
-        match visibility {
-            syn::Visibility::Public(_) => Self::Public,
-            syn::Visibility::Crate(_) => Self::Crate,
-            syn::Visibility::Restricted(_) => Self::Restricted,
-            syn::Visibility::Inherited => Self::Inherited,
-        }
-    }
-}
+// #[allow(unused_qualifications)]
+// impl From<TokenStream> for Function {
+//     fn from(tokenstream: TokenStream) -> Self {
+//         parse::<syn::ImplItemMethod>(tokenstream).into()
+//     }
+// }
 
 macro_rules! impl_function {
     ($T:ident) => {

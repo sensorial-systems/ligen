@@ -1,7 +1,7 @@
 //! Trait for replacing an existing identifier.
 // TODO: Generalize it for any AST element.
 
-use crate::{Identifier, Implementation, ImplementationItem, Type, Reference, Parameter, Path};
+use ligen_ir::{Identifier, Implementation, ImplementationItem, Type, Reference, Parameter, Path};
 
 /// Trait to replace identifiers in IR AST.
 pub trait ReplaceIdentifier {

@@ -14,10 +14,6 @@ pub use visibility::*;
 pub use object::*;
 pub use project::*;
 
-extern crate proc_macro;
-
-pub mod prelude;
-
 mod module;
 mod macro_attributes;
 mod constant;
