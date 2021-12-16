@@ -3,8 +3,13 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::NamingConvention;
 use std::ffi::OsString;
-use ligen_ir::ProjectInfo;
 use ligen_traits::build::BuildSystem;
+
+#[derive(Clone)]
+pub struct ProjectInfo {
+    pub directory: PathBuf,
+    pub name: NamingConvention,
+}
 
 /// Cargo project.
 pub struct CargoProject {

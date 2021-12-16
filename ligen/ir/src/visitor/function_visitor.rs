@@ -1,5 +1,5 @@
 use super::{Visitor, ImplementationVisitor, ModuleVisitor};
-use crate::{Function, Type, Path};
+use crate::{Function, Path};
 
 // ### Create MethodVisitor and FunctionVisitor.
 // ### Dev Strategy: Replace "example" example with something else and start with a simple function to test custom marshallers for String and other external objects such as rust_decimal::Decimal.
@@ -45,13 +45,7 @@ impl FunctionVisitor {
     pub fn is_method(&self) -> bool {
         match &self.parent {
             FunctionParent::Module(_) => false,
-            FunctionParent::Implementation(parent) => {
-                if let Some(input) = self.current.inputs.get(0) {
-                    input.type_.path() == parent.current.self_.path() || input.type_ == Type::self_type()
-                } else {
-                    false
-                }
-            }
+            FunctionParent::Implementation(_) => self.current.method.is_some()
         }
     }
 

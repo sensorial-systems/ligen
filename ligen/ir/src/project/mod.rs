@@ -5,8 +5,6 @@ use crate::Module;
 use crate::prelude::*;
 use ligen_utils::conventions::naming::NamingConvention;
 use std::path::PathBuf;
-// use std::ffi::OsString;
-
 
 /// Project representation.
 #[allow(missing_docs)]
@@ -23,11 +21,6 @@ impl Project {
     pub fn directory(&self) -> &std::path::Path {
         self.directory.as_path()
     }
-
-    // /// Get manifest path.
-    // pub fn manifest_path(&self) -> PathBuf {
-    //     self.manifest_path.clone()
-    // }
 
     /// Get the project name.
     pub fn name(&self) -> &NamingConvention {

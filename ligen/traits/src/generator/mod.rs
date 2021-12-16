@@ -19,19 +19,10 @@ pub trait Generator: FileGenerator {
     /// Generation base path.
     fn base_path(&self) -> PathBuf;
 
-    /// Pre-processes the input. The default implementation returns a transformed input with all the
-    /// `Self` and `self` occurrences replaced by the actual object name.
-    fn pre_process(&self, root: &Project) -> Project {
-        let mut root = root.clone();
-        root.root_module.replace_self_with_explicit_names();
-        root
-    }
-
     /// Main function called in the procedural proc_macro.
     fn generate(&self, root: &Project) -> Result<()> {
-        let root = self.pre_process(root);
         let mut file_set = FileSet::default();
-        let visitor = Visitor::new((),root);
+        let visitor = Visitor::new((),root.clone());
         self.generate_files(&mut file_set, &visitor)?;
         self.save_file_set(file_set, &visitor)?;
         Ok(())

@@ -2,6 +2,9 @@ use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator}
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
+
+pub mod convert;
+pub mod traits;
 // use ligen_ir::Project;
 // use ligen_traits::generator::{FunctionVisitor, File, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FunctionParent};
 // use ligen_ir::{Identifier, ImplementationItem, Visibility};
@@ -231,7 +234,7 @@ impl RustGenerator {
                     .map(|literal| literal.to_string() == "true")
                     .unwrap_or_default();
                 let (type_, opacity) = if is_opaque {
-                    (type_.drop_reference().to_string(), "*mut ")
+                    (type_.drop_reference().as_rust(), "*mut ")
                 } else {
                     ("*const u8".to_string(), "")
                 };

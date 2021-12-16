@@ -137,7 +137,7 @@ impl From<ir::Type> for Types {
 
 impl From<ir::Reference> for Type {
     fn from(type_: ir::Reference) -> Self {
-        let constness = if type_.is_constant { Some(Const) } else { None };
+        let constness = if type_.mutability { Some(Const) } else { None };
         let type_ = Types::from(*type_.type_.clone());
         let pointer = Some(Pointer);
         Self {
@@ -187,7 +187,7 @@ mod test {
 
     #[test]
     fn ast_type_atomic() {
-        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
+        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, mutability: false, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
         let in_type = Type::from(out_type);
         println!("{:#?}", in_type);
     }
