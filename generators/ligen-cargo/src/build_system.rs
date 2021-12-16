@@ -47,7 +47,7 @@ impl BuildSystem for CargoBuilder {
             build_command = build_command.arg("--release");
         }
         let project_path = project
-            .path
+            .directory
             .join("target")
             .join("ligen")
             .join("rust")

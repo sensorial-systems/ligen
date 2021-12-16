@@ -26,5 +26,4 @@ backtrace    = "0.3.61"
 lazy_static  = "1.4.0"
 
 [dev-dependencies]
-pretty_assertions = "0.7.2"
 ligen-cargo = { path = "../generators/ligen-cargo" }

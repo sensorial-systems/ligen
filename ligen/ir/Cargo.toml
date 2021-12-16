@@ -12,3 +12,6 @@ quote        = "1.0.9"
 ligen-utils  = { path = "../utils" }
 cargo_toml   = "0.10.0"
 serde        = { version = "1.0.131", features = [ "derive" ] }
+
+[dev-dependencies]
+pretty_assertions = "0.7.2"

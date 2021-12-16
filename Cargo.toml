@@ -9,7 +9,7 @@ members = [
     "generators/ligen-csharp",
     "generators/ligen-cargo",
     "generators/ligen-rust",
-    "examples/example",
+#    "examples/example",
 #    "generators/ligen-csharp/tests/rust"
 #    "ligen-cpp/crates/core",
 #    "ligen-cpp/crates/macro",

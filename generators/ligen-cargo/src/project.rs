@@ -3,7 +3,7 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::NamingConvention;
 use std::ffi::OsString;
-use ligen_ir::Module;
+use ligen_ir::ProjectInfo;
 use ligen_traits::build::BuildSystem;
 
 /// Cargo project.
@@ -11,9 +11,6 @@ pub struct CargoProject {
     pub path: PathBuf,
     pub name: NamingConvention,
     pub manifest_path: PathBuf,
-    pub root_module: Module,
-    // pub cargo_file: File,
-    // pub lib_file: File
 }
 
 impl CargoProject {
@@ -35,19 +32,12 @@ impl TryFrom<&std::path::Path> for CargoProject {
             path
         }.to_path_buf();
 
-        let root_module = path
-            .join("src")
-            .join("lib.rs");
-
         let manifest_path = path.join("Cargo.toml");
         let manifest = cargo_toml::Manifest::from_path(manifest_path.as_path())?;
         let package = manifest.package.ok_or_else(|| Error::Message("Package not found in Cargo.toml.".into()))?;
         let crate_name = package.name;
         let name = NamingConvention::try_from(crate_name.as_str())?;
-        let mut root_module = Module::try_from(root_module.as_path())?;
-        // TODO: Use SnakeCase::from(name.clone()).into() instead?
-        root_module.name = "crate".into();
-        Ok(Self { path, name, root_module, manifest_path })
+        Ok(Self { path, name, manifest_path })
     }
 }
 
@@ -55,9 +45,10 @@ impl TryFrom<CargoProject> for Project {
     type Error = Error;
     fn try_from(from: CargoProject) -> Result<Self> {
         let name = from.name;
-        let path = from.path;
+        let directory = from.path;
         let manifest_path = from.manifest_path;
-        let root_module = from.root_module;
-        Ok(Self { name, path, manifest_path, root_module })
+        let project = ProjectInfo { name: name.clone(), directory: directory.clone() };
+        let root_module = project.try_into()?;
+        Ok(Self { name, directory, manifest_path, root_module })
     }
 }

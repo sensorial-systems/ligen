@@ -1,5 +1,6 @@
 use crate::Identifier;
 use crate::prelude::*;
+use std::path::PathBuf;
 
 /// A fully qualified path.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -69,6 +70,17 @@ impl From<&str> for Path {
 impl From<String> for Path {
     fn from(string: String) -> Path {
         string.as_str().into()
+    }
+}
+
+impl From<PathBuf> for Path {
+    fn from(path: PathBuf) -> Self {
+        let segments = path
+            .iter()
+            .filter_map(|segment| segment.to_str())
+            .map(|segment| segment.into())
+            .collect();
+        Self { segments }
     }
 }
 

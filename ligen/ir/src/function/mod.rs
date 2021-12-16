@@ -146,12 +146,12 @@ mod test {
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into())
+                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
-                        type_: Type::Compound(Identifier::new("String").into())
+                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
                     },
                 ],
                 output: None
@@ -169,7 +169,7 @@ mod test {
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
-                output: Some(Type::Compound(Identifier::new("String").into()))
+                output: Some(Type::Compound(Identifier::new("String").into(), Default::default()))
             }
         );
     }
@@ -189,7 +189,7 @@ mod test {
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into())
+                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
@@ -197,7 +197,7 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: true,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                     Parameter {
@@ -206,14 +206,14 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: false,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
                     is_constant: true,
-                    type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                    type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))
             }
         );
@@ -288,7 +288,7 @@ mod test {
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into())
+                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
@@ -296,7 +296,7 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: true,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                     Parameter {
@@ -305,14 +305,14 @@ mod test {
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
                             is_constant: false,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
                     is_constant: true,
-                    type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                    type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))
             }
         );

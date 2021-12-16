@@ -1,9 +1,7 @@
 use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
-use handlebars::handlebars_helper;
 use ligen_ir::Type;
-use serde_json::Value;
 // use ligen_ir::Project;
 // use ligen_traits::generator::{FunctionVisitor, File, ImplementationVisitor, ModuleVisitor, ObjectVisitor, FunctionParent};
 // use ligen_ir::{Identifier, ImplementationItem, Visibility};
@@ -219,7 +217,6 @@ impl RustGenerator {
     }
 
     pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {
-        handlebars_helper!(display_type: |value: Value| serde_json::from_value::<Type>(value).unwrap().to_string());
         let root_module = visitor.current.root_module.clone();
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let param = h
@@ -245,7 +242,6 @@ impl RustGenerator {
             out.write(&content)?;
             Ok(())
         }));
-        template.register_helper("display_type", Box::new(display_type));
     }
 }
 
@@ -266,6 +262,3 @@ impl FileGenerator for RustGenerator {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests;

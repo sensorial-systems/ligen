@@ -82,18 +82,6 @@ impl Implementation {
     }
 
     /// Replace all the occurrences of `Self` by the real object name.
-    /// e.g.:
-    /// ```rust,compile_fail
-    /// impl Object {
-    ///     fn f(self: &Self) {}
-    /// }
-    /// ```
-    /// becomes
-    /// ```rust,compile_fail
-    /// impl Object {
-    ///     fn f(self: &Object) {}
-    /// }
-    /// ```
     pub fn replace_self_with_explicit_names(&mut self) {
         let identifier = self.self_.path().last();
         let mut lower_case_identifier = identifier.clone();
@@ -109,7 +97,8 @@ mod test {
     use std::convert::TryFrom;
 
     use super::*;
-    use crate::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function};
+    use crate::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function, Generics};
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn impl_block() {
@@ -118,7 +107,7 @@ mod test {
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Type::Compound(Identifier::new("Test").into()),
+                self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![]
             }
         );
@@ -143,7 +132,7 @@ mod test {
                         }
                     )]
                 },
-                self_: Type::Compound(Identifier::new("Test").into()),
+                self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![]
             }
         );
@@ -159,7 +148,7 @@ mod test {
             }).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Type::Compound(Identifier::new("Test").into()),
+                self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![ImplementationItem::Constant(Constant {
                     identifier: Identifier::new("a"),
                     type_: Type::Atomic(Atomic::Integer(Integer::I32)),
@@ -179,7 +168,7 @@ mod test {
             }).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Type::Compound(Identifier::new("Test").into()),
+                self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
                     visibility: Visibility::Inherited,
@@ -204,7 +193,7 @@ mod test {
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
-                self_: Type::Compound(Identifier::new("Test").into()),
+                self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![
                     ImplementationItem::Constant(Constant {
                         identifier: Identifier::new("a"),
@@ -231,24 +220,24 @@ mod test {
                 impl Person {
                     pub fn new(name: FullName, age: Age) -> Self { ... }
                     pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
-                    pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<Rc<Mutex<Arc<HashMap<String, Option<Result<String, Error>>>>>>>;
+                    pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<String>;
                 }
             })
                 .expect("Failed to build implementation from TokenStream")
                 .dependencies(),
             vec![
-                Type::Compound(Identifier::new("FullName").into()),
-                Type::Compound(Identifier::new("Age").into()),
-                Type::Compound(Identifier::new("A").into()),
-                Type::Compound(Identifier::new("B").into()),
-                Type::Compound(Identifier::new("C").into()),
-                Type::Compound(Identifier::new("D").into()),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self").into()))}),
+                Type::Compound(Identifier::new("FullName").into(), Default::default()),
+                Type::Compound(Identifier::new("Age").into(), Default::default()),
+                Type::Compound(Identifier::new("A").into(), Default::default()),
+                Type::Compound(Identifier::new("B").into(), Default::default()),
+                Type::Compound(Identifier::new("C").into(), Default::default()),
+                Type::Compound(Identifier::new("D").into(), Default::default()),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))}),
                 Type::Atomic(Atomic::Integer(Integer::I32)),
-                Type::Compound(Identifier::new("String").into()),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str").into()))}),
-                Type::Compound(Identifier::new("Vec").into()),
-                Type::Compound(Identifier::new("Box").into()),
+                Type::Compound(Identifier::new("String").into(), Default::default()),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))}),
+                Type::Compound(Identifier::new("Vec").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
+                Type::Compound(Identifier::new("Box").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
             ]
         );
     }

@@ -187,7 +187,7 @@ mod test {
 
     #[test]
     fn ast_type_atomic() {
-        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: ligen::ir::Type::Compound("i8".into()).into() });
+        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
         let in_type = Type::from(out_type);
         println!("{:#?}", in_type);
     }

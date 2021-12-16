@@ -58,7 +58,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("str").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }
                 ),
                 literal: Literal::String(String::from("test"))
@@ -76,7 +76,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("str").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }
                 ),
                 literal: Literal::String(String::from("test"))

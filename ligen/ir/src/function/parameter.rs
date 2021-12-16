@@ -93,7 +93,7 @@ mod test {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("name"),
-                type_: Type::Compound(Identifier::new("String").into())
+                type_: Type::Compound(Identifier::new("String").into(), Default::default())
             }
         );
     }
@@ -109,7 +109,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -129,7 +129,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -149,7 +149,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Pointer,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -169,7 +169,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Pointer,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
             }
@@ -183,7 +183,7 @@ mod test {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
-                type_: Type::Compound(Identifier::new("Self").into())
+                type_: Type::Compound(Identifier::new("Self").into(), Default::default())
             }
         );
     }
@@ -199,7 +199,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: true,
-                        type_: Box::new(Type::Compound(Identifier::new("Self").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
                     }
                 )
             }
@@ -217,7 +217,7 @@ mod test {
                     Reference {
                         kind: ReferenceKind::Borrow,
                         is_constant: false,
-                        type_: Box::new(Type::Compound(Identifier::new("Self").into()))
+                        type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
                     }
                 )
             }

@@ -12,16 +12,16 @@ use std::path::PathBuf;
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
-    pub path: PathBuf,
+    pub directory: PathBuf,
     pub name: NamingConvention,
-    pub manifest_path: PathBuf,
+    pub manifest_path: PathBuf, // FIXME: Rusty
     pub root_module: Module,
 }
 
 impl Project {
-    /// Project path.
-    pub fn path(&self) -> &std::path::Path {
-        self.path.as_path()
+    /// Project directory path.
+    pub fn directory(&self) -> &std::path::Path {
+        self.directory.as_path()
     }
 
     // /// Get manifest path.
@@ -45,30 +45,3 @@ impl Project {
         (&project_visitor.child(self.root_module.clone())).into()
     }
 }
-
-// impl TryFrom<&std::path::Path> for Project {
-//     type Error = Error;
-//     fn try_from(path: &std::path::Path) -> Result<Self> {
-//         Self::check_build()?;
-//
-//         let path = if path.file_name() == Some(&OsString::from("Cargo.toml")) {
-//             path.parent().expect("Failed to get Cargo.toml's parent.")
-//         } else {
-//             path
-//         }.to_path_buf();
-//
-//         let root_module = path
-//             .join("src")
-//             .join("lib.rs");
-//
-//         let manifest_path = path.join("../../../../Cargo.toml");
-//         let manifest = cargo_toml::Manifest::from_path(manifest_path.as_path())?;
-//         let package = manifest.package.ok_or_else(|| Error::Message("Package not found in Cargo.toml.".into()))?;
-//         let crate_name = package.name;
-//         let name = NamingConvention::try_from(crate_name.as_str())?;
-//         let mut root_module = Module::try_from(root_module.as_path())?;
-//         // TODO: Use SnakeCase::from(name.clone()).into() instead?
-//         root_module.name = "crate".into();
-//         Ok(Self { path, name, root_module, manifest_path })
-//     }
-// }
