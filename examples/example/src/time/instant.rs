@@ -1,4 +1,6 @@
-use crate::duration::Duration;
+use ligen_macro::ligen;
+
+use crate::time::duration::Duration;
 
 #[ligen(opaque)]
 pub struct Instant(std::time::Instant);

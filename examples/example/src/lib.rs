@@ -1,4 +1,4 @@
-// use ligen_macro::ligen;
+use ligen_macro::ligen;
 
 pub mod time;
 pub use time::Instant;

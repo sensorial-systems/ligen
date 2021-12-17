@@ -8,7 +8,7 @@ use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, Typ
 use std::collections::HashMap;
 use std::io::Read;
 use std::fs::File;
-// use syn::parse_quote::parse;
+use syn::parse_quote::parse;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::{SnakeCase, NamingConvention};
 
@@ -313,13 +313,22 @@ impl Module {
     }
 }
 
-// #[allow(unused_qualifications)]
-// impl TryFrom<TokenStream> for Module {
-//     type Error = Error;
-//     fn try_from(tokenstream: TokenStream) -> Result<Self> {
-//         (parse::<syn::ItemMod>(tokenstream), std::path::Path::new("")).into()
-//     }
-// }
+#[allow(unused_qualifications)]
+impl TryFrom<TokenStream> for Module {
+    type Error = Error;
+    fn try_from(tokenstream: TokenStream) -> Result<Self> {
+        let module = parse::<syn::ItemMod>(tokenstream);
+        let directory = PathBuf::from("");
+        let name = NamingConvention::SnakeCase(SnakeCase::try_from("fake_project")?);
+        let project = ProjectInfo { directory, name };
+        let attributes = module.attrs.try_into()?;
+        let visibility = module.vis.into();
+        let identifier = Identifier::from(module.ident);
+        let relative_path = PathBuf::from(identifier.name.clone());
+        let items = module.content.clone().unwrap_or_default().1.into();
+        ModuleConversionHelper { project, items, identifier, relative_path, visibility, attributes }.try_into()
+    }
+}
 
 #[derive(Clone)]
 pub struct ProjectInfo {
@@ -387,7 +396,7 @@ impl TryFrom<ModuleConversionHelper> for Module {
             let visibility = visitor.visibility;
             let imports = Imports::try_from(items.as_slice())?.0;
             let functions = Self::extract_functions(items.as_slice());
-            let path = visitor.relative_path.iter().filter_map(|segment| segment.to_str()).map(|segment| segment.to_string()).collect::<Vec<_>>().into();
+            let path = visitor.relative_path.into();
             Ok(Self { attributes, visibility, path, name, imports, modules, functions, objects })
         } else {
             Err(Error::Message("Can't load module files yet".into()))
@@ -404,170 +413,185 @@ impl TryFrom<ModuleConversionHelper> for Module {
 #[cfg(test)]
 mod tests {
     // FIXME: Re-enable these tests.
-    // use super::*;
-    // use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute};
-    // use quote::quote;
-    // use pretty_assertions::assert_eq;
-    //
-    // #[test]
-    // fn imports() -> Result<()> {
-    //     let module = quote! {
-    //         mod root {
-    //             mod object {
-    //                 pub struct Object1;
-    //             }
-    //             mod objects {
-    //                 pub struct Object2;
-    //                 pub struct Object3;
-    //                 struct Object4;
-    //                 mod deeper {
-    //                     pub struct Object5;
-    //                     pub struct Object6;
-    //                     struct Object7;
-    //                 }
-    //                 mod deeper2 {
-    //                     pub struct Object8;
-    //                     pub struct Object9;
-    //                     pub struct ObjectA;
-    //                 }
-    //                 pub use deeper::*;
-    //                 pub use deeper2::Object8;
-    //                 use deeper2::Object9;
-    //                 pub use deeper2::ObjectA as ObjectTen;
-    //             }
-    //             pub use object::Object1;
-    //             pub use objects::*;
-    //         }
-    //     };
-    //     let expected_module = quote! {
-    //         mod root {
-    //             mod object {
-    //                 pub struct Object1;
-    //             }
-    //             mod objects {
-    //                 pub struct Object2;
-    //                 pub struct Object3;
-    //                 struct Object4;
-    //                 mod deeper {
-    //                     pub struct Object5;
-    //                     pub struct Object6;
-    //                     struct Object7;
-    //                 }
-    //                 mod deeper2 {
-    //                     pub struct Object8;
-    //                     pub struct Object9;
-    //                     pub struct ObjectA;
-    //                 }
-    //                 pub use deeper2::Object8;
-    //                 use deeper2::Object9;
-    //                 pub use deeper2::ObjectA as ObjectTen;
-    //                 pub use deeper::Object5;
-    //                 pub use deeper::Object6;
-    //             }
-    //             pub use object::Object1;
-    //             pub use objects::Object2;
-    //             pub use objects::Object3;
-    //             pub use objects::Object8;
-    //             pub use objects::ObjectTen;
-    //             pub use objects::Object5;
-    //             pub use objects::Object6;
-    //         }
-    //     };
-    //
-    //     let expected_module = Module::try_from(expected_module)?;
-    //     let mut module = Module::try_from(module)?;
-    //     module.replace_wildcard_imports();
-    //     assert_eq!(module, expected_module);
-    //     Ok(())
-    // }
-    //
-    // #[test]
-    // fn object() -> Result<()> {
-    //     let module = quote! {
-    //         #[ligen(attribute)]
-    //         mod objects {
-    //             inner_ligen!(another_attribute);
-    //
-    //             pub struct Object {
-    //                 pub integer: i32
-    //             }
-    //
-    //             impl Object {
-    //                 pub fn new(integer: i32) -> Self {
-    //                     Self { integer }
-    //                 }
-    //             }
-    //
-    //             pub struct AnotherObject;
-    //         }
-    //     };
-    //     let module = Module::try_from(module)?;
-    //     assert_eq!(
-    //         module,
-    //         Module {
-    //             attributes: vec![
-    //                 Attribute::Group("ligen".into(), Attribute::Group("attribute".into(), Default::default()).into()),
-    //                 Attribute::Group("ligen".into(), Attribute::Group("another_attribute".into(), Default::default()).into()),
-    //             ].into(),
-    //             visibility: Visibility::Inherited,
-    //             path: Path::from("objects"),
-    //             name: "objects".into(),
-    //             imports: Default::default(),
-    //             modules: Default::default(),
-    //             functions: Default::default(),
-    //             objects: vec![
-    //                 Object {
-    //                     path: "AnotherObject".into(),
-    //                     definition: TypeDefinition::Structure(Structure {
-    //                         attributes: Default::default(),
-    //                         visibility: Visibility::Public,
-    //                         identifier: "AnotherObject".into(),
-    //                         fields: Default::default(),
-    //                     }),
-    //                     implementations: Default::default()
-    //                 },
-    //                 Object {
-    //                     path: "Object".into(),
-    //                     definition: TypeDefinition::Structure(Structure {
-    //                         attributes: Default::default(),
-    //                         visibility: Visibility::Public,
-    //                         identifier: "Object".into(),
-    //                         fields: vec![
-    //                             Field {
-    //                                 attributes: Default::default(),
-    //                                 visibility: Visibility::Public,
-    //                                 identifier: Some("integer".into()),
-    //                                 type_: Type::Atomic(Atomic::Integer(Integer::I32))
-    //                             }
-    //                         ]
-    //                     }),
-    //                     implementations: vec![
-    //                         Implementation {
-    //                             attributes: Default::default(),
-    //                             self_: Type::Compound("Object".into(), Default::default()),
-    //                             items: vec![
-    //                                 ImplementationItem::Method(Function {
-    //                                     attributes: Default::default(),
-    //                                     visibility: Visibility::Public,
-    //                                     asyncness: None,
-    //                                     identifier: "new".into(),
-    //                                     inputs: vec![
-    //                                         Parameter {
-    //                                             attributes: Default::default(),
-    //                                             identifier: "integer".into(),
-    //                                             type_: Type::Atomic(Atomic::Integer(Integer::I32))
-    //                                         }
-    //                                     ],
-    //                                     output: Some(Type::Compound("Self".into(), Default::default()))
-    //                                 }
-    //                                 )
-    //                             ]
-    //                         }
-    //                     ]
-    //                 }
-    //             ]
-    //         }
-    //     );
-    //     Ok(())
-    // }
+    use super::*;
+    use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute};
+    use quote::quote;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn imports() -> Result<()> {
+        let module = quote! {
+            mod root {
+                mod object {
+                    pub struct Object1;
+                }
+                mod objects {
+                    pub struct Object2;
+                    pub struct Object3;
+                    struct Object4;
+                    mod deeper {
+                        pub struct Object5;
+                        pub struct Object6;
+                        struct Object7;
+                    }
+                    mod deeper2 {
+                        pub struct Object8;
+                        pub struct Object9;
+                        pub struct ObjectA;
+                    }
+                    pub use deeper::*;
+                    pub use deeper2::Object8;
+                    use deeper2::Object9;
+                    pub use deeper2::ObjectA as ObjectTen;
+                }
+                pub use object::Object1;
+                pub use objects::*;
+            }
+        };
+        let expected_module = quote! {
+            mod root {
+                mod object {
+                    pub struct Object1;
+                }
+                mod objects {
+                    pub struct Object2;
+                    pub struct Object3;
+                    struct Object4;
+                    mod deeper {
+                        pub struct Object5;
+                        pub struct Object6;
+                        struct Object7;
+                    }
+                    mod deeper2 {
+                        pub struct Object8;
+                        pub struct Object9;
+                        pub struct ObjectA;
+                    }
+                    pub use deeper2::Object8;
+                    use deeper2::Object9;
+                    pub use deeper2::ObjectA as ObjectTen;
+                    pub use deeper::Object5;
+                    pub use deeper::Object6;
+                }
+                pub use object::Object1;
+                pub use objects::Object2;
+                pub use objects::Object3;
+                pub use objects::Object8;
+                pub use objects::ObjectTen;
+                pub use objects::Object5;
+                pub use objects::Object6;
+            }
+        };
+
+        let expected_module = Module::try_from(expected_module)?;
+        let mut module = Module::try_from(module)?;
+        module.replace_wildcard_imports();
+        assert_eq!(module, expected_module);
+        Ok(())
+    }
+
+    #[test]
+    fn object() -> Result<()> {
+        let module = quote! {
+            #[ligen(attribute)]
+            mod objects {
+                inner_ligen!(another_attribute);
+
+                pub struct Object {
+                    pub integer: i32
+                }
+
+                impl Object {
+                    pub fn new(integer: i32) -> Self {
+                        Self { integer }
+                    }
+                }
+
+                pub struct AnotherObject;
+
+                mod deeper_module {
+
+                }
+            }
+        };
+        let module = Module::try_from(module)?;
+        assert_eq!(
+            module,
+            Module {
+                attributes: vec![
+                    Attribute::Group("ligen".into(), Attribute::Group("attribute".into(), Default::default()).into()),
+                    Attribute::Group("ligen".into(), Attribute::Group("another_attribute".into(), Default::default()).into()),
+                ].into(),
+                visibility: Visibility::Inherited,
+                path: Path::from("objects"),
+                name: "objects".into(),
+                imports: Default::default(),
+                modules: vec! [
+                    Module {
+                        attributes: Default::default(),
+                        visibility: Visibility::Inherited,
+                        path: "objects::deeper_module".into(),
+                        name: "deeper_module".into(),
+                        imports: Default::default(),
+                        modules: Default::default(),
+                        functions: Default::default(),
+                        objects: Default::default()
+                    }
+                ],
+                functions: Default::default(),
+                objects: vec![
+                    Object {
+                        path: "AnotherObject".into(),
+                        definition: TypeDefinition::Structure(Structure {
+                            attributes: Default::default(),
+                            visibility: Visibility::Public,
+                            identifier: "AnotherObject".into(),
+                            fields: Default::default(),
+                        }),
+                        implementations: Default::default()
+                    },
+                    Object {
+                        path: "Object".into(),
+                        definition: TypeDefinition::Structure(Structure {
+                            attributes: Default::default(),
+                            visibility: Visibility::Public,
+                            identifier: "Object".into(),
+                            fields: vec![
+                                Field {
+                                    attributes: Default::default(),
+                                    visibility: Visibility::Public,
+                                    identifier: Some("integer".into()),
+                                    type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                }
+                            ]
+                        }),
+                        implementations: vec![
+                            Implementation {
+                                attributes: Default::default(),
+                                self_: Type::Compound("Object".into(), Default::default()),
+                                items: vec![
+                                    ImplementationItem::Method(Function {
+                                        attributes: Default::default(),
+                                        visibility: Visibility::Public,
+                                        asyncness: None,
+                                        identifier: "new".into(),
+                                        inputs: vec![
+                                            Parameter {
+                                                attributes: Default::default(),
+                                                identifier: "integer".into(),
+                                                type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                            }
+                                        ],
+                                        output: Some(Type::Compound("Self".into(), Default::default()))
+                                    }
+                                    )
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        );
+        Ok(())
+    }
 }
