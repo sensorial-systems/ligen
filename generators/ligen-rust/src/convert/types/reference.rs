@@ -11,14 +11,14 @@ impl AsRust for Reference {
                 if self.is_constant {
                     string.push_str("*const ");
                 } else {
-                    string.push_str(("*mut ");
+                    string.push_str("*mut ");
                 }
             },
             ReferenceKind::Borrow => {
                 if self.is_constant {
-                    string.push_str(("&");
+                    string.push_str("&");
                 } else {
-                    string.push_str(("&mut ");
+                    string.push_str("&mut ");
                 }
             }
         }

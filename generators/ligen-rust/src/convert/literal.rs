@@ -29,12 +29,12 @@ impl From<Ident> for Literal {
 impl AsRust for Literal {
     fn as_rust(&self) -> String {
         match self {
-            Literal::String(value) => format!(f, "{}", value),
-            Literal::Bool(value) => format!(f, "{}", value),
-            Literal::Char(value) => format!(f, "{}", value),
-            Literal::Integer(value) => format!(f, "{}", value),
-            Literal::UnsignedInteger(value) => format!(f, "{}", value),
-            Literal::Float(value) => format!(f, "{}", value),
+            Literal::String(value) => format!("{}", value),
+            Literal::Bool(value) => format!("{}", value),
+            Literal::Char(value) => format!("{}", value),
+            Literal::Integer(value) => format!("{}", value),
+            Literal::UnsignedInteger(value) => format!("{}", value),
+            Literal::Float(value) => format!("{}", value),
         }
     }
 }

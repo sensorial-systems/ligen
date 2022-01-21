@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
-extern crate proc_macro;
+extern crate proc_macro as original_proc_macro;
 
 pub mod prelude;
 pub mod convert;

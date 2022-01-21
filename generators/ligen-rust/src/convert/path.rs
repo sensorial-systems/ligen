@@ -1,6 +1,5 @@
-use crate::Identifier;
 use crate::prelude::*;
-use ligen_ir::Path;
+use ligen_ir::{Identifier, Path};
 use crate::traits::AsRust;
 
 impl From<syn::Path> for Path {

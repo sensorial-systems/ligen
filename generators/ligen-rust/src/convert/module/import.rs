@@ -1,7 +1,7 @@
 //! Import representation.
 
 use crate::prelude::*;
-use ligen_ir::{Path, Attributes, Visibility, Imports};
+use ligen_ir::{Path, Attributes, Visibility, Imports, Import};
 
 #[derive(Debug, Clone, PartialEq)]
 struct ImportsBuilder {
@@ -26,7 +26,7 @@ struct ImportsBuilder {
 
 impl TryFrom<syn::ItemUse> for Imports {
     type Error = Error;
-    fn try_from(import: synItemUse) -> Result<Self> {
+    fn try_from(import: syn::ItemUse) -> Result<Self> {
         let attributes = Attributes::try_from(import.attrs)?;
         let visibility = Visibility::from(import.vis);
         let path = Path::default();

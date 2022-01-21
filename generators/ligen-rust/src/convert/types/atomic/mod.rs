@@ -5,7 +5,7 @@ mod float;
 
 pub use integer::*;
 pub use float::*;
-use ligen_ir::{Integer, Atomic};
+use ligen_ir::{Integer, Atomic, Float};
 use syn::Ident;
 use crate::traits::AsRust;
 

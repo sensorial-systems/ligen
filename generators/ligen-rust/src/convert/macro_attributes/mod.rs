@@ -3,6 +3,8 @@
 mod attributes;
 pub use attributes::*;
 
+use ligen_ir::{Attribute, Attributes};
+
 use crate::prelude::*;
 
 /// Macro attributes in the form of `#[attribute0, attribute1, ...]`.

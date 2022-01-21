@@ -4,6 +4,8 @@ pub(crate) use proc_macro2::TokenStream;
 pub(crate) use quote::{quote, ToTokens, TokenStreamExt};
 
 pub mod proc_macro {
+    use super::*;
+
     macro_rules! new_type {
         ($name:ident) => {
             #[derive(Shrinkwrap)]
@@ -14,6 +16,8 @@ pub mod proc_macro {
 }
 
 pub mod syn {
+    use super::*;
+
     macro_rules! new_type {
         ($name:ident) => {
             #[derive(Shrinkwrap)]
@@ -39,6 +43,22 @@ pub mod syn {
     new_type!(ItemImpl);
     new_type!(NestedMeta);
     new_type!(AttributeArgs);
-    new_type!(Attribute);
-    pub use original_syn::{parse, parse2};
+    new_type!(ImplItemMethod);
+    new_type!(ItemFn);
+    new_type!(Lit);
+    new_type!(TypePtr);
+    new_type!(TypeReference);
+    new_type!(UseTree);
+    new_type!(Meta);
+    new_type!(Expr);
+    new_type!(Pat);
+    new_type!(ReturnType);
+    new_type!(ImplItem);
+    new_type!(GenericArgument);
+    new_type!(ItemUse);
+    new_type!(ItemMod);
+    new_type!(ItemMacro);
+    new_type!(MetaList);
+    new_type!(MetaNameValue);
+    pub use original_syn::{parse_quote, parse, parse2, Token, parse_file};
 }
