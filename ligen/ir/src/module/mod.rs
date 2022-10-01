@@ -387,7 +387,7 @@ impl TryFrom<ProjectInfo> for ModuleConversionHelper {
 impl TryFrom<ModuleConversionHelper> for Module {
     type Error = Error;
     fn try_from(visitor: ModuleConversionHelper) -> Result<Self> {
-        let module_path = visitor.relative_path.join(visitor.identifier.name.clone());
+        // let module_path = visitor.relative_path.join(visitor.identifier.name.clone());
         if let Some(items) = &visitor.items {
             let attributes = Module::parse_ligen_attributes(&visitor.attributes, &items)?;
             let ignored = Module::ignored_from_attributes(&attributes);
