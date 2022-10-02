@@ -51,13 +51,12 @@ impl ModuleVisitor {
         let mut relative_path = relative_path.clone();
         // path is not empty
         if let Some(identifier) = relative_path.pop_front() {
-            println!("Looking for {} in {}", identifier, self.current.name);
-            // the first segment can be either: root, self, super, a module or the definition itself.
+            // the first segment can be either: crate, self, super, a module or the definition itself.
             // self module
             if identifier == "self".into() {
                 self.find_absolute_path(&relative_path)
             // root module
-            } else if identifier == "root".into() {
+            } else if identifier == "crate".into() {
                 self.parent_project().root_module_visitor().find_absolute_path(&relative_path)
             // super module
             } else if identifier == "super".into() {
@@ -66,20 +65,13 @@ impl ModuleVisitor {
                     .and_then(|module| module.find_absolute_path(&relative_path))
             // sub module
             } else if !relative_path.segments.is_empty() {
-                println!("Looking for {} in {:#?}", relative_path, self.current.modules.len());
                 self
                     .current
                     .modules
                     .iter()
-                    .filter(|module| {
-                        println!("{} == {}", module.name, identifier);
-                        module.name == identifier
-                    })
+                    .filter(|module| module.name == identifier)
                     .map(|module| ModuleVisitor::from(&self.child(module.clone())))
-                    .filter_map(|module| {
-                        println!("Entering relative_path: {}", relative_path);
-                        module.find_absolute_path(&relative_path)
-                    })
+                    .filter_map(|module| module.find_absolute_path(&relative_path))
                     .next()
             // import or type definition
             } else {
@@ -90,7 +82,7 @@ impl ModuleVisitor {
                     .iter()
                     .filter(|object| *object.definition.identifier() == identifier)
                     .next()
-                    .map(|_| Path::from("root").join(self.path().join(identifier.clone()).without_first()));
+                    .map(|_| Path::from("crate").join(self.path().join(identifier.clone()).without_first()));
                 if definition.is_some() {
                     definition
                 // look for imports

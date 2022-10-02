@@ -102,7 +102,7 @@ impl FileProcessorVisitor for ObjectProcessor {
         // drop function
         let object_name = &object.path.last().name;
         let type_ = ir::Type::Compound(object.path.clone()).into();
-        let reference = ir::Reference { is_constant: false, kind: ir::ReferenceKind::Pointer, type_ };
+        let reference = ir::Reference { mutability: Mutability::Mutable, kind: ir::ReferenceKind::Pointer, type_ };
         let c_type = Type::from(ir::Type::Reference(reference));
         file.writeln(format!("void {name}_drop({type_} self);", name = object_name, type_ = c_type));
 

@@ -1,7 +1,7 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use crate::{Identifier, Reference, Type, ReferenceKind, Attributes};
+use crate::{Identifier, Reference, Type, ReferenceKind, Attributes, Mutability};
 use syn::FnArg;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -43,9 +43,9 @@ impl TryFrom<FnArg> for Parameter {
                 let type_ = reference
                     .map(|_| {
                         let kind = ReferenceKind::Borrow;
-                        let is_constant = mutability.is_none();
+                        let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
                         let type_ = Box::new(Type::from(Identifier::new("Self")));
-                        Type::Reference(Reference { kind, is_constant, type_ })
+                        Type::Reference(Reference { kind, mutability, type_ })
                     })
                     .unwrap_or_else(|| Type::from(Identifier::new("Self")));
                 Ok(Self { attributes, identifier, type_ })
@@ -68,7 +68,7 @@ mod test {
     use std::convert::TryFrom;
 
     use super::Parameter;
-    use crate::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind, Attribute};
+    use crate::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind, Attribute, Mutability};
     use quote::quote;
     use syn::{parse_quote::parse, FnArg};
 
@@ -108,7 +108,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: true,
+                        mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
@@ -128,7 +128,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: false,
+                        mutability: Mutability::Mutable,
                         type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
@@ -148,7 +148,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Pointer,
-                        is_constant: true,
+                        mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
@@ -168,7 +168,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Pointer,
-                        is_constant: false,
+                        mutability: Mutability::Mutable,
                         type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                     }
                 )
@@ -198,7 +198,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: true,
+                        mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
                     }
                 )
@@ -216,7 +216,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: false,
+                        mutability: Mutability::Mutable,
                         type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
                     }
                 )

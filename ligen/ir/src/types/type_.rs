@@ -1,4 +1,4 @@
-use crate::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float, Generics};
+use crate::{Atomic, Reference, ReferenceKind, Path, Identifier, Integer, Float, Generics, Mutability};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 use std::ops::Deref;
@@ -15,6 +15,7 @@ pub enum Type {
 }
 
 impl Type {
+    // FIXME: Rusty
     /// The Self type.
     pub fn self_type() -> Type {
         Type::from(Identifier::new("Self"))
@@ -106,13 +107,9 @@ impl TryFrom<syn::Type> for Type {
             };
             if let Some((kind, elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
-                    let is_constant = mutability.is_none();
+                    let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
                     let type_ = Box::new(path.into());
-                    Ok(Self::Reference(Reference {
-                        kind,
-                        is_constant,
-                        type_,
-                    }))
+                    Ok(Self::Reference(Reference { kind, mutability, type_, }))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))
                 }
@@ -154,7 +151,7 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::{Float, Integer, ReferenceKind};
+    use crate::{Float, Integer, Mutability, ReferenceKind};
 
     use super::{
         Atomic::{self, Boolean, Character},
@@ -257,7 +254,7 @@ mod test {
             Type::Reference(
                 Reference {
                     kind: ReferenceKind::Borrow,
-                    is_constant: true,
+                    mutability: Mutability::Constant,
                     type_: Box::new(
                         Type::Atomic(
                             Atomic::Integer(
@@ -279,7 +276,7 @@ mod test {
             Type::Reference(
                 Reference {
                     kind: ReferenceKind::Borrow,
-                    is_constant: false,
+                    mutability: Mutability::Mutable,
                     type_: Box::new(
                         Type::Atomic(
                             Atomic::Integer(
@@ -300,7 +297,7 @@ mod test {
         assert_eq!(
             Type::Reference(Reference {
                 kind: ReferenceKind::Pointer,
-                is_constant: true,
+                mutability: Mutability::Constant,
                 type_: Box::new(
                     Type::Atomic(
                         Atomic::Integer(
@@ -320,7 +317,7 @@ mod test {
         assert_eq!(
             Type::Reference(Reference {
                 kind: ReferenceKind::Pointer,
-                is_constant: false,
+                mutability: Mutability::Mutable,
                 type_: Box::new(
                     Type::Atomic(
                         Atomic::Integer(

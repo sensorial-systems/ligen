@@ -1,4 +1,4 @@
-use ligen_ir::{Type, TypeDefinition, Attribute, Reference, ReferenceKind};
+use ligen_ir::{Type, TypeDefinition, Attribute, Reference, ReferenceKind, Mutability};
 use ligen_ir::visitor::{ModuleVisitor, ProjectVisitor, StructureVisitor};
 use std::collections::HashMap;
 
@@ -69,7 +69,7 @@ impl Marshaller {
             let type_ = Type::from(structure.path());
             let opaque_type = Type::Reference(Reference {
                 kind: ReferenceKind::Pointer,
-                is_constant: false,
+                mutability: Mutability::Constant,
                 type_: type_.clone().into()
             });
             self.add_input_marshalling(type_.clone(), opaque_type.clone());
@@ -139,11 +139,11 @@ mod tests {
     fn reference_to() {
         let marshaller = Marshaller::new();
         let type_ = Type::Compound("Object".into(), Default::default());
-        let type_ = Type::Reference(Reference { is_constant: false, kind: ReferenceKind::Borrow, type_: type_.into() });
+        let type_ = Type::Reference(Reference { mutability: Mutability::Constant, kind: ReferenceKind::Borrow, type_: type_.into() });
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "&mut Object");
 
         let type_ = Type::Compound("Object".into(), Default::default());
-        let type_ = Type::Reference(Reference { is_constant: true, kind: ReferenceKind::Pointer, type_: type_.into() });
+        let type_ = Type::Reference(Reference { mutability: Mutability::Mutable, kind: ReferenceKind::Pointer, type_: type_.into() });
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "*const Object");
     }
 
@@ -157,7 +157,7 @@ mod tests {
     #[test]
     fn mapped_to() {
         let mut marshaller = Marshaller::new();
-        marshaller.add_input_marshalling(Type::Compound("String".into(), Default::default()), Type::Reference(Reference { type_: Type::Compound("FFIString".into(), Default::default()).into(), kind: ReferenceKind::Pointer, is_constant: false }));
+        marshaller.add_input_marshalling(Type::Compound("String".into(), Default::default()), Type::Reference(Reference { type_: Type::Compound("FFIString".into(), Default::default()).into(), kind: ReferenceKind::Pointer, mutability: Mutability::Constant }));
         let type_ = Type::Compound("String".into(), Default::default());
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "*mut FFIString");
     }

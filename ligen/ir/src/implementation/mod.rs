@@ -97,7 +97,7 @@ mod test {
     use std::convert::TryFrom;
 
     use super::*;
-    use crate::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function, Generics};
+    use crate::{Atomic, Attribute, Integer, Literal, Reference, ReferenceKind, Type, Visibility, Constant, Function, Generics, Mutability, Method};
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -171,6 +171,10 @@ mod test {
                 self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
                 items: vec![ImplementationItem::Method(Function {
                     attributes: Attributes { attributes: vec![] },
+                    method: Some(Method {
+                        mutability: Mutability::Constant,
+                        owner: Type::Compound(Identifier::new("Test").into(), Default::default())
+                    }),
                     visibility: Visibility::Inherited,
                     asyncness: None,
                     identifier: Identifier::new("a"),
@@ -202,6 +206,10 @@ mod test {
                     }),
                     ImplementationItem::Method(Function {
                         attributes: Attributes { attributes: vec![] },
+                        method: Some(Method {
+                            mutability: Mutability::Constant,
+                            owner: Type::Compound(Identifier::new("Test").into(), Default::default())
+                        }),
                         visibility: Visibility::Inherited,
                         asyncness: None,
                         identifier: Identifier::new("b"),
@@ -232,10 +240,10 @@ mod test {
                 Type::Compound(Identifier::new("B").into(), Default::default()),
                 Type::Compound(Identifier::new("C").into(), Default::default()),
                 Type::Compound(Identifier::new("D").into(), Default::default()),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))}),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, mutability: Mutability::Constant, type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))}),
                 Type::Atomic(Atomic::Integer(Integer::I32)),
                 Type::Compound(Identifier::new("String").into(), Default::default()),
-                Type::Reference(Reference {kind: ReferenceKind::Borrow, is_constant: true, type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))}),
+                Type::Reference(Reference {kind: ReferenceKind::Borrow, mutability: Mutability::Constant, type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))}),
                 Type::Compound(Identifier::new("Vec").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
                 Type::Compound(Identifier::new("Box").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
             ]

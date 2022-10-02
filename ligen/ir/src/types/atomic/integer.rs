@@ -71,20 +71,7 @@ impl ToTokens for Integer {
 }
 
 impl From<Integer> for Identifier {
-    fn from(integer: Integer) -> Self {
-        match integer {
-            Integer::U8    => "u8".into(),
-            Integer::U16   => "u16".into(),
-            Integer::U32   => "u32".into(),
-            Integer::U64   => "u64".into(),
-            Integer::U128  => "u128".into(),
-            Integer::USize => "usize".into(),
-            Integer::I8    => "i8".into(),
-            Integer::I16   => "i16".into(),
-            Integer::I32   => "i32".into(),
-            Integer::I64   => "i64".into(),
-            Integer::I128  => "i128".into(),
-            Integer::ISize => "isize".into(),
-        }
+    fn from(from: Integer) -> Self {
+        format!("{:#?}", from).into()
     }
 }

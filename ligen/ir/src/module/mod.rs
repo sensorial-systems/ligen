@@ -110,17 +110,18 @@ impl TryFrom<ProjectInfo> for Module {
 }
 
 impl Module {
-    /// Replace all the occurrences of `Self` by the real object name.
-    pub fn replace_self_with_explicit_names(&mut self) {
-        for module in &mut self.modules {
-            module.replace_self_with_explicit_names();
-        }
-        for object in &mut self.objects {
-            for implementation in &mut object.implementations {
-                implementation.replace_self_with_explicit_names();
-            }
-        }
-    }
+    // TODO: Not used in separating-ligen-ir. We should verify if it's working.
+    // /// Replace all the occurrences of `Self` by the real object name.
+    // pub fn replace_self_with_explicit_names(&mut self) {
+    //     for module in &mut self.modules {
+    //         module.replace_self_with_explicit_names();
+    //     }
+    //     for object in &mut self.objects {
+    //         for implementation in &mut object.implementations {
+    //             implementation.replace_self_with_explicit_names();
+    //         }
+    //     }
+    // }
 
     /// Find the module with the specified path.
     pub fn find_module(&self, path: &Path) -> Option<&Module> {
@@ -572,6 +573,7 @@ mod tests {
                                 items: vec![
                                     ImplementationItem::Method(Function {
                                         attributes: Default::default(),
+                                        method: None,
                                         visibility: Visibility::Public,
                                         asyncness: None,
                                         identifier: "new".into(),

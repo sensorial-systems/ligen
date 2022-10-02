@@ -137,7 +137,10 @@ impl From<ir::Type> for Types {
 
 impl From<ir::Reference> for Type {
     fn from(type_: ir::Reference) -> Self {
-        let constness = if type_.is_constant { Some(Const) } else { None };
+        let constness = match type_.mutability {
+            Mutability::Constant => Some(Const),
+            Mutability::Mutable => None
+        };
         let type_ = Types::from(*type_.type_.clone());
         let pointer = Some(Pointer);
         Self {
@@ -167,6 +170,8 @@ impl From<ir::Type> for Type {
 }
 
 use std::fmt;
+use ligen::ir::Mutability;
+
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.pointer.is_some() {
@@ -183,11 +188,11 @@ impl fmt::Display for Type {
 #[cfg(test)]
 mod test {
     use super::Type;
-    use ligen::ir::{Reference, ReferenceKind};
+    use ligen::ir::{Mutability, Reference, ReferenceKind};
 
     #[test]
     fn ast_type_atomic() {
-        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, is_constant: false, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
+        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, mutability: Mutability::Constant, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
         let in_type = Type::from(out_type);
         println!("{:#?}", in_type);
     }

@@ -31,10 +31,7 @@ impl ToTokens for Float {
 }
 
 impl From<Float> for Identifier {
-    fn from(float: Float) -> Self {
-        match float {
-            Float::F32 => "f32".into(),
-            Float::F64 => "f64".into()
-        }
+    fn from(from: Float) -> Self {
+        format!("{:#?}", from).into()
     }
 }

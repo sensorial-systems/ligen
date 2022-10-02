@@ -13,6 +13,7 @@ pub use types::*;
 pub use visibility::*;
 pub use object::*;
 pub use project::*;
+pub use mutability::*;
 
 extern crate proc_macro;
 
@@ -29,6 +30,7 @@ mod literal;
 mod types;
 mod path;
 mod object;
+mod mutability;
 pub mod project;
 pub mod visitor;
 

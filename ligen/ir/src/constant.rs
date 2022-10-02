@@ -44,7 +44,7 @@ impl From<ItemConst> for Constant {
 #[cfg(test)]
 mod test {
     use super::{Constant, Identifier, ImplItemConst, ItemConst, Type};
-    use crate::{Literal, Reference, ReferenceKind};
+    use crate::{Literal, Mutability, Reference, ReferenceKind};
     use quote::quote;
     use syn::parse_quote::parse;
 
@@ -57,7 +57,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: true,
+                        mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }
                 ),
@@ -75,7 +75,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         kind: ReferenceKind::Borrow,
-                        is_constant: true,
+                        mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }
                 ),

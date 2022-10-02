@@ -1,22 +1,32 @@
 use crate::prelude::*;
 use syn::{ImplItemMethod, ItemFn};
 
-use crate::{Attributes, Identifier, Parameter, Type, Visibility};
+use crate::{Attributes, Identifier, Mutability, Parameter, Type, Visibility};
 use syn::parse_quote::parse;
 
 pub mod parameter;
 
+/// Async structure.
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-/// Async Struct
 pub struct Async;
 
+/// Method structure.
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// Function Struct
+pub struct Method {
+    pub mutability: Mutability,
+    /// Method owner.
+    pub owner: Type
+}
+
+/// Function structure.
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Function {
     /// Attributes field.
     pub attributes: Attributes,
     /// Visibility field.
     pub visibility: Visibility,
+    /// Method field.
+    pub method: Option<Method>,
     /// Asyncness field.
     pub asyncness: Option<Async>,
     /// Identifier field.
@@ -31,17 +41,6 @@ pub struct Function {
 impl From<TokenStream> for Function {
     fn from(tokenstream: TokenStream) -> Self {
         parse::<syn::ImplItemMethod>(tokenstream).into()
-    }
-}
-
-impl From<syn::Visibility> for Visibility {
-    fn from(visibility: syn::Visibility) -> Self {
-        match visibility {
-            syn::Visibility::Public(_) => Self::Public,
-            syn::Visibility::Crate(_) => Self::Crate,
-            syn::Visibility::Restricted(_) => Self::Restricted,
-            syn::Visibility::Inherited => Self::Inherited,
-        }
     }
 }
 
@@ -75,6 +74,7 @@ macro_rules! impl_function {
                             .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                             .collect(),
                     },
+                    method: None,
                     visibility: Visibility::from(item_fn.vis),
                     asyncness: match asyncness {
                         Some(_x) => Some(Async),
@@ -97,9 +97,7 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::{
-        Attribute, Attributes, Identifier, Literal, Parameter, Reference, ReferenceKind, Visibility,
-    };
+    use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, ReferenceKind, Visibility};
 
     use super::{Async, Function, ImplItemMethod, ItemFn, Type};
 
@@ -109,6 +107,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
@@ -124,6 +123,8 @@ mod test {
             Function::from(parse::<ImplItemMethod>(quote! {fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                // FIXME: It doesn't make any sense here. How could we know the method owner with this test?
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
@@ -139,6 +140,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test(a: String, b: String) {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
@@ -165,6 +167,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {fn test() -> String {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
@@ -182,6 +185,7 @@ mod test {
             )),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
                 identifier: Identifier::new("test"),
@@ -196,7 +200,7 @@ mod test {
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
-                            is_constant: true,
+                            mutability: Mutability::Constant,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
@@ -205,14 +209,14 @@ mod test {
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
-                            is_constant: false,
+                            mutability: Mutability::Mutable,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
-                    is_constant: true,
+                    mutability: Mutability::Constant,
                     type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))
             }
@@ -239,6 +243,7 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Inherited,
+                method: None,
                 asyncness: None,
                 identifier: Identifier::new("test"),
                 inputs: vec![],
@@ -253,6 +258,7 @@ mod test {
             Function::from(parse::<ItemFn>(quote! {async fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                method: None,
                 visibility: Visibility::Inherited,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
@@ -282,6 +288,7 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Inherited,
+                method: None,
                 asyncness: Some(Async),
                 identifier: Identifier::new("test"),
                 inputs: vec![
@@ -295,7 +302,7 @@ mod test {
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
-                            is_constant: true,
+                            mutability: Mutability::Constant,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
@@ -304,14 +311,14 @@ mod test {
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             kind: ReferenceKind::Borrow,
-                            is_constant: false,
+                            mutability: Mutability::Mutable,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     kind: ReferenceKind::Borrow,
-                    is_constant: true,
+                    mutability: Mutability::Constant,
                     type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))
             }
@@ -324,6 +331,8 @@ mod test {
             Function::from(parse::<ImplItemMethod>(quote! {pub fn test() {}})),
             Function {
                 attributes: Attributes { attributes: vec![] },
+                // FIXME: ImplItemMethod are for methods and method None.
+                method: None,
                 visibility: Visibility::Public,
                 asyncness: None,
                 identifier: Identifier::new("test"),
