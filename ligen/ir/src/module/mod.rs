@@ -415,7 +415,7 @@ impl TryFrom<ModuleConversionHelper> for Module {
 mod tests {
     // FIXME: Re-enable these tests.
     use super::*;
-    use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute};
+    use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute, Method, Mutability};
     use quote::quote;
     use pretty_assertions::assert_eq;
 
@@ -573,7 +573,10 @@ mod tests {
                                 items: vec![
                                     ImplementationItem::Method(Function {
                                         attributes: Default::default(),
-                                        method: None,
+                                        method: Some(Method {
+                                            mutability: Mutability::Constant,
+                                            owner: Type::from(Identifier::new("Object"))
+                                        }),
                                         visibility: Visibility::Public,
                                         asyncness: None,
                                         identifier: "new".into(),

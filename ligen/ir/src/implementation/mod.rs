@@ -37,6 +37,7 @@ impl TryFrom<syn::ItemImpl> for Implementation {
     type Error = Error;
     fn try_from(item_impl: syn::ItemImpl) -> Result<Self> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = *item_impl.self_ty {
+            let self_ = Type::from(path);
             Ok(Self {
                 attributes: Attributes {
                     attributes: item_impl
@@ -45,11 +46,11 @@ impl TryFrom<syn::ItemImpl> for Implementation {
                         .map(|x| x.parse_meta().expect("Failed to parse Meta").into())
                         .collect(),
                 },
-                self_: path.into(),
+                self_: self_.clone(),
                 items: item_impl
                     .items
                     .into_iter()
-                    .map(|x| x.try_into().expect("Failed to convert from ImplItem"))
+                    .map(|x| (self_.clone(), x).try_into().expect("Failed to convert from ImplItem"))
                     .collect(),
             })
         } else {
