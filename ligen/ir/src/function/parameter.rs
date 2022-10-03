@@ -15,6 +15,16 @@ pub struct Parameter {
     pub type_: Type,
 }
 
+impl Parameter {
+    /// Get parameter mutability.
+    pub fn mutability(&self) -> Mutability {
+        match &self.type_ {
+            Type::Reference(reference) => reference.mutability,
+            _ => Mutability::Constant
+        }
+    }
+}
+
 impl TryFrom<FnArg> for Parameter {
     type Error = Error;
 

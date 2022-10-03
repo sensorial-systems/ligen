@@ -106,10 +106,11 @@ impl From<(Type, syn::ImplItemMethod)> for Function {
                 Some(Type::try_from(*y).expect("Failed to convert from ReturnType::Type"))
             }
         };
-        let method = Some(Method {
-            owner,
-            mutability: Mutability::Constant // FIXME: Correctly set mutability
-        });
+        let mutability = inputs
+            .get(0)
+            .map(|parameter| parameter.mutability())
+            .unwrap_or(Mutability::Constant);
+        let method = Some(Method { owner, mutability });
         Self {
             attributes: Attributes {
                 attributes: item_fn
