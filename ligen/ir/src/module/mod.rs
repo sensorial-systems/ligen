@@ -6,8 +6,6 @@ pub use import::*;
 use crate::prelude::*;
 use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function, Literal};
 use std::collections::HashMap;
-use std::io::Read;
-use std::fs::File;
 use syn::parse_quote::parse;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::{SnakeCase, NamingConvention};
@@ -360,7 +358,7 @@ impl TryFrom<(&ModuleConversionHelper, &syn::ItemMod)> for ModuleConversionHelpe
         let (visitor, module) = from;
         let project = visitor.project.clone();
         let visibility = module.vis.clone().into();
-        let items = module.content.clone().unwrap_or_default().1.into();
+        let items = module.content.clone().map(|(_, content)| content).into();
         let attributes = module.attrs.clone().try_into()?;
         let identifier = Identifier::from(module.ident.clone());
         let relative_path = visitor.relative_path.join(identifier.name.clone());
@@ -372,15 +370,13 @@ impl TryFrom<ProjectInfo> for ModuleConversionHelper {
     type Error = Error;
     fn try_from(project: ProjectInfo) -> Result<Self> {
         let module_path = project.directory.join("src").join("lib.rs");
-        let mut file = File::open(module_path)?;
-        let mut src = String::new();
-        file.read_to_string(&mut src)?;
+        let src = std::fs::read_to_string(module_path)?;
         let file = syn::parse_file(&src)?;
         let visibility = Visibility::Public;
         let items = Some(file.items);
         let attributes = file.attrs.try_into()?;
-        let identifier = Identifier::from(SnakeCase::from(project.name.clone()).to_string());
-        let relative_path = PathBuf::from(identifier.name.clone());
+        let identifier = Identifier::from("crate"); // FIXME: Rusty
+        let relative_path = PathBuf::from("");
         Ok(ModuleConversionHelper { visibility, identifier, items, project, relative_path, attributes })
     }
 }
@@ -388,7 +384,6 @@ impl TryFrom<ProjectInfo> for ModuleConversionHelper {
 impl TryFrom<ModuleConversionHelper> for Module {
     type Error = Error;
     fn try_from(visitor: ModuleConversionHelper) -> Result<Self> {
-        // let module_path = visitor.relative_path.join(visitor.identifier.name.clone());
         if let Some(items) = &visitor.items {
             let attributes = Module::parse_ligen_attributes(&visitor.attributes, &items)?;
             let ignored = Module::ignored_from_attributes(&attributes);
@@ -400,20 +395,27 @@ impl TryFrom<ModuleConversionHelper> for Module {
             let path = visitor.relative_path.into();
             Ok(Self { attributes, visibility, path, name, imports, modules, functions, objects })
         } else {
-            Err(Error::Message("Can't load module files yet".into()))
-            // let mut path = base_path.with_extension("rs");
-            // if !path.exists() {
-            //     path = base_path.join("mod.rs");
-            // }
-            // let path = path.as_path();
-            // path.try_into()
+            // FIXME: Clean this up. This code is duplicated and can be simplified.
+            let module_path = visitor.project.directory.join("src").join(visitor.relative_path);
+            let src = if let Ok(src) = std::fs::read_to_string(module_path.with_extension("rs")) {
+                src
+            } else {
+                std::fs::read_to_string(module_path.join("mod.rs"))?
+            };
+            let file = syn::parse_file(&src)?;
+            let visibility = Visibility::Public;
+            let items = Some(file.items);
+            let attributes = file.attrs.try_into()?;
+            let identifier = visitor.identifier.clone();
+            let relative_path = PathBuf::from(identifier.name.clone());
+            let project = visitor.project.clone();
+            ModuleConversionHelper { visibility, identifier, items, project, relative_path, attributes }.try_into()
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    // FIXME: Re-enable these tests.
     use super::*;
     use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute, Method, Mutability};
     use quote::quote;
