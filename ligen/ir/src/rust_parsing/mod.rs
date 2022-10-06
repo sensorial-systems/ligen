@@ -7,3 +7,4 @@ pub mod path;
 pub mod literal;
 pub mod identifier;
 pub mod module;
+pub mod constant;
