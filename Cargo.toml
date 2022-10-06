@@ -8,7 +8,7 @@ members = [
     "generators/ligen-rust",
     "generators/ligen-cmake",
     "generators/ligen-c",
-#    "generators/ligen-csharp",
-#    "examples/example",
+    "generators/ligen-csharp",
+    "examples/example",
 #    "generators/ligen-csharp/tests/rust"
 ]

@@ -6,6 +6,9 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+bindings = ["ligen", "ligen-cargo", "ligen-rust", "ligen-csharp"]
+
 [lib]
 crate-type = ["lib", "staticlib"]
 
@@ -13,9 +16,7 @@ crate-type = ["lib", "staticlib"]
 ligen-macro = { path = "../../ligen/macro" }
 
 [build-dependencies]
-# FIXME: Is syn really necessary?
-syn          = "1.0.74"
-ligen        = { path = "../../ligen" }
-#ligen-c      = { path = "../../generators/ligen-c" }
-#ligen-cmake  = { path = "../../generators/ligen-cmake" }
-ligen-csharp = { path = "../../generators/ligen-csharp" }
+ligen        = { path = "../../ligen", optional = true }
+ligen-cargo  = { path = "../../generators/ligen-cargo", optional = true }
+ligen-rust   = { path = "../../generators/ligen-rust", optional = true }
+ligen-csharp = { path = "../../generators/ligen-csharp", optional = true }

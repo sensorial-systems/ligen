@@ -80,18 +80,20 @@ impl FileProcessorVisitor for FunctionProcessor {
             let mut arguments = Self::generate_arguments(function);
             let static_ = if function.is_method() {
                 let is_opaque = if let FunctionParent::Implementation(_) = &function.parent {
-                    let type_ = &function.current.inputs[0].type_;
-                    let identifier = type_.path().last();
-                    root_module
-                        .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
-                        .map(|literal| literal.to_string() == "true")
-                        .unwrap_or_default()
+                    let type_ = &function.current.inputs.get(0).map(|input| input.type_.clone());
+                    let identifier = type_.clone().map(|type_| type_.path().last());
+                    identifier.map(|identifier| {
+                        root_module
+                            .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier))
+                            .map(|literal| literal.to_string() == "true")
+                            .unwrap_or_default()
+                    }).unwrap_or_default()
                 } else {
                     false
                 };
 
-                parameters.remove(0);
-                arguments.remove(0);
+                if !parameters.is_empty() { parameters.remove(0); }
+                if !arguments.is_empty() { arguments.remove(0); }
                 let self_ = if is_opaque { "this.opaque" } else { "this" };
                 arguments.insert(0, self_.into());
                 ""
