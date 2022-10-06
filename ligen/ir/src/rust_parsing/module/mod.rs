@@ -3,10 +3,11 @@
 mod import;
 
 use crate::prelude::*;
-use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function, Module, Imports};
+use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function, Module, Imports, ProjectInfo};
 use std::collections::HashMap;
 use syn::parse_quote::parse;
 use std::path::PathBuf;
+use ligen_utils::conventions::naming::NamingConvention;
 
 impl TryFrom<ProjectInfo> for Module {
     type Error = Error;
@@ -135,7 +136,8 @@ impl TryFrom<TokenStream> for Module {
     fn try_from(tokenstream: TokenStream) -> Result<Self> {
         let module = parse::<syn::ItemMod>(tokenstream);
         let directory = PathBuf::from("");
-        let project = ProjectInfo { directory };
+        let name = NamingConvention::SnakeCase(Default::default());
+        let project = ProjectInfo { directory, name };
         let attributes = module.attrs.try_into()?;
         let visibility = module.vis.into();
         let identifier = Identifier::from(module.ident);
@@ -143,11 +145,6 @@ impl TryFrom<TokenStream> for Module {
         let items = module.content.clone().unwrap_or_default().1.into();
         ModuleConversionHelper { project, items, identifier, relative_path, visibility, attributes }.try_into()
     }
-}
-
-#[derive(Clone)]
-struct ProjectInfo {
-    pub directory: PathBuf
 }
 
 struct ModuleConversionHelper {

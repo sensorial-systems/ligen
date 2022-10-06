@@ -6,6 +6,14 @@ use crate::prelude::*;
 use ligen_utils::conventions::naming::NamingConvention;
 use std::path::PathBuf;
 
+// TODO: I think the only reason it exists ie because Project is Rusty. We should merge and generalize the concepts.
+/// Project info.
+#[derive(Clone)]
+pub struct ProjectInfo {
+    pub directory: PathBuf,
+    pub name: NamingConvention
+}
+
 /// Project representation.
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
