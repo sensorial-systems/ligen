@@ -122,7 +122,7 @@ impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
             ir::Type::Atomic(atomic) => Self::Atomic(Atomic::from(atomic)),
-            ir::Type::Compound(compound) => {
+            ir::Type::Compound(compound, _generics) => {
                 Self::Compound(compound.segments.last().unwrap().clone())
             }
             ir::Type::Reference(_reference) => {
@@ -134,7 +134,10 @@ impl From<ir::Type> for Types {
 
 impl From<ir::Reference> for Type {
     fn from(type_: ir::Reference) -> Self {
-        let constness = if type_.is_constant { Some(Const) } else { None };
+        let constness = match type_.mutability {
+            ir::Mutability::Constant => Some(Const),
+            ir::Mutability::Mutable => None
+        };
         let type_ = Types::from(*type_.type_.clone());
         let pointer = Some(Pointer);
         Self {
@@ -153,7 +156,7 @@ impl From<ir::Type> for Type {
                 type_: Types::Atomic(type_.into()),
                 pointer: None,
             },
-            ir::Type::Compound(path) => Self {
+            ir::Type::Compound(path, _) => Self {
                 constness: None,
                 type_: Types::Compound(path.segments.last().unwrap().clone()),
                 pointer: None,
@@ -164,6 +167,7 @@ impl From<ir::Type> for Type {
 }
 
 use std::fmt;
+
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(_) = self.constness {

@@ -1,11 +1,12 @@
-use ligen::generator::{ImplementationVisitor, FileProcessorVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
+use ligen::traits::generator::{ImplementationVisitor, FileSet, FunctionVisitor, ParameterVisitor, FileGeneratorVisitors, StructureVisitor, ObjectVisitor, ModuleVisitor, ProjectVisitor, EnumerationVisitor, FunctionParent};
 use ligen::ir;
 use std::path::PathBuf;
 use crate::ast::{Types, Type};
 use crate::generator::CGenerator;
-use ligen::ir::Path;
+use ligen::ir::{Mutability, Path};
 use ligen::ir::processing::ReplaceIdentifier;
-use ligen::conventions::naming::SnakeCase;
+use ligen::traits::generator::file_processor_visitor::FileProcessorVisitor;
+use ligen::utils::conventions::naming::SnakeCase;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -86,7 +87,7 @@ impl FileProcessorVisitor for ModuleProcessor {
 impl FileProcessorVisitor for ObjectProcessor {
     type Visitor = ObjectVisitor;
 
-    fn process(&self, _file_set: &mut FileSet, object: &Self::Visitor) {
+    fn process(&self, _file_set: &mut FileSet, _object: &Self::Visitor) {
         // let file = file_set.entry(&path(&object.parent.path()));
         // includes
         // file.writeln("#pragma once");
@@ -97,11 +98,11 @@ impl FileProcessorVisitor for ObjectProcessor {
     }
 
     fn post_process(&self, file_set: &mut FileSet, object: &Self::Visitor) {
-        let file = file_set.entry(&path(&object.module_path()));
+        let file = file_set.entry(&path(&object.path()));
 
         // drop function
         let object_name = &object.path.last().name;
-        let type_ = ir::Type::Compound(object.path.clone()).into();
+        let type_ = ir::Type::Compound(object.path.clone(), Default::default()).into();
         let reference = ir::Reference { mutability: Mutability::Mutable, kind: ir::ReferenceKind::Pointer, type_ };
         let c_type = Type::from(ir::Type::Reference(reference));
         file.writeln(format!("void {name}_drop({type_} self);", name = object_name, type_ = c_type));
@@ -127,7 +128,7 @@ impl FileProcessorVisitor for StructureProcessor {
     type Visitor = StructureVisitor;
 
     fn process(&self, file_set: &mut FileSet, structure: &Self::Visitor) {
-        let file = file_set.entry(&path(&structure.module_path()));
+        let file = file_set.entry(&path(&structure.path()));
         file.writeln("typedef struct {");
         file.writeln("\tvoid* opaque;");
         file.writeln(format!("}} {};", structure.identifier));
@@ -206,7 +207,7 @@ impl FileProcessorVisitor for ParameterProcessor {
 
     fn process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
         if let ir::Visibility::Public = parameter.parent.visibility {
-            let file = file_set.entry(&path(&parameter.parent.module_path()));
+            let file = file_set.entry(&path(&parameter.parent.path()));
 
             let type_ = Type::from(parameter.type_.clone());
             let ident = &parameter.identifier.name;
@@ -216,7 +217,7 @@ impl FileProcessorVisitor for ParameterProcessor {
 
     fn post_process(&self, file_set: &mut FileSet, parameter: &Self::Visitor) {
         if let ir::Visibility::Public = parameter.parent.visibility {
-            let file = file_set.entry(&path(&parameter.parent.module_path()));
+            let file = file_set.entry(&path(&parameter.parent.path()));
             file.write(", ");
         }
     }
@@ -232,6 +233,3 @@ impl FileGeneratorVisitors for CGenerator {
     type FunctionProcessor = FunctionProcessor;
     type ParameterProcessor = ParameterProcessor;
 }
-
-#[cfg(test)]
-mod tests;

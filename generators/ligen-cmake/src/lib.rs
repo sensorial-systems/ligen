@@ -1,8 +1,8 @@
 use ligen::prelude::*;
-use ligen::generator::{FileSet, FileGenerator, FFIGenerator, ProjectVisitor};
-use ligen::generator::File;
+use ligen::traits::generator::{FileSet, FileGenerator, ProjectVisitor};
+use ligen::traits::generator::File;
 use std::path::PathBuf;
-use ligen::marshalling::Marshaller;
+// use ligen::traits::marshalling::Marshaller;
 
 /// CMake project generator.
 #[derive(Debug, Clone)]
@@ -14,10 +14,14 @@ pub enum Language {
     CPP
 }
 
-impl Generator for CMakeGenerator {}
+impl Generator for CMakeGenerator {
+    fn base_path(&self) -> PathBuf {
+        "cmake".into()
+    }
+}
 
 impl FileGenerator for CMakeGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, project: &ProjectVisitor) {
+    fn generate_files(&self, file_set: &mut FileSet, project: &ProjectVisitor) -> Result<()> {
         let generator_version = env!("CARGO_PKG_VERSION");
         let project_name = &project.name().to_string();
 
@@ -35,9 +39,6 @@ impl FileGenerator for CMakeGenerator {
         };
         let file = File::new(PathBuf::from("CMakeLists.txt"), content);
         file_set.insert(file);
+        Ok(())
     }
-}
-
-impl FFIGenerator for CMakeGenerator {
-    fn generate_ffi(&self, _marshaller: &Marshaller, _file: &mut File, _implementation: &ProjectVisitor) {}
 }

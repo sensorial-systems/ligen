@@ -2,13 +2,15 @@
 
 mod files;
 
+use std::path::PathBuf;
 use ligen::prelude::*;
-use ligen::generator::GenericFFIGenerator;
 
 /// Generator structure.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct CGenerator;
 
-impl Generator for CGenerator {}
-
-impl GenericFFIGenerator for CGenerator {}
+impl Generator for CGenerator {
+    fn base_path(&self) -> PathBuf {
+        PathBuf::from("c")
+    }
+}
