@@ -36,3 +36,4 @@ pub mod visitor;
 
 pub mod processing;
 
+pub mod rust_parsing;
