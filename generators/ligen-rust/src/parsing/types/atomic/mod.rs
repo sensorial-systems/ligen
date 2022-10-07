@@ -76,6 +76,7 @@ mod test {
     use super::{Atomic, Float, Integer};
     use quote::quote;
     use syn::parse_quote::parse;
+    use crate::prelude::SynIdent;
 
     #[test]
     fn atomic_integer() {
@@ -94,7 +95,7 @@ mod test {
             quote! { isize },
         ]
             .into_iter()
-            .map(|x| parse::<syn::Ident>(x).try_into().expect("Failed to parse"))
+            .map(|x| SynIdent(parse::<syn::Ident>(x)).try_into().expect("Failed to parse"))
             .collect();
         let expected: Vec<Integer> = vec![
             Integer::U8,
@@ -124,7 +125,7 @@ mod test {
     fn atomic_float() {
         let vec: Vec<Atomic> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
-            .map(|x| parse::<syn::Ident>(x).try_into().expect("Failed to parse"))
+            .map(|x| SynIdent(parse::<syn::Ident>(x)).try_into().expect("Failed to parse"))
             .collect();
         let expected: Vec<Float> = vec![Float::F32, Float::F64].into_iter().collect();
 
@@ -139,7 +140,7 @@ mod test {
     fn atomic_boolean() {
         assert_eq!(
             Atomic::Boolean,
-            parse::<syn::Ident>(quote! {bool})
+            SynIdent(parse::<syn::Ident>(quote! {bool}))
                 .try_into()
                 .expect("Failed to parse")
         );
@@ -149,7 +150,7 @@ mod test {
     fn atomic_character() {
         assert_eq!(
             Atomic::Character,
-            parse::<syn::Ident>(quote! {char})
+            SynIdent(parse::<syn::Ident>(quote! {char}))
                 .try_into()
                 .expect("Failed to parse")
         );

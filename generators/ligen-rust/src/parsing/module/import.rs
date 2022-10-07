@@ -101,7 +101,7 @@ mod tests {
             #[custom(attribute)]
             pub use std::collections::HashMap;
         });
-        let imports = Imports::try_from(import)?;
+        let imports = Imports::try_from(SynItemUse(import))?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -119,7 +119,7 @@ mod tests {
             #[custom(attribute)]
             pub use std::collections::*;
         });
-        let imports = Imports::try_from(import)?;
+        let imports = Imports::try_from(SynItemUse(import))?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -137,7 +137,7 @@ mod tests {
             #[custom(attribute)]
             pub use std::collections::HashMap as Map;
         });
-        let imports = Imports::try_from(import)?;
+        let imports = Imports::try_from(SynItemUse(import))?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -161,7 +161,7 @@ mod tests {
                 rc::Rc
             };
         });
-        let imports = Imports::try_from(import)?;
+        let imports = Imports::try_from(SynItemUse(import))?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),

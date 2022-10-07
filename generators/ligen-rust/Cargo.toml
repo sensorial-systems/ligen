@@ -15,3 +15,6 @@ syn          = { version = "1.0.73", features = [ "full" ] }
 proc-macro2  = "1.0.26"
 quote        = "1.0.9"
 cargo_toml   = "0.10.0"
+
+[dev-dependencies]
+pretty_assertions = "0.7.2"

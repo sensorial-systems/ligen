@@ -43,16 +43,17 @@ mod test {
     use syn::parse_quote::parse;
     use crate::Path;
     use crate::Identifier;
+    use crate::prelude::SynPath;
 
     #[test]
     fn identifier_as_path() {
-        let path: Path = parse::<syn::Path>(quote! { u8 }).into();
+        let path: Path = SynPath(parse::<syn::Path>(quote! { u8 })).into();
         assert_eq!(path.segments.first(), Some(&Identifier::new("u8")));
     }
 
     #[test]
     fn path() {
-        let path: Path = parse::<syn::Path>(quote! { std::convert::TryFrom }).into();
+        let path: Path = SynPath(parse::<syn::Path>(quote! { std::convert::TryFrom })).into();
         let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
         assert_eq!(path.segments, segments);
     }

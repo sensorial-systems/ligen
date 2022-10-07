@@ -58,14 +58,15 @@ mod test {
     use super::Parameter;
     use crate::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind, Attribute, Mutability};
     use quote::quote;
-    use syn::{parse_quote::parse, FnArg};
+    use syn::{parse_quote::parse};
+    use crate::prelude::SynFnArg;
 
     #[test]
     fn parameter_atomic() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {
                 #[attribute] integer: i32
-            })).expect("Returned Error"),
+            }))).expect("Returned Error"),
             Parameter {
                 attributes: Attribute::Group("attribute".into(), Default::default()).into(),
                 identifier: Identifier::new("integer"),
@@ -77,7 +78,7 @@ mod test {
     #[test]
     fn parameter_compound() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {name: String})).expect("Returned Error"),
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: String}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("name"),
@@ -89,7 +90,7 @@ mod test {
     #[test]
     fn parameter_borrow_constant() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {name: &String})).expect("Returned Error"),
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: &String}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("name"),
@@ -108,7 +109,7 @@ mod test {
     #[test]
     fn parameter_borrow_mutable() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {name: &mut String}))
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: &mut String})))
                 .expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
@@ -128,7 +129,7 @@ mod test {
     #[test]
     fn parameter_pointer_constant() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {name: *const String}))
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: *const String})))
                 .expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
@@ -148,7 +149,7 @@ mod test {
     #[test]
     fn parameter_pointer_mutable() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {name: *mut String}))
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: *mut String})))
                 .expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
@@ -167,7 +168,7 @@ mod test {
     #[test]
     fn parameter_receiver() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {self})).expect("Returned Error"),
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {self}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
@@ -179,7 +180,7 @@ mod test {
     #[test]
     fn parameter_receiver_reference() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {&self})).expect("Returned Error"),
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {&self}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
@@ -197,7 +198,7 @@ mod test {
     #[test]
     fn parameter_receiver_mutable() {
         assert_eq!(
-            Parameter::try_from(parse::<FnArg>(quote! {&mut self})).expect("Returned Error"),
+            Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {&mut self}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("self").into(),

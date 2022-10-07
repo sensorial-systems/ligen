@@ -71,12 +71,13 @@ mod test {
     use super::Literal;
     use quote::quote;
     use syn::parse_quote::parse;
+    use crate::prelude::SynLit;
 
     #[test]
     fn literal_string() {
         let tokenstream = quote! { "value" };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::String(value) = literal {
             assert_eq!(value, "value");
         }
@@ -85,7 +86,7 @@ mod test {
     #[test]
     fn literal_verbatim() {
         let lit = syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim"));
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::String(value) = literal {
             assert_eq!(value, "\"verbatim\"");
         }
@@ -95,7 +96,7 @@ mod test {
     fn literal_byte() {
         let tokenstream = quote! { b'A' };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::UnsignedInteger(value) = literal {
             assert_eq!(value, b'A' as u64);
         }
@@ -105,7 +106,7 @@ mod test {
     fn literal_byte_str() {
         let tokenstream = quote! { b"bytestr" };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::String(value) = literal {
             assert_eq!(value, "bytestr");
         }
@@ -115,7 +116,7 @@ mod test {
     fn literal_bool() {
         let tokenstream = quote! { true };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::Bool(value) = literal {
             assert_eq!(value, true);
         }
@@ -125,7 +126,7 @@ mod test {
     fn literal_char() {
         let tokenstream = quote! { 'a' };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::Char(value) = literal {
             assert_eq!(value, 'a');
         }
@@ -135,7 +136,7 @@ mod test {
     fn literal_integer() {
         let tokenstream = quote! { 2 };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::Integer(value) = literal {
             assert_eq!(value, 2);
         }
@@ -145,7 +146,7 @@ mod test {
     fn literal_unsigned_integer() {
         let tokenstream = quote! { 2 };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::UnsignedInteger(value) = literal {
             assert_eq!(value, 2);
         }
@@ -155,7 +156,7 @@ mod test {
     fn literal_float() {
         let tokenstream = quote! { 2.0 };
         let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = lit.into();
+        let literal: Literal = SynLit(lit).into();
         if let Literal::Float(value) = literal {
             assert_eq!(value, 2.0);
         }

@@ -25,6 +25,7 @@ mod tests {
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
     use crate::{Visibility, Enumeration, Variant};
+    use crate::prelude::SynItemEnum;
 
     #[test]
     fn enumeration() {
@@ -36,7 +37,7 @@ mod tests {
             }
         });
         assert_eq!(
-            Enumeration::try_from(enumeration).expect("Failed to convert structure."),
+            Enumeration::try_from(SynItemEnum(enumeration)).expect("Failed to convert structure."),
             Enumeration {
                 attributes: Default::default(),
                 visibility: Visibility::Inherited,

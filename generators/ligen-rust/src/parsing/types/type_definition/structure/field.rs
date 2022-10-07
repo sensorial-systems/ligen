@@ -20,6 +20,7 @@ mod tests {
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
     use crate::{Field, Visibility, Path};
+    use crate::prelude::SynField;
 
     #[test]
     fn field() {
@@ -29,7 +30,7 @@ mod tests {
             }
         });
         assert_eq!(
-            Field::try_from(structure.fields.into_iter().next().expect("Couldn't get field.")).expect("Failed to convert field."),
+            Field::try_from(SynField(structure.fields.into_iter().next().expect("Couldn't get field."))).expect("Failed to convert field."),
             Field {
                 attributes: Default::default(),
                 visibility: Visibility::Inherited,

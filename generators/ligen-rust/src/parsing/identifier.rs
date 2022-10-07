@@ -24,12 +24,13 @@ mod test {
     use super::quote;
     use super::Identifier;
     use syn::parse_quote::parse;
+    use crate::prelude::SynIdent;
 
     #[test]
     fn identifier() {
         let tokenstream = quote! { id };
         let identifier: syn::Ident = parse(tokenstream);
-        let identifier = Identifier::from(identifier);
+        let identifier = Identifier::from(SynIdent(identifier));
         assert_eq!(identifier.name, "id");
     }
 }

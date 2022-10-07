@@ -32,15 +32,16 @@ impl From<SynItemConst> for Constant {
 
 #[cfg(test)]
 mod test {
-    use super::{Constant, Identifier, ImplItemConst, ItemConst, Type};
+    use super::{Constant, Identifier, Type};
     use crate::{Literal, Mutability, Reference, ReferenceKind};
     use quote::quote;
     use syn::parse_quote::parse;
+    use crate::prelude::{SynImplItemConst, SynItemConst};
 
     #[test]
     fn impl_const_impl() {
         assert_eq!(
-            Constant::from(parse::<ImplItemConst>(quote! {const a: &str = "test";})),
+            Constant::from(SynImplItemConst(parse::<syn::ImplItemConst>(quote! {const a: &str = "test";}))),
             Constant {
                 identifier: Identifier::new("a"),
                 type_: Type::Reference(
@@ -58,7 +59,7 @@ mod test {
     #[test]
     fn impl_const() {
         assert_eq!(
-            Constant::from(parse::<ItemConst>(quote! {const a: &str = "test";})),
+            Constant::from(SynItemConst(parse::<syn::ItemConst>(quote! {const a: &str = "test";}))),
             Constant {
                 identifier: Identifier::new("a"),
                 type_: Type::Reference(

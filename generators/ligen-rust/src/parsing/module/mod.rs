@@ -300,8 +300,8 @@ mod tests {
             }
         };
 
-        let expected_module = Module::try_from(expected_module)?;
-        let mut module = Module::try_from(module)?;
+        let expected_module = Module::try_from(ProcMacro2TokenStream(expected_module))?;
+        let mut module = Module::try_from(ProcMacro2TokenStream(module))?;
         module.replace_wildcard_imports();
         assert_eq!(module, expected_module);
         Ok(())
@@ -331,7 +331,7 @@ mod tests {
                 }
             }
         };
-        let module = Module::try_from(module)?;
+        let module = Module::try_from(ProcMacro2TokenStream(module))?;
         assert_eq!(
             module,
             Module {

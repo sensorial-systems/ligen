@@ -99,13 +99,14 @@ mod test {
     use syn::parse_quote::parse;
 
     use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, ReferenceKind, Visibility};
+    use crate::prelude::SynItemFn;
 
     use super::{Async, Function, Type};
 
     #[test]
     fn function() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {fn test() {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
@@ -121,7 +122,7 @@ mod test {
     #[test]
     fn function_impl() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {fn test() {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 // FIXME: It doesn't make any sense here. How could we know the method owner with this test?
@@ -138,7 +139,7 @@ mod test {
     #[test]
     fn function_input() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {fn test(a: String, b: String) {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test(a: String, b: String) {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
@@ -165,7 +166,7 @@ mod test {
     #[test]
     fn function_output() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {fn test() -> String {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() -> String {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
@@ -181,9 +182,9 @@ mod test {
     #[test]
     fn function_input_output() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(
+            Function::from(SynItemFn(parse::<syn::ItemFn>(
                 quote! {fn test(a: String, b: &String, c: &mut String) -> &String {}}
-            )),
+            ))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
@@ -227,10 +228,10 @@ mod test {
     #[test]
     fn function_attribute() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {
                 #[test(a = "b")]
                 fn test() {}
-            })),
+            }))),
             Function {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -256,7 +257,7 @@ mod test {
     #[test]
     fn function_async() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {async fn test() {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {async fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
@@ -272,10 +273,10 @@ mod test {
     #[test]
     fn function_complete() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {
             #[test(a = "b")]
                 async fn test(a: String, b: &String, c: &mut String) -> &String {}
-            })),
+            }))),
             Function {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -329,7 +330,7 @@ mod test {
     #[test]
     fn function_pub() {
         assert_eq!(
-            Function::from(parse::<syn::ItemFn>(quote! {pub fn test() {}})),
+            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {pub fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
                 // FIXME: ImplItemMethod are for methods and method None.

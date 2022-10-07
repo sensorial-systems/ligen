@@ -79,6 +79,7 @@ mod test {
     use syn::parse_quote::parse;
 
     use crate::{Float, Integer, Mutability, ReferenceKind};
+    use crate::prelude::SynType;
 
     use super::{
         Atomic::{self, Boolean, Character},
@@ -103,7 +104,7 @@ mod test {
         ]
             .into_iter()
             .map(|x| {
-                parse::<syn::Type>(x)
+                SynType(parse::<syn::Type>(x))
                     .try_into()
                     .expect("Failed to convert from syn::Type")
             })
@@ -138,7 +139,7 @@ mod test {
         let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
             .map(|x| {
-                parse::<syn::Type>(x)
+                SynType(parse::<syn::Type>(x))
                     .try_into()
                     .expect("Failed to convert from syn::Type")
             })
@@ -159,7 +160,7 @@ mod test {
     fn types_boolean() {
         assert_eq!(
             Type::Atomic(Boolean),
-            parse::<syn::Type>(quote! {bool})
+            SynType(parse::<syn::Type>(quote! {bool}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );
@@ -169,7 +170,7 @@ mod test {
     fn types_character() {
         assert_eq!(
             Type::Atomic(Character),
-            parse::<syn::Type>(quote! {char})
+            SynType(parse::<syn::Type>(quote! {char}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );
@@ -191,7 +192,7 @@ mod test {
                     )
                 }
             ),
-            parse::<syn::Type>(quote! {&i32})
+            SynType(parse::<syn::Type>(quote! {&i32}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );
@@ -213,7 +214,7 @@ mod test {
                     )
                 }
             ),
-            parse::<syn::Type>(quote! {&mut i32})
+            SynType(parse::<syn::Type>(quote! {&mut i32}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );
@@ -233,7 +234,7 @@ mod test {
                     )
                 )
             }),
-            parse::<syn::Type>(quote! {*const i32})
+            SynType(parse::<syn::Type>(quote! {*const i32}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );
@@ -253,7 +254,7 @@ mod test {
                     )
                 )
             }),
-            parse::<syn::Type>(quote! {*mut i32})
+            SynType(parse::<syn::Type>(quote! {*mut i32}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
         );

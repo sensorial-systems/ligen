@@ -58,7 +58,7 @@ mod test {
     #[test]
     fn impl_block() {
         assert_eq!(
-            Implementation::try_from(quote! {impl Test {}})
+            Implementation::try_from(ProcMacro2TokenStream(quote! {impl Test {}}))
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
@@ -71,10 +71,10 @@ mod test {
     #[test]
     fn impl_block_attributes() {
         assert_eq!(
-            Implementation::try_from(quote! {
+            Implementation::try_from(ProcMacro2TokenStream(quote! {
                 #[test(a = "b")]
                 impl Test {}
-            }).expect("Failed to convert from ItemImpl"),
+            })).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -96,11 +96,11 @@ mod test {
     #[test]
     fn impl_block_items_const() {
         assert_eq!(
-            Implementation::try_from(quote! {
+            Implementation::try_from(ProcMacro2TokenStream(quote! {
                 impl Test {
                     const a: i32 = 2;
                 }
-            }).expect("Failed to convert from ItemImpl"),
+            })).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
@@ -116,11 +116,11 @@ mod test {
     #[test]
     fn impl_block_items_method() {
         assert_eq!(
-            Implementation::try_from(quote! {
+            Implementation::try_from(ProcMacro2TokenStream(quote! {
                 impl Test {
                     fn a(){}
                 }
-            }).expect("Failed to convert from ItemImpl"),
+            })).expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
                 self_: Type::Compound(Identifier::new("Test").into(), Default::default()),
@@ -143,12 +143,12 @@ mod test {
     #[test]
     fn impl_block_items() {
         assert_eq!(
-            Implementation::try_from(quote! {
+            Implementation::try_from(ProcMacro2TokenStream(quote! {
                 impl Test {
                     const a: i32 = 2;
                     fn b(){}
                 }
-            })
+            }))
                 .expect("Failed to convert from ItemImpl"),
             Implementation {
                 attributes: Attributes { attributes: vec![] },
@@ -179,13 +179,13 @@ mod test {
     #[test]
     fn impl_block_dependencies() {
         assert_eq!(
-            Implementation::try_from(quote! {
+            Implementation::try_from(ProcMacro2TokenStream(quote! {
                 impl Person {
                     pub fn new(name: FullName, age: Age) -> Self { ... }
                     pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
                     pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<String>;
                 }
-            })
+            }))
                 .expect("Failed to build implementation from TokenStream")
                 .dependencies(),
             vec![

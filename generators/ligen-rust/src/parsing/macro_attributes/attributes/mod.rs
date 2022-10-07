@@ -111,18 +111,19 @@ mod test {
     use crate::{Attribute, Attributes, Identifier, Literal};
     use quote::quote;
     use syn::{parse2, NestedMeta};
+    use crate::prelude::{LigenAttributes, SynNestedMeta};
 
     #[test]
     fn attribute_literal() {
         let args: NestedMeta = syn::parse_quote!("C");
-        let attr: Attribute = args.into();
+        let attr: Attribute = SynNestedMeta(args).into();
         assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))))
     }
 
     #[test]
     fn attribute_named() {
         let args: NestedMeta = syn::parse_quote!(int = "sized");
-        let attr: Attribute = args.into();
+        let attr: Attribute = SynNestedMeta(args).into();
         assert_eq!(
             attr,
             Attribute::Named(
@@ -143,7 +144,7 @@ mod test {
                 int = "sized"
             )
         );
-        let attribute: Attribute = args.into();
+        let attribute: Attribute = SynNestedMeta(args).into();
         let attributes: Attributes = attribute.into();
         assert_eq!(attributes.get_literal_from_path(vec!["c", "int"]), Some(&Literal::String("sized".into())));
         assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "name"]), Some(&Literal::String("hello".into())));
@@ -153,7 +154,7 @@ mod test {
     #[test]
     fn attribute_group() {
         let args: NestedMeta = syn::parse_quote!(C(int = "sized"));
-        let attr: Attribute = args.into();
+        let attr: Attribute = SynNestedMeta(args).into();
         assert_eq!(
             attr,
             Attribute::Group(
@@ -182,7 +183,7 @@ mod test {
                     }
                 )]
             },
-            parse2::<Attributes>(quote! {c(int = "sized")}).expect("Failed to parse Attributes")
+            parse2::<LigenAttributes>(quote! {c(int = "sized")}).expect("Failed to parse Attributes").0
         );
     }
 }

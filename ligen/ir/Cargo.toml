@@ -8,6 +8,3 @@ edition = "2018"
 [dependencies]
 ligen-utils  = { path = "../utils" }
 serde        = { version = "1.0.131", features = [ "derive" ] }
-
-[dev-dependencies]
-pretty_assertions = "0.7.2"

@@ -26,6 +26,7 @@ mod tests {
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
     use crate::{Field, Identifier, Type, Atomic, Integer, Visibility, Structure};
+    use crate::prelude::SynItemStruct;
 
     #[test]
     fn structure() {
@@ -35,7 +36,7 @@ mod tests {
             }
         });
         assert_eq!(
-            Structure::try_from(structure).expect("Failed to convert structure."),
+            Structure::try_from(SynItemStruct(structure)).expect("Failed to convert structure."),
             Structure {
                 attributes: Default::default(),
                 visibility: Visibility::Inherited,

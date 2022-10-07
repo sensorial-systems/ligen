@@ -17,6 +17,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
+    use crate::prelude::SynVariant;
     use crate::Variant;
 
     #[test]
@@ -27,7 +28,7 @@ mod tests {
             }
         });
         assert_eq!(
-            Variant::try_from(enumeration.variants.into_iter().next().expect("Couldn't get field.")).expect("Failed to convert field."),
+            Variant::try_from(SynVariant(enumeration.variants.into_iter().next().expect("Couldn't get field."))).expect("Failed to convert field."),
             Variant {
                 attributes: Default::default(),
                 identifier: "Integer".into(),
