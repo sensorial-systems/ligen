@@ -67,7 +67,7 @@ impl FileProcessorVisitor for ModuleProcessor {
             let mut import = import.clone();
             import.path.segments.pop();
             let snake_case = SnakeCase::from(module.parent_project().name.clone());
-            let path = if import.path.segments[0] == "crate".into() {
+            let path = if import.path.segments[0] == "crate".into() { // FIXME: "crate" is no longer used.
                 import.path.segments[0].replace_identifier(&"crate".into(), &snake_case.to_string().into());
                 import.path
             } else {

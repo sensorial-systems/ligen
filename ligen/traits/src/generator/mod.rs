@@ -16,6 +16,7 @@ pub mod file_processor_visitor;
 
 /// Generator trait.
 pub trait Generator: FileGenerator {
+    // TODO: Fetch this from the generator configuration instead and possibly default to something if it doesn't exist.
     /// Generation base path.
     fn base_path(&self) -> PathBuf;
 

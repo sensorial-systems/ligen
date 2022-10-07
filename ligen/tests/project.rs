@@ -5,9 +5,8 @@ use ligen_cargo::CargoProject;
 
 pub fn project_directory() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("examples")
-        .join("example")
+        .join("tests")
+        .join("project")
 }
 
 #[test]
@@ -31,8 +30,8 @@ fn relative_dir(path: PathBuf) -> PathBuf {
 fn project(path: PathBuf) {
     let project = CargoProject::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
     let manifest_path = relative_dir(project.manifest_path.clone());
-    assert_eq!(project.name.to_string(), "example");
-    assert_eq!(manifest_path, PathBuf::from("../examples/example/Cargo.toml"));
+    assert_eq!(project.name.to_string(), "test-project");
+    assert_eq!(manifest_path, PathBuf::from("tests/project/Cargo.toml"));
     let project = Project::try_from(project).unwrap();
     let absolute_path = find_absolute_path(&project);
     definition_finder(absolute_path, &project);
@@ -57,12 +56,12 @@ fn definition_finder(path: Path, project: &Project) {
 
 fn find_absolute_path(project: &Project) -> Path {
     let module_visitor = project.root_module_visitor();
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"crate::time::instant::Instant".into()), "Failed in absolute path case.");
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"Instant".into()), "Failed in import case.");
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
-    assert_eq!(Some("crate::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"test_project::time::instant::Instant".into()), "Failed in absolute path case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"Instant".into()), "Failed in import case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
+    assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
     // assert_eq!(Some("crate::time::duration::Duration".into()), module_visitor.find_absolute_path(&"Duration".into()), "Failed in re-exported case.");
     module_visitor.find_absolute_path(&"Instant".into()).unwrap()
 }

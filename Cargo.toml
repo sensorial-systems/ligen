@@ -9,6 +9,7 @@ members = [
     "generators/ligen-cmake",
     "generators/ligen-c",
     "generators/ligen-csharp",
-    "examples/example",
+    "ligen/tests/project",
+    "examples/example"
 #    "generators/ligen-csharp/tests/rust"
 ]

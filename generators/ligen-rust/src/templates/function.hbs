@@ -1,0 +1,4 @@
+#[no_mangle]
+pub extern "C" fn {{ ../../name.name }}_{{ identifier.name }}({{>parameters inputs}}) -> {{marshal_type output}} {
+    {{ ../../name.name }}::{{ identifier.name }}({{>arguments inputs}})
+}

@@ -10,7 +10,7 @@
 //!
 //! ### How to use
 //!
-//! Here is an example on how to use the C generator and the CMake project generator in your crate:
+//! Here is an project on how to use the C generator and the CMake project generator in your crate:
 //! `Cargo.toml`
 //! ```toml
 //! [dev-dependencies]
@@ -44,7 +44,7 @@
 //!
 //! Here are a few links to get started:
 //! * [List of officially supported languages](https://github.com/search?q=org%3Asensorial-systems+ligen).
-//! * [Usage example](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
+//! * [Usage project](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
 
 #![warn(missing_copy_implementations)]
 #![warn(missing_debug_implementations)]

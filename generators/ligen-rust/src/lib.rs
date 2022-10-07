@@ -22,8 +22,8 @@ impl RustGenerator {
         template.register_template_string("identifier", include_str!("templates/identifier.hbs")).expect("Failed to load identifier template.");
         template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
         template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
-        template.register_template_string("import", include_str!("templates/import.hbs")).expect("Failed to load import template.");
         template.register_template_string("method", include_str!("templates/method.hbs")).expect("Failed to load method template.");
+        template.register_template_string("function", include_str!("templates/function.hbs")).expect("Failed to load method template.");
         template.register_template_string("module", include_str!("templates/module.hbs")).expect("Failed to load module template.");
         template.register_template_string("object", include_str!("templates/object.hbs")).expect("Failed to load object template.");
         template.register_template_string("parameters", include_str!("templates/parameters.hbs")).expect("Failed to load parameters template.");
@@ -48,7 +48,7 @@ impl RustGenerator {
                 let (type_, opacity) = if is_opaque {
                     (type_.drop_reference().to_string(), "*mut ")
                 } else {
-                    ("*const u8".to_string(), "")
+                    (type_.to_string(), "")
                 };
                 format!("{}{}", opacity, type_)
             } else {

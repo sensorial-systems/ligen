@@ -7,7 +7,7 @@ use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, Typ
 use std::collections::HashMap;
 use syn::parse_quote::parse;
 use std::path::PathBuf;
-use ligen_utils::conventions::naming::NamingConvention;
+use ligen_utils::conventions::naming::{NamingConvention, SnakeCase};
 
 // TODO: This is a convertion between two types in ligen-ir, it indicates that there is a conceptual problem here.
 impl TryFrom<LigenProjectInfo> for Module {
@@ -189,7 +189,7 @@ impl TryFrom<ProjectInfo> for ModuleConversionHelper {
         let visibility = Visibility::Public;
         let items = Some(file.items);
         let attributes = (LigenAttributes::try_from(file.attrs)?).into();
-        let identifier = Identifier::from("crate"); // FIXME: Rusty
+        let identifier = SnakeCase::from(project.name.clone()).into();
         let relative_path = PathBuf::from("");
         Ok(ModuleConversionHelper { visibility, identifier, items, project, relative_path, attributes })
     }
