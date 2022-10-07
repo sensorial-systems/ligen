@@ -56,13 +56,13 @@ mod test {
     use std::convert::TryFrom;
 
     use super::Parameter;
-    use crate::{Atomic, Identifier, Integer, Reference, Type, ReferenceKind, Attribute, Mutability};
+    use crate::{Primitive, Identifier, Integer, Reference, Type, ReferenceKind, Attribute, Mutability};
     use quote::quote;
     use syn::{parse_quote::parse};
     use crate::prelude::SynFnArg;
 
     #[test]
-    fn parameter_atomic() {
+    fn parameter_primitive() {
         assert_eq!(
             Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {
                 #[attribute] integer: i32
@@ -70,7 +70,7 @@ mod test {
             Parameter {
                 attributes: Attribute::Group("attribute".into(), Default::default()).into(),
                 identifier: Identifier::new("integer"),
-                type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                type_: Type::Primitive(Primitive::Integer(Integer::I32))
             }
         );
     }

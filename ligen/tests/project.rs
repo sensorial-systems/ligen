@@ -30,50 +30,10 @@ fn relative_dir(path: PathBuf) -> PathBuf {
 // FIXME: This test is no longer working because I changed test-project's code.
 fn project(path: PathBuf) {
     let project = CargoProject::try_from(path.as_path()).expect("Failed to get the project from the specified path.");
-    // project.root_module.replace_wildcard_imports();
     let manifest_path = relative_dir(project.manifest_path.clone());
     assert_eq!(project.name.to_string(), "example");
     assert_eq!(manifest_path, PathBuf::from("../examples/example/Cargo.toml"));
-    // assert_eq!(project.root_module.name, "crate".into());
-    // println!("{:#?}", project);
-    // assert_eq!(project.root_module, Module {
-    //     attributes: Default::default(),
-    //     name: "lib".into(),
-    //     visibility: Visibility::Public,
-    //     imports: Default::default(),
-    //     modules: Default::default(),
-    //     functions: Default::default(),
-    //     objects: vec![
-    //         Object {
-    //             path: "Object".into(),
-    //             definition: TypeDefinition::Structure(Structure {
-    //                 attributes: Attribute::Group("repr".into(), Attribute::Group("C".into(), Default::default()).into()).into(),
-    //                 visibility: Visibility::Public,
-    //                 identifier: "Object".into(),
-    //                 fields: Default::default()
-    //             }),
-    //             implementations: vec![
-    //                 Implementation {
-    //                     attributes: Default::default(),
-    //                     self_: Path::from("Object").into(),
-    //                     items: vec![
-    //                         ImplementationItem::Method(Function {
-    //                             attributes: Default::default(),
-    //                             visibility: Visibility::Public,
-    //                             asyncness: None,
-    //                             identifier: "new".into(),
-    //                             inputs: Default::default(),
-    //                             output: Some(Path::from("Self").into())
-    //                         })
-    //                     ]
-    //                 }
-    //             ]
-    //         }
-    //     ]
-    // });
-
     let project = Project::try_from(project).unwrap();
-
     let absolute_path = find_absolute_path(&project);
     definition_finder(absolute_path, &project);
 }

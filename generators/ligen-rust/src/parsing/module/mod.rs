@@ -231,7 +231,7 @@ impl TryFrom<ModuleConversionHelper> for Module {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Object, Atomic, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute, Method, Mutability};
+    use crate::{Object, Primitive, Integer, Type, Visibility, Function, Structure, Parameter, Implementation, ImplementationItem, Field, Attribute, Method, Mutability};
     use quote::quote;
     use pretty_assertions::assert_eq;
 
@@ -378,7 +378,7 @@ mod tests {
                                     attributes: Default::default(),
                                     visibility: Visibility::Public,
                                     identifier: Some("integer".into()),
-                                    type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                    type_: Type::Primitive(Primitive::Integer(Integer::I32))
                                 }
                             ]
                         }),
@@ -400,7 +400,7 @@ mod tests {
                                             Parameter {
                                                 attributes: Default::default(),
                                                 identifier: "integer".into(),
-                                                type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                                                type_: Type::Primitive(Primitive::Integer(Integer::I32))
                                             }
                                         ],
                                         output: Some(Type::Compound("Self".into(), Default::default()))

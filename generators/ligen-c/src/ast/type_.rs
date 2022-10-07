@@ -3,8 +3,8 @@ use ligen::ir;
 use crate::ast::Identifier;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
-/// Atomic Enum
-pub enum Atomic {
+/// Primitive Enum
+pub enum Primitive {
     /// Char variant
     Char,
     /// Short variant
@@ -33,22 +33,22 @@ pub enum Atomic {
     LongDouble,
 }
 
-impl AsRef<str> for Atomic {
+impl AsRef<str> for Primitive {
     fn as_ref(&self) -> &str {
         match self {
-            Atomic::Char => "char",
-            Atomic::Short => "short",
-            Atomic::Int => "int",
-            Atomic::LongInt => "long int",
-            Atomic::LongLongInt => "long long int",
-            Atomic::Float => "float",
-            Atomic::Double => "double",
-            Atomic::LongDouble => "long double",
-            Atomic::UnsignedChar => "unsigned char",
-            Atomic::UnsignedShort => "unsigned short",
-            Atomic::UnsignedInt => "unsigned int",
-            Atomic::UnsignedLongInt => "unsigned long int",
-            Atomic::UnsignedLongLongInt => "unsigned long long int",
+            Primitive::Char => "char",
+            Primitive::Short => "short",
+            Primitive::Int => "int",
+            Primitive::LongInt => "long int",
+            Primitive::LongLongInt => "long long int",
+            Primitive::Float => "float",
+            Primitive::Double => "double",
+            Primitive::LongDouble => "long double",
+            Primitive::UnsignedChar => "unsigned char",
+            Primitive::UnsignedShort => "unsigned short",
+            Primitive::UnsignedInt => "unsigned int",
+            Primitive::UnsignedLongInt => "unsigned long int",
+            Primitive::UnsignedLongLongInt => "unsigned long long int",
         }
     }
 }
@@ -56,8 +56,8 @@ impl AsRef<str> for Atomic {
 #[derive(Debug, PartialEq)]
 /// Types Enum
 pub enum Types {
-    /// Atomic variant
-    Atomic(Atomic),
+    /// Primitive variant
+    Primitive(Primitive),
     /// Compound variant
     Compound(Identifier),
 }
@@ -92,28 +92,28 @@ impl Type {
     }
 }
 
-impl From<ir::Atomic> for Atomic {
-    fn from(atomic: ir::Atomic) -> Self {
-        match atomic {
-            ir::Atomic::Integer(integer) => match integer {
-                ir::Integer::U8 => Atomic::UnsignedChar,
-                ir::Integer::U16 => Atomic::UnsignedShort,
-                ir::Integer::U32 => Atomic::UnsignedInt,
-                ir::Integer::U64 => Atomic::UnsignedLongLongInt,
-                ir::Integer::I8 => Atomic::Char,
-                ir::Integer::I16 => Atomic::Short,
-                ir::Integer::I32 => Atomic::Int,
-                ir::Integer::I64 => Atomic::LongLongInt,
+impl From<ir::Primitive> for Primitive {
+    fn from(primitive: ir::Primitive) -> Self {
+        match primitive {
+            ir::Primitive::Integer(integer) => match integer {
+                ir::Integer::U8 => Primitive::UnsignedChar,
+                ir::Integer::U16 => Primitive::UnsignedShort,
+                ir::Integer::U32 => Primitive::UnsignedInt,
+                ir::Integer::U64 => Primitive::UnsignedLongLongInt,
+                ir::Integer::I8 => Primitive::Char,
+                ir::Integer::I16 => Primitive::Short,
+                ir::Integer::I32 => Primitive::Int,
+                ir::Integer::I64 => Primitive::LongLongInt,
                 ir::Integer::U128 | ir::Integer::USize | ir::Integer::I128 | ir::Integer::ISize => {
-                    todo!("Atomic types u128, usize, i128 and isize not implemented")
+                    todo!("Primitive types u128, usize, i128 and isize not implemented")
                 }
             },
-            ir::Atomic::Float(float) => match float {
-                ir::Float::F32 => Atomic::Float,
-                ir::Float::F64 => Atomic::Double,
+            ir::Primitive::Float(float) => match float {
+                ir::Float::F32 => Primitive::Float,
+                ir::Float::F64 => Primitive::Double,
             },
-            ir::Atomic::Boolean => todo!("Boolean not implemented"),
-            ir::Atomic::Character => todo!("16bit char not implemented"),
+            ir::Primitive::Boolean => todo!("Boolean not implemented"),
+            ir::Primitive::Character => todo!("16bit char not implemented"),
         }
     }
 }
@@ -121,7 +121,7 @@ impl From<ir::Atomic> for Atomic {
 impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
-            ir::Type::Atomic(atomic) => Self::Atomic(Atomic::from(atomic)),
+            ir::Type::Primitive(primitive) => Self::Primitive(Primitive::from(primitive)),
             ir::Type::Compound(compound, _generics) => {
                 Self::Compound(compound.segments.last().unwrap().clone())
             }
@@ -151,9 +151,9 @@ impl From<ir::Reference> for Type {
 impl From<ir::Type> for Type {
     fn from(type_: ir::Type) -> Self {
         match type_ {
-            ir::Type::Atomic(type_) => Self {
+            ir::Type::Primitive(type_) => Self {
                 constness: None,
-                type_: Types::Atomic(type_.into()),
+                type_: Types::Primitive(type_.into()),
                 pointer: None,
             },
             ir::Type::Compound(path, _) => Self {
@@ -175,7 +175,7 @@ impl fmt::Display for Type {
         }
 
         match &self.type_ {
-            Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref())?,
+            Types::Primitive(primitive) => write!(f, "{}", primitive.as_ref())?,
             Types::Compound(identifier) => match identifier.name.as_str() {
                 "String" => write!(f, "const char*")?,
                 _ => write!(f, "{}", identifier.name)?,
@@ -192,27 +192,27 @@ impl fmt::Display for Type {
 
 #[cfg(test)]
 mod test {
-    use super::{Atomic, Const, Pointer, Type, Types};
+    use super::{Primitive, Const, Pointer, Type, Types};
 
     #[test]
-    fn ast_type_atomic() {
+    fn ast_type_primitive() {
         let types: Vec<Type> = vec![
-            Atomic::Char,
-            Atomic::Short,
-            Atomic::Int,
-            Atomic::LongInt,
-            Atomic::LongLongInt,
-            Atomic::Float,
-            Atomic::Double,
-            Atomic::LongDouble,
-            Atomic::UnsignedChar,
-            Atomic::UnsignedShort,
-            Atomic::UnsignedInt,
-            Atomic::UnsignedLongInt,
-            Atomic::UnsignedLongLongInt,
+            Primitive::Char,
+            Primitive::Short,
+            Primitive::Int,
+            Primitive::LongInt,
+            Primitive::LongLongInt,
+            Primitive::Float,
+            Primitive::Double,
+            Primitive::LongDouble,
+            Primitive::UnsignedChar,
+            Primitive::UnsignedShort,
+            Primitive::UnsignedInt,
+            Primitive::UnsignedLongInt,
+            Primitive::UnsignedLongLongInt,
         ]
         .into_iter()
-        .map(|atomic| Type::new(Some(Const), Types::Atomic(atomic), Some(Pointer)))
+        .map(|primitive| Type::new(Some(Const), Types::Primitive(primitive), Some(Pointer)))
         .collect();
 
         let expected: Vec<String> = vec![

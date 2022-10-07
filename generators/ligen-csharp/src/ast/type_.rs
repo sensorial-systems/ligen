@@ -3,8 +3,8 @@ use ligen::ir;
 use crate::ast::Identifier;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
-/// Atomic Enum
-pub enum Atomic {
+/// Primitive Enum
+pub enum Primitive {
     /// Char variant
     Char,
     /// Bool variant
@@ -35,23 +35,23 @@ pub enum Atomic {
     Double,
 }
 
-impl AsRef<str> for Atomic {
+impl AsRef<str> for Primitive {
     fn as_ref(&self) -> &str {
         match self {
-            Atomic::Short => "short",
-            Atomic::UShort => "ushort",
-            Atomic::Int => "int",
-            Atomic::UInt => "uint",
-            Atomic::Long => "long",
-            Atomic::ULong => "ulong",
-            Atomic::Float => "float",
-            Atomic::Double => "double",
-            Atomic::NInt => "nint",
-            Atomic::NUInt => "nuint",
-            Atomic::Char => "char",
-            Atomic::Byte => "byte",
-            Atomic::SByte => "sbyte",
-            Atomic::Bool => "bool"
+            Primitive::Short => "short",
+            Primitive::UShort => "ushort",
+            Primitive::Int => "int",
+            Primitive::UInt => "uint",
+            Primitive::Long => "long",
+            Primitive::ULong => "ulong",
+            Primitive::Float => "float",
+            Primitive::Double => "double",
+            Primitive::NInt => "nint",
+            Primitive::NUInt => "nuint",
+            Primitive::Char => "char",
+            Primitive::Byte => "byte",
+            Primitive::SByte => "sbyte",
+            Primitive::Bool => "bool"
         }
     }
 }
@@ -59,8 +59,8 @@ impl AsRef<str> for Atomic {
 #[derive(Debug, PartialEq)]
 /// Types Enum
 pub enum Types {
-    /// Atomic variant
-    Atomic(Atomic),
+    /// Primitive variant
+    Primitive(Primitive),
     /// Compound variant
     Compound(Identifier),
 }
@@ -95,28 +95,28 @@ impl Type {
     }
 }
 
-impl From<ir::Atomic> for Atomic {
-    fn from(atomic: ir::Atomic) -> Self {
-        match atomic {
-            ir::Atomic::Integer(integer) => match integer {
-                ir::Integer::U8 => Atomic::Byte,
-                ir::Integer::U16 => Atomic::UShort,
-                ir::Integer::U32 => Atomic::UInt,
-                ir::Integer::U64 => Atomic::ULong,
-                ir::Integer::I8 => Atomic::SByte,
-                ir::Integer::I16 => Atomic::Short,
-                ir::Integer::I32 => Atomic::Int,
-                ir::Integer::I64 => Atomic::Long,
+impl From<ir::Primitive> for Primitive {
+    fn from(primitive: ir::Primitive) -> Self {
+        match primitive {
+            ir::Primitive::Integer(integer) => match integer {
+                ir::Integer::U8 => Primitive::Byte,
+                ir::Integer::U16 => Primitive::UShort,
+                ir::Integer::U32 => Primitive::UInt,
+                ir::Integer::U64 => Primitive::ULong,
+                ir::Integer::I8 => Primitive::SByte,
+                ir::Integer::I16 => Primitive::Short,
+                ir::Integer::I32 => Primitive::Int,
+                ir::Integer::I64 => Primitive::Long,
                 ir::Integer::U128 | ir::Integer::USize | ir::Integer::I128 | ir::Integer::ISize => {
-                    panic!("Atomic types u128, usize, i128 and isize not implemented")
+                    panic!("Primitive types u128, usize, i128 and isize not implemented")
                 }
             },
-            ir::Atomic::Float(float) => match float {
-                ir::Float::F32 => Atomic::Float,
-                ir::Float::F64 => Atomic::Double,
+            ir::Primitive::Float(float) => match float {
+                ir::Float::F32 => Primitive::Float,
+                ir::Float::F64 => Primitive::Double,
             },
-            ir::Atomic::Boolean => Atomic::Bool,
-            ir::Atomic::Character => Atomic::Char,
+            ir::Primitive::Boolean => Primitive::Bool,
+            ir::Primitive::Character => Primitive::Char,
         }
     }
 }
@@ -124,7 +124,7 @@ impl From<ir::Atomic> for Atomic {
 impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
-            ir::Type::Atomic(atomic) => Self::Atomic(Atomic::from(atomic)),
+            ir::Type::Primitive(primitive) => Self::Primitive(Primitive::from(primitive)),
             ir::Type::Compound(compound, _) => {
                 Self::Compound(compound.segments.last().unwrap().clone())
             }
@@ -154,9 +154,9 @@ impl From<ir::Reference> for Type {
 impl From<ir::Type> for Type {
     fn from(type_: ir::Type) -> Self {
         match type_ {
-            ir::Type::Atomic(type_) => Self {
+            ir::Type::Primitive(type_) => Self {
                 constness: None,
-                type_: Types::Atomic(type_.into()),
+                type_: Types::Primitive(type_.into()),
                 pointer: None,
             },
             ir::Type::Compound(path, _) => Self {
@@ -178,7 +178,7 @@ impl fmt::Display for Type {
             write!(f, "IntPtr")
         } else {
             match &self.type_ {
-                Types::Atomic(atomic) => write!(f, "{}", atomic.as_ref()),
+                Types::Primitive(primitive) => write!(f, "{}", primitive.as_ref()),
                 Types::Compound(identifier) => write!(f, "{}", identifier.name)
             }
         }
@@ -191,7 +191,7 @@ mod test {
     use ligen::ir::{Mutability, Reference, ReferenceKind};
 
     #[test]
-    fn ast_type_atomic() {
+    fn ast_type_primitive() {
         let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, mutability: Mutability::Constant, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
         let in_type = Type::from(out_type);
         println!("{:#?}", in_type);

@@ -21,7 +21,7 @@ mod tests {
     use crate::Variant;
 
     #[test]
-    fn parameter_atomic() {
+    fn parameter_primitive() {
         let enumeration = parse::<syn::ItemEnum>(quote! {
             enum Enumeration {
                 Integer

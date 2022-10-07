@@ -5,9 +5,9 @@ pub mod float;
 
 pub use integer::*;
 pub use float::*;
-use crate::{Atomic, Float, Integer};
+use crate::{Primitive, Float, Integer};
 
-impl TryFrom<SynIdent> for Atomic {
+impl TryFrom<SynIdent> for Primitive {
     type Error = Error;
     fn try_from(SynIdent(ident): SynIdent) -> Result<Self> {
         match ident.to_string().as_str() {
@@ -35,7 +35,7 @@ impl TryFrom<SynIdent> for Atomic {
 }
 
 // TODO: Why is it not a TryFrom?
-impl From<SynPath> for Atomic {
+impl From<SynPath> for Primitive {
     fn from(SynPath(path): SynPath) -> Self {
         match path {
             syn::Path { segments, .. } => {
@@ -45,13 +45,13 @@ impl From<SynPath> for Atomic {
     }
 }
 
-impl ToTokens for Atomic {
+impl ToTokens for Primitive {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match &self {
-            Atomic::Integer(integer) => integer.to_tokens(tokens),
-            Atomic::Float(float) => float.to_tokens(tokens),
-            Atomic::Boolean => tokens.append_all(quote! {bool}),
-            Atomic::Character => tokens.append_all(quote! {char}),
+            Primitive::Integer(integer) => integer.to_tokens(tokens),
+            Primitive::Float(float) => float.to_tokens(tokens),
+            Primitive::Boolean => tokens.append_all(quote! {bool}),
+            Primitive::Character => tokens.append_all(quote! {char}),
         }
     }
 }
@@ -61,14 +61,14 @@ mod test {
 
     use std::convert::TryInto;
 
-    use super::{Atomic, Float, Integer};
+    use super::{Primitive, Float, Integer};
     use quote::quote;
     use syn::parse_quote::parse;
     use crate::prelude::SynIdent;
 
     #[test]
-    fn atomic_integer() {
-        let vec: Vec<Atomic> = vec![
+    fn primitive_integer() {
+        let vec: Vec<Primitive> = vec![
             quote! { u8 },
             quote! { u16 },
             quote! { u32 },
@@ -104,14 +104,14 @@ mod test {
 
         let mut iter = vec.iter().zip(expected.iter());
 
-        while let Some((Atomic::Integer(value), expected_value)) = iter.next() {
+        while let Some((Primitive::Integer(value), expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
     }
 
     #[test]
-    fn atomic_float() {
-        let vec: Vec<Atomic> = vec![quote! { f32 }, quote! { f64 }]
+    fn primitive_float() {
+        let vec: Vec<Primitive> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
             .map(|x| SynIdent(parse::<syn::Ident>(x)).try_into().expect("Failed to parse"))
             .collect();
@@ -119,15 +119,15 @@ mod test {
 
         let mut iter = vec.iter().zip(expected.iter());
 
-        while let Some((Atomic::Float(value), expected_value)) = iter.next() {
+        while let Some((Primitive::Float(value), expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
     }
 
     #[test]
-    fn atomic_boolean() {
+    fn primitive_boolean() {
         assert_eq!(
-            Atomic::Boolean,
+            Primitive::Boolean,
             SynIdent(parse::<syn::Ident>(quote! {bool}))
                 .try_into()
                 .expect("Failed to parse")
@@ -135,9 +135,9 @@ mod test {
     }
 
     #[test]
-    fn atomic_character() {
+    fn primitive_character() {
         assert_eq!(
-            Atomic::Character,
+            Primitive::Character,
             SynIdent(parse::<syn::Ident>(quote! {char}))
                 .try_into()
                 .expect("Failed to parse")

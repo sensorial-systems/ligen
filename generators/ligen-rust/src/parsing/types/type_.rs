@@ -1,11 +1,11 @@
-use crate::{Atomic, Reference, ReferenceKind, Generics, Mutability, Type};
+use crate::{Primitive, Reference, ReferenceKind, Generics, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 
 impl From<SynPath> for Type {
     fn from(SynPath(path): SynPath) -> Self {
-        if Atomic::is_atomic(SynPath(path.clone())) {
-            Self::Atomic(SynPath(path).into())
+        if Primitive::is_primitive(SynPath(path.clone())) {
+            Self::Primitive(SynPath(path).into())
         } else {
             let generics = path
                 .segments
@@ -50,7 +50,7 @@ impl TryFrom<SynType> for Type {
 impl ToTokens for Type {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match &self {
-            Type::Atomic(atomic) => tokens.append_all(atomic.to_token_stream()),
+            Type::Primitive(primitive) => tokens.append_all(primitive.to_token_stream()),
             Type::Compound(compound, generics) => {
                 tokens.append_all(compound.to_token_stream());
                 tokens.append_all(generics.to_token_stream());
@@ -71,7 +71,7 @@ mod test {
     use crate::prelude::SynType;
 
     use super::{
-        Atomic::{self, Boolean, Character},
+        Primitive::{self, Boolean, Character},
         Reference, Type,
     };
 
@@ -113,7 +113,7 @@ mod test {
             Integer::ISize,
         ]
             .into_iter()
-            .map(|x| Type::Atomic(Atomic::Integer(x)))
+            .map(|x| Type::Primitive(Primitive::Integer(x)))
             .collect();
 
         let mut iter = vec.iter().zip(expected.iter());
@@ -135,7 +135,7 @@ mod test {
             .collect();
         let expected: Vec<Type> = vec![Float::F32, Float::F64]
             .into_iter()
-            .map(|x| Type::Atomic(Atomic::Float(x)))
+            .map(|x| Type::Primitive(Primitive::Float(x)))
             .collect();
 
         let mut iter = vec.iter().zip(expected.iter());
@@ -148,7 +148,7 @@ mod test {
     #[test]
     fn types_boolean() {
         assert_eq!(
-            Type::Atomic(Boolean),
+            Type::Primitive(Boolean),
             SynType(parse::<syn::Type>(quote! {bool}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
@@ -158,7 +158,7 @@ mod test {
     #[test]
     fn types_character() {
         assert_eq!(
-            Type::Atomic(Character),
+            Type::Primitive(Character),
             SynType(parse::<syn::Type>(quote! {char}))
                 .try_into()
                 .expect("Failed to convert from syn::Type")
@@ -173,8 +173,8 @@ mod test {
                     kind: ReferenceKind::Borrow,
                     mutability: Mutability::Constant,
                     type_: Box::new(
-                        Type::Atomic(
-                            Atomic::Integer(
+                        Type::Primitive(
+                            Primitive::Integer(
                                 Integer::I32
                             )
                         )
@@ -195,8 +195,8 @@ mod test {
                     kind: ReferenceKind::Borrow,
                     mutability: Mutability::Mutable,
                     type_: Box::new(
-                        Type::Atomic(
-                            Atomic::Integer(
+                        Type::Primitive(
+                            Primitive::Integer(
                                 Integer::I32
                             )
                         )
@@ -216,8 +216,8 @@ mod test {
                 kind: ReferenceKind::Pointer,
                 mutability: Mutability::Constant,
                 type_: Box::new(
-                    Type::Atomic(
-                        Atomic::Integer(
+                    Type::Primitive(
+                        Primitive::Integer(
                             Integer::I32
                         )
                     )
@@ -236,8 +236,8 @@ mod test {
                 kind: ReferenceKind::Pointer,
                 mutability: Mutability::Mutable,
                 type_: Box::new(
-                    Type::Atomic(
-                        Atomic::Integer(
+                    Type::Primitive(
+                        Primitive::Integer(
                             Integer::I32
                         )
                     )

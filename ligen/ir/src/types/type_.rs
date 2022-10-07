@@ -1,12 +1,12 @@
-use crate::{Atomic, Reference, Path, Identifier, Integer, Float, Generics};
+use crate::{Primitive, Reference, Path, Identifier, Integer, Float, Generics};
 use crate::prelude::*;
 use std::ops::Deref;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Serialize, Deserialize)]
 /// Type Enum
 pub enum Type {
-    /// Atomic variant
-    Atomic(Atomic),
+    /// Primitive variant
+    Primitive(Primitive),
     /// Compound variant
     Compound(Path, Generics),
     /// Reference variant
@@ -25,7 +25,7 @@ impl Type {
         match self {
             Self::Reference(reference) => reference.type_.path(),
             Self::Compound(path, _) => path.clone(),
-            Self::Atomic(atomic) => atomic.clone().into()
+            Self::Primitive(primitive) => primitive.clone().into()
         }
     }
 
@@ -56,28 +56,28 @@ impl From<Reference> for Type {
     }
 }
 
-impl From<Atomic> for Type {
-    fn from(atomic: Atomic) -> Self {
-        Self::Atomic(atomic)
+impl From<Primitive> for Type {
+    fn from(primitive: Primitive) -> Self {
+        Self::Primitive(primitive)
     }
 }
 
 impl From<Integer> for Type {
     fn from(integer: Integer) -> Self {
-        Self::Atomic(integer.into())
+        Self::Primitive(integer.into())
     }
 }
 
 impl From<Float> for Type {
     fn from(float: Float) -> Self {
-        Self::Atomic(float.into())
+        Self::Primitive(float.into())
     }
 }
 
 impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
-            Type::Atomic(atomic)               => format!("{}", atomic),
+            Type::Primitive(primitive)               => format!("{}", primitive),
             Type::Compound(compound, generics) => format!("{}{}", compound, generics),
             Type::Reference(reference)         => format!("{}", reference),
         };

@@ -25,7 +25,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Field, Identifier, Type, Atomic, Integer, Visibility, Structure};
+    use crate::{Field, Identifier, Type, Primitive, Integer, Visibility, Structure};
     use crate::prelude::SynItemStruct;
 
     #[test]
@@ -46,7 +46,7 @@ mod tests {
                         attributes: Default::default(),
                         visibility: Visibility::Inherited,
                         identifier: Some("integer".into()),
-                        type_: Type::Atomic(Atomic::Integer(Integer::I32))
+                        type_: Type::Primitive(Primitive::Integer(Integer::I32))
                     }
                 ]
             }

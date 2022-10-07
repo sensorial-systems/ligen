@@ -110,7 +110,7 @@ impl Marshaller {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ligen_ir::{Atomic, Integer, Reference, ReferenceKind};
+    use ligen_ir::{Primitive, Integer, Reference, ReferenceKind};
 
     struct A;
     struct B;
@@ -128,9 +128,9 @@ mod tests {
     }
 
     #[test]
-    fn atomic_to() {
+    fn primitive_to() {
         let marshaller = Marshaller::new();
-        let type_ = Type::Atomic(Atomic::Integer(Integer::I32));
+        let type_ = Type::Primitive(Primitive::Integer(Integer::I32));
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "i32");
     }
 

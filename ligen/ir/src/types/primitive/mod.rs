@@ -8,8 +8,8 @@ pub use float::*;
 use crate::{Identifier, Path};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
-/// Atomic Enum
-pub enum Atomic {
+/// Primitive Enum
+pub enum Primitive {
     /// Integer variant
     Integer(Integer),
     /// Float variant
@@ -20,9 +20,9 @@ pub enum Atomic {
     Character,
 }
 
-impl Atomic {
-    /// Returns true if the identifier is an atomic type.
-    pub fn is_atomic<P: Into<Path>>(path: P) -> bool {
+impl Primitive {
+    /// Returns true if the identifier is a primitive type.
+    pub fn is_primitive<P: Into<Path>>(path: P) -> bool {
         let path = path.into();
         let identifier = path.last();
         match identifier.name.as_ref() {
@@ -33,43 +33,43 @@ impl Atomic {
     }
 }
 
-impl From<Integer> for Atomic {
+impl From<Integer> for Primitive {
     fn from(integer: Integer) -> Self {
         Self::Integer(integer)
     }
 }
 
-impl From<Float> for Atomic {
+impl From<Float> for Primitive {
     fn from(float: Float) -> Self {
         Self::Float(float)
     }
 }
 
-impl From<Atomic> for Identifier {
-    fn from(atomic: Atomic) -> Self {
-        match atomic {
-            Atomic::Boolean => "bool".into(),
-            Atomic::Character => "char".into(),
-            Atomic::Float(float) => float.into(),
-            Atomic::Integer(integer) => integer.into()
+impl From<Primitive> for Identifier {
+    fn from(primitive: Primitive) -> Self {
+        match primitive {
+            Primitive::Boolean => "bool".into(),
+            Primitive::Character => "char".into(),
+            Primitive::Float(float) => float.into(),
+            Primitive::Integer(integer) => integer.into()
         }
     }
 }
 
-impl From<Atomic> for Path {
-    fn from(atomic: Atomic) -> Self {
-        let atomic: Identifier = atomic.into();
-        Path::from(atomic)
+impl From<Primitive> for Path {
+    fn from(primitive: Primitive) -> Self {
+        let primitive: Identifier = primitive.into();
+        Path::from(primitive)
     }
 }
 
-impl std::fmt::Display for Atomic {
+impl std::fmt::Display for Primitive {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
-            Atomic::Integer(integer) => format!("{}", integer),
-            Atomic::Float(float)     => format!("{}", float),
-            Atomic::Boolean          => "bool".into(),
-            Atomic::Character        => "char".into(),
+            Primitive::Integer(integer) => format!("{}", integer),
+            Primitive::Float(float)     => format!("{}", float),
+            Primitive::Boolean          => "bool".into(),
+            Primitive::Character        => "char".into(),
         };
         f.write_str(&display)
     }
