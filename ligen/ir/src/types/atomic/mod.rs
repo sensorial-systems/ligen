@@ -62,3 +62,15 @@ impl From<Atomic> for Path {
         Path::from(atomic)
     }
 }
+
+impl std::fmt::Display for Atomic {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let display = match &self {
+            Atomic::Integer(integer) => format!("{}", integer),
+            Atomic::Float(float)     => format!("{}", float),
+            Atomic::Boolean          => "bool".into(),
+            Atomic::Character        => "char".into(),
+        };
+        f.write_str(&display)
+    }
+}

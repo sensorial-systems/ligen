@@ -27,19 +27,3 @@ impl ToTokens for Generics {
         }
     }
 }
-
-impl Display for Generics {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        if self.types.is_empty() {
-            f.write_str("")
-        } else {
-            let generics = self
-                .types
-                .iter()
-                .map(|generic| format!("{}", (generic as &dyn Display)))
-                .collect::<Vec<String>>()
-                .join(", ");
-            f.write_str(&format!("<{}>", generics))
-        }
-    }
-}

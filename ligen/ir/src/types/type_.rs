@@ -73,3 +73,14 @@ impl From<Float> for Type {
         Self::Atomic(float.into())
     }
 }
+
+impl std::fmt::Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let display = match &self {
+            Type::Atomic(atomic)               => format!("{}", atomic),
+            Type::Compound(compound, generics) => format!("{}{}", compound, generics),
+            Type::Reference(reference)         => format!("{}", reference),
+        };
+        f.write_str(&display)
+    }
+}

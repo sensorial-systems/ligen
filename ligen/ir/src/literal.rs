@@ -16,3 +16,16 @@ pub enum Literal {
     /// Float variant
     Float(f64),
 }
+
+impl std::fmt::Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Literal::String(value) => write!(f, "{}", value),
+            Literal::Bool(value) => write!(f, "{}", value),
+            Literal::Char(value) => write!(f, "{}", value),
+            Literal::Integer(value) => write!(f, "{}", value),
+            Literal::UnsignedInteger(value) => write!(f, "{}", value),
+            Literal::Float(value) => write!(f, "{}", value),
+        }
+    }
+}

@@ -12,7 +12,6 @@ use ligen_ir::Type;
 
 use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
 use ligen_traits::prelude::{Error, Result as LigenResult};
-use crate::prelude::Display;
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
@@ -44,10 +43,10 @@ impl RustGenerator {
                 let identifier = type_.path().last();
                 let is_opaque = root_module
                     .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier.name))
-                    .map(|literal| (literal as &dyn Display).to_string() == "true")
+                    .map(|literal| literal.to_string() == "true")
                     .unwrap_or_default();
                 let (type_, opacity) = if is_opaque {
-                    ((&type_.drop_reference() as &dyn Display).to_string(), "*mut ")
+                    (type_.drop_reference().to_string(), "*mut ")
                 } else {
                     ("*const u8".to_string(), "")
                 };

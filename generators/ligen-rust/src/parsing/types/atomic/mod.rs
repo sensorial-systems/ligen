@@ -56,18 +56,6 @@ impl ToTokens for Atomic {
     }
 }
 
-impl Display for Atomic {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let display = match &self {
-            Atomic::Integer(integer) => format!("{}", (integer as &dyn Display)),
-            Atomic::Float(float)     => format!("{}", (float as &dyn Display)),
-            Atomic::Boolean          => "bool".into(),
-            Atomic::Character        => "char".into(),
-        };
-        f.write_str(&display)
-    }
-}
-
 #[cfg(test)]
 mod test {
 

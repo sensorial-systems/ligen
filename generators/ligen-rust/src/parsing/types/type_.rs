@@ -60,17 +60,6 @@ impl ToTokens for Type {
     }
 }
 
-impl Display for Type {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let display = match &self {
-            Type::Atomic(atomic)               => format!("{}", (atomic as &dyn Display)),
-            Type::Compound(compound, generics) => format!("{}{}", (compound as &dyn Display), (generics as &dyn Display)),
-            Type::Reference(reference)         => format!("{}", (reference as &dyn Display)),
-        };
-        f.write_str(&display)
-    }
-}
-
 #[cfg(test)]
 mod test {
     use std::convert::TryInto;

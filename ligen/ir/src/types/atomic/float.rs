@@ -15,3 +15,13 @@ impl From<Float> for Identifier {
         format!("{:#?}", from).into()
     }
 }
+
+impl std::fmt::Display for Float {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let display = match self {
+            Float::F32 => "f32",
+            Float::F64 => "f64",
+        };
+        f.write_str(display)
+    }
+}

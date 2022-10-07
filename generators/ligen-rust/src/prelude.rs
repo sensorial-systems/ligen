@@ -1,4 +1,3 @@
-use std::fmt::Formatter;
 pub use ligen_utils::prelude::*;
 
 macro_rules! new_type {
@@ -63,14 +62,3 @@ impl ligen_utils::prelude::ToTokens for dyn ToTokens {
         (self as &dyn ToTokens).to_tokens(tokens);
     }
 }
-
-pub trait Display {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result;
-}
-
-impl std::fmt::Display for dyn Display {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        (self as &dyn Display).fmt(f)
-    }
-}
-

@@ -9,4 +9,5 @@ edition = "2018"
 ligen-ir     = { path = "../../ligen/ir" }
 ligen-traits = { path = "../../ligen/traits" }
 ligen-utils  = { path = "../../ligen/utils" }
+ligen-rust   = { path = "../ligen-rust" }
 cargo_toml   = "0.10.2"

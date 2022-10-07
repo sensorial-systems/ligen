@@ -122,7 +122,7 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
         .into_iter()
         .map(|(path, (definition, implementations))| Object {
             // FIXME: This shouldn't use expect
-            definition: definition.expect(&format!("Type definition for {} not found.", (&path as &dyn Display))),
+            definition: definition.expect(&format!("Type definition for {} not found.", path)),
             path,
             implementations
         })
