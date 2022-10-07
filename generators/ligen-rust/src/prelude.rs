@@ -1,7 +1,6 @@
 pub use ligen_utils::prelude::*;
 
 macro_rules! new_type {
-    // `()` indicates that the macro takes no argument.
     ($old:ty, $i:ident) => {
         pub struct $i(pub $old);
         impl From<$i> for $old {
