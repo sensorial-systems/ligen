@@ -15,8 +15,6 @@ pub use object::*;
 pub use project::*;
 pub use mutability::*;
 
-extern crate proc_macro;
-
 pub mod prelude;
 
 mod module;
@@ -35,5 +33,3 @@ pub mod project;
 pub mod visitor;
 
 pub mod processing;
-
-pub mod rust_parsing;
