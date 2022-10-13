@@ -10,4 +10,4 @@ ENDIF()
 AUX_SOURCE_DIRECTORY(src SOURCES)
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCES})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/../example/target/ligen/rust/example/target/debug/ffi_example.lib ws2_32 bcrypt userenv)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/../example/target/ligen/rust/example/target/debug/ffi_example.dll.lib)
