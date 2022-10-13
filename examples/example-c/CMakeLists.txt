@@ -5,9 +5,9 @@ IF(TARGET ${PROJECT_NAME})
 RETURN()
 ENDIF()
 
-ADD_SUBDIRECTORY(../../target/ligen/example example)
+# ADD_SUBDIRECTORY(../../target/ligen/example example)
 
 AUX_SOURCE_DIRECTORY(src SOURCES)
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCES})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC example)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/../example/target/ligen/rust/example/target/debug/ffi_example.lib ws2_32 bcrypt userenv)

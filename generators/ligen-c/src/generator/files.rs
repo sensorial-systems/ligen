@@ -4,9 +4,7 @@ use std::path::PathBuf;
 use crate::ast::{Types, Type};
 use crate::generator::CGenerator;
 use ligen::ir::{Mutability, Path};
-use ligen::ir::processing::ReplaceIdentifier;
 use ligen::traits::generator::file_processor_visitor::FileProcessorVisitor;
-use ligen::utils::conventions::naming::SnakeCase;
 
 /// Project processor.
 #[derive(Default, Clone, Copy, Debug)]
@@ -58,7 +56,8 @@ impl FileProcessorVisitor for ProjectProcessor {
 impl FileProcessorVisitor for ModuleProcessor {
     type Visitor = ModuleVisitor;
 
-    fn process(&self, file_set: &mut FileSet, module: &Self::Visitor) {
+    fn process(&self, _file_set: &mut FileSet, _module: &Self::Visitor) {
+        /*
         let file = file_set.entry(&path(&module.path()));
         file.writeln("#pragma once");
         for import in &module.current.imports {
@@ -79,6 +78,7 @@ impl FileProcessorVisitor for ModuleProcessor {
             let path = path.join("/");
             file.writeln(format!("#include <{}.h>", path));
         }
+        */
     }
 
     fn post_process(&self, _file_set: &mut FileSet, _visitor: &Self::Visitor) {}

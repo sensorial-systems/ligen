@@ -57,6 +57,19 @@ impl RustGenerator {
             out.write(&content)?;
             Ok(())
         }));
+        template.register_helper("join_path", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
+            let separator = serde_json::from_value::<String>(h.param(0).unwrap().value().clone()).unwrap();
+            let path = serde_json::from_value::<Path>(h.param(1).unwrap().value().clone()).unwrap();
+            // TODO: Move the join logic to Path? Something like fn to_string(&self, separator: &str)?
+            let content = path
+                .segments
+                .into_iter()
+                .map(|identifier| identifier.name)
+                .collect::<Vec<_>>()
+                .join(&separator);
+            out.write(&content)?;
+            Ok(())
+        }));
     }
 }
 

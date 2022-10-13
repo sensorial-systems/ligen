@@ -132,7 +132,7 @@ mod test {
                     }),
                     visibility: Visibility::Inherited,
                     asyncness: None,
-                    identifier: Identifier::new("a"),
+                    path: Identifier::new("a").into(),
                     inputs: vec![],
                     output: None
                 })]
@@ -167,7 +167,7 @@ mod test {
                         }),
                         visibility: Visibility::Inherited,
                         asyncness: None,
-                        identifier: Identifier::new("b"),
+                        path: Identifier::new("b").into(),
                         inputs: vec![],
                         output: None
                     })

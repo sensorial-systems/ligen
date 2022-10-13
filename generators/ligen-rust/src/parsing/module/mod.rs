@@ -9,7 +9,7 @@ use syn::parse_quote::parse;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::{NamingConvention, SnakeCase};
 
-// TODO: This is a convertion between two types in ligen-ir, it indicates that there is a conceptual problem here.
+// TODO: This is a convertion between two types in ligen-ir which requires a new type, it indicates that there is a conceptual problem here.
 impl TryFrom<LigenProjectInfo> for Module {
     type Error = Error;
     fn try_from(LigenProjectInfo(project): LigenProjectInfo) -> Result<Self> {
@@ -395,7 +395,7 @@ mod tests {
                                         }),
                                         visibility: Visibility::Public,
                                         asyncness: None,
-                                        identifier: "new".into(),
+                                        path: Identifier::new("new").into(),
                                         inputs: vec![
                                             Parameter {
                                                 attributes: Default::default(),

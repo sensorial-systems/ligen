@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use crate::{Attributes, Identifier, Mutability, Parameter, Type, Visibility};
+use crate::{Attributes, Mutability, Parameter, Path, Type, Visibility};
 
 pub mod parameter;
 
@@ -28,8 +28,8 @@ pub struct Function {
     pub method: Option<Method>,
     /// Asyncness field.
     pub asyncness: Option<Async>,
-    /// Identifier field.
-    pub identifier: Identifier,
+    /// Function's absolute path.
+    pub path: Path,
     /// Inputs field.
     pub inputs: Vec<Parameter>,
     /// Output field.

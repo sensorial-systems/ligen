@@ -178,5 +178,18 @@ impl Module {
         self.imports = imports;
     }
 
+    // FIXME: Move this function to a module containing IR processing functions.
+    pub fn guarantee_absolute_paths(&mut self) {
+        self.guarantee_absolute_paths_with_parent(Default::default())
+    }
 
+    fn guarantee_absolute_paths_with_parent(&mut self, parent: Path) {
+        let module_path = parent.clone().join(self.name.clone());
+        for function in &mut self.functions {
+            function.path = module_path.clone().join(function.path.clone());
+        }
+        for module in &mut self.modules {
+            module.guarantee_absolute_paths_with_parent(module_path.clone());
+        }
+    }
 }

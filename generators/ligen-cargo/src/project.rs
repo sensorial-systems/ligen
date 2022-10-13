@@ -3,7 +3,7 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_utils::conventions::naming::NamingConvention;
 use std::ffi::OsString;
-use ligen_ir::ProjectInfo;
+use ligen_ir::{Module, ProjectInfo};
 use ligen_rust::prelude::LigenProjectInfo;
 use ligen_traits::build::BuildSystem;
 
@@ -49,7 +49,8 @@ impl TryFrom<CargoProject> for Project {
         let directory = from.path;
         let manifest_path = from.manifest_path;
         let project = ProjectInfo { name: name.clone(), directory: directory.clone() };
-        let root_module = LigenProjectInfo(project).try_into()?; // FIXME: Using LigenProjectInfo here is weird. All the types prefixed with Ligen should be private in ligen-rust.
+        let mut root_module = Module::try_from(LigenProjectInfo(project))?; // FIXME: Using LigenProjectInfo here is weird. All the types prefixed with Ligen should be private in ligen-rust.
+        root_module.guarantee_absolute_paths();
         Ok(Self { name, directory, manifest_path, root_module })
     }
 }

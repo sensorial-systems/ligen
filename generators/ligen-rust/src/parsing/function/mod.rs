@@ -1,3 +1,4 @@
+use ligen_ir::Identifier;
 use crate::prelude::*;
 
 use crate::{Async, Attributes, Function, Method, Mutability, Parameter, Type, Visibility};
@@ -38,7 +39,7 @@ impl From<SynItemFn> for Function {
                 Some(_x) => Some(Async),
                 None => None,
             },
-            identifier: SynIdent::from(ident).into(),
+            path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
             output,
         }
@@ -86,7 +87,7 @@ impl From<TypeImplItemMethod> for Function {
                 Some(_x) => Some(Async),
                 None => None,
             },
-            identifier: SynIdent::from(ident).into(),
+            path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
             output,
         }
@@ -112,7 +113,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
             }
@@ -129,7 +130,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
             }
@@ -145,7 +146,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
@@ -172,7 +173,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: Some(Type::Compound(Identifier::new("String").into(), Default::default()))
             }
@@ -190,7 +191,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
@@ -247,7 +248,7 @@ mod test {
                 visibility: Visibility::Inherited,
                 method: None,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
             }
@@ -263,7 +264,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Inherited,
                 asyncness: Some(Async),
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
             }
@@ -292,7 +293,7 @@ mod test {
                 visibility: Visibility::Inherited,
                 method: None,
                 asyncness: Some(Async),
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
@@ -337,7 +338,7 @@ mod test {
                 method: None,
                 visibility: Visibility::Public,
                 asyncness: None,
-                identifier: Identifier::new("test"),
+                path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
             }

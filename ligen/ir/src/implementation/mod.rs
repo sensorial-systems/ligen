@@ -3,7 +3,6 @@ pub use implementation_item::*;
 
 use crate::prelude::*;
 use crate::{Attributes, Identifier, Type};
-use crate::processing::ReplaceIdentifier;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// Function Struct
@@ -37,14 +36,5 @@ impl Implementation {
             }
         }
         deps
-    }
-
-    // TODO: Remove it? It seems Rusty.
-    /// Replace all the occurrences of `Self` by the real object name.
-    pub fn replace_self_with_explicit_names(&mut self) {
-        let identifier = self.self_.path().last();
-        let mut lower_case_identifier = identifier.clone();
-        lower_case_identifier.name = lower_case_identifier.name.to_lowercase();
-        self.replace_identifier(&Identifier::from("Self"), &identifier);
     }
 }

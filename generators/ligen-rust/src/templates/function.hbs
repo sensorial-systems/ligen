@@ -1,4 +1,4 @@
 #[no_mangle]
-pub extern "C" fn {{ ../../name.name }}_{{ identifier.name }}({{>parameters inputs}}) -> {{marshal_type output}} {
-    {{ ../../name.name }}::{{ identifier.name }}({{>arguments inputs}})
+pub extern "C" fn {{ join_path "_" path }}({{>parameters inputs}}) -> {{marshal_type output}} {
+    {{ join_path "::" path }}({{>arguments inputs}})
 }
