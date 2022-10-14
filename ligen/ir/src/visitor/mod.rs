@@ -1,5 +1,7 @@
 //! Generator visitor module.
 
+// TODO: Move visitors to utils.
+
 pub use enumeration_visitor::*;
 pub use function_visitor::*;
 pub use implementation_visitor::*;
