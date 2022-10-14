@@ -202,12 +202,11 @@ impl TryFrom<ModuleConversionHelper> for Module {
             let attributes = parse_ligen_attributes(&visitor.attributes, &items)?;
             let ignored = attributes.has_ignore_attribute();
             let (modules, objects) = extract_modules_and_objects(ignored, &visitor)?;
-            let name = visitor.identifier;
             let visibility = visitor.visibility;
             let imports = LigenImports::try_from(items.as_slice())?.0.0;
             let functions = extract_functions(items.as_slice());
-            let path = visitor.relative_path.into();
-            Ok(Self { attributes, visibility, path, name, imports, modules, functions, objects })
+            let path = visitor.identifier.into();
+            Ok(Self { attributes, visibility, path, imports, modules, functions, objects })
         } else {
             // FIXME: Clean this up. This code is duplicated and can be simplified.
             let module_path = visitor.project.directory.join("src").join(visitor.relative_path);
@@ -236,7 +235,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn imports() -> Result<()> {
+    fn replace_wildcard_imports() -> Result<()> {
         let module = quote! {
             mod root {
                 mod object {
@@ -331,7 +330,8 @@ mod tests {
                 }
             }
         };
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        let mut module = Module::try_from(ProcMacro2TokenStream(module))?;
+        module.guarantee_absolute_paths();
         assert_eq!(
             module,
             Module {
@@ -341,14 +341,12 @@ mod tests {
                 ].into(),
                 visibility: Visibility::Inherited,
                 path: Path::from("objects"),
-                name: "objects".into(),
                 imports: Default::default(),
                 modules: vec! [
                     Module {
                         attributes: Default::default(),
                         visibility: Visibility::Inherited,
                         path: "objects::deeper_module".into(),
-                        name: "deeper_module".into(),
                         imports: Default::default(),
                         modules: Default::default(),
                         functions: Default::default(),
@@ -358,7 +356,7 @@ mod tests {
                 functions: Default::default(),
                 objects: vec![
                     Object {
-                        path: "AnotherObject".into(),
+                        path: "objects::AnotherObject".into(),
                         definition: TypeDefinition::Structure(Structure {
                             attributes: Default::default(),
                             visibility: Visibility::Public,
@@ -368,7 +366,7 @@ mod tests {
                         implementations: Default::default()
                     },
                     Object {
-                        path: "Object".into(),
+                        path: "objects::Object".into(),
                         definition: TypeDefinition::Structure(Structure {
                             attributes: Default::default(),
                             visibility: Visibility::Public,

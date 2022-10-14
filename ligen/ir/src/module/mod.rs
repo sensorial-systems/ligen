@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Object, Path, Visibility, Identifier, TypeDefinition, Attributes, Function, Literal};
+use crate::{Object, Path, Visibility, TypeDefinition, Attributes, Function, Literal};
 
 /// Module representation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -15,8 +15,6 @@ pub struct Module {
     pub visibility: Visibility,
     /// Module path
     pub path: Path,
-    /// Module name.
-    pub name: Identifier,
     /// Imports.
     pub imports: Vec<Import>,
     /// Sub-modules.
@@ -61,70 +59,34 @@ impl Module {
 
     /// Find the Type definition.
     pub fn find_definition(&self, path: &Path) -> Option<TypeDefinition> {
-        if let Some(identifier) = path.segments.first() {
-            if *identifier == self.name {
-                let mut path = path.clone();
-                path.segments.remove(0);
-                if path.segments.len() > 1 {
-                    self
-                        .modules
-                        .iter()
-                        .filter_map(|module| module.find_definition(&path))
-                        .next()
-                } else {
-                    if let Some(identifier) = path.segments.first() {
-                        self
-                            .objects
-                            .iter()
-                            .filter(|object| object.definition.identifier() == identifier)
-                            .map(|object| object.definition.clone())
-                            .next()
-                    } else {
-                        None
-                    }
-                }
-            } else {
-                None
-            }
+        let definition = self
+            .objects
+            .iter()
+            .find(|object| object.path == *path)
+            .map(|object| object.definition.clone());
+        if let Some(definition) = definition {
+            Some(definition)
         } else {
-            None
+            self
+                .modules
+                .iter()
+                .filter_map(|module| module.find_definition(&path))
+                .next()
         }
     }
 }
 
 impl Module {
-    // TODO: Not used in separating-ligen-ir. We should verify if it's working.
-    // /// Replace all the occurrences of `Self` by the real object name.
-    // pub fn replace_self_with_explicit_names(&mut self) {
-    //     for module in &mut self.modules {
-    //         module.replace_self_with_explicit_names();
-    //     }
-    //     for object in &mut self.objects {
-    //         for implementation in &mut object.implementations {
-    //             implementation.replace_self_with_explicit_names();
-    //         }
-    //     }
-    // }
-
     /// Find the module with the specified path.
     pub fn find_module(&self, path: &Path) -> Option<&Module> {
-        let mut path = path.clone();
-        if let Some(identifier) = path.pop_front() {
-            let module = self
+        if self.path == *path {
+            Some(self)
+        } else {
+            self
                 .modules
                 .iter()
-                .find(|module| identifier == module.name);
-            if let Some(module) = module {
-                if path.segments.is_empty() {
-                    Some(module)
-                } else {
-                    module.find_module(&path)
-                }
-            } else {
-                None
-            }
-        } else {
-            None
+                .filter_map(|module| module.find_module(path))
+                .next()
         }
     }
 
@@ -184,12 +146,15 @@ impl Module {
     }
 
     fn guarantee_absolute_paths_with_parent(&mut self, parent: Path) {
-        self.path = parent.clone().join(self.name.clone());
+        self.path = parent.clone().join(self.path.clone());
         for function in &mut self.functions {
             function.path = self.path.clone().join(function.path.clone());
         }
         for module in &mut self.modules {
             module.guarantee_absolute_paths_with_parent(self.path.clone());
+        }
+        for object in &mut self.objects {
+            object.path = self.path.clone().join(object.path.clone());
         }
     }
 }

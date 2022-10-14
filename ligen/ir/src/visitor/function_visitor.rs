@@ -52,7 +52,7 @@ impl FunctionVisitor {
     /// Returns the module path.
     pub fn path(&self) -> Path {
         match &self.parent {
-            FunctionParent::Module(module) => module.path(),
+            FunctionParent::Module(module) => module.path.clone(),
             FunctionParent::Implementation(implementation) => implementation.path()
         }
     }
