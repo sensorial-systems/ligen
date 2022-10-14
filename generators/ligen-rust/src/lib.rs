@@ -11,6 +11,7 @@ use std::str::FromStr;
 use ligen_ir::Type;
 
 use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
+use ligen_ir::visitor::ModuleVisitor;
 use ligen_traits::prelude::{Error, Result as LigenResult};
 
 #[derive(Debug, Default)]
@@ -71,6 +72,23 @@ impl RustGenerator {
             Ok(())
         }));
     }
+
+    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, visitor: &ModuleVisitor) -> LigenResult<()> {
+        let is_root_module = visitor.current.path.segments.len() == 1;
+        let name = if is_root_module { "lib.rs" } else { "mod.rs" };
+        let value = serde_json::to_value(&visitor.current)?;
+        let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
+        let mut path = PathBuf::from_str("src").unwrap();
+        for segment in visitor.current.path.clone().without_first().segments {
+            path = path.join(segment.name);
+        }
+        path = path.join(name);
+        file_set.entry(&path).writeln(content);
+        for module in &visitor.current.modules {
+            self.generate_module(template, file_set, &ModuleVisitor::from(&visitor.child(module.clone())))?;
+        }
+        Ok(())
+    }
 }
 
 impl Generator for RustGenerator {
@@ -83,10 +101,7 @@ impl FileGenerator for RustGenerator {
     fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> LigenResult<()> {
         let mut template = self.get_template()?;
         self.get_functions(&mut template, visitor);
-        let value = serde_json::to_value(&visitor.current)?;
-        let content = template.render("project", &value).map_err(|e| Error::Message(format!("{}", e)))?;
-        let file = file_set.entry(&PathBuf::from_str("src").unwrap().join("lib.rs"));
-        file.writeln(content);
+        self.generate_module(&template, file_set, &ModuleVisitor::from(&visitor.child(visitor.root_module.clone())))?;
         Ok(())
     }
 }

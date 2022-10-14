@@ -184,12 +184,12 @@ impl Module {
     }
 
     fn guarantee_absolute_paths_with_parent(&mut self, parent: Path) {
-        let module_path = parent.clone().join(self.name.clone());
+        self.path = parent.clone().join(self.name.clone());
         for function in &mut self.functions {
-            function.path = module_path.clone().join(function.path.clone());
+            function.path = self.path.clone().join(function.path.clone());
         }
         for module in &mut self.modules {
-            module.guarantee_absolute_paths_with_parent(module_path.clone());
+            module.guarantee_absolute_paths_with_parent(self.path.clone());
         }
     }
 }

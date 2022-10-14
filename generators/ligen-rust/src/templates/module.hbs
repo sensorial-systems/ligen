@@ -1,11 +1,11 @@
-{{#each objects }}
-{{>object this }}
-{{/each}}
+{{#each modules }}
+pub mod {{ this.name.name }};
+{{/each }}
 
 {{#each functions}}
 {{>function this }}
 {{/each}}
 
-{{#each modules }}
-{{>module this }}
-{{/each }}
+{{#each objects }}
+{{>object this }}
+{{/each}}
