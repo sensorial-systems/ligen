@@ -7,10 +7,13 @@ use crate::prelude::*;
 pub enum Visibility {
     /// Public
     Public,
+    // FIXME: This is rusty.
     /// Crate
     Crate,
+    // FIXME: This is rusty.
     /// Restricted
     Restricted,
+    // FIXME: This is rusty.
     /// Inherited
     Inherited,
 }

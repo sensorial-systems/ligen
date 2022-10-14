@@ -23,7 +23,7 @@ pub struct Function {
     pub attributes: Attributes,
     /// Visibility field.
     pub visibility: Visibility,
-    // FIXME: Rework it as owner: Option<Owner>?
+    // FIXME: Rework it as owner: Option<Owner>? Or Maybe create a Method { owner, function } type?
     /// Method field.
     pub method: Option<Method>,
     /// Asyncness field.
