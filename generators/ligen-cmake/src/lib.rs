@@ -16,7 +16,7 @@ pub enum Language {
 
 impl Generator for CMakeGenerator {
     fn base_path(&self) -> PathBuf {
-        "cmake".into()
+        "c".into()
     }
 }
 

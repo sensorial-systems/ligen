@@ -3,7 +3,6 @@ use ligen_ir::*;
 use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
-use ligen_ir::Type;
 
 use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
 use ligen_ir::visitor::ModuleVisitor;
@@ -28,27 +27,18 @@ impl CGenerator {
     }
 
     pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {
-        let root_module = visitor.current.root_module.clone();
+        let _root_module = visitor.current.root_module.clone();
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let param = h
                 .param(0)
                 .map(|value| value.value().clone())
                 .filter(|value| !value.is_null());
-            let content = if let Some(param) = param {
-                let type_ = serde_json::from_value::<Type>(param).unwrap();
-                let identifier = type_.path().last();
-                let is_opaque = root_module
-                    .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier.name))
-                    .map(|literal| literal.to_string() == "true")
-                    .unwrap_or_default();
-                let (type_, opacity) = if is_opaque {
-                    (type_.drop_reference().to_string(), "*mut ")
-                } else {
-                    (type_.to_string(), "")
-                };
-                format!("{}{}", opacity, type_)
+            let content = if let Some(_param) = param {
+                // let type_ = serde_json::from_value::<Type>(param).unwrap();
+                // let identifier = type_.path().last();
+                "int".to_string()
             } else {
-                format!("()")
+                "void".to_string()
             };
             out.write(&content)?;
             Ok(())

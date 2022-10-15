@@ -1,1 +1,1 @@
-{{#each this }}{{>identifier identifier}}: {{{marshal_type type_}}}, {{/each}}
+{{#each this}}{{marshal_type type_}} {{>identifier identifier}}{{#unless @last}}, {{/unless}}{{/each}}

@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-bindings = ["ligen", "ligen-cargo", "ligen-rust", "ligen-c"]
+bindings = ["ligen", "ligen-cargo", "ligen-rust", "ligen-c", "ligen-cmake"]
 
 [lib]
 crate-type = ["lib", "staticlib"]
@@ -19,5 +19,6 @@ ligen-macro = { path = "../../ligen/macro" }
 ligen        = { path = "../../ligen", optional = true }
 ligen-cargo  = { path = "../../generators/ligen-cargo", optional = true }
 ligen-rust   = { path = "../../generators/ligen-rust", optional = true }
+ligen-cmake  = { path = "../../generators/ligen-cmake", optional = true }
 ligen-c      = { path = "../../generators/ligen-c", optional = true }
 #ligen-csharp = { path = "../../generators/ligen-csharp", optional = true }

@@ -1,9 +1,15 @@
+#pragma once
+
 {{#each modules}}
 #include <{{join_path "/" this.path}}.h>
 {{/each}}
 
+{{#if functions}}
 extern "C" {
-    {{#each functions}}
-    {{>function this }}
-    {{/each}}
+{{/if}}
+{{#each functions}}
+{{>function this }}
+{{/each}}
+{{#if functions}}
 }
+{{/if}}

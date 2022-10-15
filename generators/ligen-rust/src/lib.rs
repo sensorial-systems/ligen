@@ -71,6 +71,12 @@ impl RustGenerator {
             out.write(&content)?;
             Ok(())
         }));
+        template.register_helper("get_name", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
+            let path = serde_json::from_value::<Path>(h.param(0).unwrap().value().clone()).unwrap();
+            let content = path.last();
+            out.write(&content.name)?;
+            Ok(())
+        }));
     }
 
     pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, visitor: &ModuleVisitor) -> LigenResult<()> {
