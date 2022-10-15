@@ -9,11 +9,13 @@ edition = "2018"
 ligen-ir     = { path = "../../ligen/ir" }
 ligen-traits = { path = "../../ligen/traits" }
 ligen-utils  = { path = "../../ligen/utils" }
+# TODO: Move this to another place?
 handlebars = "4.1.6"
 serde_json = "1.0.73"
 syn          = { version = "1.0.73", features = [ "full" ] }
 proc-macro2  = "1.0.26"
 quote        = "1.0.9"
+# TODO: Remove this?
 cargo_toml   = "0.10.0"
 
 [dev-dependencies]

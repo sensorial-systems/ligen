@@ -1,0 +1,9 @@
+{{#each modules}}
+#include <{{join_path "/" this.path}}.h>
+{{/each}}
+
+extern "C" {
+    {{#each functions}}
+    {{>function this }}
+    {{/each}}
+}
