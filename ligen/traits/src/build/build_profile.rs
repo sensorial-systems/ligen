@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// Release or Debug.
+/// Release or Debug. Defaults to the current's Cargo build process build profile.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[allow(missing_docs)]
 pub enum BuildProfile {
@@ -12,15 +12,15 @@ pub enum BuildProfile {
 
 /// Build profile of the current Cargo build operation.
 #[cfg(debug_assertions)]
-pub const BUILD_PROFILE: BuildProfile = BuildProfile::Debug;
+const BUILD_PROFILE: BuildProfile = BuildProfile::Debug;
 
 /// Build profile of the current Cargo build operation.
 #[cfg(not(debug_assertions))]
-pub const BUILD_PROFILE: BuildProfile = BuildProfile::Release;
+const BUILD_PROFILE: BuildProfile = BuildProfile::Release;
 
 impl Default for BuildProfile {
     fn default() -> Self {
-        Self::Debug
+        BUILD_PROFILE
     }
 }
 

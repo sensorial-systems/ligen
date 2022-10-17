@@ -11,19 +11,26 @@ use ligen_traits::prelude::{Error, Result as LigenResult};
 #[derive(Debug, Default)]
 pub struct CGenerator;
 
+macro_rules! add_template {
+    ($template:ident, $identifier:ident) => {
+        // TODO: Stop using expect and use ? instead.
+        $template.register_template_string(stringify!($identifier), include_str!(concat!("templates/", stringify!($identifier), ".hbs"))).expect(concat!("Failed to load ", stringify!($identifier), " template."));
+    }
+}
+
+macro_rules! templates {
+    ($($identifier:ident),+) => {
+        {
+            let mut template = Template::new();
+            $(add_template!(template, $identifier);)+
+            template
+        }
+    }
+}
+
 impl CGenerator {
     pub fn get_template(&self) -> LigenResult<Template> {
-        let mut template = Template::new();
-        template.register_template_string("identifier", include_str!("templates/identifier.hbs")).expect("Failed to load identifier template.");
-        template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
-        template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
-        template.register_template_string("method", include_str!("templates/method.hbs")).expect("Failed to load method template.");
-        template.register_template_string("function", include_str!("templates/function.hbs")).expect("Failed to load method template.");
-        template.register_template_string("module", include_str!("templates/module.hbs")).expect("Failed to load module template.");
-        template.register_template_string("object", include_str!("templates/object.hbs")).expect("Failed to load object template.");
-        template.register_template_string("parameters", include_str!("templates/parameters.hbs")).expect("Failed to load parameters template.");
-        template.register_template_string("project", include_str!("templates/project.hbs")).expect("Failed to load project template.");
-        Ok(template)
+        Ok(templates!(identifier, arguments, implementation, method, function, module, object, parameters, project))
     }
 
     pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {

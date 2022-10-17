@@ -3,7 +3,7 @@
 //#include <example/functions/primitives.h>
 #include <assert.h>
 
-extern __declspec(dllimport) int example_functions_primitives_add(int a, int b);
+#include <example/functions/primitives.h>
 
 int main(int argc, char **argv) {
     int a = 2, b = 3;

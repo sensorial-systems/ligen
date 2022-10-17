@@ -38,7 +38,7 @@ impl BuildSystem for CargoBuilder {
         }
     }
 
-    fn build(&self, project: &Project, profile: BuildProfile) -> Result<()> {
+    fn build_with_profile(&self, project: &Project, profile: BuildProfile) -> Result<()> {
         Self::check_build()?;
         std::env::set_var("IS_BUILDING", "YES");
         let mut build_command = std::process::Command::new("cargo");
