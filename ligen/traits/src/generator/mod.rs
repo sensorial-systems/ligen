@@ -10,6 +10,7 @@ use ligen_utils::fs::write_file;
 mod file;
 use ligen_ir::visitor;
 use std::path::{Path, PathBuf};
+use ligen_utils::conventions::naming::SnakeCase;
 
 mod file_generator;
 pub mod file_processor_visitor;
@@ -45,7 +46,7 @@ pub trait Generator: FileGenerator {
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
-        let project_dir = target_ligen_dir.join(&project.name().to_string());
+        let project_dir = target_ligen_dir.join(&SnakeCase::from(project.name().clone()).to_string());
         for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);
             write_file(&file_path, &file.content)?;

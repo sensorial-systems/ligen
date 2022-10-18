@@ -2,6 +2,7 @@ use ligen::prelude::*;
 use ligen::traits::generator::{FileSet, FileGenerator, ProjectVisitor};
 use ligen::traits::generator::File;
 use std::path::PathBuf;
+use ligen::utils::conventions::naming::SnakeCase;
 // use ligen::traits::marshalling::Marshaller;
 
 /// CMake project generator.
@@ -23,7 +24,7 @@ impl Generator for CMakeGenerator {
 impl FileGenerator for CMakeGenerator {
     fn generate_files(&self, file_set: &mut FileSet, project: &ProjectVisitor) -> Result<()> {
         let generator_version = env!("CARGO_PKG_VERSION");
-        let project_name = &project.name().to_string();
+        let project_name = SnakeCase::from(project.current.name.clone()).to_string();
 
         let content = match self.0 {
             Language::CPP => format!(

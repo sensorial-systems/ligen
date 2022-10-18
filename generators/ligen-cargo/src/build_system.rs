@@ -1,6 +1,7 @@
 use std::path::{PathBuf, Path};
 use ligen_ir::prelude::*;
 use ligen_traits::build::{BuildSystem, BuildProfile};
+use ligen_utils::conventions::naming::SnakeCase;
 
 /// Cargo builder.
 #[derive(Clone, Copy, Debug)]
@@ -48,7 +49,7 @@ impl BuildSystem for CargoBuilder {
             build_command = build_command.arg("--release");
         }
 
-        let project_name = project.name.to_string();
+        let project_name = SnakeCase::from(project.name.clone()).to_string();
         let ligen_path = Self::target_dir()
             .unwrap()
             .join("ligen");
