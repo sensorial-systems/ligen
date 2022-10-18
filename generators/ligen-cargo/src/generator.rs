@@ -19,7 +19,8 @@ impl FileGenerator for CargoGenerator {
         let file = file_set.entry(&PathBuf::from_str("Cargo.toml").unwrap());
         let version = "0.1.0";
         let name = SnakeCase::from(visitor.current.name.clone());
-        let path = "../../../..";
+        let path = &visitor.current.directory;
+        let path = path.display().to_string().replace("\\", "/");
         let content = format!(include_str!("Cargo.template.toml"), name = name, version = version, path = path);
         file.writeln(content);
         Ok(())

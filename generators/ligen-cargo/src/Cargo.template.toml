@@ -11,6 +11,4 @@ crate-type = ["staticlib", "dylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# FIXME: Hardcoded path.
-ligen = {{ path = "../../../../../../../ligen/ligen" }}
 {name} = {{ path = "{path}" }}

@@ -9,7 +9,7 @@ use ligen_utils::fs::write_file;
 
 mod file;
 use ligen_ir::visitor;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 mod file_generator;
 pub mod file_processor_visitor;
@@ -19,15 +19,6 @@ pub trait Generator: FileGenerator {
     // TODO: Fetch this from the generator configuration instead and possibly default to something if it doesn't exist.
     /// Generation base path.
     fn base_path(&self) -> PathBuf;
-
-    // TODO: Is it still necessary? It isn`t used in separating-ligen-ir which is most recent.
-    // /// Pre-processes the input. The default implementation returns a transformed input with all the
-    // /// `Self` and `self` occurrences replaced by the actual object name.
-    // fn pre_process(&self, root: &Project) -> Project {
-    //     let mut root = root.clone();
-    //     root.root_module.replace_self_with_explicit_names();
-    //     root
-    // }
 
     /// Main function called in the procedural proc_macro.
     fn generate(&self, root: &Project) -> Result<()> {
@@ -42,8 +33,16 @@ pub trait Generator: FileGenerator {
 
     /// Saves the file set.
     fn save_file_set(&self, file_set: FileSet, project: &ProjectVisitor) -> Result<()> {
-        let target_ligen_dir = std::env::current_dir()?
-            .join("target")
+        let target = std::env::var("OUT_DIR")
+            .ok()
+            .map(PathBuf::from)
+            .and_then(|path| path
+                .ancestors()
+                .skip(4)
+                .next()
+                .map(Path::to_path_buf))
+            .unwrap_or(std::env::current_dir()?);
+        let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
         let project_dir = target_ligen_dir.join(&project.name().to_string());
