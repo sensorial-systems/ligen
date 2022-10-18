@@ -3,6 +3,6 @@
 #include <example/functions/primitives.h>
 
 int main(int argc, char **argv) {
-    assert(example_functions_primitives_add(a, b), 3)
+    assert(example_functions_primitives_add(1, 2) == 3);
     return 0;
 }
