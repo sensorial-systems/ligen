@@ -8,12 +8,13 @@ use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResu
 use ligen_ir::visitor::ModuleVisitor;
 use ligen_traits::prelude::{Error, Result as LigenResult};
 
+// TODO: #[derive(ligen::Template)) to automatically fetch templates.
 #[derive(Debug, Default)]
 pub struct CGenerator;
 
 macro_rules! add_template {
     ($template:ident, $identifier:ident) => {
-        // TODO: Stop using expect and use ? instead.
+        // TODO: Stop using expect and use ? instead?
         $template.register_template_string(stringify!($identifier), include_str!(concat!("templates/", stringify!($identifier), ".hbs"))).expect(concat!("Failed to load ", stringify!($identifier), " template."));
     }
 }
