@@ -7,20 +7,12 @@ pub enum Error {
     IO(std::io::Error),
     /// JSON errors.
     JSON(serde_json::Error),
-    /// syn errors.
-    Syn(syn::Error),
     /// Environment errors.
     Environment(std::env::VarError),
     /// Misc errors.
     Message(String),
-    /// Cargo error.
-    Cargo(cargo_toml::Error)
-}
-
-impl From<cargo_toml::Error> for Error {
-    fn from(error: cargo_toml::Error) -> Self {
-        Self::Cargo(error)
-    }
+    /// Generic.
+    Generic(Box<dyn std::error::Error>)
 }
 
 impl From<&str> for Error {
@@ -44,12 +36,6 @@ impl From<std::io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
         Self::JSON(error)
-    }
-}
-
-impl From<syn::Error> for Error {
-    fn from(error: syn::Error) -> Self {
-        Self::Syn(error)
     }
 }
 

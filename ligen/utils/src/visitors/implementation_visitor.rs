@@ -1,5 +1,5 @@
 use super::{Visitor, ObjectVisitor, ModuleVisitor};
-use crate::{Implementation, Path};
+use ligen_ir::{Implementation, Path};
 
 /// Implementation visitor.
 pub type ImplementationVisitor = Visitor<ObjectVisitor, Implementation>;

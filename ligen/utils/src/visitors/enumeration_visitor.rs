@@ -1,5 +1,5 @@
 use super::{Visitor, ObjectVisitor, ModuleVisitor};
-use crate::{Enumeration, Path};
+use ligen_ir::{Enumeration, Path};
 
 /// Enumeration visitor.
 pub type EnumerationVisitor = Visitor<ObjectVisitor, Enumeration>;

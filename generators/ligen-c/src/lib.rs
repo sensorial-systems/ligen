@@ -1,11 +1,10 @@
 use ligen_ir::*;
 
-use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator};
+use ligen_traits::generator::{Generator, FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
 
 use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
-use ligen_ir::visitor::ModuleVisitor;
 use ligen_traits::prelude::{Error, Result as LigenResult};
 
 // TODO: #[derive(ligen::Template)) to automatically fetch templates.
@@ -34,8 +33,7 @@ impl CGenerator {
         Ok(templates!(identifier, arguments, implementation, method, function, module, object, parameters, project))
     }
 
-    pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {
-        let _root_module = visitor.current.root_module.clone();
+    pub fn get_functions(&self, template: &mut Template, _project: &Project) {
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let param = h
                 .param(0)
@@ -66,17 +64,17 @@ impl CGenerator {
         }));
     }
 
-    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, visitor: &ModuleVisitor) -> LigenResult<()> {
-        let value = serde_json::to_value(&visitor.current)?;
+    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, module: &Module) -> LigenResult<()> {
+        let value = serde_json::to_value(&module)?;
         let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
         let mut path = PathBuf::from_str("include").unwrap();
-        for segment in visitor.current.path.clone().segments {
+        for segment in module.path.clone().segments {
             path = path.join(segment.name);
         }
         path = path.with_extension("h");
         file_set.entry(&path).writeln(content);
-        for module in &visitor.current.modules {
-            self.generate_module(template, file_set, &ModuleVisitor::from(&visitor.child(module.clone())))?;
+        for module in &module.modules {
+            self.generate_module(template, file_set, module)?;
         }
         Ok(())
     }
@@ -89,10 +87,10 @@ impl Generator for CGenerator {
 }
 
 impl FileGenerator for CGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> LigenResult<()> {
+    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
         let mut template = self.get_template()?;
-        self.get_functions(&mut template, visitor);
-        self.generate_module(&template, file_set, &ModuleVisitor::from(&visitor.child(visitor.root_module.clone())))?;
+        self.get_functions(&mut template, project);
+        self.generate_module(&template, file_set, &project.root_module)?;
         Ok(())
     }
 }

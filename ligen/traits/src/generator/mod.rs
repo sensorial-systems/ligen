@@ -2,18 +2,15 @@
 
 pub use file::*;
 pub use file_generator::*;
-pub use visitor::*;
 
 use crate::prelude::*;
 use ligen_utils::fs::write_file;
 
 mod file;
-use ligen_ir::visitor;
 use std::path::{Path, PathBuf};
-use ligen_utils::conventions::naming::SnakeCase;
+use ligen_ir::conventions::naming::SnakeCase;
 
 mod file_generator;
-pub mod file_processor_visitor;
 
 /// Generator trait.
 pub trait Generator: FileGenerator {
@@ -22,18 +19,15 @@ pub trait Generator: FileGenerator {
     fn base_path(&self) -> PathBuf;
 
     /// Main function called in the procedural proc_macro.
-    fn generate(&self, root: &Project) -> Result<()> {
-        // TODO: Is it still necessary? It isn`t used in separating-ligen-ir which is most recent.
-        // let root = self.pre_process(root);
+    fn generate(&self, project: &Project) -> Result<()> {
         let mut file_set = FileSet::default();
-        let visitor = Visitor::new((),root.clone());
-        self.generate_files(&mut file_set, &visitor)?;
-        self.save_file_set(file_set, &visitor)?;
+        self.generate_files(&mut file_set, &project)?;
+        self.save_file_set(file_set, &project)?;
         Ok(())
     }
 
     /// Saves the file set.
-    fn save_file_set(&self, file_set: FileSet, project: &ProjectVisitor) -> Result<()> {
+    fn save_file_set(&self, file_set: FileSet, project: &Project) -> Result<()> {
         let target = std::env::var("OUT_DIR")
             .ok()
             .map(PathBuf::from)

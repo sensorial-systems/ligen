@@ -5,13 +5,12 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::{ProjectVisitor, Generator, FileSet, FileGenerator};
+use ligen_traits::generator::{Generator, FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
 use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
-use ligen_ir::visitor::ModuleVisitor;
 use ligen_traits::prelude::{Error, Result as LigenResult};
 
 #[derive(Debug, Default)]
@@ -32,8 +31,8 @@ impl RustGenerator {
         Ok(template)
     }
 
-    pub fn get_functions(&self, template: &mut Template, visitor: &ProjectVisitor) {
-        let root_module = visitor.current.root_module.clone();
+    pub fn get_functions(&self, template: &mut Template, project: &Project) {
+        let root_module = project.root_module.clone();
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let param = h
                 .param(0)
@@ -79,19 +78,19 @@ impl RustGenerator {
         }));
     }
 
-    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, visitor: &ModuleVisitor) -> LigenResult<()> {
-        let is_root_module = visitor.current.path.segments.len() == 1;
+    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, module: &Module) -> LigenResult<()> {
+        let is_root_module = module.path.segments.len() == 1;
         let name = if is_root_module { "lib.rs" } else { "mod.rs" };
-        let value = serde_json::to_value(&visitor.current)?;
+        let value = serde_json::to_value(&module)?;
         let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
         let mut path = PathBuf::from_str("src").unwrap();
-        for segment in visitor.current.path.clone().without_first().segments {
+        for segment in module.path.clone().without_first().segments {
             path = path.join(segment.name);
         }
         path = path.join(name);
         file_set.entry(&path).writeln(content);
-        for module in &visitor.current.modules {
-            self.generate_module(template, file_set, &ModuleVisitor::from(&visitor.child(module.clone())))?;
+        for module in &module.modules {
+            self.generate_module(template, file_set, &module)?;
         }
         Ok(())
     }
@@ -104,10 +103,10 @@ impl Generator for RustGenerator {
 }
 
 impl FileGenerator for RustGenerator {
-    fn generate_files(&self, file_set: &mut FileSet, visitor: &ProjectVisitor) -> LigenResult<()> {
+    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
         let mut template = self.get_template()?;
-        self.get_functions(&mut template, visitor);
-        self.generate_module(&template, file_set, &ModuleVisitor::from(&visitor.child(visitor.root_module.clone())))?;
+        self.get_functions(&mut template, project);
+        self.generate_module(&template, file_set, &project.root_module)?;
         Ok(())
     }
 }

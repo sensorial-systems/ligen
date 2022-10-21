@@ -54,11 +54,6 @@ impl FileSet {
         self.files.insert(file.path.clone(), file);
     }
 
-    /// Gets an existing file.
-    pub fn get_mut(&mut self, path: &PathBuf) -> Option<&mut File> {
-        self.files.get_mut(path)
-    }
-
     /// Returns an existing File assigned to an entry or creates a new one if it isn't present.
     pub fn entry(&mut self, path: &PathBuf) -> &mut File {
         self.files.entry(path.to_path_buf()).or_insert(File::new(path.clone(), Default::default()))

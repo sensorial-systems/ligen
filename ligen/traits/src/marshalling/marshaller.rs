@@ -1,5 +1,5 @@
 use ligen_ir::{Type, TypeDefinition, Attribute, Reference, ReferenceKind, Mutability};
-use ligen_ir::visitor::{ModuleVisitor, ProjectVisitor, StructureVisitor};
+use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor, StructureVisitor};
 use std::collections::HashMap;
 
 /// Marshal type from.

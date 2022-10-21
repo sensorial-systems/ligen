@@ -1,2 +1,2 @@
-pub use ligen_utils::prelude::*;
+pub use ligen_common::*;
 pub use crate::Project;

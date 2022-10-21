@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use ligen_utils::conventions::naming::SnakeCase;
+use crate::conventions::naming::SnakeCase;
 
 /// Identifier structure
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize)]

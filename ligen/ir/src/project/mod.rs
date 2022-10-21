@@ -1,9 +1,8 @@
 //! Project representation.
 
-use crate::visitor::{ModuleVisitor, ProjectVisitor};
 use crate::Module;
 use crate::prelude::*;
-use ligen_utils::conventions::naming::NamingConvention;
+use crate::conventions::naming::NamingConvention;
 use std::path::PathBuf;
 
 // TODO: I think the only reason it exists ie because Project is Rusty. We should merge and generalize the concepts.
@@ -32,16 +31,5 @@ impl Project {
     /// Get the project name.
     pub fn name(&self) -> &NamingConvention {
         &self.name
-    }
-
-    /// Constructs the project visitor.
-    pub fn visitor(&self) -> ProjectVisitor {
-        ProjectVisitor::new((), self.clone())
-    }
-
-    /// Constructs the root module visitor.
-    pub fn root_module_visitor(&self) -> ModuleVisitor {
-        let project_visitor = self.visitor();
-        (&project_visitor.child(self.root_module.clone())).into()
     }
 }

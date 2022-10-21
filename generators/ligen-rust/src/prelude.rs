@@ -1,5 +1,10 @@
+pub use ligen_common::*;
 pub use ligen_utils::prelude::*;
 
+pub use proc_macro2::TokenStream;
+pub use quote::{quote, TokenStreamExt};
+
+// TODO: Move these to new_types.rs
 macro_rules! new_type {
     ($old:ty, $i:ident) => {
         pub struct $i(pub $old);
@@ -18,7 +23,7 @@ macro_rules! new_type {
 
 pub(crate) use new_type;
 new_type!(syn::FnArg, SynFnArg);
-new_type!(ligen_utils::prelude::TokenStream, ProcMacro2TokenStream);
+new_type!(proc_macro2::TokenStream, ProcMacro2TokenStream);
 new_type!(proc_macro::TokenStream, ProcMacroTokenStream);
 new_type!(syn::ImplItem, SynImplItem);
 new_type!(syn::ItemImpl, SynItemImpl);
@@ -56,7 +61,7 @@ pub trait ToTokens {
     }
 }
 
-impl ligen_utils::prelude::ToTokens for dyn ToTokens {
+impl quote::ToTokens for dyn ToTokens {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         (self as &dyn ToTokens).to_tokens(tokens);
     }

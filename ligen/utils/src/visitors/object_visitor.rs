@@ -1,5 +1,5 @@
 use super::{Visitor, ModuleVisitor};
-use crate::{Object, Path};
+use ligen_ir::{Object, Path};
 
 /// Object visitor.
 pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;

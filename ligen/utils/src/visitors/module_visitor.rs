@@ -1,5 +1,5 @@
 use super::{ProjectVisitor, Visitor};
-use crate::{Module, Project, Path};
+use ligen_ir::{Module, Project, Path};
 
 /// All the possibilities of module parents.
 #[derive(Debug, Clone)]
@@ -46,7 +46,7 @@ impl ModuleVisitor {
                 self.find_absolute_path(&relative_path)
             // root module
             } else if identifier == *root_module_name {
-                project.root_module_visitor().find_absolute_path(&relative_path)
+                ProjectVisitor::from(project.clone()).root_module_visitor().find_absolute_path(&relative_path)
             // super module
             } else if identifier == "super".into() {
                 self

@@ -11,8 +11,10 @@ readme        = "../README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# TODO: This dependency is Rusty.
 syn          = { version = "1.0.73", features = [ "full" ] }
 serde_json   = "1.0.64"
+# TODO: This dependency is Rusty.
 cargo_toml   = "0.10.0"
 serde        = { version = "1.0.126", features = [ "derive" ] }
 ligen-macro  = { path = "macro" }
@@ -20,10 +22,12 @@ ligen-ir     = { path = "ir" }
 ligen-utils  = { path = "utils" }
 ligen-traits = { path = "traits" }
 proc-macro2  = "1.0.26"
+# TODO: Do we really need it?
 libloading   = "0.7.0"
 derive_more  = "0.99.16"
 backtrace    = "0.3.61"
 lazy_static  = "1.4.0"
 
+# TODO: This dependency is Rusty.
 [dev-dependencies]
 ligen-cargo = { path = "../generators/ligen-cargo" }

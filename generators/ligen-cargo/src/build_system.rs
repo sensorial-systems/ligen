@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use ligen_ir::prelude::*;
 use ligen_traits::build::{BuildSystem, BuildProfile};
-use ligen_utils::conventions::naming::SnakeCase;
+use ligen_ir::conventions::naming::SnakeCase;
 
 /// Cargo builder.
 #[derive(Clone, Copy, Debug)]

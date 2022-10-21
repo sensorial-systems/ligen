@@ -1,5 +1,5 @@
 use super::{Visitor, ImplementationVisitor, ModuleVisitor};
-use crate::{Function, Path};
+use ligen_ir::{Function, Path};
 
 // ### Create MethodVisitor and FunctionVisitor.
 // ### Dev Strategy: Replace "project" project with something else and start with a simple function to test custom marshallers for String and other external objects such as rust_decimal::Decimal.

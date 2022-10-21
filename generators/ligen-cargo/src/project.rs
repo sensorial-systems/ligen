@@ -1,7 +1,7 @@
 use ligen_ir::prelude::*;
 use super::CargoBuilder;
 use std::path::PathBuf;
-use ligen_utils::conventions::naming::NamingConvention;
+use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
 use ligen_ir::{Module, ProjectInfo};
 use ligen_rust::prelude::LigenProjectInfo;
@@ -34,7 +34,7 @@ impl TryFrom<&std::path::Path> for CargoProject {
         }.to_path_buf();
 
         let manifest_path = path.join("Cargo.toml");
-        let manifest = cargo_toml::Manifest::from_path(manifest_path.as_path())?;
+        let manifest = cargo_toml::Manifest::from_path(manifest_path.as_path()).map_err(|e| Error::Generic(Box::new(e)))?;
         let package = manifest.package.ok_or_else(|| Error::Message("Package not found in Cargo.toml.".into()))?;
         let crate_name = package.name;
         let name = NamingConvention::try_from(crate_name.as_str())?;

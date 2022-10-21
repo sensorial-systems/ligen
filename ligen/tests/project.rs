@@ -2,6 +2,7 @@ use ligen::ir::{Project, Path, Identifier, TypeDefinition, Structure, Attribute,
 use std::convert::TryFrom;
 use std::path::PathBuf;
 use ligen_cargo::CargoProject;
+use ligen_utils::visitors::ProjectVisitor;
 
 pub fn project_directory() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -55,7 +56,7 @@ fn definition_finder(path: Path, project: &Project) {
 }
 
 fn find_absolute_path(project: &Project) -> Path {
-    let module_visitor = project.root_module_visitor();
+    let module_visitor = ProjectVisitor::from(project.clone()).root_module_visitor();
     assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"test_project::time::instant::Instant".into()), "Failed in absolute path case.");
     assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
     assert_eq!(Some("test_project::time::instant::Instant".into()), module_visitor.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");

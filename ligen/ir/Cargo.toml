@@ -6,5 +6,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ligen-utils  = { path = "../utils" }
+ligen-common = { path = "../common" }
 serde        = { version = "1.0.131", features = [ "derive" ] }

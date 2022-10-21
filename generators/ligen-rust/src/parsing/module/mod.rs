@@ -7,7 +7,7 @@ use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, Typ
 use std::collections::HashMap;
 use syn::parse_quote::parse;
 use std::path::PathBuf;
-use ligen_utils::conventions::naming::{NamingConvention, SnakeCase};
+use ligen_ir::conventions::naming::{NamingConvention, SnakeCase};
 
 // TODO: This is a convertion between two types in ligen-ir which requires a new type, it indicates that there is a conceptual problem here.
 impl TryFrom<LigenProjectInfo> for Module {
@@ -185,7 +185,7 @@ impl TryFrom<ProjectInfo> for ModuleConversionHelper {
     fn try_from(project: ProjectInfo) -> Result<Self> {
         let module_path = project.directory.join("src").join("lib.rs");
         let src = std::fs::read_to_string(module_path)?;
-        let file = syn::parse_file(&src)?;
+        let file = syn::parse_file(&src).map_err(|e| Error::Generic(Box::new(e)))?;
         let visibility = Visibility::Public;
         let items = Some(file.items);
         let attributes = (LigenAttributes::try_from(file.attrs)?).into();
@@ -215,7 +215,7 @@ impl TryFrom<ModuleConversionHelper> for Module {
             } else {
                 std::fs::read_to_string(module_path.join("mod.rs"))?
             };
-            let file = syn::parse_file(&src)?;
+            let file = syn::parse_file(&src).map_err(|e| Error::Generic(Box::new(e)))?;
             let visibility = Visibility::Public;
             let items = Some(file.items);
             let attributes = (LigenAttributes::try_from(file.attrs)?).into();

@@ -62,7 +62,7 @@ impl From<SynNestedMeta> for Attribute {
 impl TryFrom<SynAttribute> for Attribute {
     type Error = Error;
     fn try_from(SynAttribute(attribute): SynAttribute) -> Result<Self> {
-        let meta = SynMeta::from(attribute.parse_meta()?);
+        let meta = SynMeta::from(attribute.parse_meta().map_err(|e| Error::Generic(Box::new(e)))?);
         Ok(meta.into())
     }
 }

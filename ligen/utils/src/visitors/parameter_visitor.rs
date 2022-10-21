@@ -1,5 +1,5 @@
 use super::{Visitor, FunctionVisitor};
-use crate::Parameter;
+use ligen_ir::Parameter;
 
 /// Parameter visitor.
 pub type ParameterVisitor = Visitor<FunctionVisitor, Parameter>;
