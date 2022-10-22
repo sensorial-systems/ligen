@@ -5,36 +5,25 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::{FileSet, TemplateBasedGenerator, handlebars};
+use ligen_traits::generator::{FileSet, TemplateBasedGenerator, handlebars, TemplateSetup};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
 use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
 use ligen_traits::prelude::*;
+use ligen_traits::templates;
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
 
-impl TemplateBasedGenerator for RustGenerator {
-    fn base_path(&self) -> PathBuf {
-        PathBuf::from("rust".to_string())
-    }
-
+impl TemplateSetup for RustGenerator {
     fn get_template(&self) -> Result<Handlebars> {
-        let mut template = Handlebars::new();
-        template.register_template_string("identifier", include_str!("templates/identifier.hbs")).expect("Failed to load identifier template.");
-        template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
-        template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
-        template.register_template_string("method", include_str!("templates/method.hbs")).expect("Failed to load method template.");
-        template.register_template_string("function", include_str!("templates/function.hbs")).expect("Failed to load method template.");
-        template.register_template_string("module", include_str!("templates/module.hbs")).expect("Failed to load module template.");
-        template.register_template_string("object", include_str!("templates/object.hbs")).expect("Failed to load object template.");
-        template.register_template_string("parameters", include_str!("templates/parameters.hbs")).expect("Failed to load parameters template.");
-        template.register_template_string("project", include_str!("templates/project.hbs")).expect("Failed to load project template.");
-        Ok(template)
+        Ok(templates!(identifier, arguments, implementation, method, function, module, object, parameters, project))
     }
+}
 
+impl TemplateBasedGenerator for RustGenerator {
     fn get_functions(&self, project: &Project, template: &mut Handlebars) {
         let root_module = project.root_module.clone();
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
@@ -74,6 +63,10 @@ impl TemplateBasedGenerator for RustGenerator {
             out.write(&content.name)?;
             Ok(())
         }));
+    }
+
+    fn base_path(&self) -> PathBuf {
+        PathBuf::from("rust".to_string())
     }
 
     fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Handlebars) -> Result<()> {

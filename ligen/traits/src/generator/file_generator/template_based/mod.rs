@@ -7,9 +7,30 @@ use std::path::PathBuf;
 
 pub use handlebars;
 
-pub trait TemplateBasedGenerator {
-    fn get_template(&self) -> Result<handlebars::Handlebars>;
+#[macro_export]
+macro_rules! add_template {
+    ($template:ident, $identifier:ident) => {
+        // TODO: Stop using expect and use ? instead?
+        $template.register_template_string(stringify!($identifier), include_str!(concat!("templates/", stringify!($identifier), ".hbs"))).expect(concat!("Failed to load ", stringify!($identifier), " template."));
+    }
+}
 
+#[macro_export]
+macro_rules! templates {
+    ($($identifier:ident),+) => {
+        {
+            let mut template = Handlebars::new();
+            $($crate::add_template!(template, $identifier);)+
+            template
+        }
+    }
+}
+
+pub trait TemplateSetup {
+    fn get_template(&self) -> Result<handlebars::Handlebars>;
+}
+
+pub trait TemplateBasedGenerator: TemplateSetup {
     fn get_functions(&self, project: &Project, template: &mut handlebars::Handlebars);
 
     fn base_path(&self) -> PathBuf;
