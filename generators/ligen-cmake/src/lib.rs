@@ -15,13 +15,11 @@ pub enum Language {
     CPP
 }
 
-impl Generator for CMakeGenerator {
+impl FileGenerator for CMakeGenerator {
     fn base_path(&self) -> PathBuf {
         "c".into()
     }
-}
 
-impl FileGenerator for CMakeGenerator {
     fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> Result<()> {
         let generator_version = env!("CARGO_PKG_VERSION");
         let project_name = SnakeCase::from(project.name.clone()).to_string();

@@ -5,7 +5,7 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::{Generator, FileSet, FileGenerator};
+use ligen_traits::generator::{FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
@@ -96,13 +96,11 @@ impl RustGenerator {
     }
 }
 
-impl Generator for RustGenerator {
+impl FileGenerator for RustGenerator {
     fn base_path(&self) -> PathBuf {
         PathBuf::from("rust".to_string())
     }
-}
 
-impl FileGenerator for RustGenerator {
     fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
         let mut template = self.get_template()?;
         self.get_functions(&mut template, project);

@@ -1,6 +1,6 @@
 use ligen_ir::*;
 
-use ligen_traits::generator::{Generator, FileSet, FileGenerator};
+use ligen_traits::generator::{FileSet, FileGenerator};
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -80,13 +80,11 @@ impl CGenerator {
     }
 }
 
-impl Generator for CGenerator {
+impl FileGenerator for CGenerator {
     fn base_path(&self) -> PathBuf {
         PathBuf::from("c".to_string())
     }
-}
 
-impl FileGenerator for CGenerator {
     fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
         let mut template = self.get_template()?;
         self.get_functions(&mut template, project);

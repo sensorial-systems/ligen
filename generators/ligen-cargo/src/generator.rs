@@ -1,4 +1,4 @@
-use ligen_traits::generator::{Generator, FileGenerator, FileSet};
+use ligen_traits::generator::{FileGenerator, FileSet};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_traits::prelude::*;
@@ -6,13 +6,11 @@ use ligen_traits::prelude::*;
 #[derive(Debug, Default)]
 pub struct CargoGenerator;
 
-impl Generator for CargoGenerator {
+impl FileGenerator for CargoGenerator {
     fn base_path(&self) -> PathBuf {
         PathBuf::from("rust".to_string())
     }
-}
 
-impl FileGenerator for CargoGenerator {
     fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> Result<()> {
         let file = file_set.entry(&PathBuf::from_str("Cargo.toml").unwrap());
         let version = "0.1.0";
