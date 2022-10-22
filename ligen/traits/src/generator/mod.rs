@@ -1,16 +1,14 @@
 //! Generators.
 
-pub use file::*;
+mod file_generator;
+
 pub use file_generator::*;
 
 use crate::prelude::*;
 use ligen_utils::fs::write_file;
 
-mod file;
 use std::path::{Path, PathBuf};
 use ligen_ir::conventions::naming::SnakeCase;
-
-mod file_generator;
 
 /// Generator trait.
 pub trait Generator: FileGenerator {

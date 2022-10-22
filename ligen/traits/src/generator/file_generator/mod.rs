@@ -1,7 +1,10 @@
 //! File generator module.
 
+mod file;
+
+pub use file::*;
+
 use crate::prelude::*;
-use crate::generator::FileSet;
 
 /// File generator.
 pub trait FileGenerator {
