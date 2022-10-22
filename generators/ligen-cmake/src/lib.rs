@@ -20,7 +20,7 @@ impl FileGenerator for CMakeGenerator {
         "c".into()
     }
 
-    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> Result<()> {
+    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()> {
         let generator_version = env!("CARGO_PKG_VERSION");
         let project_name = SnakeCase::from(project.name.clone()).to_string();
 

@@ -11,7 +11,7 @@ impl FileGenerator for CargoGenerator {
         PathBuf::from("rust".to_string())
     }
 
-    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> Result<()> {
+    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(&PathBuf::from_str("Cargo.toml").unwrap());
         let version = "0.1.0";
         let name = &project.name;

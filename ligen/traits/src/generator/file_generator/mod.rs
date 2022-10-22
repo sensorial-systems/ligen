@@ -1,14 +1,17 @@
 //! File generator module.
 
 mod file;
+mod template_based;
 
-use std::path::{Path, PathBuf};
 pub use file::*;
-use ligen_ir::conventions::naming::SnakeCase;
-use ligen_utils::fs::write_file;
-use crate::generator::Generator;
+pub use template_based::*;
 
 use crate::prelude::*;
+use crate::generator::Generator;
+
+use ligen_ir::conventions::naming::SnakeCase;
+use ligen_utils::fs::write_file;
+use std::path::{Path, PathBuf};
 
 /// File generator.
 pub trait FileGenerator {
@@ -17,10 +20,10 @@ pub trait FileGenerator {
     fn base_path(&self) -> PathBuf;
 
     /// Generate files.
-    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> Result<()>;
+    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
-    fn save_file_set(&self, file_set: FileSet, project: &Project) -> Result<()> {
+    fn save_file_set(&self, project: &Project, file_set: FileSet) -> Result<()> {
         let target = std::env::var("OUT_DIR")
             .ok()
             .map(PathBuf::from)
@@ -45,8 +48,8 @@ pub trait FileGenerator {
 impl <T: FileGenerator> Generator for T {
     fn generate(&self, project: &Project) -> Result<()> {
         let mut file_set = FileSet::default();
-        self.generate_files(&mut file_set, &project)?;
-        self.save_file_set(file_set, &project)?;
+        self.generate_files(&project, &mut file_set)?;
+        self.save_file_set(&project, file_set)?;
         Ok(())
     }
 }

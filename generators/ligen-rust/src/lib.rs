@@ -5,20 +5,24 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::{FileSet, FileGenerator};
+use ligen_traits::generator::{FileSet, TemplateBasedGenerator, handlebars};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
-use handlebars::{Context, Handlebars as Template, Handlebars, Helper, HelperResult, Output, RenderContext};
-use ligen_traits::prelude::{Error, Result as LigenResult};
+use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContext};
+use ligen_traits::prelude::*;
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
 
-impl RustGenerator {
-    pub fn get_template(&self) -> LigenResult<Template> {
-        let mut template = Template::new();
+impl TemplateBasedGenerator for RustGenerator {
+    fn base_path(&self) -> PathBuf {
+        PathBuf::from("rust".to_string())
+    }
+
+    fn get_template(&self) -> Result<Handlebars> {
+        let mut template = Handlebars::new();
         template.register_template_string("identifier", include_str!("templates/identifier.hbs")).expect("Failed to load identifier template.");
         template.register_template_string("arguments", include_str!("templates/arguments.hbs")).expect("Failed to load arguments template.");
         template.register_template_string("implementation", include_str!("templates/implementation.hbs")).expect("Failed to load implementation template.");
@@ -31,7 +35,7 @@ impl RustGenerator {
         Ok(template)
     }
 
-    pub fn get_functions(&self, template: &mut Template, project: &Project) {
+    fn get_functions(&self, project: &Project, template: &mut Handlebars) {
         let root_module = project.root_module.clone();
         template.register_helper("marshal_type", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let param = h
@@ -60,13 +64,7 @@ impl RustGenerator {
         template.register_helper("join_path", Box::new(move |h: &Helper<'_, '_>, _: &Handlebars<'_>, _context: &Context, _rc: &mut RenderContext<'_, '_>, out: &mut dyn Output| -> HelperResult {
             let separator = serde_json::from_value::<String>(h.param(0).unwrap().value().clone()).unwrap();
             let path = serde_json::from_value::<Path>(h.param(1).unwrap().value().clone()).unwrap();
-            // TODO: Move the join logic to Path? Something like fn to_string(&self, separator: &str)?
-            let content = path
-                .segments
-                .into_iter()
-                .map(|identifier| identifier.name)
-                .collect::<Vec<_>>()
-                .join(&separator);
+            let content = path.to_string(&separator);
             out.write(&content)?;
             Ok(())
         }));
@@ -78,8 +76,8 @@ impl RustGenerator {
         }));
     }
 
-    pub fn generate_module(&self, template: &Template, file_set: &mut FileSet, module: &Module) -> LigenResult<()> {
-        let is_root_module = module.path.segments.len() == 1;
+    fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Handlebars) -> Result<()> {
+        let is_root_module = project.root_module.path == module.path;
         let name = if is_root_module { "lib.rs" } else { "mod.rs" };
         let value = serde_json::to_value(&module)?;
         let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
@@ -90,21 +88,8 @@ impl RustGenerator {
         path = path.join(name);
         file_set.entry(&path).writeln(content);
         for module in &module.modules {
-            self.generate_module(template, file_set, &module)?;
+            self.generate_module(project, module, file_set, template)?;
         }
-        Ok(())
-    }
-}
-
-impl FileGenerator for RustGenerator {
-    fn base_path(&self) -> PathBuf {
-        PathBuf::from("rust".to_string())
-    }
-
-    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
-        let mut template = self.get_template()?;
-        self.get_functions(&mut template, project);
-        self.generate_module(&template, file_set, &project.root_module)?;
         Ok(())
     }
 }

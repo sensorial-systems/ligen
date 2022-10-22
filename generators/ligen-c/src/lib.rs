@@ -85,7 +85,7 @@ impl FileGenerator for CGenerator {
         PathBuf::from("c".to_string())
     }
 
-    fn generate_files(&self, file_set: &mut FileSet, project: &Project) -> LigenResult<()> {
+    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> LigenResult<()> {
         let mut template = self.get_template()?;
         self.get_functions(&mut template, project);
         self.generate_module(&template, file_set, &project.root_module)?;

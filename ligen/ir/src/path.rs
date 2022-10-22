@@ -10,6 +10,17 @@ pub struct Path {
 }
 
 impl Path {
+    /// Converts to string with specified separator.
+    pub fn to_string(&self, separator: &str) -> String {
+        self
+            .segments
+            .clone()
+            .into_iter()
+            .map(|identifier| identifier.name)
+            .collect::<Vec<_>>()
+            .join(&separator)
+    }
+
     /// Get the last segment of the path.
     pub fn last(&self) -> Identifier {
         self.segments.last().unwrap().clone()
