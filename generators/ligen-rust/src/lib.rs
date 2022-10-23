@@ -5,7 +5,7 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::{FileSet, TemplateBasedGenerator, handlebars, TemplateSetup};
+use ligen_traits::generator::file_generator::{FileSet, TemplateBasedGenerator, handlebars, TemplateSetup};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;

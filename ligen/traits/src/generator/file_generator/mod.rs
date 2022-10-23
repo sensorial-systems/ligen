@@ -1,7 +1,7 @@
 //! File generator module.
 
 mod file;
-mod template_based;
+pub mod template_based;
 
 pub use file::*;
 pub use template_based::*;

@@ -1,6 +1,5 @@
 use ligen::prelude::*;
-use ligen::traits::generator::{FileSet, FileGenerator};
-use ligen::traits::generator::File;
+use ligen::traits::generator::file_generator::{File, FileSet, FileGenerator};
 use std::path::PathBuf;
 use ligen::ir::conventions::naming::SnakeCase;
 // use ligen::traits::marshalling::Marshaller;

@@ -1,4 +1,4 @@
-use crate::generator::{FileGenerator, FileSet};
+use super::{FileGenerator, FileSet};
 
 use ligen_ir::{Module, Project};
 use ligen_common::*;
@@ -15,6 +15,8 @@ macro_rules! add_template {
     }
 }
 
+// TODO: Use #[derive(TemplateFiles)] when https://github.com/rust-lang/rust/issues/54725 is stable.
+//  The idea is to iterate over the templates folder and automatically register all the template files.
 #[macro_export]
 macro_rules! templates {
     ($($identifier:ident),+) => {

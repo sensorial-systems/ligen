@@ -1,6 +1,6 @@
 use ligen_ir::*;
 
-use ligen_traits::generator::{FileSet, handlebars, TemplateBasedGenerator, TemplateSetup};
+use ligen_traits::generator::file_generator::{FileSet, handlebars, TemplateBasedGenerator, TemplateSetup};
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -8,7 +8,6 @@ use handlebars::{Context, Handlebars, Helper, HelperResult, Output, RenderContex
 use ligen_traits::prelude::*;
 use ligen_traits::templates;
 
-// TODO: #[derive(ligen::Template)) to automatically fetch templates.
 #[derive(Debug, Default)]
 pub struct CGenerator;
 
