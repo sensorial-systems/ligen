@@ -1,5 +1,5 @@
 {{#each modules }}
-pub mod {{ get_name this.path }};
+pub mod {{ name_from_path this.path }};
 {{/each }}
 
 {{#each functions}}

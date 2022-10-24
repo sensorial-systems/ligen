@@ -5,13 +5,13 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::file_generator::{FileSet, TemplateBasedGenerator, TemplateRegister, Template, Inputs};
+use ligen_traits::generator::file_generator::{FileSet, TemplateBasedGenerator, TemplateRegister, Template};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
 use ligen_traits::prelude::*;
-use ligen_traits::{register_functions, register_templates};
+use ligen_traits::register_templates;
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
@@ -21,18 +21,6 @@ impl TemplateRegister for RustGenerator {
         register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, project);
         Ok(())
     }
-}
-
-fn get_name(inputs: &Inputs) -> String {
-    let path = serde_json::from_value::<Path>(inputs.get(0).unwrap()).unwrap();
-    let content = path.last();
-    content.name
-}
-
-fn join_path(inputs: &Inputs) -> String {
-    let separator = serde_json::from_value::<String>(inputs.get(0).unwrap()).unwrap();
-    let path = serde_json::from_value::<Path>(inputs.get(1).unwrap()).unwrap();
-    path.to_string(&separator)
 }
 
 impl TemplateBasedGenerator for RustGenerator {
@@ -56,7 +44,6 @@ impl TemplateBasedGenerator for RustGenerator {
                 format!("()")
             }
         });
-        register_functions!(template, join_path, get_name);
     }
 
     fn base_path(&self) -> PathBuf {

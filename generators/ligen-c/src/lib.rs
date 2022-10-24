@@ -28,15 +28,9 @@ fn marshal_type(inputs: &Inputs) -> String {
     }.into()
 }
 
-fn join_path(inputs: &Inputs) -> String {
-    let separator = serde_json::from_value::<String>(inputs.get(0).unwrap()).unwrap();
-    let path = serde_json::from_value::<Path>(inputs.get(1).unwrap()).unwrap();
-    path.to_string(&separator)
-}
-
 impl TemplateBasedGenerator for CGenerator {
     fn register_functions(&self, _project: &Project, template: &mut Template) {
-        register_functions!(template, marshal_type, join_path);
+        register_functions!(template, marshal_type);
     }
 
     fn base_path(&self) -> PathBuf {
