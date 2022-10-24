@@ -33,7 +33,7 @@ impl From<SynItemConst> for Constant {
 #[cfg(test)]
 mod test {
     use super::{Constant, Identifier, Type};
-    use crate::{Literal, Mutability, Reference, ReferenceKind};
+    use crate::{Literal, Mutability, Reference};
     use quote::quote;
     use syn::parse_quote::parse;
     use crate::prelude::{SynImplItemConst, SynItemConst};
@@ -46,7 +46,6 @@ mod test {
                 identifier: Identifier::new("a"),
                 type_: Type::Reference(
                     Reference {
-                        kind: ReferenceKind::Borrow,
                         mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }
@@ -64,7 +63,6 @@ mod test {
                 identifier: Identifier::new("a"),
                 type_: Type::Reference(
                     Reference {
-                        kind: ReferenceKind::Borrow,
                         mutability: Mutability::Constant,
                         type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
                     }

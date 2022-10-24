@@ -99,7 +99,7 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, ReferenceKind, Visibility};
+    use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
     use crate::prelude::SynItemFn;
 
     use super::{Async, Function, Type};
@@ -202,7 +202,6 @@ mod test {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
-                            kind: ReferenceKind::Borrow,
                             mutability: Mutability::Constant,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
@@ -211,14 +210,12 @@ mod test {
                         attributes: Default::default(),
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
-                            kind: ReferenceKind::Borrow,
                             mutability: Mutability::Mutable,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
-                    kind: ReferenceKind::Borrow,
                     mutability: Mutability::Constant,
                     type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))
@@ -304,7 +301,6 @@ mod test {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
-                            kind: ReferenceKind::Borrow,
                             mutability: Mutability::Constant,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
@@ -313,14 +309,12 @@ mod test {
                         attributes: Default::default(),
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
-                            kind: ReferenceKind::Borrow,
                             mutability: Mutability::Mutable,
                             type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
-                    kind: ReferenceKind::Borrow,
                     mutability: Mutability::Constant,
                     type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
                 }))

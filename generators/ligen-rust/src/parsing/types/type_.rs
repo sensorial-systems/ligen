@@ -1,4 +1,4 @@
-use crate::{Primitive, Reference, ReferenceKind, Generics, Mutability, Type};
+use crate::{Primitive, Reference, Generics, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 
@@ -26,17 +26,17 @@ impl TryFrom<SynType> for Type {
             let reference = match &syn_type {
                 syn::Type::Reference(TypeReference {
                                          elem, mutability, ..
-                                     }) => Some((ReferenceKind::Borrow, elem, mutability)),
+                                     }) => Some((elem, mutability)),
                 syn::Type::Ptr(TypePtr {
                                    elem, mutability, ..
-                               }) => Some((ReferenceKind::Pointer, elem, mutability)),
+                               }) => Some((elem, mutability)),
                 _ => None,
             };
-            if let Some((kind, elem, mutability)) = reference {
+            if let Some((elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
                     let type_ = Box::new(SynPath(path).into());
-                    Ok(Self::Reference(Reference { kind, mutability, type_, }))
+                    Ok(Self::Reference(Reference { mutability, type_, }))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))
                 }
@@ -67,7 +67,7 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::{Float, Integer, Mutability, ReferenceKind};
+    use crate::{Float, Integer, Mutability};
     use crate::prelude::SynType;
 
     use super::{
@@ -170,7 +170,6 @@ mod test {
         assert_eq!(
             Type::Reference(
                 Reference {
-                    kind: ReferenceKind::Borrow,
                     mutability: Mutability::Constant,
                     type_: Box::new(
                         Type::Primitive(
@@ -192,7 +191,6 @@ mod test {
         assert_eq!(
             Type::Reference(
                 Reference {
-                    kind: ReferenceKind::Borrow,
                     mutability: Mutability::Mutable,
                     type_: Box::new(
                         Type::Primitive(
@@ -213,7 +211,6 @@ mod test {
     fn types_pointer_constant() {
         assert_eq!(
             Type::Reference(Reference {
-                kind: ReferenceKind::Pointer,
                 mutability: Mutability::Constant,
                 type_: Box::new(
                     Type::Primitive(
@@ -233,7 +230,6 @@ mod test {
     fn types_pointer_mutable() {
         assert_eq!(
             Type::Reference(Reference {
-                kind: ReferenceKind::Pointer,
                 mutability: Mutability::Mutable,
                 type_: Box::new(
                     Type::Primitive(
