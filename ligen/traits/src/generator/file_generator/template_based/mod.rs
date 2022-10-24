@@ -44,7 +44,7 @@ pub trait TemplateRegister {
 }
 
 pub trait TemplateBasedGenerator: TemplateRegister {
-    fn register_functions(&self, project: &Project, template: &mut Template);
+    fn register_functions(&self, _project: &Project, _template: &mut Template) {}
 
     fn base_path(&self) -> PathBuf;
 

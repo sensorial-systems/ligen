@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 {{#each modules}}
 #include <{{join_path "/" this.path}}.h>
 {{/each}}

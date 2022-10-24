@@ -1,8 +1,9 @@
 use crate::{Mutability, Type};
 use crate::prelude::*;
 
-/// Reference kind.
+
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[deprecated(since="0.1.0", note="This is Rusty and we shouldn't care about it. In fact, both are represented equally in Rust`s memory layout.")]
 pub enum ReferenceKind {
     /// Borrow reference, denoted with &.
     Borrow,
