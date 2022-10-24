@@ -5,7 +5,7 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::file_generator::{FileSet, TemplateBasedGenerator, TemplateRegister, Template};
+use ligen_traits::generator::file_generator::{TemplateBasedGenerator, TemplateRegister, Template};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
@@ -50,20 +50,12 @@ impl TemplateBasedGenerator for RustGenerator {
         PathBuf::from("rust".to_string())
     }
 
-    fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Template) -> Result<()> {
+    fn module_generation_path(&self, project: &Project, module: &Module) -> PathBuf {
         let is_root_module = project.root_module.path == module.path;
         let name = if is_root_module { "lib.rs" } else { "mod.rs" };
-        let value = serde_json::to_value(&module)?;
-        let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
         let mut path = PathBuf::from_str("src").unwrap();
-        for segment in module.path.clone().without_first().segments {
-            path = path.join(segment.name);
-        }
+        path = path.join(PathBuf::from(module.path.clone().without_first()));
         path = path.join(name);
-        file_set.entry(&path).writeln(content);
-        for module in &module.modules {
-            self.generate_module(project, module, file_set, template)?;
-        }
-        Ok(())
+        path
     }
 }

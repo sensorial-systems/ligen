@@ -95,6 +95,16 @@ impl From<PathBuf> for Path {
     }
 }
 
+impl From<Path> for PathBuf {
+    fn from(path: Path) -> Self {
+        let mut path_buf = PathBuf::new();
+        for segment in path.segments {
+            path_buf = path_buf.join(segment.name);
+        }
+        path_buf
+    }
+}
+
 impl From<Identifier> for Path {
     fn from(identifier: Identifier) -> Self {
         let segments = vec![identifier];

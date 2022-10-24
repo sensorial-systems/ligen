@@ -1,6 +1,6 @@
 use ligen_ir::*;
 
-use ligen_traits::generator::file_generator::{FileSet, Inputs, Template, TemplateBasedGenerator, TemplateRegister};
+use ligen_traits::generator::file_generator::{Inputs, Template, TemplateBasedGenerator, TemplateRegister};
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -37,17 +37,10 @@ impl TemplateBasedGenerator for CGenerator {
         PathBuf::from("c".to_string())
     }
 
-    fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Template) -> Result<()> {
-        let value = serde_json::to_value(&module)?;
-        let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
+    fn module_generation_path(&self, _project: &Project, module: &Module) -> PathBuf {
         let mut path = PathBuf::from_str("include").unwrap();
-        for segment in module.path.clone().segments {
-            path = path.join(segment.name);
-        }
+        path = path.join(PathBuf::from(module.path.clone().without_first()));
         path = path.with_extension("h");
-        file_set.entry(&path).writeln(content);
-        for module in &module.modules {
-            self.generate_module(project, module, file_set, template)?;
-        }
-        Ok(())
-    }}
+        path
+    }
+}

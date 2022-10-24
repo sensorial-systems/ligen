@@ -48,7 +48,21 @@ pub trait TemplateBasedGenerator: TemplateRegister {
 
     fn base_path(&self) -> PathBuf;
 
-    fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Template) -> Result<()>;
+    fn module_generation_path(&self, project: &Project, module: &Module) -> PathBuf;
+
+    fn generate_module(&self, project: &Project, module: &Module, file_set: &mut FileSet, template: &Template) -> Result<()> {
+        let value = serde_json::to_value(&module)?;
+        let content = template.render("module", &value).map_err(|e| Error::Message(format!("{}", e)))?;
+
+        let path = self.module_generation_path(project, module);
+
+        file_set.entry(&path).writeln(content);
+        for module in &module.modules {
+            self.generate_module(project, module, file_set, template)?;
+        }
+        Ok(())
+
+    }
 }
 
 impl <T: TemplateBasedGenerator> FileGenerator for T {
