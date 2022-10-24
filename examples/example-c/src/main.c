@@ -9,7 +9,16 @@
 }
 
 int main(int argc, char **argv) {
-    cassert(example_functions_primitives_add(1, 2) == 3);
+//    cassert(example_functions_primitives_add_i8 (1, 2) == 3);
+//    cassert(example_functions_primitives_add_i16(1, 2) == 3);
+    cassert(example_functions_primitives_add_i32(1, 2) == 3);
+//    cassert(example_functions_primitives_add_i64(1, 2) == 3);
+
+//    cassert(example_functions_primitives_add_u8 (1, 2) == 3);
+//    cassert(example_functions_primitives_add_u16(1, 2) == 3);
+//    cassert(example_functions_primitives_add_u32(1, 2) == 3);
+//    cassert(example_functions_primitives_add_u64(1, 2) == 3);
+
     cassert(ligen_rust_runtime_test() == 123);
     printf("All tests passed.\n");
     return 0;
