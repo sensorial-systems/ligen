@@ -1,4 +1,4 @@
 #[no_mangle]
-pub extern "C" fn {{ join_path "_" path }}({{>parameters inputs}}) -> {{marshal_type output}} {
+pub extern "C" fn {{ join_path "_" path }}({{>parameters inputs}}) -> {{mapped_type output}} {
     {{ join_path "::" path }}({{>arguments inputs}})
 }

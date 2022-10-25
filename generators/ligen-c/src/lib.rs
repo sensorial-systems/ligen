@@ -67,7 +67,7 @@ fn mapped_type(inputs: &Inputs) -> String {
     if let Some(type_) = type_ {
         type_mapping(&type_)
     } else {
-        "<ligen-c:mapped_type error>".to_string()
+        "void".to_string()
     }
 }
 

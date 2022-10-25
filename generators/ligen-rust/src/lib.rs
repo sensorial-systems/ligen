@@ -5,13 +5,67 @@ extern crate proc_macro;
 
 use ligen_ir::*;
 
-use ligen_traits::generator::file_generator::{TemplateBasedGenerator, TemplateRegister, Template};
+use ligen_traits::generator::file_generator::{TemplateBasedGenerator, TemplateRegister, Template, Inputs};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_ir::Type;
 
 use ligen_traits::prelude::*;
-use ligen_traits::register_templates;
+use ligen_traits::{register_functions, register_templates};
+
+fn type_mapping(type_: &Type) -> String {
+    match type_ {
+        Type::Reference(reference) => {
+            let type_ = type_mapping(&reference.type_);
+            match reference.mutability {
+                Mutability::Mutable => format!("&mut {}", type_),
+                Mutability::Constant => format!("&{}", type_),
+            }
+        },
+        Type::Compound(compound, _generics) => {
+            compound.to_string("_")
+        },
+        Type::Primitive(primitive) => {
+            match primitive {
+                Primitive::Boolean => "bool",
+                Primitive::Character => "char",
+                Primitive::Float(float) => {
+                    match float {
+                        Float::F32 => "f32",
+                        Float::F64 => "f64"
+                    }
+                },
+                Primitive::Integer(integer) => {
+                    match integer {
+                        Integer::I8 => "i8",
+                        Integer::U8 => "u8",
+                        Integer::I16 => "i16",
+                        Integer::U16 => "u16",
+                        Integer::I32 => "i32",
+                        Integer::U32 => "u32",
+                        Integer::I64 => "i64",
+                        Integer::U64 => "u64",
+                        Integer::I128 => "i128",
+                        Integer::U128 => "u128",
+                        Integer::ISize => "isize",
+                        Integer::USize => "usize"
+                    }
+                }
+            }.to_string()
+        }
+    }.to_string()
+}
+
+fn mapped_type(inputs: &Inputs) -> String {
+    let type_ = inputs
+        .get(0)
+        .and_then(|input| serde_json::from_value::<Type>(input).ok());
+    if let Some(type_) = type_ {
+        type_mapping(&type_)
+    } else {
+        "()".to_string()
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct RustGenerator;
@@ -24,26 +78,8 @@ impl TemplateRegister for RustGenerator {
 }
 
 impl TemplateBasedGenerator for RustGenerator {
-    fn register_functions(&self, project: &Project, template: &mut Template) {
-        let root_module = project.root_module.clone();
-        template.register_function("marshal_type", move |inputs| {
-            if let Some(param) = inputs.get(0) {
-                let type_ = serde_json::from_value::<Type>(param).unwrap();
-                let identifier = type_.path().last();
-                let is_opaque = root_module
-                    .get_literal_from_path(format!("ligen::ffi::{}::opaque", identifier.name))
-                    .map(|literal| literal.to_string() == "true")
-                    .unwrap_or_default();
-                let (type_, opacity) = if is_opaque {
-                    (type_.drop_reference().to_string(), "*mut ")
-                } else {
-                    (type_.to_string(), "")
-                };
-                format!("{}{}", opacity, type_)
-            } else {
-                format!("()")
-            }
-        });
+    fn register_functions(&self, _project: &Project, template: &mut Template) {
+        register_functions!(template, mapped_type);
     }
 
     fn base_path(&self) -> PathBuf {
