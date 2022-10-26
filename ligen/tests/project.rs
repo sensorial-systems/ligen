@@ -41,7 +41,7 @@ fn project(path: PathBuf) {
 fn definition_finder(path: Path, project: &Project) {
     let expected_definition = TypeDefinition::Structure(Structure {
         attributes: Attribute::Group("ligen".into(), Attribute::Group(Identifier::new("opaque").into(), Default::default()).into()).into(),
-        identifier: "Instant".into(),
+        path: "Instant".into(),
         visibility: Visibility::Public,
         fields: vec![
             Field {

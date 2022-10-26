@@ -69,7 +69,7 @@ impl ModuleVisitor {
                     .current
                     .objects
                     .iter()
-                    .filter(|object| *object.definition.identifier() == identifier)
+                    .filter(|object| object.definition.path().last() == identifier)
                     .next()
                     .map(|_| Path::from(root_module_name.name.clone()).join(self.path.clone().join(identifier.clone()).without_first()));
                 if definition.is_some() {

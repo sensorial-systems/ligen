@@ -2,6 +2,7 @@
 
 pub mod field;
 pub use field::*;
+use ligen_ir::Identifier;
 
 use crate::prelude::*;
 use crate::Structure;
@@ -10,13 +11,13 @@ impl TryFrom<SynItemStruct> for Structure {
     type Error = Error;
     fn try_from(SynItemStruct(structure): SynItemStruct) -> Result<Self> {
         let attributes = (LigenAttributes::try_from(structure.attrs)?).into();
-        let identifier = SynIdent(structure.ident).into();
+        let path = Identifier::from(SynIdent(structure.ident)).into();
         let visibility = SynVisibility(structure.vis).into();
         let mut fields = Vec::new();
         for field in structure.fields {
             fields.push(SynField(field).try_into()?);
         }
-        Ok(Self { attributes, visibility, identifier, fields })
+        Ok(Self { attributes, visibility, path, fields })
     }
 }
 
@@ -25,7 +26,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Field, Identifier, Type, Primitive, Integer, Visibility, Structure};
+    use crate::{Field, Type, Primitive, Integer, Visibility, Structure};
     use crate::prelude::SynItemStruct;
 
     #[test]
@@ -40,7 +41,7 @@ mod tests {
             Structure {
                 attributes: Default::default(),
                 visibility: Visibility::Inherited,
-                identifier: Identifier::new("Structure"),
+                path: "Structure".into(),
                 fields: vec! [
                     Field {
                         attributes: Default::default(),

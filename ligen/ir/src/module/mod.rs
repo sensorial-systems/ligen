@@ -116,7 +116,7 @@ impl Module {
                             attributes: import.attributes.clone(),
                             visibility: import.visibility.clone(),
                             renaming: import.renaming.clone(),
-                            path: module_path.clone().join(object.definition.identifier().clone())
+                            path: object.definition.path().clone()
                         })
                     }
                 }

@@ -85,7 +85,7 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
         match item {
             syn::Item::Enum(enumeration) => {
                 let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
-                let path = enumeration.identifier.clone().into();
+                let path = enumeration.path.clone();
                 let definition = Some(TypeDefinition::Enumeration(enumeration));
                 if let Some((optional_definition, _)) = objects.get_mut(&path) {
                     *optional_definition = definition;
@@ -95,7 +95,7 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
             },
             syn::Item::Struct(structure) => {
                 let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
-                let path = structure.identifier.clone().into();
+                let path = structure.path.clone();
                 let definition = Some(TypeDefinition::Structure(structure));
                 if let Some((optional_definition, _implementations)) = objects.get_mut(&path) {
                     *optional_definition = definition;
@@ -307,6 +307,31 @@ mod tests {
     }
 
     #[test]
+    fn type_definition_finder() -> Result<()> {
+        let module = quote! {
+            pub mod types {
+                pub struct Type;
+
+                pub fn process(type_: Type) {}
+            }
+        };
+        let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        let definition = module.find_definition(&Path::from("Type"));
+        let expected_definition = Some(
+            TypeDefinition::Structure(
+                Structure {
+                    attributes: Default::default(),
+                    visibility: Visibility::Public,
+                    path: "Type".into(),
+                    fields: Default::default()
+                }
+            )
+        );
+        assert_eq!(definition, expected_definition);
+        Ok(())
+    }
+
+    #[test]
     fn object() -> Result<()> {
         let module = quote! {
             #[ligen(attribute)]
@@ -360,7 +385,7 @@ mod tests {
                         definition: TypeDefinition::Structure(Structure {
                             attributes: Default::default(),
                             visibility: Visibility::Public,
-                            identifier: "AnotherObject".into(),
+                            path: "AnotherObject".into(),
                             fields: Default::default(),
                         }),
                         implementations: Default::default()
@@ -370,7 +395,7 @@ mod tests {
                         definition: TypeDefinition::Structure(Structure {
                             attributes: Default::default(),
                             visibility: Visibility::Public,
-                            identifier: "Object".into(),
+                            path: "Object".into(),
                             fields: vec![
                                 Field {
                                     attributes: Default::default(),

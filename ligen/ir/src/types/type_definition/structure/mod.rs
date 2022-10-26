@@ -4,7 +4,7 @@ mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use crate::{Attributes, Visibility, Identifier};
+use crate::{Attributes, Visibility, Path};
 
 /// Structure representation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,8 +13,8 @@ pub struct Structure {
     pub attributes: Attributes,
     /// Structure visibility.
     pub visibility: Visibility,
-    /// Structure identifier.
-    pub identifier: Identifier,
+    /// Structure path.
+    pub path: Path,
     /// Items field.
     pub fields: Vec<Field>,
 }

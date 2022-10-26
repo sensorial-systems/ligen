@@ -4,7 +4,7 @@ mod variant;
 pub use variant::*;
 
 use crate::prelude::*;
-use crate::{Attributes, Visibility, Identifier};
+use crate::{Attributes, Visibility, Path};
 
 /// Enumeration representation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,8 +13,8 @@ pub struct Enumeration {
     pub attributes: Attributes,
     /// Enumeration visibility.
     pub visibility: Visibility,
-    /// Enumeration identifier.
-    pub identifier: Identifier,
+    /// Enumeration path.
+    pub path: Path,
     /// Variants field.
     pub variants: Vec<Variant>,
 }

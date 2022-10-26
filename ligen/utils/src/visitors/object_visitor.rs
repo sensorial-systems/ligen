@@ -5,9 +5,9 @@ use ligen_ir::{Object, Path};
 pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;
 
 impl ObjectVisitor {
-    /// Returns the module path.
+    /// Returns the object path.
     pub fn path(&self) -> Path {
-        self.parent.path.clone().join(self.current.definition.identifier().clone())
+        self.current.path.clone()
     }
 
     /// Get the parent module.

@@ -5,9 +5,9 @@ use ligen_ir::{Enumeration, Path};
 pub type EnumerationVisitor = Visitor<ObjectVisitor, Enumeration>;
 
 impl EnumerationVisitor {
-    /// Returns the module path.
+    /// Returns the enumeration path.
     pub fn path(&self) -> Path {
-        self.parent.path().join(self.current.identifier.clone())
+        self.current.path.clone()
     }
 
     /// Get the parent module.

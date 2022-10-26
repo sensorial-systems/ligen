@@ -6,7 +6,7 @@ mod enumeration;
 use crate::prelude::*;
 pub use structure::*;
 pub use enumeration::*;
-use crate::{Identifier, Visibility};
+use crate::{Path, Visibility};
 
 // TODO: Bring common properties from Structure and Enumeration to TypeDefinition.
 /// All the possible ways to define a type.
@@ -18,11 +18,11 @@ pub enum TypeDefinition {
 }
 
 impl TypeDefinition {
-    /// Get the type definition identifier.
-    pub fn identifier(&self) -> &Identifier {
+    /// Get the path definition identifier.
+    pub fn path(&self) -> &Path {
         match self {
-            Self::Structure(structure) => &structure.identifier,
-            Self::Enumeration(enumeration) => &enumeration.identifier
+            Self::Structure(structure) => &structure.path,
+            Self::Enumeration(enumeration) => &enumeration.path
         }
     }
 
