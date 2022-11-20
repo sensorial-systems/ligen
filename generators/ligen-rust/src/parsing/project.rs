@@ -70,7 +70,7 @@ mod tests {
         let manifest_path = Default::default();
         let directory = Default::default();
         let project = Project { name, root_module, manifest_path, directory };
-        let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
+        let project = project.transforms(&[&ReplaceCrateAlias("crate".into()), &RelativePathToAbsolutePath]);
         assert_eq!(project.root_module, absolute_paths);
         Ok(())
     }

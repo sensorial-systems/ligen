@@ -2,6 +2,7 @@ use ligen_ir::{Import, Module, Project};
 use crate::transformers::Transform;
 use crate::visitors::{ImportVisitor, ModuleVisitor, ProjectVisitor};
 
+// FIXME: Move this to ligen-rust.
 pub struct ReplaceCrateAlias;
 
 // FIXME: This logic is duplicated fro other transformers. This could be somehow generalized.
