@@ -33,7 +33,7 @@ mod tests {
             Field::try_from(SynField(structure.fields.into_iter().next().expect("Couldn't get field."))).expect("Failed to convert field."),
             Field {
                 attributes: Default::default(),
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 identifier: Some("instant".into()),
                 type_: Path::from("std::time::Instant").into()
             }

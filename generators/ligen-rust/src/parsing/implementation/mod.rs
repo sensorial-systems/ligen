@@ -130,7 +130,7 @@ mod test {
                         mutability: Mutability::Constant,
                         owner: Type::Compound(Identifier::new("Test").into(), Default::default())
                     }),
-                    visibility: Visibility::Inherited,
+                    visibility: Visibility::Private,
                     asyncness: None,
                     path: Identifier::new("a").into(),
                     inputs: vec![],
@@ -165,7 +165,7 @@ mod test {
                             mutability: Mutability::Constant,
                             owner: Type::Compound(Identifier::new("Test").into(), Default::default())
                         }),
-                        visibility: Visibility::Inherited,
+                        visibility: Visibility::Private,
                         asyncness: None,
                         path: Identifier::new("b").into(),
                         inputs: vec![],

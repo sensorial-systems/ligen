@@ -41,7 +41,7 @@ mod tests {
             Enumeration::try_from(SynItemEnum(enumeration)).expect("Failed to convert structure."),
             Enumeration {
                 attributes: Default::default(),
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 path: "Enumeration".into(),
                 variants: vec! [
                     Variant {

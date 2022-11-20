@@ -10,6 +10,16 @@ pub struct Path {
 }
 
 impl Path {
+    /// Get `Path` from a `string` with a specified `separator`.
+    pub fn from_string(string: &str, separator: &str) -> Self {
+        let segments = string
+            .split(separator)
+            .map(Identifier::from)
+            .collect();
+        Self { segments }
+
+    }
+
     /// Converts to string with specified separator.
     pub fn to_string(&self, separator: &str) -> String {
         self
@@ -19,6 +29,16 @@ impl Path {
             .map(|identifier| identifier.name)
             .collect::<Vec<_>>()
             .join(&separator)
+    }
+
+    /// Get the first segment's reference.
+    pub fn first(&self) -> &Identifier {
+        self.segments.first().unwrap()
+    }
+
+    /// Get the first segment's mutable reference.
+    pub fn first_mut(&mut self) -> &mut Identifier {
+        self.segments.first_mut().unwrap()
     }
 
     /// Get the last segment of the path.

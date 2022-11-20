@@ -7,7 +7,7 @@ pub type ObjectVisitor = Visitor<ModuleVisitor, Object>;
 impl ObjectVisitor {
     /// Returns the object path.
     pub fn path(&self) -> Path {
-        self.current.path.clone()
+        self.current.definition.path().clone()
     }
 
     /// Get the parent module.

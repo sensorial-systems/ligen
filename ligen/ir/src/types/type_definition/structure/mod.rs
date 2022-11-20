@@ -7,7 +7,7 @@ use crate::prelude::*;
 use crate::{Attributes, Visibility, Path};
 
 /// Structure representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Structure {
     /// Attributes field.
     pub attributes: Attributes,

@@ -31,9 +31,6 @@ impl ModuleVisitor {
 }
 
 impl ModuleVisitor {
-
-    /// Find absolute path.
-    // TODO: We won't need this if all the pathes are absolutes.
     pub fn find_absolute_path(&self, relative_path: &Path) -> Option<Path> {
         let mut relative_path = relative_path.clone();
         // path is not empty
@@ -44,57 +41,35 @@ impl ModuleVisitor {
             // self module
             if identifier == "self".into() {
                 self.find_absolute_path(&relative_path)
-            // root module
+                // root module
             } else if identifier == *root_module_name {
-                ProjectVisitor::from(project.clone()).root_module_visitor().find_absolute_path(&relative_path)
+                let visitor = ProjectVisitor::from(project.clone()).root_module_visitor();
+                visitor.find_absolute_path(&relative_path)
             // super module
             } else if identifier == "super".into() {
-                self
-                    .parent_module()
-                    .and_then(|module| module.find_absolute_path(&relative_path))
-            // sub module
+                if let Some(visitor) = self.parent_module() {
+                    visitor.find_absolute_path(&relative_path)
+                } else {
+                    None
+                }
+                // sub module
             } else if !relative_path.segments.is_empty() {
                 self
                     .current
                     .modules
                     .iter()
                     .filter(|module| module.path.last() == identifier)
+                    .next()
                     .map(|module| ModuleVisitor::from(&self.child(module.clone())))
-                    .filter_map(|module| module.find_absolute_path(&relative_path))
-                    .next()
-            // import or type definition
+                    .as_ref()
+                    .and_then(|visitor| visitor.find_absolute_path(&relative_path))
+                // import or type definition
             } else {
-                // look for definition
-                let definition = self
-                    .current
-                    .objects
-                    .iter()
-                    .filter(|object| object.definition.path().last() == identifier)
-                    .next()
-                    .map(|_| Path::from(root_module_name.name.clone()).join(self.path.clone().join(identifier.clone()).without_first()));
-                if definition.is_some() {
-                    definition
-                // look for imports
-                } else {
-                    self
-                        .current
-                        .imports
-                        .iter()
-                        .filter(|import| {
-                            if let Some(renamed) = &import.renaming {
-                                identifier == *renamed
-                            } else {
-                                import.path.last() == identifier
-                            }
-                        })
-                        .map(|import| &import.path)
-                        .next()
-                        .and_then(|path| self.find_absolute_path(path))
-                }
+                Some(self.current.path.clone().join(identifier))
             }
-        // path is empty
+            // path is empty
         } else {
-            None
+            Some(self.current.path.clone())
         }
     }
 }

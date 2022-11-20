@@ -26,6 +26,13 @@ impl TypeDefinition {
         }
     }
 
+    pub fn path_mut(&mut self) -> &mut Path {
+        match self {
+            Self::Structure(structure) => &mut structure.path,
+            Self::Enumeration(enumeration) => &mut enumeration.path
+        }
+    }
+
     /// Get the type definition visibility.
     pub fn visibility(&self) -> &Visibility {
         match self {

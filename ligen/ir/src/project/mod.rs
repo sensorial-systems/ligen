@@ -15,7 +15,7 @@ pub struct ProjectInfo {
 
 /// Project representation.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Project {
     pub directory: PathBuf,
     pub name: NamingConvention,

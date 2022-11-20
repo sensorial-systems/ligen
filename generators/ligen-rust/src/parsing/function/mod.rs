@@ -111,7 +111,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
@@ -128,7 +128,7 @@ mod test {
                 attributes: Attributes { attributes: vec![] },
                 // FIXME: It doesn't make any sense here. How could we know the method owner with this test?
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
@@ -144,7 +144,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![
@@ -171,7 +171,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
@@ -189,7 +189,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![
@@ -242,7 +242,7 @@ mod test {
                         }
                     )]
                 },
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 method: None,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -259,7 +259,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 method: None,
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 asyncness: Some(Async),
                 path: Identifier::new("test").into(),
                 inputs: vec![],
@@ -287,7 +287,7 @@ mod test {
                         }
                     )]
                 },
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 method: None,
                 asyncness: Some(Async),
                 path: Identifier::new("test").into(),

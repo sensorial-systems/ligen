@@ -46,7 +46,7 @@ fn definition_finder(path: Path, project: &Project) {
         fields: vec![
             Field {
                 attributes: Default::default(),
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 identifier: None,
                 type_: Path::from("std::time::Instant").into()
             }

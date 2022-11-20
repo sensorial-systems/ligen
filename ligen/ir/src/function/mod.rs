@@ -17,7 +17,7 @@ pub struct Method {
 }
 
 /// Function structure.
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Function {
     /// Attributes field.
     pub attributes: Attributes,

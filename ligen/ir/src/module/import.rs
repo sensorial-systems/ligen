@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{Path, Attributes, Visibility, Identifier};
 
 /// Import representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Import {
     /// Attributes.
     pub attributes: Attributes,

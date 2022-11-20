@@ -40,12 +40,12 @@ mod tests {
             Structure::try_from(SynItemStruct(structure)).expect("Failed to convert structure."),
             Structure {
                 attributes: Default::default(),
-                visibility: Visibility::Inherited,
+                visibility: Visibility::Private,
                 path: "Structure".into(),
                 fields: vec! [
                     Field {
                         attributes: Default::default(),
-                        visibility: Visibility::Inherited,
+                        visibility: Visibility::Private,
                         identifier: Some("integer".into()),
                         type_: Type::Primitive(Primitive::Integer(Integer::I32))
                     }

@@ -7,7 +7,7 @@ use crate::prelude::*;
 use crate::{Object, Path, Visibility, TypeDefinition, Attributes, Function, Literal};
 
 /// Module representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Module {
     /// Attributes.
     pub attributes: Attributes,
@@ -26,6 +26,15 @@ pub struct Module {
 }
 
 impl Module {
+    pub fn resolve_paths(&mut self, root: &Self) {
+        for import in &mut self.imports {
+            println!("{}", import.path);
+        }
+        for module in &mut self.modules {
+            module.resolve_paths(root);
+        }
+    }
+
     /// FIXME: This is a temporary workaround.
     pub fn get_attributes_from_path<P: Into<Path>>(&self, path: P) -> Option<&Attributes> {
         let path = path.into();
@@ -62,7 +71,7 @@ impl Module {
         let definition = self
             .objects
             .iter()
-            .find(|object| object.path == *path)
+            .find(|object| *object.definition.path() == *path)
             .map(|object| object.definition.clone());
         if let Some(definition) = definition {
             Some(definition)
@@ -90,6 +99,7 @@ impl Module {
         }
     }
 
+    // FIXME: Move this to `Project`'s post-processing.
     /// Replace wild card imports with actual imports.
     pub fn replace_wildcard_imports(&mut self) {
         for module in &mut self.modules {
@@ -154,7 +164,7 @@ impl Module {
             module.guarantee_absolute_paths_with_parent(self.path.clone());
         }
         for object in &mut self.objects {
-            object.path = self.path.clone().join(object.path.clone());
+            *object.definition.path_mut() = self.path.clone().join(object.definition.path().clone());
         }
     }
 }
