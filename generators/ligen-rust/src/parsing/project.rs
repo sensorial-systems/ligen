@@ -129,6 +129,8 @@ mod tests {
                 pub use time::instant;
                 pub use instant::Instant;
                 pub use instant::Instant as RenamedInstant;
+                pub use external_crate::internal_module;
+                pub use internal_module::Something;
             }
         };
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
@@ -147,6 +149,7 @@ mod tests {
         assert_eq!(path, test_project.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
         assert_eq!(path, test_project.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
         assert_eq!(path, test_project.find_absolute_path(&"instant::Instant".into()), "Failed in re-exported submodule case.");
+        assert_eq!(Some("external_crate::internal_module::Something".into()), test_project.find_absolute_path(&"Something".into()), "Failed in external crate case.");
         let time = ModuleVisitor::from(&test_project.child(test_project.current.modules[0].clone()));
         assert_eq!(path, time.find_absolute_path(&"Instant".into()), "Failed in import case in submodule.");
         assert_eq!(path, time.find_absolute_path(&"super::time::instant::Instant".into()), "Failed in super case.");
