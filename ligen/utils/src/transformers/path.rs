@@ -1,9 +1,6 @@
-// use ligen_ir::Project;
-// use crate::visitors::{ModuleVisitor, ProjectVisitor, Visitor};
-
-use ligen_ir::{Import, Module, Project};
+use ligen_ir::{Function, Import, Module, Project, Type};
 use crate::transformers::Transform;
-use crate::visitors::{ImportVisitor, ModuleVisitor, ProjectVisitor};
+use crate::visitors::{FunctionVisitor, ImportVisitor, ModuleVisitor, ProjectVisitor};
 
 pub struct RelativePathToAbsolutePath;
 
@@ -28,11 +25,15 @@ impl Transform<ProjectVisitor, Project> for RelativePathToAbsolutePath {
 impl Transform<ModuleVisitor, Module> for RelativePathToAbsolutePath {
     fn transform(&self, data: &ModuleVisitor) -> Module {
         let mut module = data.current.clone();
-        for (index, import) in data.imports.iter().enumerate() {
+        for (index, import) in data.current.imports.iter().enumerate() {
             let visitor = data.child(import.clone());
             module.imports[index] = <Self as Transform::<ImportVisitor, Import>>::transform(self, &visitor);
         }
-        for (index, child_module) in data.modules.iter().enumerate() {
+        for (index, function) in data.current.functions.iter().enumerate() {
+            let visitor = data.child(function.clone());
+            module.functions[index] = <Self as Transform::<FunctionVisitor, Function>>::transform(self, &visitor);
+        }
+        for (index, child_module) in data.current.modules.iter().enumerate() {
             let visitor = ModuleVisitor::from(&data.child(child_module.clone()));
             module.modules[index] = <Self as Transform::<ModuleVisitor, Module>>::transform(self, &visitor);
         }
@@ -47,5 +48,33 @@ impl Transform<ImportVisitor, Import> for RelativePathToAbsolutePath {
             import.path = absolute_path;
         }
         import
+    }
+}
+
+impl Transform<FunctionVisitor, Function> for RelativePathToAbsolutePath {
+    fn transform(&self, data: &FunctionVisitor) -> Function {
+        let mut function = data.current.clone();
+        function
+            .output
+            .as_mut()
+            .map(|output| type_to_absolute_path(&data.parent, output));
+        for input in &mut function.inputs {
+            type_to_absolute_path(&data.parent, &mut input.type_);
+        }
+        function
+    }
+}
+
+fn type_to_absolute_path(module_visitor: &ModuleVisitor, type_: &mut Type) {
+    match type_ {
+        Type::Compound(path, _) => {
+            if let Some(absolute_path) = module_visitor.find_absolute_path(path) {
+                *path = absolute_path
+            }
+        },
+        Type::Reference(reference) => {
+            type_to_absolute_path(module_visitor, &mut reference.type_)
+        },
+        _ => ()
     }
 }
