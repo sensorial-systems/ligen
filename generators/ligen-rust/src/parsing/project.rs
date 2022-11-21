@@ -41,10 +41,11 @@ mod tests {
                 use leaf::Leaf;
                 use branch::leaf;
                 use Leaf as Renamed;
+                use external_crate::Something;
+                fn hello(something: Something) {}
                 fn get_branch() -> branch::Branch {}
                 fn get_branch_ref() -> &branch::Branch {}
                 fn new_leaf(branch1: &branch::Branch, leaf: &Leaf, renamed: Renamed, size: usize) -> branch::leaf::Leaf {}
-                use external_crate::Something;
             }
         };
         let absolute_paths = quote! {
@@ -65,10 +66,11 @@ mod tests {
                 use root::branch::leaf::Leaf;
                 use root::branch::leaf;
                 use root::branch::leaf::Leaf as Renamed;
+                use external_crate::Something;
+                fn hello(something: external_crate::Something) {}
                 fn get_branch() -> root::branch::Branch {}
                 fn get_branch_ref() -> &root::branch::Branch {}
                 fn new_leaf(branch1: &root::branch::Branch, leaf: &root::branch::leaf::Leaf, renamed: root::branch::leaf::Leaf, size: usize) -> root::branch::leaf::Leaf {}
-                use external_crate::Something;
             }
         };
         let relative_paths = Module::try_from(ProcMacro2TokenStream(relative_paths))?;
