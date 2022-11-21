@@ -41,7 +41,7 @@ impl ModuleVisitor {
             // self module
             if identifier == "self".into() {
                 self.find_absolute_path(&relative_path)
-                // root module
+            // root module
             } else if identifier == *root_module_name {
                 let visitor = ProjectVisitor::from(project.clone()).root_module_visitor();
                 visitor.find_absolute_path(&relative_path)
@@ -52,20 +52,38 @@ impl ModuleVisitor {
                 } else {
                     None
                 }
-                // sub module
+            // module
             } else if !relative_path.segments.is_empty() {
-                self
+                let sub_module = self
                     .current
                     .modules
                     .iter()
                     .filter(|module| module.path.last() == identifier)
                     .next()
-                    .map(|module| ModuleVisitor::from(&self.child(module.clone())))
-                    .as_ref()
-                    .and_then(|visitor| visitor.find_absolute_path(&relative_path))
-                // import or type definition
+                    .map(|module| ModuleVisitor::from(&self.child(module.clone())));
+                // sub module
+                if let Some(sub_module) = sub_module {
+                    sub_module.find_absolute_path(&relative_path)
+                // imported module
+                } else {
+                    self
+                        .current
+                        .imports
+                        .iter()
+                        .find(|import| import.path.last() == identifier)
+                        .and_then(|import| self.find_absolute_path(&import.path.clone().join(relative_path.clone())))
+                }
+            // import or type definition
             } else {
-                Some(self.current.path.clone().join(identifier))
+                self
+                    .current
+                    .imports
+                    .iter()
+                    .find(|import| (import.path.last() == identifier && import.renaming.is_none()) || import.renaming.as_ref() == Some(&identifier))
+                    // import
+                    .and_then(|import| self.find_absolute_path(&import.path.clone()))
+                    // type definition
+                    .or(Some(self.current.path.clone().join(identifier)))
             }
             // path is empty
         } else {

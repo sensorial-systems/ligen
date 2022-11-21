@@ -119,6 +119,7 @@ impl Module {
             .collect();
         for import in wildcard_imports {
             let module_path = import.path.clone().without_last();
+            println!("{}", module_path);
             if let Some(module) = self.find_module(&module_path) {
                 for object in &module.objects {
                     if let Visibility::Public = object.definition.visibility() {

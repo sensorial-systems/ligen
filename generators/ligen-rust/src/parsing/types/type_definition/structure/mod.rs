@@ -7,6 +7,15 @@ use ligen_ir::Identifier;
 use crate::prelude::*;
 use crate::Structure;
 
+impl TryFrom<ProcMacro2TokenStream> for Structure {
+    type Error = Error;
+    fn try_from(tokenstream: ProcMacro2TokenStream) -> Result<Self> {
+        syn::parse2::<syn::ItemStruct>(tokenstream.into())
+            .map_err(|_| "Failed to parse to Structure.".into())
+            .and_then(|item| SynItemStruct::from(item).try_into())
+    }
+}
+
 impl TryFrom<SynItemStruct> for Structure {
     type Error = Error;
     fn try_from(SynItemStruct(structure): SynItemStruct) -> Result<Self> {

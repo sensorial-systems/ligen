@@ -5,7 +5,6 @@ members = [
     "ligen/ir",
     "ligen/utils",
     "ligen/traits",
-    "ligen/tests/project",
     "runtime/ligen-rust-runtime",
     "generators/ligen-cargo",
     "generators/ligen-rust",
