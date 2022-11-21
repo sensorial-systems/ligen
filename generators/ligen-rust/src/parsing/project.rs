@@ -46,6 +46,15 @@ mod tests {
                 fn get_branch() -> branch::Branch {}
                 fn get_branch_ref() -> &branch::Branch {}
                 fn new_leaf(branch1: &branch::Branch, leaf: &Leaf, renamed: Renamed, size: usize) -> branch::leaf::Leaf {}
+
+                // TODO: Implement this case:
+                // pub struct Object;
+                // impl Object {
+                //     fn hello(something: Something) {}
+                //     fn get_branch() -> branch::Branch {}
+                //     fn get_branch_ref() -> &branch::Branch {}
+                //     fn new_leaf(branch1: &branch::Branch, leaf: &Leaf, renamed: Renamed, size: usize) -> branch::leaf::Leaf {}
+                // }
             }
         };
         let absolute_paths = quote! {
