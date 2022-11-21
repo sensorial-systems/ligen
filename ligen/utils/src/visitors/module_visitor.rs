@@ -32,28 +32,28 @@ impl ModuleVisitor {
 
 impl ModuleVisitor {
     pub fn find_absolute_path(&self, relative_path: &Path) -> Option<Path> {
-        let mut relative_path = relative_path.clone();
+        let mut consumed_relative_path = relative_path.clone();
         // path is not empty
-        if let Some(identifier) = relative_path.pop_front() {
+        if let Some(identifier) = consumed_relative_path.pop_front() {
             let project = self.parent_project();
             let root_module_name = &project.root_module.path.last();
             // the first segment can be either: crate, self, super, a module or the definition itself.
             // self module
             if identifier == "self".into() {
-                self.find_absolute_path(&relative_path)
+                self.find_absolute_path(&consumed_relative_path)
             // root module
             } else if identifier == *root_module_name {
                 let visitor = ProjectVisitor::from(project.clone()).root_module_visitor();
-                visitor.find_absolute_path(&relative_path)
+                visitor.find_absolute_path(&consumed_relative_path)
             // super module
             } else if identifier == "super".into() {
                 if let Some(visitor) = self.parent_module() {
-                    visitor.find_absolute_path(&relative_path)
+                    visitor.find_absolute_path(&consumed_relative_path)
                 } else {
                     None
                 }
             // module
-            } else if !relative_path.segments.is_empty() {
+            } else if !consumed_relative_path.segments.is_empty() {
                 let sub_module = self
                     .current
                     .modules
@@ -63,7 +63,7 @@ impl ModuleVisitor {
                     .map(|module| ModuleVisitor::from(&self.child(module.clone())));
                 // sub module
                 if let Some(sub_module) = sub_module {
-                    sub_module.find_absolute_path(&relative_path)
+                    sub_module.find_absolute_path(&consumed_relative_path)
                 // imported module
                 } else {
                     self
@@ -71,7 +71,9 @@ impl ModuleVisitor {
                         .imports
                         .iter()
                         .find(|import| import.path.last() == identifier)
-                        .and_then(|import| self.find_absolute_path(&import.path.clone().join(relative_path.clone())))
+                        .and_then(|import| self.find_absolute_path(&import.path.clone().join(consumed_relative_path.clone())))
+                        // it's an external module and we have the item full path in the relative_path if we got here.
+                        .or(Some(relative_path.clone()))
                 }
             // import or type definition
             } else {
