@@ -2,6 +2,11 @@
 Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
 generator.
 
+### Features
+
+* Zero-effort binding generation
+* ...
+
 ### Running the examples
 
 1. Generate the bindings: `ligen $ cargo build --features=bindings`
