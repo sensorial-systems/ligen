@@ -2,6 +2,7 @@
 #include <ctest.h>
 
 #include <example/functions/primitives.h>
+#include <example/functions/opaque.h>
 #include <ligen_rust_runtime.h>
 
 void example_functions_primitives_tests() {

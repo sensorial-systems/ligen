@@ -23,7 +23,7 @@ fn type_mapping(type_: &Type) -> String {
             }
         },
         Type::Compound(compound, _generics) => {
-            compound.to_string("_")
+            compound.to_string("::")
         },
         Type::Primitive(primitive) => {
             match primitive {
@@ -88,7 +88,7 @@ impl TemplateBasedGenerator for RustGenerator {
 
     fn module_generation_path(&self, project: &Project, module: &Module) -> PathBuf {
         let is_root_module = project.root_module.path == module.path;
-        let name = if is_root_module { "lib.rs" } else { "transformers" };
+        let name = if is_root_module { "lib.rs" } else { "mod.rs" };
         let mut path = PathBuf::from_str("src").unwrap();
         path = path.join(PathBuf::from(module.path.clone().without_first()));
         path = path.join(name);
