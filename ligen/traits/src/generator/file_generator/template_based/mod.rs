@@ -73,7 +73,7 @@ impl <T: TemplateBasedGenerator> FileGenerator for T {
     fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()> {
         let mut template = Template::new();
         self.register_templates(&mut template)?;
-        register_functions!(template, name_from_path, join_path);
+        register_functions!(template, name_from_path, join_path, json);
         self.register_functions(project, &mut template);
         self.generate_module(project, &project.root_module, file_set, &template)?;
         Ok(())

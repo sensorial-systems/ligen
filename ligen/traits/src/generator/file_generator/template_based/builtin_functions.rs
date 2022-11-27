@@ -4,6 +4,10 @@ use ligen_ir::Path;
 use crate::generator::file_generator::Inputs;
 
 
+pub fn json(inputs: &Inputs) -> String {
+    let parameter = inputs.get(0).and_then(|input| serde_json::to_string(&input).ok());
+    parameter.unwrap_or("<ligen:json error>".into())
+}
 
 pub fn join_path(inputs: &Inputs) -> String {
     let separator = inputs

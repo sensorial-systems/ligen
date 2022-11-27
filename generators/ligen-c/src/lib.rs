@@ -27,7 +27,15 @@ fn type_mapping(type_: &Type) -> String {
             }
         },
         Type::Compound(compound, _generics) => {
-            compound.to_string("_")
+            // FIXME: Hardcoded.
+            let opaque = true;
+            let mut mapped = compound.to_string("_");
+            if opaque {
+                mapped.push('*');
+                mapped
+            } else {
+                mapped
+            }
         },
         Type::Primitive(primitive) => {
             match primitive {
