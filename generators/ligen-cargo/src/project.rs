@@ -50,10 +50,9 @@ impl TryFrom<CargoProject> for Project {
     fn try_from(from: CargoProject) -> Result<Self> {
         let name = from.name;
         let directory = from.path;
-        let manifest_path = from.manifest_path;
         let project = ProjectInfo { name: name.clone(), directory: directory.clone() };
         let root_module = Module::try_from(LigenProjectInfo(project))?; // FIXME: Using LigenProjectInfo here is weird. All the types prefixed with Ligen should be private in ligen-rust.
-        let project = Self { name, directory, manifest_path, root_module };
+        let project = Self { name, directory, root_module };
         // FIXME: Move this to a more generic place.
         let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
         Ok(project)

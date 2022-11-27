@@ -10,7 +10,6 @@ pub struct Reference {
     pub type_: Box<Type>
 }
 
-// FIXME: This is rusty.
 impl std::fmt::Display for Reference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.mutability {

@@ -15,9 +15,8 @@ mod tests {
         // let rust_project = Mock
         // Project::from(rust_project);
         let name = KebabCase::try_from("root").unwrap().into();
-        let manifest_path = Default::default();
         let directory = Default::default();
-        let project = Project { name, root_module, manifest_path, directory };
+        let project = Project { name, root_module, directory };
         project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath])
     }
 

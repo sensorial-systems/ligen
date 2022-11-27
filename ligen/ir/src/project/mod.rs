@@ -19,7 +19,6 @@ pub struct ProjectInfo {
 pub struct Project {
     pub directory: PathBuf,
     pub name: NamingConvention,
-    pub manifest_path: PathBuf, // FIXME: Rusty
     pub root_module: Module,
 }
 

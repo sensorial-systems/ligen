@@ -14,12 +14,6 @@ pub enum Type {
 }
 
 impl Type {
-    // FIXME: Rusty
-    /// The Self type.
-    pub fn self_type() -> Type {
-        Type::from(Identifier::new("Self"))
-    }
-
     /// Gets the path of the type without the reference.
     pub fn path(&self) -> Path {
         match self {
