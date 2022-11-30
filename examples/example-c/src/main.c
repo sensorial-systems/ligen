@@ -43,6 +43,14 @@ void example_functions_primitives_tests() {
     cassert(u16 ==  10 );
     cassert(u32 ==  64 );
     cassert(u64 ==  128);
+
+    example_functions_opaque_Data* data = example_functions_opaque_data_new();
+    cassert(example_functions_opaque_data_sum(data) == 0);
+    example_functions_opaque_data_push(data, 3);
+    cassert(example_functions_opaque_data_sum(data) == 3);
+    example_functions_opaque_data_push(data, 5);
+    cassert(example_functions_opaque_data_sum(data) == 8);
+    example_functions_opaque_data_destroy(data);
 }
 
 int main(int argc, char **argv) {

@@ -20,3 +20,11 @@ pub fn data_sum(data: &Data) -> i32 {
         .iter()
         .fold(0, |acc, n| acc + n)
 }
+
+pub fn data_destroy(data: *mut Data) {
+    unsafe {
+        if !data.is_null() {
+            Box::from_raw(data);
+        }
+    }
+}

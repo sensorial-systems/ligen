@@ -1,4 +1,5 @@
 #[no_mangle]
 pub extern "C" fn {{ join_path "_" path }}({{>parameters inputs}}) -> {{mapped_type output}} {
-    {{ join_path "::" path }}({{>arguments inputs}})
+    let result = {{ join_path "::" path }}({{>arguments inputs}});
+    {{ marshal_output output }}
 }

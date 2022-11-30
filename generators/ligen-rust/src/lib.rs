@@ -13,17 +13,36 @@ use ligen_ir::Type;
 use ligen_traits::prelude::*;
 use ligen_traits::{register_functions, register_templates};
 
-fn type_mapping(type_: &Type) -> String {
+fn marshal_output(inputs: &Inputs) -> String {
+    let type_ = inputs
+        .get(0)
+        .and_then(|input| serde_json::from_value::<Type>(input).ok());
+    if let Some(Type::Compound(_, _)) = type_ {
+        "Box::into_raw(Box::new(result))"
+    } else {
+        "result"
+    }.into()
+}
+
+fn type_mapping(type_: &Type, root: bool) -> String {
     match type_ {
         Type::Reference(reference) => {
-            let type_ = type_mapping(&reference.type_);
+            let type_ = type_mapping(&reference.type_, false);
             match reference.mutability {
+                // FIXME: Change this to pointers and check if they are null or not.
                 Mutability::Mutable => format!("&mut {}", type_),
                 Mutability::Constant => format!("&{}", type_),
             }
         },
         Type::Compound(compound, _generics) => {
-            compound.to_string("::")
+            // FIXME: Hardcoded.
+            let opaque = true && root;
+            let mapped = compound.to_string("::");
+            if opaque {
+                format!("*mut {}", mapped)
+            } else {
+                mapped
+            }
         },
         Type::Primitive(primitive) => {
             match primitive {
@@ -61,7 +80,7 @@ fn mapped_type(inputs: &Inputs) -> String {
         .get(0)
         .and_then(|input| serde_json::from_value::<Type>(input).ok());
     if let Some(type_) = type_ {
-        type_mapping(&type_)
+        type_mapping(&type_, true)
     } else {
         "()".to_string()
     }
@@ -79,7 +98,7 @@ impl TemplateRegister for RustGenerator {
 
 impl TemplateBasedGenerator for RustGenerator {
     fn register_functions(&self, _project: &Project, template: &mut Template) {
-        register_functions!(template, mapped_type);
+        register_functions!(template, mapped_type, marshal_output);
     }
 
     fn base_path(&self) -> PathBuf {

@@ -17,10 +17,10 @@ impl TemplateRegister for CGenerator {
     }
 }
 
-fn type_mapping(type_: &Type) -> String {
+fn type_mapping(type_: &Type, root: bool) -> String {
     match type_ {
         Type::Reference(reference) => {
-            let type_ = type_mapping(&reference.type_);
+            let type_ = type_mapping(&reference.type_, false);
             match reference.mutability {
                 Mutability::Mutable => format!("{}*", type_),
                 Mutability::Constant => format!("const {}*", type_),
@@ -28,7 +28,7 @@ fn type_mapping(type_: &Type) -> String {
         },
         Type::Compound(compound, _generics) => {
             // FIXME: Hardcoded.
-            let opaque = true;
+            let opaque = true && root;
             let mut mapped = compound.to_string("_");
             if opaque {
                 mapped.push('*');
@@ -73,7 +73,7 @@ fn mapped_type(inputs: &Inputs) -> String {
         .get(0)
         .and_then(|input| serde_json::from_value::<Type>(input).ok());
     if let Some(type_) = type_ {
-        type_mapping(&type_)
+        type_mapping(&type_, true)
     } else {
         "void".to_string()
     }
