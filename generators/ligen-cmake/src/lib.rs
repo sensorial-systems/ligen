@@ -2,7 +2,6 @@ use ligen::prelude::*;
 use ligen::traits::generator::file_generator::{File, FileSet, FileGenerator};
 use std::path::PathBuf;
 use ligen::ir::conventions::naming::SnakeCase;
-// use ligen::traits::marshalling::Marshaller;
 
 /// CMake project generator.
 #[derive(Debug, Clone)]

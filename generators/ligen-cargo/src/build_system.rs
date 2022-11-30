@@ -31,10 +31,9 @@ impl CargoBuilder {
 impl BuildSystem for CargoBuilder {
     fn check_build() -> Result<()> {
         // The TemporaryProject shouldn't be available if we are currently building it.
-        // FIXME: This might cause problems when we generate multiple projects in a workspace.
         let is_building = std::env::var("LIGEN_IS_BUILDING").unwrap_or("NO".into()) == "YES";
         if is_building {
-            Err(Error::Message("Use the following snippet and ignore errors: if let Ok(project) = Project::read() { todo!(\"Your code here.\") }.".into()))
+            Err(Error::Message("Cargo is currently building.".into()))
         } else {
             Ok(())
         }
