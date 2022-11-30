@@ -2,10 +2,10 @@ mod implementation_item;
 pub use implementation_item::*;
 
 use crate::prelude::*;
-use crate::{Attributes, Identifier, Type};
+use crate::{Attributes, Type};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
-/// Function Struct
+/// Implementation Struct
 pub struct Implementation {
     /// Attributes field.
     pub attributes: Attributes,

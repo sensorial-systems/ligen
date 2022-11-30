@@ -80,7 +80,7 @@ fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Resul
 }
 
 fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
-    let mut objects: HashMap<Path, (Option<TypeDefinition>, Vec<Implementation>)> = HashMap::new();
+    let mut objects: HashMap<Path, (Option<TypeDefinition>, Option<Implementation>)> = HashMap::new();
     for item in items {
         match item {
             syn::Item::Enum(enumeration) => {
@@ -90,7 +90,7 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
                 if let Some((optional_definition, _)) = objects.get_mut(&path) {
                     *optional_definition = definition;
                 } else {
-                    objects.insert(path, (definition, Default::default()));
+                    objects.insert(path, (definition, None));
                 }
             },
             syn::Item::Struct(structure) => {
@@ -100,18 +100,23 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
                 if let Some((optional_definition, _implementations)) = objects.get_mut(&path) {
                     *optional_definition = definition;
                 } else {
-                    objects.insert(path, (definition, Default::default()));
+                    objects.insert(path, (definition, None));
                 }
             },
             syn::Item::Impl(implementation) => {
                 // TODO: Consider `impl Trait for Object`?
                 if implementation.trait_.is_none() {
-                    let implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
+                    let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
                     let path = implementation.self_.path();
-                    if let Some((_definition, implementations)) = objects.get_mut(&path) {
-                        implementations.push(implementation);
+                    if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
+                        if let Some(existing_implementation) = existing_implementation {
+                            existing_implementation.attributes.attributes.append(&mut implementation.attributes);
+                            existing_implementation.items.append(&mut implementation.items);
+                        } else {
+                            *existing_implementation = Some(implementation);
+                        }
                     } else {
-                        objects.insert(path, (None, vec![implementation]));
+                        objects.insert(path, (None, Some(implementation)));
                     }
                 }
             }
@@ -120,13 +125,15 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
     }
     let mut objects: Vec<_> = objects
         .into_iter()
-        .map(|(path, (definition, implementations))| Object {
-            // FIXME: This shouldn't use expect
-            definition: definition.expect(&format!("Type definition for {} not found.", path)),
-            implementations
-        })
-        .collect();
-    objects.sort_by(|a, b| a.definition.path().cmp(b.definition.path())); // TODO: Why do we sort it?
+        .filter_map(|(_, (definition, implementation))|
+            if let (Some(definition), Some(implementation)) = (definition, implementation) {
+                Some(Object { definition, implementation })
+            } else {
+                None
+            }
+        ).collect();
+    // We sort it for consistency. HashMap doesn't guarantee any order.
+    objects.sort_by(|a, b| a.definition.path().cmp(b.definition.path()));
     Ok(objects)
 }
 

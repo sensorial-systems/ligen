@@ -52,7 +52,7 @@ mod test {
     use std::convert::TryFrom;
 
     use super::*;
-    use crate::{Primitive, Attribute, Integer, Literal, Reference, Type, Visibility, Constant, Function, Generics, Mutability, Method, ImplementationItem, Identifier};
+    use crate::{Primitive, Attribute, Integer, Literal, Type, Visibility, Constant, Function, Mutability, Method, ImplementationItem, Identifier};
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -173,35 +173,6 @@ mod test {
                     })
                 ]
             }
-        );
-    }
-
-    #[test]
-    fn impl_block_dependencies() {
-        assert_eq!(
-            Implementation::try_from(ProcMacro2TokenStream(quote! {
-                impl Person {
-                    pub fn new(name: FullName, age: Age) -> Self { ... }
-                    pub fn more_deps(age: Age, a: A, b: B, c: C) -> D;
-                    pub fn builtin(&self, age: i32, name: String, name_str: &str, vec: Vec<String>) -> Box<String>;
-                }
-            }))
-                .expect("Failed to build implementation from TokenStream")
-                .dependencies(),
-            vec![
-                Type::Compound(Identifier::new("FullName").into(), Default::default()),
-                Type::Compound(Identifier::new("Age").into(), Default::default()),
-                Type::Compound(Identifier::new("A").into(), Default::default()),
-                Type::Compound(Identifier::new("B").into(), Default::default()),
-                Type::Compound(Identifier::new("C").into(), Default::default()),
-                Type::Compound(Identifier::new("D").into(), Default::default()),
-                Type::Reference(Reference {mutability: Mutability::Constant, type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))}),
-                Type::Primitive(Primitive::Integer(Integer::I32)),
-                Type::Compound(Identifier::new("String").into(), Default::default()),
-                Type::Reference(Reference {mutability: Mutability::Constant, type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))}),
-                Type::Compound(Identifier::new("Vec").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
-                Type::Compound(Identifier::new("Box").into(), Generics { types: vec![ Type::Compound("String".into(), Default::default())]}),
-            ]
         );
     }
 }

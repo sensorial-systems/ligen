@@ -1,15 +1,22 @@
 //! `Object` can be defined as a `Structure` and an `Enumeration`.
 
 use crate::prelude::*;
-use crate::{Implementation, TypeDefinition};
+use crate::{Constant, Implementation, TypeDefinition};
 
 /// Object representation.
-/// This is a conventional structure created from a composition of a struct definition and impl
-/// blocks.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Object {
+    // FIXME: Rename to ObjectData? Move Constant to ObjectData?
     /// Object type definition.
     pub definition: TypeDefinition,
+    // FIXME: Rename to ObjectFunction?
     /// Object implementations blocks.
-    pub implementations: Vec<Implementation> // FIXME: Rusty.
+    pub implementation: Implementation
 }
+
+// TODO: Use this instead.
+// pub struct Object {
+//     pub definition: TypeDefinition,
+//     pub constants: Vec<Constant>,
+//     pub methods: Vec<Method>
+// }
