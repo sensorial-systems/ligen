@@ -103,22 +103,22 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
                     objects.insert(path, (definition, None));
                 }
             },
-            syn::Item::Impl(implementation) => {
-                // TODO: Consider `impl Trait for Object`?
-                if implementation.trait_.is_none() {
-                    let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
-                    let path = implementation.self_.path();
-                    if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
-                        if let Some(existing_implementation) = existing_implementation {
-                            existing_implementation.attributes.attributes.append(&mut implementation.attributes);
-                            existing_implementation.items.append(&mut implementation.items);
-                        } else {
-                            *existing_implementation = Some(implementation);
-                        }
-                    } else {
-                        objects.insert(path, (None, Some(implementation)));
-                    }
-                }
+            syn::Item::Impl(_implementation) => {
+                // // TODO: Consider `impl Trait for Object`?
+                // if implementation.trait_.is_none() {
+                //     let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
+                //     let path = implementation.self_.path();
+                //     if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
+                //         if let Some(existing_implementation) = existing_implementation {
+                //             existing_implementation.attributes.attributes.append(&mut implementation.attributes);
+                //             existing_implementation.items.append(&mut implementation.items);
+                //         } else {
+                //             *existing_implementation = Some(implementation);
+                //         }
+                //     } else {
+                //         objects.insert(path, (None, Some(implementation)));
+                //     }
+                // }
             }
             _ => ()
         }
@@ -126,8 +126,12 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
     let mut objects: Vec<_> = objects
         .into_iter()
         .filter_map(|(_, (definition, implementation))|
-            if let (Some(definition), Some(implementation)) = (definition, implementation) {
-                Some(Object { definition, implementation })
+            if let (Some(definition), Some(_implementation)) = (definition, implementation) {
+                // TODO: Implement this.
+                let functions = Default::default();
+                let constants = Default::default();
+                let methods = Default::default();
+                Some(Object { definition, functions, constants, methods })
             } else {
                 None
             }

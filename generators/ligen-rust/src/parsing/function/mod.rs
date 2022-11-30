@@ -1,9 +1,10 @@
 use ligen_ir::Identifier;
 use crate::prelude::*;
 
-use crate::{Async, Attributes, Function, Mutability, Parameter, Type, Visibility};
+use crate::{Async, Attributes, Function, Parameter, Type, Visibility};
 
 pub mod parameter;
+pub mod method;
 
 impl From<SynItemFn> for Function {
     fn from(SynItemFn(item_fn): SynItemFn) -> Self {
@@ -33,55 +34,6 @@ impl From<SynItemFn> for Function {
                     .map(|x| SynMeta::from(x.parse_meta().expect("Failed to parse Meta")).into())
                     .collect(),
             },
-            method: None,
-            visibility: Visibility::from(SynVisibility::from(item_fn.vis)),
-            asyncness: match asyncness {
-                Some(_x) => Some(Async),
-                None => None,
-            },
-            path: Identifier::from(SynIdent::from(ident)).into(),
-            inputs,
-            output,
-        }
-    }
-}
-
-pub struct TypeImplItemMethod(pub Type, pub syn::ImplItemMethod);
-
-impl From<TypeImplItemMethod> for Function {
-    fn from(TypeImplItemMethod(owner, item_fn): TypeImplItemMethod) -> Self {
-        let syn::Signature {
-            asyncness,
-            ident,
-            inputs,
-            output,
-            ..
-        } = item_fn.sig;
-        let inputs: Vec<Parameter> = inputs
-            .clone()
-            .into_iter()
-            .map(|x| SynFnArg::from(x).try_into().expect("Failed to convert Parameter"))
-            .collect();
-        let output: Option<Type> = match output {
-            syn::ReturnType::Default => None,
-            syn::ReturnType::Type(_x, y) => {
-                Some(Type::try_from(SynType::from(*y)).expect("Failed to convert from ReturnType::Type"))
-            }
-        };
-        let mutability = inputs
-            .get(0)
-            .map(|parameter| parameter.mutability())
-            .unwrap_or(Mutability::Constant);
-        let method = Some(Method { owner, mutability });
-        Self {
-            attributes: Attributes {
-                attributes: item_fn
-                    .attrs
-                    .into_iter()
-                    .map(|x| SynMeta::from(x.parse_meta().expect("Failed to parse Meta")).into())
-                    .collect(),
-            },
-            method,
             visibility: Visibility::from(SynVisibility::from(item_fn.vis)),
             asyncness: match asyncness {
                 Some(_x) => Some(Async),
@@ -110,7 +62,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -126,8 +77,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                // FIXME: It doesn't make any sense here. How could we know the method owner with this test?
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -143,7 +92,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test(a: String, b: String) {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -170,7 +118,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() -> String {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -188,7 +135,6 @@ mod test {
             ))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: None,
                 path: Identifier::new("test").into(),
@@ -243,7 +189,6 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                method: None,
                 asyncness: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
@@ -258,7 +203,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {async fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                method: None,
                 visibility: Visibility::Private,
                 asyncness: Some(Async),
                 path: Identifier::new("test").into(),
@@ -288,7 +232,6 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                method: None,
                 asyncness: Some(Async),
                 path: Identifier::new("test").into(),
                 inputs: vec![
@@ -328,8 +271,6 @@ mod test {
             Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {pub fn test() {}}))),
             Function {
                 attributes: Attributes { attributes: vec![] },
-                // FIXME: ImplItemMethod are for methods and method None.
-                method: None,
                 visibility: Visibility::Public,
                 asyncness: None,
                 path: Identifier::new("test").into(),
