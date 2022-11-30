@@ -1,19 +1,15 @@
 use crate::prelude::*;
+use crate::{Async, Attributes, Mutability, Parameter, Path, Type, Visibility};
 
-use crate::{Attributes, Parameter, Path, Type, Visibility};
-
-pub mod parameter;
-pub mod method;
-
-/// Async structure.
-#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-pub struct Async;
-
-/// Function structure.
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
-pub struct Function {
+/// Method structure.
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub struct Method {
     /// Attributes field.
     pub attributes: Attributes,
+    /// The owner of the method.
+    pub owner: Type,
+    /// The owner mutability.
+    pub mutability: Mutability,
     /// Visibility field.
     pub visibility: Visibility,
     /// Asyncness field.

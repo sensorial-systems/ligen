@@ -1,7 +1,7 @@
 use ligen_ir::Identifier;
 use crate::prelude::*;
 
-use crate::{Async, Attributes, Function, Method, Mutability, Parameter, Type, Visibility};
+use crate::{Async, Attributes, Function, Mutability, Parameter, Type, Visibility};
 
 pub mod parameter;
 
