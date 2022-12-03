@@ -123,10 +123,11 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
             _ => ()
         }
     }
+    println!("objs: {:#?}", objects);
     let mut objects: Vec<_> = objects
         .into_iter()
-        .filter_map(|(_, (definition, implementation))|
-            if let (Some(definition), Some(_implementation)) = (definition, implementation) {
+        .filter_map(|(_, (definition, _implementation))|
+            if let Some(definition) = definition {
                 // TODO: Implement this.
                 let functions = Default::default();
                 let constants = Default::default();
@@ -166,15 +167,6 @@ struct ModuleConversionHelper {
     relative_path: PathBuf,
     project: ProjectInfo
 }
-
-// TODO: Is it safe to be removed?
-// impl ModuleConversionHelper {
-//     pub fn child(&self, attributes: Attributes, visibility: Visibility, items: Option<Vec<syn::Item>>, identifier: Identifier) -> Self {
-//         let relative_path = self.relative_path.join(identifier.name.clone());
-//         let project = self.project.clone();
-//         Self { attributes, visibility, items, identifier, relative_path, project }
-//     }
-// }
 
 impl TryFrom<(&ModuleConversionHelper, &syn::ItemMod)> for ModuleConversionHelper {
     type Error = Error;
@@ -286,12 +278,76 @@ mod tests {
     }
 
     #[test]
+    fn module_objects_with_methods() -> Result<()> {
+        let module = quote! {
+            pub mod types {
+                pub struct Type;
+                impl Type {
+                    const Value: i32 = 123;
+                    fn static_function() {}
+                    fn method(&self) {}
+                }
+            }
+        };
+        let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        let expected_module = Module {
+            path: "types".into(),
+            visibility: Visibility::Public,
+            objects: vec![
+                Object {
+                    functions: Default::default(),
+                    methods: Default::default(),
+                    constants: Default::default(),
+                    definition: TypeDefinition::Structure(Structure {
+                        attributes: Default::default(),
+                        visibility: Visibility::Public,
+                        fields: Default::default(),
+                        path: "Type".into()
+                    })
+                }
+            ],
+            ..Default::default()
+        };
+        assert_eq!(module, expected_module);
+        panic!("Implement this");
+        Ok(())
+    }
+
+    #[test]
+    fn module_objects() -> Result<()> {
+        let module = quote! {
+            pub mod types {
+                pub struct Type;
+            }
+        };
+        let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        let expected_module = Module {
+            path: "types".into(),
+            visibility: Visibility::Public,
+            objects: vec![
+                Object {
+                    functions: Default::default(),
+                    methods: Default::default(),
+                    constants: Default::default(),
+                    definition: TypeDefinition::Structure(Structure {
+                        attributes: Default::default(),
+                        visibility: Visibility::Public,
+                        fields: Default::default(),
+                        path: "Type".into()
+                    })
+                }
+            ],
+            ..Default::default()
+        };
+        assert_eq!(module, expected_module);
+        Ok(())
+    }
+
+    #[test]
     fn type_definition_finder() -> Result<()> {
         let module = quote! {
             pub mod types {
                 pub struct Type;
-
-                pub fn process(type_: Type) {}
             }
         };
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
