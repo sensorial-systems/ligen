@@ -3,8 +3,7 @@
 mod import;
 
 use crate::prelude::*;
-use crate::{Object, Path, Structure, Implementation, Visibility, Identifier, TypeDefinition, Enumeration, Attributes, Attribute, Function, Module, ProjectInfo};
-use std::collections::HashMap;
+use crate::{Object, Structure, Visibility, Identifier, Enumeration, Attributes, Attribute, Function, Module, ProjectInfo};
 use syn::parse_quote::parse;
 use std::path::PathBuf;
 use ligen_ir::conventions::naming::{NamingConvention, SnakeCase};
@@ -80,64 +79,37 @@ fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Resul
 }
 
 fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
-    let mut objects: HashMap<Path, (Option<TypeDefinition>, Option<Implementation>)> = HashMap::new();
+    let mut objects = Vec::new();
     for item in items {
         match item {
             syn::Item::Enum(enumeration) => {
                 let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
-                let path = enumeration.path.clone();
-                let definition = Some(TypeDefinition::Enumeration(enumeration));
-                if let Some((optional_definition, _)) = objects.get_mut(&path) {
-                    *optional_definition = definition;
-                } else {
-                    objects.insert(path, (definition, None));
-                }
+                objects.push(Object::from(enumeration));
             },
             syn::Item::Struct(structure) => {
                 let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
-                let path = structure.path.clone();
-                let definition = Some(TypeDefinition::Structure(structure));
-                if let Some((optional_definition, _implementations)) = objects.get_mut(&path) {
-                    *optional_definition = definition;
-                } else {
-                    objects.insert(path, (definition, None));
-                }
+                objects.push(Object::from(structure));
             },
-            syn::Item::Impl(_implementation) => {
-                // // TODO: Consider `impl Trait for Object`?
-                // if implementation.trait_.is_none() {
-                //     let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
-                //     let path = implementation.self_.path();
-                //     if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
-                //         if let Some(existing_implementation) = existing_implementation {
-                //             existing_implementation.attributes.attributes.append(&mut implementation.attributes);
-                //             existing_implementation.items.append(&mut implementation.items);
-                //         } else {
-                //             *existing_implementation = Some(implementation);
-                //         }
-                //     } else {
-                //         objects.insert(path, (None, Some(implementation)));
-                //     }
-                // }
-            }
+            // syn::Item::Impl(_implementation) => {
+            //     // TODO: Consider `impl Trait for Object`?
+            //     if implementation.trait_.is_none() {
+            //         let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
+            //         let path = implementation.self_.path();
+            //         if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
+            //             if let Some(existing_implementation) = existing_implementation {
+            //                 existing_implementation.attributes.attributes.append(&mut implementation.attributes);
+            //                 existing_implementation.items.append(&mut implementation.items);
+            //             } else {
+            //                 *existing_implementation = Some(implementation);
+            //             }
+            //         } else {
+            //             objects.insert(path, (None, Some(implementation)));
+            //         }
+            //     }
+            // }
             _ => ()
         }
     }
-    let mut objects: Vec<_> = objects
-        .into_iter()
-        .filter_map(|(_, (definition, _implementation))|
-            if let Some(definition) = definition {
-                // TODO: Implement this.
-                let functions = Default::default();
-                let constants = Default::default();
-                let methods = Default::default();
-                Some(Object { definition, functions, constants, methods })
-            } else {
-                None
-            }
-        ).collect();
-    // We sort it for consistency. HashMap doesn't guarantee any order.
-    objects.sort_by(|a, b| a.definition.path().cmp(b.definition.path()));
     Ok(objects)
 }
 
@@ -217,7 +189,7 @@ impl TryFrom<ModuleConversionHelper> for Module {
                 std::fs::read_to_string(module_path.join("mod.rs"))?
             };
             let file = syn::parse_file(&src).map_err(|e| Error::Generic(Box::new(e)))?;
-            let visibility = Visibility::Public;
+            let visibility = visitor.visibility;
             let items = Some(file.items);
             let attributes = (LigenAttributes::try_from(file.attrs)?).into();
             let identifier = visitor.identifier.clone();
@@ -304,12 +276,12 @@ mod tests {
                     ],
                     functions: Default::default(),
                     methods: Default::default(),
-                    definition: TypeDefinition::Structure(Structure {
+                    definition: Structure {
                         attributes: Default::default(),
                         visibility: Visibility::Public,
                         fields: Default::default(),
                         path: "Type".into()
-                    })
+                    }.into()
                 }
             ],
             ..Default::default()
@@ -351,9 +323,9 @@ mod tests {
             }
         };
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let object = module.find_object(&Path::from("Type"));
+        let object = module.find_object(&"Type".into());
         let definition = quote! { pub struct Type; };
-        let definition = TypeDefinition::Structure(Structure::try_from(ProcMacro2TokenStream(definition))?);
+        let definition = Structure::try_from(ProcMacro2TokenStream(definition))?;
         let expected_object = Some(Object::from(definition));
         assert_eq!(object, expected_object.as_ref());
         Ok(())
