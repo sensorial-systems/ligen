@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Object, Path, Visibility, TypeDefinition, Attributes, Function, Literal};
+use crate::{Object, Path, Visibility, Attributes, Function, Literal};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -66,20 +66,36 @@ impl Module {
         self.attributes.has_ignore_attribute()
     }
 
-    /// Find the Type definition.
-    pub fn find_definition(&self, path: &Path) -> Option<TypeDefinition> {
-        let definition = self
+    /// Find mutable Object.
+    pub fn find_object_mut(&mut self, path: &Path) -> Option<&mut Object> {
+        let object = self
+            .objects
+            .iter_mut()
+            .find(|object| object.definition.path() == path);
+        if let Some(object) = object {
+            Some(object)
+        } else {
+            self
+                .modules
+                .iter_mut()
+                .filter_map(|module| module.find_object_mut(path))
+                .next()
+        }
+    }
+
+    /// Find Object.
+    pub fn find_object(&self, path: &Path) -> Option<&Object> {
+        let object = self
             .objects
             .iter()
-            .find(|object| *object.definition.path() == *path)
-            .map(|object| object.definition.clone());
-        if let Some(definition) = definition {
-            Some(definition)
+            .find(|object| object.definition.path() == path);
+        if let Some(object) = object {
+            Some(object)
         } else {
             self
                 .modules
                 .iter()
-                .filter_map(|module| module.find_definition(&path))
+                .filter_map(|module| module.find_object(path))
                 .next()
         }
     }

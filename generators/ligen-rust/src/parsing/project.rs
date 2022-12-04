@@ -1,7 +1,7 @@
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{Module, Project, Structure, TypeDefinition};
+    use ligen_ir::{Module, Object, Project, Structure};
     use ligen_ir::conventions::naming::KebabCase;
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
@@ -170,15 +170,15 @@ mod tests {
     #[test]
     fn find_definition() -> Result<()> {
         let test_project = test_project()?;
-        let definition = test_project.current.find_definition(&"test_project::time::instant::Instant".into());
-        let expected_definition = quote! {
+        let object = test_project.current.find_object(&"test_project::time::instant::Instant".into());
+        let expected_object = quote! {
             #[ligen(opaque)]
             pub struct Instant(std::time::Instant);
         };
-        let mut expected_definition = Structure::try_from(ProcMacro2TokenStream(expected_definition))?;
-        expected_definition.path = "test_project::time::instant::Instant".into();
-        let expected_definition = Some(TypeDefinition::Structure(expected_definition));
-        assert_eq!(definition, expected_definition);
+        let mut structure = Structure::try_from(ProcMacro2TokenStream(expected_object))?;
+        structure.path = "test_project::time::instant::Instant".into();
+        let expected_object = Some(Object::from(structure));
+        assert_eq!(object, expected_object.as_ref());
         Ok(())
     }
 }

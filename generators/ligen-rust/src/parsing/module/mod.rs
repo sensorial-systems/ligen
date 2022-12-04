@@ -123,7 +123,6 @@ fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
             _ => ()
         }
     }
-    println!("objs: {:#?}", objects);
     let mut objects: Vec<_> = objects
         .into_iter()
         .filter_map(|(_, (definition, _implementation))|
@@ -236,6 +235,7 @@ mod tests {
     use crate::{Visibility, Structure};
     use quote::quote;
     use pretty_assertions::assert_eq;
+    use ligen_ir::{Constant, Integer};
 
     #[test]
     fn module_file() -> Result<()> {
@@ -295,9 +295,15 @@ mod tests {
             visibility: Visibility::Public,
             objects: vec![
                 Object {
+                    constants: vec![
+                        Constant {
+                            identifier: "Value".into(),
+                            type_: Integer::I32.into(),
+                            literal: 123.into()
+                        }
+                    ],
                     functions: Default::default(),
                     methods: Default::default(),
-                    constants: Default::default(),
                     definition: TypeDefinition::Structure(Structure {
                         attributes: Default::default(),
                         visibility: Visibility::Public,
@@ -309,7 +315,6 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(module, expected_module);
-        panic!("Implement this");
         Ok(())
     }
 
@@ -325,17 +330,12 @@ mod tests {
             path: "types".into(),
             visibility: Visibility::Public,
             objects: vec![
-                Object {
-                    functions: Default::default(),
-                    methods: Default::default(),
-                    constants: Default::default(),
-                    definition: TypeDefinition::Structure(Structure {
+                Object::from(Structure {
                         attributes: Default::default(),
                         visibility: Visibility::Public,
                         fields: Default::default(),
                         path: "Type".into()
-                    })
-                }
+                })
             ],
             ..Default::default()
         };
@@ -344,25 +344,18 @@ mod tests {
     }
 
     #[test]
-    fn type_definition_finder() -> Result<()> {
+    fn object_finder() -> Result<()> {
         let module = quote! {
             pub mod types {
                 pub struct Type;
             }
         };
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let definition = module.find_definition(&Path::from("Type"));
-        let expected_definition = Some(
-            TypeDefinition::Structure(
-                Structure {
-                    attributes: Default::default(),
-                    visibility: Visibility::Public,
-                    path: "Type".into(),
-                    fields: Default::default()
-                }
-            )
-        );
-        assert_eq!(definition, expected_definition);
+        let object = module.find_object(&Path::from("Type"));
+        let definition = quote! { pub struct Type; };
+        let definition = TypeDefinition::Structure(Structure::try_from(ProcMacro2TokenStream(definition))?);
+        let expected_object = Some(Object::from(definition));
+        assert_eq!(object, expected_object.as_ref());
         Ok(())
     }
 }

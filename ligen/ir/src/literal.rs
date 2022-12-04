@@ -35,15 +35,33 @@ impl From<bool> for Literal {
     }
 }
 
+impl From<i32> for Literal {
+    fn from(value: i32) -> Self {
+        Self::Integer(value as i64)
+    }
+}
+
 impl From<i64> for Literal {
     fn from(value: i64) -> Self {
         Self::Integer(value)
     }
 }
 
+impl From<f32> for Literal {
+    fn from(value: f32) -> Self {
+        Self::Float(value as f64)
+    }
+}
+
 impl From<f64> for Literal {
     fn from(value: f64) -> Self {
         Self::Float(value)
+    }
+}
+
+impl From<u32> for Literal {
+    fn from(value: u32) -> Self {
+        Self::UnsignedInteger(value as u64)
     }
 }
 
