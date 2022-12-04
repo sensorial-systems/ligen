@@ -34,7 +34,6 @@ new_type!(syn::Path, SynPath);
 new_type!(syn::Meta, SynMeta);
 new_type!(syn::MetaNameValue, SynMetaNameValue);
 new_type!(syn::NestedMeta, SynNestedMeta);
-new_type!(ligen_ir::ProjectInfo, LigenProjectInfo);
 new_type!(ligen_ir::Attributes, LigenAttributes);
 new_type!(syn::Field, SynField);
 new_type!(ligen_ir::Imports, LigenImports);

@@ -3,18 +3,10 @@
 mod import;
 
 use crate::prelude::*;
-use crate::{Object, Structure, Visibility, Identifier, Enumeration, Attributes, Attribute, Function, Module, ProjectInfo};
+use crate::{Object, Structure, Visibility, Identifier, Enumeration, Attributes, Attribute, Function, Module};
 use syn::parse_quote::parse;
 use std::path::PathBuf;
 use ligen_ir::conventions::naming::{NamingConvention, SnakeCase};
-
-// TODO: This is a convertion between two types in ligen-ir which requires a new type, it indicates that there is a conceptual problem here.
-impl TryFrom<LigenProjectInfo> for Module {
-    type Error = Error;
-    fn try_from(LigenProjectInfo(project): LigenProjectInfo) -> Result<Self> {
-        ModuleConversionHelper::try_from(project)?.try_into()
-    }
-}
 
 fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     let mut functions = Vec::new();
@@ -130,6 +122,12 @@ impl TryFrom<ProcMacro2TokenStream> for Module {
     }
 }
 
+#[derive(Clone)]
+pub struct ProjectInfo {
+    pub directory: PathBuf,
+    pub name: NamingConvention
+}
+
 struct ModuleConversionHelper {
     attributes: Attributes,
     items: Option<Vec<syn::Item>>,
@@ -150,6 +148,13 @@ impl TryFrom<(&ModuleConversionHelper, &syn::ItemMod)> for ModuleConversionHelpe
         let identifier = Identifier::from(SynIdent(module.ident.clone()));
         let relative_path = visitor.relative_path.join(identifier.name.clone());
         Ok(Self { visibility, items, attributes, relative_path, project, identifier })
+    }
+}
+
+impl TryFrom<ProjectInfo> for Module {
+    type Error = Error;
+    fn try_from(project: ProjectInfo) -> Result<Self> {
+        ModuleConversionHelper::try_from(project)?.try_into()
     }
 }
 
