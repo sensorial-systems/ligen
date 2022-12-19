@@ -18,34 +18,21 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     functions
 }
 
-// FIXME: Find a better place for this function.
-fn extract_modules_and_objects(ignored: bool, visitor: &ModuleConversionHelper) -> Result<(Vec<Module>, Vec<Object>)> {
-    if ignored {
-        Ok((Default::default(), Default::default()))
-    } else {
-        let modules = parse_modules(visitor)?;
-        let objects = if let Some(items) = &visitor.items {
-            parse_objects(items)?
-        } else {
-            Default::default()
-        };
-        Ok((modules, objects))
-    }
-}
-
-fn parse_modules(visitor: &ModuleConversionHelper) -> Result<Vec<Module>> {
+fn extract_modules(ignored: bool, visitor: &ModuleConversionHelper) -> Result<Vec<Module>> {
     let mut modules = Vec::new();
-    if let Some(items) = &visitor.items {
-        for item in items {
-            match item {
-                syn::Item::Mod(module) => {
-                    let visitor = ModuleConversionHelper::try_from((visitor, module))?;
-                    let module = Module::try_from(visitor)?;
-                    if !module.ignored() {
-                        modules.push(module)
-                    }
-                },
-                _ => ()
+    if !ignored {
+        if let Some(items) = &visitor.items {
+            for item in items {
+                match item {
+                    syn::Item::Mod(module) => {
+                        let visitor = ModuleConversionHelper::try_from((visitor, module))?;
+                        let module = Module::try_from(visitor)?;
+                        if !module.ignored() {
+                            modules.push(module)
+                        }
+                    },
+                    _ => ()
+                }
             }
         }
     }
@@ -70,36 +57,44 @@ fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Resul
     Ok(attributes)
 }
 
-fn parse_objects(items: &[syn::Item]) -> Result<Vec<Object>> {
+fn extract_object_definitions(ignored: bool, visitor: &ModuleConversionHelper) -> Result<Vec<Object>> {
     let mut objects = Vec::new();
-    for item in items {
-        match item {
-            syn::Item::Enum(enumeration) => {
-                let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
-                objects.push(Object::from(enumeration));
-            },
-            syn::Item::Struct(structure) => {
-                let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
-                objects.push(Object::from(structure));
-            },
-            // syn::Item::Impl(_implementation) => {
-            //     // TODO: Consider `impl Trait for Object`?
-            //     if implementation.trait_.is_none() {
-            //         let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
-            //         let path = implementation.self_.path();
-            //         if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
-            //             if let Some(existing_implementation) = existing_implementation {
-            //                 existing_implementation.attributes.attributes.append(&mut implementation.attributes);
-            //                 existing_implementation.items.append(&mut implementation.items);
-            //             } else {
-            //                 *existing_implementation = Some(implementation);
-            //             }
-            //         } else {
-            //             objects.insert(path, (None, Some(implementation)));
-            //         }
-            //     }
-            // }
-            _ => ()
+    if let (false, Some(items)) = (ignored, &visitor.items) {
+        for item in items {
+            match item {
+                syn::Item::Enum(enumeration) => {
+                    let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
+                    objects.push(Object::from(enumeration));
+                },
+                syn::Item::Struct(structure) => {
+                    let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
+                    objects.push(Object::from(structure));
+                },
+                syn::Item::Type(_type) => {
+                    todo!("Type object isn't implemented yet.")
+                },
+                syn::Item::Union(_union) => {
+                    todo!("Union object isn't implemented yet.")
+                },
+                // syn::Item::Impl(_implementation) => {
+                //     // TODO: Consider `impl Trait for Object`?
+                //     if implementation.trait_.is_none() {
+                //         let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
+                //         let path = implementation.self_.path();
+                //         if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
+                //             if let Some(existing_implementation) = existing_implementation {
+                //                 existing_implementation.attributes.attributes.append(&mut implementation.attributes);
+                //                 existing_implementation.items.append(&mut implementation.items);
+                //             } else {
+                //                 *existing_implementation = Some(implementation);
+                //             }
+                //         } else {
+                //             objects.insert(path, (None, Some(implementation)));
+                //         }
+                //     }
+                // }
+                _ => ()
+            }
         }
     }
     Ok(objects)
@@ -179,14 +174,14 @@ impl TryFrom<ModuleConversionHelper> for Module {
         let module = if let Some(items) = &visitor.items {
             let attributes = parse_ligen_attributes(&visitor.attributes, &items)?;
             let ignored = attributes.has_ignore_attribute();
-            let (modules, objects) = extract_modules_and_objects(ignored, &visitor)?;
+            let modules = extract_modules(ignored, &visitor)?;
+            let objects = extract_object_definitions(ignored, &visitor)?;
             let visibility = visitor.visibility;
             let imports = LigenImports::try_from(items.as_slice())?.0.0;
             let functions = extract_functions(items.as_slice());
             let path = visitor.identifier.into();
             Self { attributes, visibility, path, imports, modules, functions, objects }
         } else {
-            // FIXME: Clean this up. This code is duplicated and can be simplified.
             let module_path = visitor.project.directory.join("src").join(visitor.relative_path);
             let src = if let Ok(src) = std::fs::read_to_string(module_path.with_extension("rs")) {
                 src
@@ -212,7 +207,6 @@ mod tests {
     use crate::{Visibility, Structure};
     use quote::quote;
     use pretty_assertions::assert_eq;
-    use ligen_ir::{Constant, Integer};
 
     #[test]
     fn module_file() -> Result<()> {
@@ -246,47 +240,6 @@ mod tests {
                         }
                     ],
                     ..Default::default()
-                }
-            ],
-            ..Default::default()
-        };
-        assert_eq!(module, expected_module);
-        Ok(())
-    }
-
-    #[test]
-    fn module_objects_with_methods() -> Result<()> {
-        let module = quote! {
-            pub mod types {
-                pub struct Type;
-                impl Type {
-                    const Value: i32 = 123;
-                    fn static_function() {}
-                    fn method(&self) {}
-                }
-            }
-        };
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let expected_module = Module {
-            path: "types".into(),
-            visibility: Visibility::Public,
-            objects: vec![
-                Object {
-                    constants: vec![
-                        Constant {
-                            identifier: "Value".into(),
-                            type_: Integer::I32.into(),
-                            literal: 123.into()
-                        }
-                    ],
-                    functions: Default::default(),
-                    methods: Default::default(),
-                    definition: Structure {
-                        attributes: Default::default(),
-                        visibility: Visibility::Public,
-                        fields: Default::default(),
-                        path: "Type".into()
-                    }.into()
                 }
             ],
             ..Default::default()
