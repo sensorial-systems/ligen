@@ -1,14 +1,13 @@
-use crate::{Identifier, Literal, Type};
+use crate::{Literal, Path, Type};
 use crate::prelude::*;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 /// Constant Struct
 pub struct Constant {
-    // TODO: Replace with fully qualified path.
-    /// identifier field
-    pub identifier: Identifier,
-    /// type_ field
+    /// Constant's path.
+    pub path: Path,
+    /// Constant's type.
     pub type_: Type,
-    /// literal field
+    /// Constant's literal value.
     pub literal: Literal,
 }

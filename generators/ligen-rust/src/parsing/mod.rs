@@ -1,5 +1,4 @@
 pub mod function;
-pub mod implementation;
 pub mod macro_attributes;
 pub mod types;
 pub mod visibility;

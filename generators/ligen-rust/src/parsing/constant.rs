@@ -6,7 +6,7 @@ impl From<SynImplItemConst> for Constant {
     fn from(SynImplItemConst(item_const): SynImplItemConst) -> Self {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             Self {
-                identifier: Identifier::from(SynIdent(item_const.ident.clone())),
+                path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
                 type_: Type::try_from(SynType(item_const.ty)).expect("Failed to convert from Type"),
                 literal: Literal::from(SynLit(lit)),
             }
@@ -20,7 +20,7 @@ impl From<SynItemConst> for Constant {
     fn from(SynItemConst(item_const): SynItemConst) -> Self {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Self {
-                identifier: Identifier::from(SynIdent(item_const.ident.clone())),
+                path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
                 type_: Type::try_from(SynType(*item_const.ty)).expect("Failed to convert from Type"),
                 literal: Literal::from(SynLit(lit)),
             }
@@ -43,7 +43,7 @@ mod test {
         assert_eq!(
             Constant::from(SynImplItemConst(parse::<syn::ImplItemConst>(quote! {const a: &str = "test";}))),
             Constant {
-                identifier: Identifier::new("a"),
+                path: "a".into(),
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
@@ -60,7 +60,7 @@ mod test {
         assert_eq!(
             Constant::from(SynItemConst(parse::<syn::ItemConst>(quote! {const a: &str = "test";}))),
             Constant {
-                identifier: Identifier::new("a"),
+                path: "a".into(),
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,

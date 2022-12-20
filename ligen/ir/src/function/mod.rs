@@ -1,9 +1,12 @@
 use crate::prelude::*;
 
-use crate::{Attributes, Parameter, Path, Type, Visibility};
+use crate::{Attributes, Path, Type, Visibility};
 
 pub mod parameter;
 pub mod method;
+
+pub use parameter::*;
+pub use method::*;
 
 /// Async structure.
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{Module, Object, Project, Structure};
+    use ligen_ir::{Constant, Function, Integer, Method, Module, Mutability, Object, Project, Structure, Type, Visibility};
     use ligen_ir::conventions::naming::KebabCase;
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
@@ -9,6 +9,8 @@ mod tests {
     use ligen_utils::transformers::path::RelativePathToAbsolutePath;
     use ligen_utils::transformers::Transformable;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
+    // FIXME: Remove this.
+    use crate::parsing::module::extract_object_implementations;
 
     fn mock_project(root_module: Module) -> Project {
         // FIXME: Improve the API to make this test cleaner.
@@ -83,6 +85,7 @@ mod tests {
         };
         let relative_paths = Module::try_from(ProcMacro2TokenStream(relative_paths))?;
         let mut absolute_paths = Module::try_from(ProcMacro2TokenStream(absolute_paths))?;
+        // FIXME: Remove this.
         absolute_paths.guarantee_absolute_paths();
         let project = mock_project(relative_paths);
         assert_eq!(project.root_module, absolute_paths);
@@ -115,15 +118,17 @@ mod tests {
 
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
         let mut project = mock_project(module);
+        // FIXME: Remove this.
         project.root_module.replace_wildcard_imports();
 
         let mut expected_module = Module::try_from(ProcMacro2TokenStream(expected_module))?;
+        // FIXME: Remove this.
         expected_module.guarantee_absolute_paths();
         assert_eq!(project.root_module, expected_module);
         Ok(())
     }
 
-    fn test_project() -> Result<ModuleVisitor> {
+    fn test_project() -> Result<Project> {
         let module = quote! {
             mod test_project {
                 pub mod time {
@@ -131,9 +136,25 @@ mod tests {
                         use Instant as RenamedInSameModule;
                         #[ligen(opaque)]
                         pub struct Instant(std::time::Instant);
+
+                        // FIXME: We need to test relative paths and imported paths.
+                        impl test_project::time::instant::Instant {
+                            const CONSTANT: i32 = 0;
+                        }
                     }
                     pub use instant::Instant;
+
+                    // FIXME: We need to test relative paths and imported paths.
+                    impl test_project::time::instant::Instant {
+                        fn function() {}
+                    }
                 }
+
+                // FIXME: We need to test relative paths and imported paths.
+                impl test_project::time::instant::Instant {
+                    fn method(&self) {}
+                }
+
                 pub use time::instant;
                 pub use instant::Instant;
                 pub use instant::Instant as RenamedInstant;
@@ -141,27 +162,30 @@ mod tests {
                 pub use internal_module::Something;
             }
         };
+        let cloned_module = ProcMacro2TokenStream(module.clone());
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let project = mock_project(module);
-        Ok(ProjectVisitor::from(project).root_module_visitor())
+        let mut project = mock_project(module);
+        extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
+        Ok(project)
     }
 
     #[test]
     fn find_absolute_path() -> Result<()> {
-        let test_project = test_project()?;
+        let project = test_project()?;
+        let project = ProjectVisitor::from(project).root_module_visitor();
         let path = Some("test_project::time::instant::Instant".into());
-        assert_eq!(path, test_project.find_absolute_path(&"test_project::time::instant::Instant".into()), "Failed in absolute path case.");
-        assert_eq!(path, test_project.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
-        assert_eq!(path, test_project.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");
-        assert_eq!(path, test_project.find_absolute_path(&"Instant".into()), "Failed in import case.");
-        assert_eq!(path, test_project.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
-        assert_eq!(path, test_project.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
-        assert_eq!(path, test_project.find_absolute_path(&"instant::Instant".into()), "Failed in re-exported submodule case.");
-        assert_eq!(Some("external_crate::internal_module::Something".into()), test_project.find_absolute_path(&"Something".into()), "Failed in external crate case.");
-        let time = ModuleVisitor::from(&test_project.child(test_project.current.modules[0].clone()));
+        assert_eq!(path, project.find_absolute_path(&"test_project::time::instant::Instant".into()), "Failed in absolute path case.");
+        assert_eq!(path, project.find_absolute_path(&"self::time::instant::Instant".into()), "Failed in self path case.");
+        assert_eq!(path, project.find_absolute_path(&"time::instant::Instant".into()), "Failed in sub-module case.");
+        assert_eq!(path, project.find_absolute_path(&"Instant".into()), "Failed in import case.");
+        assert_eq!(path, project.find_absolute_path(&"RenamedInstant".into()), "Failed in renamed import case.");
+        assert_eq!(path, project.find_absolute_path(&"time::Instant".into()), "Failed in re-exported case.");
+        assert_eq!(path, project.find_absolute_path(&"instant::Instant".into()), "Failed in re-exported submodule case.");
+        assert_eq!(Some("external_crate::internal_module::Something".into()), project.find_absolute_path(&"Something".into()), "Failed in external crate case.");
+        let time = ModuleVisitor::from(&project.child(project.current.modules[0].clone()));
         assert_eq!(path, time.find_absolute_path(&"Instant".into()), "Failed in import case in submodule.");
         assert_eq!(path, time.find_absolute_path(&"super::time::instant::Instant".into()), "Failed in super case.");
-        let instant = ModuleVisitor::from(&test_project.child(time.current.modules[0].clone()));
+        let instant = ModuleVisitor::from(&project.child(time.current.modules[0].clone()));
         assert_eq!(path, instant.find_absolute_path(&"Instant".into()), "Failed to get definition path in current module.");
         assert_eq!(path, instant.find_absolute_path(&"RenamedInSameModule".into()), "Failed to renamed import in same module.");
         Ok(())
@@ -169,15 +193,48 @@ mod tests {
 
     #[test]
     fn find_definition() -> Result<()> {
-        let test_project = test_project()?;
-        let object = test_project.current.find_object(&"test_project::time::instant::Instant".into());
+        let project = test_project()?;
+        let project = ProjectVisitor::from(project).root_module_visitor();
+        let object = project.current.find_object(&"test_project::time::instant::Instant".into());
         let expected_object = quote! {
             #[ligen(opaque)]
             pub struct Instant(std::time::Instant);
         };
         let mut structure = Structure::try_from(ProcMacro2TokenStream(expected_object))?;
         structure.path = "test_project::time::instant::Instant".into();
-        let expected_object = Some(Object::from(structure));
+        let expected_object = Object {
+            definition: structure.into(),
+            constants: vec![
+                Constant {
+                    path: "CONSTANT".into(),
+                    type_: Integer::I32.into(),
+                    literal: 0.into()
+                }
+            ],
+            functions: vec![
+                Function {
+                    attributes: Default::default(),
+                    inputs: Default::default(),
+                    output: Default::default(),
+                    asyncness: Default::default(),
+                    visibility: Visibility::Private,
+                    path: "function".into()
+                }
+            ],
+            methods: vec![
+                Method {
+                    attributes: Default::default(),
+                    inputs: Default::default(),
+                    output: Default::default(),
+                    asyncness: Default::default(),
+                    visibility: Visibility::Private,
+                    path: "method".into(),
+                    mutability: Mutability::Constant,
+                    owner: Type::Compound(Default::default(), Default::default())
+                }
+            ]
+        };
+        let expected_object = Some(expected_object);
         assert_eq!(object, expected_object.as_ref());
         Ok(())
     }

@@ -6,7 +6,9 @@ use crate::prelude::*;
 use crate::{Object, Structure, Visibility, Identifier, Enumeration, Attributes, Attribute, Function, Module};
 use syn::parse_quote::parse;
 use std::path::PathBuf;
+use syn::ImplItem;
 use ligen_ir::conventions::naming::{NamingConvention, SnakeCase};
+use ligen_ir::{Path, Project};
 
 fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     let mut functions = Vec::new();
@@ -21,18 +23,10 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
 fn extract_modules(ignored: bool, visitor: &ModuleConversionHelper) -> Result<Vec<Module>> {
     let mut modules = Vec::new();
     if !ignored {
-        if let Some(items) = &visitor.items {
-            for item in items {
-                match item {
-                    syn::Item::Mod(module) => {
-                        let visitor = ModuleConversionHelper::try_from((visitor, module))?;
-                        let module = Module::try_from(visitor)?;
-                        if !module.ignored() {
-                            modules.push(module)
-                        }
-                    },
-                    _ => ()
-                }
+        for visitor in visitor.get_children()? {
+            let module = Module::try_from(visitor)?;
+            if !module.ignored() {
+                modules.push(module)
             }
         }
     }
@@ -76,23 +70,6 @@ fn extract_object_definitions(ignored: bool, visitor: &ModuleConversionHelper) -
                 syn::Item::Union(_union) => {
                     todo!("Union object isn't implemented yet.")
                 },
-                // syn::Item::Impl(_implementation) => {
-                //     // TODO: Consider `impl Trait for Object`?
-                //     if implementation.trait_.is_none() {
-                //         let mut implementation = Implementation::try_from(SynItemImpl(implementation.clone()))?;
-                //         let path = implementation.self_.path();
-                //         if let Some((_definition, existing_implementation)) = objects.get_mut(&path) {
-                //             if let Some(existing_implementation) = existing_implementation {
-                //                 existing_implementation.attributes.attributes.append(&mut implementation.attributes);
-                //                 existing_implementation.items.append(&mut implementation.items);
-                //             } else {
-                //                 *existing_implementation = Some(implementation);
-                //             }
-                //         } else {
-                //             objects.insert(path, (None, Some(implementation)));
-                //         }
-                //     }
-                // }
                 _ => ()
             }
         }
@@ -100,11 +77,57 @@ fn extract_object_definitions(ignored: bool, visitor: &ModuleConversionHelper) -
     Ok(objects)
 }
 
-#[allow(unused_qualifications)]
-impl TryFrom<ProcMacro2TokenStream> for Module {
+// FIXME: Make it private.
+pub fn extract_object_implementations(project: &mut Project, ignored: bool, visitor: &ModuleConversionHelper) -> Result<()> {
+    if let (false, Some(items)) = (ignored, &visitor.items) {
+        for item in items {
+            match item {
+                syn::Item::Impl(implementation) => {
+                    // TODO: Consider `impl Trait for Object`?
+                    if implementation.trait_.is_none() {
+                        if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
+                            // FIXME: Transform relative path to absolute path.
+                            let path = Path::from(SynPath(path.clone()));
+                            if let Some(object) = project.root_module.find_object_mut(&path) {
+                                // TODO: Parse attributes and merge them with individual items.
+                                // let attributes = implementation.attrs;
+                                for item in &implementation.items {
+                                    match item {
+                                        ImplItem::Const(constant) => {
+                                            let constant = SynImplItemConst(constant.clone()).into();
+                                            object.constants.push(constant)
+                                        },
+                                        ImplItem::Method(method) => {
+                                            if method.sig.receiver().is_some() {
+                                                let method = SynImplItemMethod(method.clone()).into();
+                                                object.methods.push(method)
+                                            } else {
+                                                let function = SynImplItemMethod(method.clone()).into();
+                                                object.functions.push(function)
+                                            }
+                                        }
+                                        _ => ()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => ()
+            }
+        }
+    }
+    for visitor in visitor.get_children()? {
+        // FIXME: ignored is hardcoded.
+        extract_object_implementations(project, false, &visitor)?;
+    }
+    Ok(())
+}
+
+impl TryFrom<ProcMacro2TokenStream> for ModuleConversionHelper {
     type Error = Error;
-    fn try_from(ProcMacro2TokenStream(tokenstream): ProcMacro2TokenStream) -> Result<Self> {
-        let module = parse::<syn::ItemMod>(tokenstream);
+    fn try_from(ProcMacro2TokenStream(token_stream): ProcMacro2TokenStream) -> Result<Self> {
+        let module = parse::<syn::ItemMod>(token_stream);
         let directory = PathBuf::from("");
         let name = NamingConvention::SnakeCase(Default::default());
         let project = ProjectInfo { directory, name };
@@ -113,7 +136,15 @@ impl TryFrom<ProcMacro2TokenStream> for Module {
         let identifier = Identifier::from(SynIdent(module.ident));
         let relative_path = PathBuf::from(identifier.name.clone());
         let items = module.content.clone().unwrap_or_default().1.into();
-        ModuleConversionHelper { project, items, identifier, relative_path, visibility, attributes }.try_into()
+        Ok(ModuleConversionHelper { project, items, identifier, relative_path, visibility, attributes })
+    }
+}
+
+#[allow(unused_qualifications)]
+impl TryFrom<ProcMacro2TokenStream> for Module {
+    type Error = Error;
+    fn try_from(token_stream: ProcMacro2TokenStream) -> Result<Self> {
+        ModuleConversionHelper::try_from(token_stream)?.try_into()
     }
 }
 
@@ -123,13 +154,31 @@ pub struct ProjectInfo {
     pub name: NamingConvention
 }
 
-struct ModuleConversionHelper {
+// FIXME: This should be private.
+pub struct ModuleConversionHelper {
     attributes: Attributes,
     items: Option<Vec<syn::Item>>,
     visibility: Visibility,
     identifier: Identifier,
     relative_path: PathBuf,
     project: ProjectInfo
+}
+
+impl ModuleConversionHelper {
+    fn get_children(&self) -> Result<Vec<ModuleConversionHelper>> {
+        let mut modules = Vec::new();
+        if let Some(items) = &self.items {
+            for item in items {
+                match item {
+                    syn::Item::Mod(module) => {
+                        modules.push(ModuleConversionHelper::try_from((self, module))?);
+                    },
+                    _ => ()
+                }
+            }
+        }
+        Ok(modules)
+    }
 }
 
 impl TryFrom<(&ModuleConversionHelper, &syn::ItemMod)> for ModuleConversionHelper {
@@ -145,6 +194,8 @@ impl TryFrom<(&ModuleConversionHelper, &syn::ItemMod)> for ModuleConversionHelpe
         Ok(Self { visibility, items, attributes, relative_path, project, identifier })
     }
 }
+
+
 
 impl TryFrom<ProjectInfo> for Module {
     type Error = Error;

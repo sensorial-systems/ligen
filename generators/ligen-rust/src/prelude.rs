@@ -45,6 +45,7 @@ new_type!(syn::Ident, SynIdent);
 new_type!(syn::Type, SynType);
 new_type!(syn::ItemFn, SynItemFn);
 new_type!(syn::ImplItemConst, SynImplItemConst);
+new_type!(syn::ImplItemMethod, SynImplItemMethod);
 new_type!(syn::ItemConst, SynItemConst);
 new_type!(syn::AttributeArgs, SynAttributeArgs);
 new_type!(syn::PathArguments, SynPathArguments);
