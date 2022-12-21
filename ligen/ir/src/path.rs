@@ -89,11 +89,15 @@ impl<I: Into<Identifier>> From<Vec<I>> for Path {
 
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
-        let segments = string
-            .split("::")
-            .into_iter()
-            .map(|segment| Identifier::new(segment))
-            .collect();
+        let segments = if string.is_empty() {
+            Default::default()
+        } else {
+            string
+                .split("::")
+                .into_iter()
+                .map(|segment| Identifier::new(segment))
+                .collect()
+        };
         Self { segments }
     }
 }

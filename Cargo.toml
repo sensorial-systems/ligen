@@ -3,6 +3,7 @@ members = [
     "ligen",
     "ligen/common",
     "ligen/ir",
+    "ligen/parsing",
     "ligen/utils",
     "ligen/traits",
     "runtime/ligen-rust-runtime",
