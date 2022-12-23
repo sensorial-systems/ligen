@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
 use ligen_ir::Module;
-use ligen_rust::parsing::module::ProjectInfo;
+use ligen_rust::parsing::project::RustProject;
 use ligen_traits::build::BuildSystem;
 use ligen_utils::transformers::alias::ReplaceCrateAlias;
 use ligen_utils::transformers::path::RelativePathToAbsolutePath;
@@ -48,11 +48,8 @@ impl TryFrom<&std::path::Path> for CargoProject {
 impl TryFrom<CargoProject> for Project {
     type Error = Error;
     fn try_from(from: CargoProject) -> Result<Self> {
-        let name = from.name;
-        let directory = from.path;
-        let project = ProjectInfo { name: name.clone(), directory: directory.clone() };
-        let root_module = Module::try_from(project)?; // FIXME: Using LigenProjectInfo here is weird. All the types prefixed with Ligen should be private in ligen-rust.
-        let project = Self { name, directory, root_module };
+        let project = RustProject::try_from(from.path)?;
+        let project = Project::try_from(project)?;
         // FIXME: Move this to a more generic place.
         let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
         Ok(project)

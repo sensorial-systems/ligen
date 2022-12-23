@@ -26,6 +26,7 @@ new_type!(syn::FnArg, SynFnArg);
 new_type!(proc_macro2::TokenStream, ProcMacro2TokenStream);
 new_type!(proc_macro::TokenStream, ProcMacroTokenStream);
 new_type!(syn::ImplItem, SynImplItem);
+new_type!(syn::ItemMod, SynItemMod);
 new_type!(syn::ItemImpl, SynItemImpl);
 new_type!(syn::ItemMacro, SynItemMacro);
 new_type!(syn::Attribute, SynAttribute);

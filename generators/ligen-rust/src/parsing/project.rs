@@ -2,12 +2,24 @@ use std::path::PathBuf;
 use crate::prelude::*;
 
 use syn::spanned::Spanned;
-use ligen_ir::{Identifier, Path};
+use ligen_ir::{Identifier, Path, Project};
+use ligen_ir::conventions::naming::SnakeCase;
 use ligen_parsing::GetPathTree;
 
 pub struct RustProject {
     pub root_folder: PathBuf,
     pub root_module: syn::ItemMod
+}
+
+impl TryFrom<RustProject> for Project {
+    type Error = Error;
+    fn try_from(rust_project: RustProject) -> Result<Self> {
+        let name = rust_project.get_name()?;
+        let name = SnakeCase::try_from(name.as_str())?.into();
+        let directory = rust_project.root_folder;
+        let root_module = SynItemMod(rust_project.root_module).try_into()?;
+        Ok(Self { name, directory, root_module })
+    }
 }
 
 impl<'a> GetPathTree<'a> for RustProject {
@@ -134,8 +146,6 @@ mod tests {
     use ligen_utils::transformers::path::RelativePathToAbsolutePath;
     use ligen_utils::transformers::Transformable;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
-    // FIXME: Remove this.
-    use crate::parsing::module::extract_object_implementations;
     use crate::parsing::project::RustProject;
 
     fn mock_project(root_module: Module) -> Project {
@@ -293,7 +303,7 @@ mod tests {
         let cloned_module = ProcMacro2TokenStream(module.clone());
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
         let mut project = mock_project(module);
-        extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
+        // extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
         Ok(project)
     }
 
