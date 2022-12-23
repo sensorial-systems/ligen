@@ -10,10 +10,13 @@ ligen-ir     = { path = "../../ligen/ir" }
 ligen-traits = { path = "../../ligen/traits" }
 ligen-utils  = { path = "../../ligen/utils" }
 ligen-common = { path = "../../ligen/common" }
+ligen-parsing = { path = "../../ligen/parsing" }
 serde_json = "1.0.73"
 syn          = { version = "1.0.73", features = [ "full" ] }
 proc-macro2  = "1.0.26"
 quote        = "1.0.9"
+# FIXME: How to reuse ligen-cargo instead of using cargo_toml?
+cargo_toml   = "0.13.0"
 
 [dev-dependencies]
 pretty_assertions = "0.7.2"

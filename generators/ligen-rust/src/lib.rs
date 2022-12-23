@@ -3,6 +3,7 @@ pub mod parsing;
 
 extern crate proc_macro;
 
+// FIXME: Move this to a generation module.
 use ligen_ir::*;
 
 use ligen_traits::generator::file_generator::{TemplateBasedGenerator, TemplateRegister, Template, Inputs};

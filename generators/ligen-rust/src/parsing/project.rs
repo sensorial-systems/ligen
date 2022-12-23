@@ -1,3 +1,127 @@
+use std::path::PathBuf;
+use crate::prelude::*;
+
+use syn::spanned::Spanned;
+use ligen_ir::{Identifier, Path};
+use ligen_parsing::GetPathTree;
+
+pub struct RustProject {
+    pub root_folder: PathBuf,
+    pub root_module: syn::ItemMod
+}
+
+impl<'a> GetPathTree<'a> for RustProject {
+    type Visitor = syn::ItemMod;
+    fn get_root_visitor(&self) -> &Self::Visitor {
+        &self.root_module
+    }
+
+    fn get_path(&self, module: &syn::ItemMod) -> Path {
+        Identifier::from(SynIdent(module.ident.clone())).into()
+    }
+
+    fn get_children(&'a self, module: &'a syn::ItemMod) -> Vec<&'a syn::ItemMod> {
+        let mut children = Vec::new();
+        if let Some((_, items)) = &module.content {
+            for item in items {
+                if let syn::Item::Mod(module) = &item {
+                    children.push(module);
+                }
+            }
+        }
+        children
+    }
+}
+
+impl RustProject {
+    fn get_name_from_root_folder(root_folder: &PathBuf) -> Result<String> {
+        let cargo = cargo_toml::Manifest::from_path(root_folder.join("Cargo.toml")).map_err(|e| Error::Generic(Box::new(e)))?;
+        let name = cargo
+            .package
+            .ok_or("Couldn't find the package name.")?
+            .name
+            .replace("-", "_");
+        Ok(name)
+    }
+
+    pub fn get_name(&self) -> Result<String> {
+        Self::get_name_from_root_folder(&self.root_folder)
+    }
+
+    fn parse_modules(&mut self) -> Result<()> {
+        Self::parse_modules_with_current_and_parent(&mut self.root_module, None)
+    }
+
+    fn parse_modules_with_current_and_parent(current: &mut syn::ItemMod, parent: Option<&Path>) -> Result<()> {
+        let identifier = Identifier::from(SynIdent(current.ident.clone()));
+        let current_path = parent
+            .cloned()
+            .unwrap_or_default()
+            .join(identifier);
+        if current.content.is_none() {
+            let module_path = PathBuf::from(current_path.clone());
+            let content = if let Ok(content) = std::fs::read_to_string(module_path.with_extension("rs")) {
+                content
+            } else {
+                std::fs::read_to_string(module_path.join("mod.rs"))?
+            };
+            let file = syn::parse_file(&content)
+                .map_err(|_e| "Failed to parse file.")?;
+            current.content = Some((Default::default(), file.items));
+        }
+        if let Some((_, items)) = &mut current.content {
+            let parent = Some(&current_path);
+            for item in items {
+                if let syn::Item::Mod(module) = item {
+                    Self::parse_modules_with_current_and_parent(module, parent)?;
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+impl TryFrom<PathBuf> for RustProject {
+    type Error = Error;
+    fn try_from(root_folder: PathBuf) -> Result<Self> {
+        let content = std::fs::read_to_string(root_folder.join("src").join("lib.rs"))?;
+        let file = syn::parse_file(&content)
+            .map_err(|_e| "Failed to parse lib.rs file.")?;
+        let ident = syn::Ident::new(&Self::get_name_from_root_folder(&root_folder)?, file.span());
+        let attrs = file.attrs;
+        let content = Some((Default::default(), file.items));
+        let vis = syn::Visibility::Public(syn::VisPublic { pub_token: Default::default() });
+        let semi = None;
+        let mod_token = Default::default();
+        let root_module = syn::ItemMod { attrs, vis, mod_token, ident, semi, content };
+        let mut project = Self { root_folder, root_module };
+        project.parse_modules()?;
+        Ok(project)
+    }
+}
+
+#[cfg(test)]
+impl TryFrom<TokenStream> for RustProject {
+    type Error = Error;
+    fn try_from(token_stream: TokenStream) -> Result<Self> {
+        let root_folder = PathBuf::new();
+        let root_module = syn::parse2::<syn::ItemMod>(token_stream)
+            .map_err(|_e| "Failed to parse TokenStream.")?;
+        let mut project = Self { root_folder, root_module };
+        project.parse_modules()?;
+        Ok(project)
+    }
+}
+
+// impl TryFrom<RustProject> for Project {
+//     type Error = Error;
+//     fn try_from(project: RustProject) -> Result<Self> {
+//         let name = KebabCase::try_from(project.get_name()?.as_str())?.into();
+//         let directory = project.root_folder;
+//         let root_module = project.root_module.into();
+//         Ok(Self { name, directory, root_module })
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -5,12 +129,14 @@ mod tests {
     use ligen_ir::conventions::naming::KebabCase;
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
+    use ligen_parsing::GetPathTree;
     use ligen_utils::transformers::alias::ReplaceCrateAlias;
     use ligen_utils::transformers::path::RelativePathToAbsolutePath;
     use ligen_utils::transformers::Transformable;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
     // FIXME: Remove this.
     use crate::parsing::module::extract_object_implementations;
+    use crate::parsing::project::RustProject;
 
     fn mock_project(root_module: Module) -> Project {
         // FIXME: Improve the API to make this test cleaner.
@@ -162,6 +288,8 @@ mod tests {
                 pub use internal_module::Something;
             }
         };
+        let rust_project = RustProject::try_from(module.clone())?;
+        let path_tree = rust_project.get_path_tree();
         let cloned_module = ProcMacro2TokenStream(module.clone());
         let module = Module::try_from(ProcMacro2TokenStream(module))?;
         let mut project = mock_project(module);
