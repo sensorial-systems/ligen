@@ -14,6 +14,7 @@ pub struct RustProject {
 impl TryFrom<RustProject> for Project {
     type Error = Error;
     fn try_from(rust_project: RustProject) -> Result<Self> {
+        let path_tree = rust_project.get_path_tree();
         let name = rust_project.get_name()?;
         let name = SnakeCase::try_from(name.as_str())?.into();
         let directory = rust_project.root_folder;
@@ -112,7 +113,13 @@ impl TryFrom<PathBuf> for RustProject {
     }
 }
 
-#[cfg(test)]
+impl TryFrom<ProcMacro2TokenStream> for RustProject {
+    type Error = Error;
+    fn try_from(ProcMacro2TokenStream(value): ProcMacro2TokenStream) -> Result<Self> {
+        value.try_into()
+    }
+}
+
 impl TryFrom<TokenStream> for RustProject {
     type Error = Error;
     fn try_from(token_stream: TokenStream) -> Result<Self> {
@@ -138,25 +145,10 @@ impl TryFrom<TokenStream> for RustProject {
 #[cfg(test)]
 mod tests {
     use ligen_ir::{Constant, Function, Integer, Method, Module, Mutability, Object, Project, Structure, Type, Visibility};
-    use ligen_ir::conventions::naming::KebabCase;
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
-    use ligen_parsing::GetPathTree;
-    use ligen_utils::transformers::alias::ReplaceCrateAlias;
-    use ligen_utils::transformers::path::RelativePathToAbsolutePath;
-    use ligen_utils::transformers::Transformable;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
     use crate::parsing::project::RustProject;
-
-    fn mock_project(root_module: Module) -> Project {
-        // FIXME: Improve the API to make this test cleaner.
-        // let rust_project = Mock
-        // Project::from(rust_project);
-        let name = KebabCase::try_from("root").unwrap().into();
-        let directory = Default::default();
-        let project = Project { name, root_module, directory };
-        project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath])
-    }
 
     #[test]
     fn relative_path_to_absolute_path_imports() -> Result<()> {
@@ -219,12 +211,44 @@ mod tests {
                 fn new_leaf(branch1: &root::branch::Branch, leaf: &root::branch::leaf::Leaf, renamed: root::branch::leaf::Leaf, size: usize) -> root::branch::leaf::Leaf {}
             }
         };
-        let relative_paths = Module::try_from(ProcMacro2TokenStream(relative_paths))?;
         let mut absolute_paths = Module::try_from(ProcMacro2TokenStream(absolute_paths))?;
+        let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
+        let project = Project::try_from(rust_project)?;
         // FIXME: Remove this.
         absolute_paths.guarantee_absolute_paths();
-        let project = mock_project(relative_paths);
         assert_eq!(project.root_module, absolute_paths);
+        Ok(())
+    }
+
+    #[test]
+    fn guaranteed_absolute_paths() -> Result<()> {
+        let module = quote! {
+            mod root {
+                mod branch {
+                    mod leaf {
+                    }
+                }
+            }
+        };
+        let rust_project = RustProject::try_from(module)?;
+        let project = Project::try_from(rust_project)?;
+        let expected_module = Module {
+            path: "root".into(),
+            modules: vec![
+                Module {
+                    path: "root::branch".into(),
+                    modules: vec![
+                        Module {
+                            path: "root::branch::leaf".into(),
+                            ..Default::default()
+                        }
+                    ],
+                    ..Default::default()
+                }
+            ],
+            ..Default::default()
+        };
+        assert_eq!(project.root_module, expected_module);
         Ok(())
     }
 
@@ -252,13 +276,13 @@ mod tests {
             }
         };
 
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let mut project = mock_project(module);
+        let rust_project = RustProject::try_from(ProcMacro2TokenStream(module))?;
+        let mut project = Project::try_from(rust_project)?;
         // FIXME: Remove this.
+        project.root_module.guarantee_absolute_paths();
         project.root_module.replace_wildcard_imports();
 
         let mut expected_module = Module::try_from(ProcMacro2TokenStream(expected_module))?;
-        // FIXME: Remove this.
         expected_module.guarantee_absolute_paths();
         assert_eq!(project.root_module, expected_module);
         Ok(())
@@ -299,10 +323,7 @@ mod tests {
             }
         };
         let rust_project = RustProject::try_from(module.clone())?;
-        let path_tree = rust_project.get_path_tree();
-        let cloned_module = ProcMacro2TokenStream(module.clone());
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let mut project = mock_project(module);
+        let project = Project::try_from(rust_project)?;
         // extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
         Ok(project)
     }

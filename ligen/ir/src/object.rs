@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{Constant, Function, TypeDefinition, method::Method, Structure, Enumeration};
 
 /// Object representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Object {
     /// Object type definition.
     pub definition: TypeDefinition,

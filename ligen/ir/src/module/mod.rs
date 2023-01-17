@@ -135,7 +135,7 @@ impl Module {
             .collect();
         for import in wildcard_imports {
             let module_path = import.path.clone().without_last();
-            println!("{}", module_path);
+            println!("ModulePath: {}", module_path);
             if let Some(module) = self.find_module(&module_path) {
                 for object in &module.objects {
                     if let Visibility::Public = object.definition.visibility() {
@@ -174,6 +174,9 @@ impl Module {
 
     fn guarantee_absolute_paths_with_parent(&mut self, parent: Path) {
         self.path = parent.clone().join(self.path.clone());
+        for import in &mut self.imports {
+            import.path = self.path.clone().join(import.path.clone());
+        }
         for function in &mut self.functions {
             function.path = self.path.clone().join(function.path.clone());
         }

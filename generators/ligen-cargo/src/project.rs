@@ -3,7 +3,6 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
-use ligen_ir::Module;
 use ligen_rust::parsing::project::RustProject;
 use ligen_traits::build::BuildSystem;
 use ligen_utils::transformers::alias::ReplaceCrateAlias;

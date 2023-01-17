@@ -2,6 +2,7 @@
 
 mod import;
 
+use ligen_ir::{Enumeration, Object, Path, Project, Structure};
 use crate::prelude::*;
 use crate::{Identifier, Function, Module};
 
@@ -15,18 +16,19 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     functions
 }
 
-// fn extract_modules(ignored: bool, visitor: &ModuleConversionHelper) -> Result<Vec<Module>> {
-//     let mut modules = Vec::new();
-//     if !ignored {
-//         for visitor in visitor.get_children()? {
-//             let module = Module::try_from(visitor)?;
-//             if !module.ignored() {
-//                 modules.push(module)
-//             }
-//         }
-//     }
-//     Ok(modules)
-// }
+fn extract_modules(ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
+    let mut modules = Vec::new();
+    if !ignored {
+        let items = items.into_iter().filter_map(|item| if let syn::Item::Mod(module) = item { Some(module) } else { None });
+        for item in items {
+            let module = Module::try_from(SynItemMod(item))?;
+            if !module.ignored() {
+                modules.push(module)
+            }
+        }
+    }
+    Ok(modules)
+}
 
 // fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Result<Attributes> {
 //     let mut attributes = attributes.clone();
@@ -46,78 +48,78 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
 //     Ok(attributes)
 // }
 
-// fn extract_object_definitions(ignored: bool, visitor: &ModuleConversionHelper) -> Result<Vec<Object>> {
-//     let mut objects = Vec::new();
-//     if let (false, Some(items)) = (ignored, &visitor.items) {
-//         for item in items {
-//             match item {
-//                 syn::Item::Enum(enumeration) => {
-//                     let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
-//                     objects.push(Object::from(enumeration));
-//                 },
-//                 syn::Item::Struct(structure) => {
-//                     let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
-//                     objects.push(Object::from(structure));
-//                 },
-//                 syn::Item::Type(_type) => {
-//                     todo!("Type object isn't implemented yet.")
-//                 },
-//                 syn::Item::Union(_union) => {
-//                     todo!("Union object isn't implemented yet.")
-//                 },
-//                 _ => ()
-//             }
-//         }
-//     }
-//     Ok(objects)
-// }
-//
-// // FIXME: Make it private.
-// pub fn extract_object_implementations(project: &mut Project, ignored: bool, visitor: &ModuleConversionHelper) -> Result<()> {
-//     if let (false, Some(items)) = (ignored, &visitor.items) {
-//         for item in items {
-//             match item {
-//                 syn::Item::Impl(implementation) => {
-//                     // TODO: Consider `impl Trait for Object`?
-//                     if implementation.trait_.is_none() {
-//                         if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
-//                             // FIXME: Transform relative path to absolute path.
-//                             let path = Path::from(SynPath(path.clone()));
-//                             if let Some(object) = project.root_module.find_object_mut(&path) {
-//                                 // TODO: Parse attributes and merge them with individual items.
-//                                 // let attributes = implementation.attrs;
-//                                 for item in &implementation.items {
-//                                     match item {
-//                                         ImplItem::Const(constant) => {
-//                                             let constant = SynImplItemConst(constant.clone()).into();
-//                                             object.constants.push(constant)
-//                                         },
-//                                         ImplItem::Method(method) => {
-//                                             if method.sig.receiver().is_some() {
-//                                                 let method = SynImplItemMethod(method.clone()).into();
-//                                                 object.methods.push(method)
-//                                             } else {
-//                                                 let function = SynImplItemMethod(method.clone()).into();
-//                                                 object.functions.push(function)
-//                                             }
-//                                         }
-//                                         _ => ()
-//                                     }
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//                 _ => ()
-//             }
-//         }
-//     }
-//     for visitor in visitor.get_children()? {
-//         // FIXME: ignored is hardcoded.
-//         extract_object_implementations(project, false, &visitor)?;
-//     }
-//     Ok(())
-// }
+fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<Object>> {
+    let mut objects = Vec::new();
+    if !ignored {
+        for item in items {
+            match item {
+                syn::Item::Enum(enumeration) => {
+                    let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
+                    objects.push(Object::from(enumeration));
+                },
+                syn::Item::Struct(structure) => {
+                    let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
+                    objects.push(Object::from(structure));
+                },
+                syn::Item::Type(_type) => {
+                    todo!("Type object isn't implemented yet.")
+                },
+                syn::Item::Union(_union) => {
+                    todo!("Union object isn't implemented yet.")
+                },
+                _ => ()
+            }
+        }
+    }
+    Ok(objects)
+}
+
+// FIXME: Make it private.
+pub fn extract_object_implementations(project: &mut Project, ignored: bool, items: &[syn::Item]) -> Result<()> {
+    if !ignored {
+        for item in items {
+            match item {
+                syn::Item::Mod(module) => if let Some((_, items)) = &module.content {
+                    // FIXME: Hardcoded ignored.
+                    extract_object_implementations(project, false, items.as_slice())?;
+                },
+                syn::Item::Impl(implementation) => {
+                    // TODO: Consider `impl Trait for Object`?
+                    if implementation.trait_.is_none() {
+                        if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
+                            // FIXME: Transform relative path to absolute path.
+                            let path = Path::from(SynPath(path.clone()));
+                            if let Some(object) = project.root_module.find_object_mut(&path) {
+                                // TODO: Parse attributes and merge them with individual items.
+                                // let attributes = implementation.attrs;
+                                for item in &implementation.items {
+                                    match item {
+                                        syn::ImplItem::Const(constant) => {
+                                            let constant = SynImplItemConst(constant.clone()).into();
+                                            object.constants.push(constant)
+                                        },
+                                        syn::ImplItem::Method(method) => {
+                                            if method.sig.receiver().is_some() {
+                                                let method = SynImplItemMethod(method.clone()).into();
+                                                object.methods.push(method)
+                                            } else {
+                                                let function = SynImplItemMethod(method.clone()).into();
+                                                object.functions.push(function)
+                                            }
+                                        }
+                                        _ => ()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => ()
+            }
+        }
+    }
+    Ok(())
+}
 
 impl TryFrom<ProcMacro2TokenStream> for Module {
     type Error = Error;
@@ -139,8 +141,8 @@ impl TryFrom<SynItemMod> for Module {
         let path = Identifier::from(SynIdent(module.ident)).into();
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
         let functions = extract_functions(items.as_slice());
-        let objects = Default::default();
-        let modules = Default::default();
+        let objects = extract_object_definitions(false, items.as_slice())?;
+        let modules = extract_modules(false, items)?;
         Ok(Self { attributes, visibility, path, imports, functions, objects, modules })
     }
 }
@@ -156,9 +158,8 @@ mod tests {
     #[test]
     fn module_file() -> Result<()> {
         let module = quote! { mod module; };
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let expected_module = Module { path: "module".into(), ..Default::default() };
-        assert_eq!(module, expected_module);
+        let result = Module::try_from(ProcMacro2TokenStream(module));
+        assert!(result.is_err()); // Module file isn't loaded.
         Ok(())
     }
 

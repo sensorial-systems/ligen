@@ -17,6 +17,12 @@ pub enum TypeDefinition {
     Enumeration(Enumeration)
 }
 
+impl Default for TypeDefinition {
+    fn default() -> Self {
+        Self::Structure(Default::default())
+    }
+}
+
 impl TypeDefinition {
     /// Get the path definition identifier.
     pub fn path(&self) -> &Path {
