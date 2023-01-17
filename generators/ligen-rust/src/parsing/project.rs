@@ -2,9 +2,9 @@ use std::path::PathBuf;
 use crate::prelude::*;
 
 use syn::spanned::Spanned;
-use ligen_ir::{Identifier, Path, Project};
+use ligen_ir::{Identifier, Module, Path, Project};
 use ligen_ir::conventions::naming::SnakeCase;
-use ligen_parsing::GetPathTree;
+use ligen_parsing::{GetPathTree, PathTree};
 
 pub struct RustProject {
     pub root_folder: PathBuf,
@@ -18,8 +18,48 @@ impl TryFrom<RustProject> for Project {
         let name = rust_project.get_name()?;
         let name = SnakeCase::try_from(name.as_str())?.into();
         let directory = rust_project.root_folder;
-        let root_module = SynItemMod(rust_project.root_module).try_into()?;
+        let mut root_module = SynItemMod(rust_project.root_module).try_into()?;
+        module_full_path(&mut root_module, &path_tree);
+        object_full_path(&mut root_module);
+        import_full_path(&mut root_module, &path_tree);
+        panic!();
+
         Ok(Self { name, directory, root_module })
+    }
+}
+
+fn import_full_path(module: &mut Module, path_tree: &PathTree) {
+    println!("Module path: {}, imports: {}", module.path, module.imports.len());
+    for import in &mut module.imports {
+        println!("Import path: {}", import.path);
+        if let Some(path) = path_tree.find_from_relative_path(import.path.clone()) {
+            import.path = path.data.clone();
+            println!("Absolute path: {}", path.data);
+        }
+    }
+    for module in &mut module.modules {
+        if let Some(path_tree) = path_tree.find(module.path.clone()) {
+            import_full_path(module, path_tree);
+        }
+    }
+}
+
+fn object_full_path(module: &mut Module) {
+    for object in &mut module.objects {
+        let path = object.definition.path_mut();
+        *path = module.path.clone().join(path.clone());
+    }
+    for module in &mut module.modules {
+        object_full_path(module)
+    }
+}
+
+fn module_full_path(module: &mut Module, path_tree: &PathTree) {
+    module.path = path_tree.data.clone();
+    for module in &mut module.modules {
+        if let Some(path_tree) = path_tree.find_from_relative_path(module.path.clone()) {
+            module_full_path(module, path_tree);
+        }
     }
 }
 
@@ -33,7 +73,7 @@ impl<'a> GetPathTree<'a> for RustProject {
         Identifier::from(SynIdent(module.ident.clone())).into()
     }
 
-    fn get_children(&'a self, module: &'a syn::ItemMod) -> Vec<&'a syn::ItemMod> {
+    fn get_children<'b>(&'b self, module: &'b syn::ItemMod) -> Vec<&'b Self::Visitor> {
         let mut children = Vec::new();
         if let Some((_, items)) = &module.content {
             for item in items {
@@ -144,7 +184,7 @@ impl TryFrom<TokenStream> for RustProject {
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{Constant, Function, Integer, Method, Module, Mutability, Object, Project, Structure, Type, Visibility};
+    use ligen_ir::{Constant, Function, Import, Integer, Method, Module, Mutability, Object, Project, Structure, Type, Visibility};
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
@@ -224,22 +264,33 @@ mod tests {
     fn guaranteed_absolute_paths() -> Result<()> {
         let module = quote! {
             mod root {
+                struct Root;
                 mod branch {
+                    struct Branch;
                     mod leaf {
+                        struct Leaf;
                     }
+                    use leaf::Leaf;
                 }
+                use branch::leaf;
+                // use leaf::Leaf;
             }
         };
         let rust_project = RustProject::try_from(module)?;
         let project = Project::try_from(rust_project)?;
         let expected_module = Module {
             path: "root".into(),
+            objects: vec![ Structure { path: "root::Root".into(), ..Default::default() }.into() ],
+            imports: vec![ Import { path: "root::branch::leaf".into(), ..Default::default() }],
             modules: vec![
                 Module {
                     path: "root::branch".into(),
+                    objects: vec![ Structure { path: "root::branch::Branch".into(), ..Default::default() }.into() ],
+                    imports: vec![ Import { path: "root::branch::leaf::Leaf".into(), ..Default::default() } ],
                     modules: vec![
                         Module {
                             path: "root::branch::leaf".into(),
+                            objects: vec![ Structure { path: "root::branch::leaf::Leaf".into(), ..Default::default() }.into() ],
                             ..Default::default()
                         }
                     ],
