@@ -22,19 +22,16 @@ impl TryFrom<RustProject> for Project {
         module_full_path(&mut root_module, &path_tree);
         object_full_path(&mut root_module);
         import_full_path(&mut root_module, &path_tree);
-        panic!();
-
         Ok(Self { name, directory, root_module })
     }
 }
 
 fn import_full_path(module: &mut Module, path_tree: &PathTree) {
-    println!("Module path: {}, imports: {}", module.path, module.imports.len());
     for import in &mut module.imports {
-        println!("Import path: {}", import.path);
-        if let Some(path) = path_tree.find_from_relative_path(import.path.clone()) {
+        if let Some(path) = path_tree.find_from_relative_path(import.path.clone()) { // for module import
             import.path = path.data.clone();
-            println!("Absolute path: {}", path.data);
+        } else if let Some(path) = path_tree.find_from_relative_path(import.path.clone().without_last()) { // for object import (we don't have the objects in the path tree)
+            import.path = path.data.clone().join(import.path.last());
         }
     }
     for module in &mut module.modules {
