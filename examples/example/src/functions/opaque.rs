@@ -24,7 +24,7 @@ pub fn data_sum(data: &Data) -> i32 {
 pub fn data_destroy(data: *mut Data) {
     unsafe {
         if !data.is_null() {
-            Box::from_raw(data);
+            drop(Box::from_raw(data))
         }
     }
 }
