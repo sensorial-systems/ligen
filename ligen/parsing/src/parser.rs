@@ -1,9 +1,14 @@
 use std::pin::Pin;
 use ligen_ir::{Identifier, Path};
+use ligen_common::Result;
 use crate::PathTree;
 
 pub struct Parser<'a> {
     pub path_tree: Pin<Box<PathTree<'a>>>
+}
+
+pub trait ParseFrom<T> {
+    fn parse(context: &Context<'_>, from: T) -> Result<Self> where Self: Sized;
 }
 
 impl<'a> Parser<'a> {

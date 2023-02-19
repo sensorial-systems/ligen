@@ -3,6 +3,7 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
+use ligen_parsing::{Context, ParseFrom};
 use ligen_rust::parsing::project::RustProject;
 use ligen_traits::build::BuildSystem;
 use ligen_utils::transformers::alias::ReplaceCrateAlias;
@@ -44,11 +45,10 @@ impl TryFrom<&std::path::Path> for CargoProject {
     }
 }
 
-impl TryFrom<CargoProject> for Project {
-    type Error = Error;
-    fn try_from(from: CargoProject) -> Result<Self> {
+impl ParseFrom<CargoProject> for Project {
+    fn parse(context: &Context<'_>, from: CargoProject) -> Result<Self> where Self: Sized {
         let project = RustProject::try_from(from.path)?;
-        let project = Project::try_from(project)?;
+        let project = Project::parse(context,project)?;
         // FIXME: Move this to a more generic place.
         let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
         Ok(project)

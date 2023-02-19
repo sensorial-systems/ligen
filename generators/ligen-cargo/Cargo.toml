@@ -6,8 +6,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ligen-ir     = { path = "../../ligen/ir" }
-ligen-traits = { path = "../../ligen/traits" }
-ligen-utils  = { path = "../../ligen/utils" }
-ligen-rust   = { path = "../ligen-rust" }
-cargo_toml   = "0.10.2"
+ligen-ir      = { path = "../../ligen/ir" }
+ligen-traits  = { path = "../../ligen/traits" }
+ligen-utils   = { path = "../../ligen/utils" }
+ligen-parsing = { path = "../../ligen/parsing" }
+ligen-rust    = { path = "../ligen-rust" }
+cargo_toml    = "0.10.2"

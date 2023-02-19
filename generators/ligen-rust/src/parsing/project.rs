@@ -4,16 +4,15 @@ use crate::prelude::*;
 use syn::spanned::Spanned;
 use ligen_ir::{Identifier, Module, Path, Project};
 use ligen_ir::conventions::naming::SnakeCase;
-use ligen_parsing::{GetPathTree, PathTree};
+use ligen_parsing::{GetPathTree, PathTree, Context, ParseFrom};
 
 pub struct RustProject {
     pub root_folder: PathBuf,
     pub root_module: syn::ItemMod
 }
 
-impl TryFrom<RustProject> for Project {
-    type Error = Error;
-    fn try_from(rust_project: RustProject) -> Result<Self> {
+impl ParseFrom<RustProject> for Project {
+    fn parse(_context: &Context<'_>, rust_project: RustProject) -> Result<Self> {
         let path_tree = rust_project.get_path_tree();
         let name = rust_project.get_name()?;
         let name = SnakeCase::try_from(name.as_str())?.into();
@@ -182,6 +181,7 @@ impl TryFrom<TokenStream> for RustProject {
 #[cfg(test)]
 mod tests {
     use ligen_ir::{Constant, Function, Import, Integer, Method, Module, Mutability, Object, Project, Structure, Type, Visibility};
+    use ligen_parsing::{Context, GetPathTree, ParseFrom};
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
@@ -250,7 +250,9 @@ mod tests {
         };
         let mut absolute_paths = Module::try_from(ProcMacro2TokenStream(absolute_paths))?;
         let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
-        let project = Project::try_from(rust_project)?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let project = Project::parse(&context, rust_project)?;
         // FIXME: Remove this.
         absolute_paths.guarantee_absolute_paths();
         assert_eq!(project.root_module, absolute_paths);
@@ -274,7 +276,9 @@ mod tests {
             }
         };
         let rust_project = RustProject::try_from(module)?;
-        let project = Project::try_from(rust_project)?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let project = Project::parse(&context, rust_project)?;
         let expected_module = Module {
             path: "root".into(),
             objects: vec![ Structure { path: "root::Root".into(), ..Default::default() }.into() ],
@@ -325,7 +329,10 @@ mod tests {
         };
 
         let rust_project = RustProject::try_from(ProcMacro2TokenStream(module))?;
-        let mut project = Project::try_from(rust_project)?;
+        // FIXME: Ideally do it all in a single line. Parse::parse(ParseFrom<T>) -> U
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let mut project = Project::parse(&context, rust_project)?;
         // FIXME: Remove this.
         project.root_module.guarantee_absolute_paths();
         project.root_module.replace_wildcard_imports();
@@ -371,7 +378,9 @@ mod tests {
             }
         };
         let rust_project = RustProject::try_from(module.clone())?;
-        let project = Project::try_from(rust_project)?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let project = Project::parse(&context, rust_project)?;
         // extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
         Ok(project)
     }
