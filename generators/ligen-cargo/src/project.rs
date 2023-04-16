@@ -46,9 +46,9 @@ impl TryFrom<&std::path::Path> for CargoProject {
 }
 
 impl ParseFrom<CargoProject> for Project {
-    fn parse(context: &Context<'_>, from: CargoProject) -> Result<Self> where Self: Sized {
+    fn parse_from(context: &Context<'_>, from: CargoProject) -> Result<Self> where Self: Sized {
         let project = RustProject::try_from(from.path)?;
-        let project = Project::parse(context,project)?;
+        let project = Project::parse_from(context, project)?;
         // FIXME: Move this to a more generic place.
         let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
         Ok(project)

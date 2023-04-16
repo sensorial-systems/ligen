@@ -4,7 +4,7 @@ use crate::prelude::*;
 use syn::spanned::Spanned;
 use ligen_ir::{Identifier, Module, Path, Project};
 use ligen_ir::conventions::naming::SnakeCase;
-use ligen_parsing::{GetPathTree, PathTree, Context, ParseFrom};
+use ligen_parsing::{GetPathTree, Context, ParseFrom};
 
 pub struct RustProject {
     pub root_folder: PathBuf,
@@ -12,31 +12,28 @@ pub struct RustProject {
 }
 
 impl ParseFrom<RustProject> for Project {
-    fn parse(_context: &Context<'_>, rust_project: RustProject) -> Result<Self> {
-        let path_tree = rust_project.get_path_tree();
+    fn parse_from(context: &Context<'_>, rust_project: RustProject) -> Result<Self> {
         let name = rust_project.get_name()?;
         let name = SnakeCase::try_from(name.as_str())?.into();
         let directory = rust_project.root_folder;
-        let mut root_module = SynItemMod(rust_project.root_module).try_into()?;
-        module_full_path(&mut root_module, &path_tree);
+        let mut root_module = Module::parse_from(context, SynItemMod(rust_project.root_module))?;
+        module_full_path(&mut root_module, context);
         object_full_path(&mut root_module);
-        import_full_path(&mut root_module, &path_tree);
+        import_full_path(&mut root_module, context);
         Ok(Self { name, directory, root_module })
     }
 }
 
-fn import_full_path(module: &mut Module, path_tree: &PathTree) {
+fn import_full_path(module: &mut Module, context: &Context) {
     for import in &mut module.imports {
-        if let Some(path) = path_tree.find_from_relative_path(import.path.clone()) { // for module import
+        if let Some(path) = context.path_tree.find_from_relative_path(import.path.clone()) { // for module import
             import.path = path.data.clone();
-        } else if let Some(path) = path_tree.find_from_relative_path(import.path.clone().without_last()) { // for object import (we don't have the objects in the path tree)
+        } else if let Some(path) = context.path_tree.find_from_relative_path(import.path.clone().without_last()) { // for object import (we don't have the objects in the path tree)
             import.path = path.data.clone().join(import.path.last());
         }
     }
     for module in &mut module.modules {
-        if let Some(path_tree) = path_tree.find(module.path.clone()) {
-            import_full_path(module, path_tree);
-        }
+        import_full_path(module, &context.switch_to(module.path.last()));
     }
 }
 
@@ -50,12 +47,10 @@ fn object_full_path(module: &mut Module) {
     }
 }
 
-fn module_full_path(module: &mut Module, path_tree: &PathTree) {
-    module.path = path_tree.data.clone();
+fn module_full_path(module: &mut Module, context: &Context) {
+    module.path = context.path.clone();
     for module in &mut module.modules {
-        if let Some(path_tree) = path_tree.find_from_relative_path(module.path.clone()) {
-            module_full_path(module, path_tree);
-        }
+        module_full_path(module, &context.switch_to(module.path.last()));
     }
 }
 
@@ -250,9 +245,7 @@ mod tests {
         };
         let mut absolute_paths = Module::try_from(ProcMacro2TokenStream(absolute_paths))?;
         let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
-        let path_tree = rust_project.get_path_tree();
-        let context = Context::from(&path_tree);
-        let project = Project::parse(&context, rust_project)?;
+        let project = Project::parse(rust_project)?;
         // FIXME: Remove this.
         absolute_paths.guarantee_absolute_paths();
         assert_eq!(project.root_module, absolute_paths);
@@ -278,7 +271,7 @@ mod tests {
         let rust_project = RustProject::try_from(module)?;
         let path_tree = rust_project.get_path_tree();
         let context = Context::from(&path_tree);
-        let project = Project::parse(&context, rust_project)?;
+        let project = Project::parse_from(&context, rust_project)?;
         let expected_module = Module {
             path: "root".into(),
             objects: vec![ Structure { path: "root::Root".into(), ..Default::default() }.into() ],
@@ -332,7 +325,7 @@ mod tests {
         // FIXME: Ideally do it all in a single line. Parse::parse(ParseFrom<T>) -> U
         let path_tree = rust_project.get_path_tree();
         let context = Context::from(&path_tree);
-        let mut project = Project::parse(&context, rust_project)?;
+        let mut project = Project::parse_from(&context, rust_project)?;
         // FIXME: Remove this.
         project.root_module.guarantee_absolute_paths();
         project.root_module.replace_wildcard_imports();
@@ -380,7 +373,7 @@ mod tests {
         let rust_project = RustProject::try_from(module.clone())?;
         let path_tree = rust_project.get_path_tree();
         let context = Context::from(&path_tree);
-        let project = Project::parse(&context, rust_project)?;
+        let project = Project::parse_from(&context, rust_project)?;
         // extract_object_implementations(&mut project, false, &cloned_module.try_into()?)?;
         Ok(project)
     }
