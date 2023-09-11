@@ -1,4 +1,5 @@
-#include <stdio.h>
+
+ #include <stdio.h>
 #include <ctest.h>
 
 #include <example/functions/primitives.h>

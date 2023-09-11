@@ -14,3 +14,4 @@ members = [
     "generators/ligen-csharp",
     "examples/example"
 ]
+resolver = "2"

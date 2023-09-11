@@ -156,10 +156,11 @@ mod tests {
 
     #[test]
     fn module_file() -> Result<()> {
-        let module = quote! { mod module; };
-        let result = Module::parse(ProcMacro2TokenStream(module));
-        assert!(result.is_err()); // Module file isn't loaded.
-        Ok(())
+        // let module = quote! { mod module; };
+        // let result = Module::parse(ProcMacro2TokenStream(module));
+        // assert!(result.is_err()); // Module file isn't loaded.
+        // Ok(())
+        panic!("Not implemented yet.");
     }
 
     #[test]
@@ -171,26 +172,27 @@ mod tests {
                 }
             }
         };
-        let mut module = Module::try_from(ProcMacro2TokenStream(module))?;
-        module.guarantee_absolute_paths();
-        let expected_module = Module {
-            path: "root".into(),
-            modules: vec![
-                Module {
-                    path: "root::branch".into(),
-                    modules: vec![
-                        Module {
-                            path: "root::branch::leaf".into(),
-                            ..Default::default()
-                        }
-                    ],
-                    ..Default::default()
-                }
-            ],
-            ..Default::default()
-        };
-        assert_eq!(module, expected_module);
-        Ok(())
+        // let mut module = Module::try_from(ProcMacro2TokenStream(module))?;
+        // module.guarantee_absolute_paths();
+        // let expected_module = Module {
+        //     path: "root".into(),
+        //     modules: vec![
+        //         Module {
+        //             path: "root::branch".into(),
+        //             modules: vec![
+        //                 Module {
+        //                     path: "root::branch::leaf".into(),
+        //                     ..Default::default()
+        //                 }
+        //             ],
+        //             ..Default::default()
+        //         }
+        //     ],
+        //     ..Default::default()
+        // };
+        // assert_eq!(module, expected_module);
+        // Ok(())
+        panic!("Not implemented yet.");
     }
 
     #[test]
@@ -200,22 +202,23 @@ mod tests {
                 pub struct Type;
             }
         };
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let expected_module = Module {
-            path: "types".into(),
-            visibility: Visibility::Public,
-            objects: vec![
-                Object::from(Structure {
-                        attributes: Default::default(),
-                        visibility: Visibility::Public,
-                        fields: Default::default(),
-                        path: "Type".into()
-                })
-            ],
-            ..Default::default()
-        };
-        assert_eq!(module, expected_module);
-        Ok(())
+        // let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        // let expected_module = Module {
+        //     path: "types".into(),
+        //     visibility: Visibility::Public,
+        //     objects: vec![
+        //         Object::from(Structure {
+        //                 attributes: Default::default(),
+        //                 visibility: Visibility::Public,
+        //                 fields: Default::default(),
+        //                 path: "Type".into()
+        //         })
+        //     ],
+        //     ..Default::default()
+        // };
+        // assert_eq!(module, expected_module);
+        // Ok(())
+        panic!("Not implemented yet.");
     }
 
     #[test]
@@ -225,12 +228,13 @@ mod tests {
                 pub struct Type;
             }
         };
-        let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        let object = module.find_object(&"Type".into());
-        let definition = quote! { pub struct Type; };
-        let definition = Structure::try_from(ProcMacro2TokenStream(definition))?;
-        let expected_object = Some(Object::from(definition));
-        assert_eq!(object, expected_object.as_ref());
-        Ok(())
+        // let module = Module::try_from(ProcMacro2TokenStream(module))?;
+        // let object = module.find_object(&"Type".into());
+        // let definition = quote! { pub struct Type; };
+        // let definition = Structure::try_from(ProcMacro2TokenStream(definition))?;
+        // let expected_object = Some(Object::from(definition));
+        // assert_eq!(object, expected_object.as_ref());
+        // Ok(())
+        panic!("Not implemented yet.");
     }
 }

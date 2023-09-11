@@ -243,13 +243,14 @@ mod tests {
                 fn new_leaf(branch1: &root::branch::Branch, leaf: &root::branch::leaf::Leaf, renamed: root::branch::leaf::Leaf, size: usize) -> root::branch::leaf::Leaf {}
             }
         };
-        let mut absolute_paths = Module::try_from(ProcMacro2TokenStream(absolute_paths))?;
-        let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
-        let project = Project::parse(rust_project)?;
-        // FIXME: Remove this.
-        absolute_paths.guarantee_absolute_paths();
-        assert_eq!(project.root_module, absolute_paths);
-        Ok(())
+        // let mut absolute_paths = Module::parse_from(&context, ProcMacro2TokenStream(absolute_paths))?;
+        // let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
+        // let project = Project::parse(rust_project)?;
+        // // FIXME: Remove this.
+        // absolute_paths.guarantee_absolute_paths();
+        // assert_eq!(project.root_module, absolute_paths);
+        // Ok(())
+        panic!("Not implemented");
     }
 
     #[test]
@@ -330,7 +331,7 @@ mod tests {
         project.root_module.guarantee_absolute_paths();
         project.root_module.replace_wildcard_imports();
 
-        let mut expected_module = Module::try_from(ProcMacro2TokenStream(expected_module))?;
+        let mut expected_module = Module::parse_from(&context, ProcMacro2TokenStream(expected_module))?;
         expected_module.guarantee_absolute_paths();
         assert_eq!(project.root_module, expected_module);
         Ok(())

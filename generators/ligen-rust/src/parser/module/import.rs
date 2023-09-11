@@ -3,7 +3,7 @@
 use crate::prelude::*;
 use crate::{Path, Attributes, Visibility, Imports, Import};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone)]
 struct ImportsBuilder {
     pub attributes: Attributes,
     pub visibility: Visibility,
