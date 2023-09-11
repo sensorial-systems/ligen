@@ -1,15 +1,27 @@
 use std::pin::Pin;
 use ligen_ir::{Identifier, Path};
 use ligen_common::Result;
-use crate::PathTree;
+use crate::{GetPathTree, PathTree};
 
 pub struct Parser<'a> {
     pub path_tree: Pin<Box<PathTree<'a>>>
 }
 
 pub trait ParseFrom<T> {
-    fn parse(context: &Context<'_>, from: T) -> Result<Self> where Self: Sized;
+    fn parse_from(context: &Context<'_>, from: T) -> Result<Self> where Self: Sized;
 }
+
+pub trait Parse<'a, T: GetPathTree<'a>> {
+    fn parse(data: T) -> Result<Self> where Self: Sized;
+}
+
+// impl<'a, T: GetPathTree<'a>, U: ParseFrom<'a, T>> Parse<'a, T> for U {
+//     fn parse(data: T) -> Result<Self> where Self: Sized {
+//         let path_tree = data.get_path_tree();
+//         let context = Context::from(&path_tree);
+//         Self::parse_from(&context, data)
+//     }
+// }
 
 impl<'a> Parser<'a> {
     pub fn root_context(&'a self) -> Context<'a> {

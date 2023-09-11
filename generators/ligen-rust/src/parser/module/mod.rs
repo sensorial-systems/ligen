@@ -3,6 +3,7 @@
 mod import;
 
 use ligen_ir::{Enumeration, Object, Path, Project, Structure};
+use ligen_parsing::{Context, ParseFrom};
 use crate::prelude::*;
 use crate::{Identifier, Function, Module};
 
@@ -16,12 +17,12 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     functions
 }
 
-fn extract_modules(ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
+fn extract_modules(context: &Context<'_>, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
     let mut modules = Vec::new();
     if !ignored {
         let items = items.into_iter().filter_map(|item| if let syn::Item::Mod(module) = item { Some(module) } else { None });
         for item in items {
-            let module = Module::try_from(SynItemMod(item))?;
+            let module = Module::parse_from(context, SynItemMod(item))?;
             if !module.ignored() {
                 modules.push(module)
             }
@@ -121,17 +122,15 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
     Ok(())
 }
 
-impl TryFrom<ProcMacro2TokenStream> for Module {
-    type Error = Error;
-    fn try_from(ProcMacro2TokenStream(token_stream): ProcMacro2TokenStream) -> Result<Self> {
+impl ParseFrom<ProcMacro2TokenStream> for Module {
+    fn parse_from(context: &Context<'_>, ProcMacro2TokenStream(token_stream): ProcMacro2TokenStream) -> Result<Self> {
         let module = syn::parse2::<syn::ItemMod>(token_stream).map_err(|_e| "Failed to parse syn::ItemMod")?;
-        SynItemMod(module).try_into()
+        Module::parse_from(context, SynItemMod(module))
     }
 }
 
-impl TryFrom<SynItemMod> for Module {
-    type Error = Error;
-    fn try_from(SynItemMod(module): SynItemMod) -> Result<Self> {
+impl ParseFrom<SynItemMod> for Module {
+    fn parse_from(context: &Context<'_>, SynItemMod(module): SynItemMod) -> Result<Self> {
         let items = module
             .content
             .map(|(_, items)| items)
@@ -142,7 +141,7 @@ impl TryFrom<SynItemMod> for Module {
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
         let functions = extract_functions(items.as_slice());
         let objects = extract_object_definitions(false, items.as_slice())?;
-        let modules = extract_modules(false, items)?;
+        let modules = extract_modules(context, false, items)?;
         Ok(Self { attributes, visibility, path, imports, functions, objects, modules })
     }
 }
@@ -158,7 +157,7 @@ mod tests {
     #[test]
     fn module_file() -> Result<()> {
         let module = quote! { mod module; };
-        let result = Module::try_from(ProcMacro2TokenStream(module));
+        let result = Module::parse(ProcMacro2TokenStream(module));
         assert!(result.is_err()); // Module file isn't loaded.
         Ok(())
     }
