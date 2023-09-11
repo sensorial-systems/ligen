@@ -13,3 +13,9 @@ pub enum Attribute {
     /// Group Variant
     Group(Identifier, Attributes),
 }
+
+impl Default for Attribute {
+    fn default() -> Self {
+        Self::Literal(Literal::default())
+    }
+}

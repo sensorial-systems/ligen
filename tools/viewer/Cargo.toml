@@ -6,6 +6,7 @@ edition = "2021"
 rust-version = "1.71"
 
 [dependencies]
+ligen-ir = { path = "../../ligen/ir" }
 egui = "0.22.0"
 eframe = { version = "0.22.0", default-features = false, features = [
     "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.

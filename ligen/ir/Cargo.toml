@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 ligen-common = { path = "../common" }
 serde        = { version = "1.0.131", features = [ "derive" ] }
+strum        = { version = "0.25.0", features = ["derive"] }

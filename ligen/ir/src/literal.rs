@@ -17,6 +17,12 @@ pub enum Literal {
     Float(f64),
 }
 
+impl Default for Literal {
+    fn default() -> Self {
+        Self::String(String::default())
+    }
+}
+
 impl From<&str> for Literal {
     fn from(value: &str) -> Self {
         value.to_string().into()

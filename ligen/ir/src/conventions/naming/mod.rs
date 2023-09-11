@@ -35,7 +35,24 @@ pub enum NamingConvention {
 impl TryFrom<&str> for NamingConvention {
     type Error = Error;
     fn try_from(naming: &str) -> Result<Self> {
-        Ok(Self::KebabCase(naming.try_into()?))
+        if let Ok(kebab_case) = KebabCase::try_from(naming) {
+            Ok(Self::KebabCase(kebab_case))
+        } else if let Ok(camel_case) = CamelCase::try_from(naming) {
+            Ok(Self::CamelCase(camel_case))
+        } else if let Ok(pascal_case) = PascalCase::try_from(naming) {
+            Ok(Self::PascalCase(pascal_case))
+        } else if let Ok(snake_case) = SnakeCase::try_from(naming) {
+            Ok(Self::SnakeCase(snake_case))
+        } else {
+            Err(Error::from(format!("Unknown naming convention: {}", naming)))
+        }
+    }
+}
+
+impl TryFrom<String> for NamingConvention {
+    type Error = Error;
+    fn try_from(naming: String) -> Result<Self> {
+        Ok(naming.as_str().try_into()?)
     }
 }
 

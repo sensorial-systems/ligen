@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, EnumIter)]
 /// Visibility enumeration.
 pub enum Visibility {
     /// Private
@@ -13,6 +13,6 @@ pub enum Visibility {
 
 impl Default for Visibility {
     fn default() -> Self {
-        Self::Private
+        Self::Public
     }
 }

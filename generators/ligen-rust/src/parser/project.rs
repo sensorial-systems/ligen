@@ -107,7 +107,7 @@ impl RustProject {
             let content = if let Ok(content) = std::fs::read_to_string(module_path.with_extension("rs")) {
                 content
             } else {
-                std::fs::read_to_string(module_path.join("mod.rs"))?
+                std::fs::read_to_string(module_path.join("string_editable_field"))?
             };
             let file = syn::parse_file(&content)
                 .map_err(|_e| "Failed to parse file.")?;
