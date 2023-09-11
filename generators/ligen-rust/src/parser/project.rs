@@ -185,7 +185,7 @@ mod tests {
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
-    use crate::parsing::project::RustProject;
+    use crate::parser::project::RustProject;
 
     #[test]
     fn relative_path_to_absolute_path_imports() -> Result<()> {

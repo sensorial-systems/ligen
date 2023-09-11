@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
 use ligen_parsing::{Context, ParseFrom};
-use ligen_rust::parsing::project::RustProject;
+use ligen_rust::parser::project::RustProject;
 use ligen_traits::build::BuildSystem;
 use ligen_utils::transformers::alias::ReplaceCrateAlias;
 use ligen_utils::transformers::path::RelativePathToAbsolutePath;
