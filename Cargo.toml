@@ -12,6 +12,7 @@ members = [
     "generators/ligen-cmake",
     "generators/ligen-c",
     "generators/ligen-csharp",
-    "examples/example"
+    "examples/example",
+    "tools/viewer"
 ]
 resolver = "2"
