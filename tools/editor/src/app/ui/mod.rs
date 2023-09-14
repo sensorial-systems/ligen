@@ -14,7 +14,9 @@ mod visibility;
 mod identifier;
 mod type_;
 mod function;
+mod object;
 
+pub use object::*;
 pub use optional_field::*;
 pub use function::*;
 pub use type_::*;

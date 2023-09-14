@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::{Synchrony, Attributes, Mutability, Parameter, Path, Type, Visibility};
 
 /// Method structure.
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Method {
     /// Attributes field.
     pub attributes: Attributes,

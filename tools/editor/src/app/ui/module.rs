@@ -1,5 +1,5 @@
 use egui::CollapsingHeader;
-use crate::app::ui::{EditableList, Attributes, Import, Path, Visibility, Constant, Function};
+use crate::app::ui::{EditableList, Attributes, Import, Path, Visibility, Constant, Function, Object};
 
 pub struct Module {}
 
@@ -28,6 +28,9 @@ impl Module {
                 });
                 EditableList::new("Modules", "Add module").show(ui, &mut module.modules, |ui, module| {
                     Module::new().show(ui, module);
+                });
+                EditableList::new("Objects", "Add object").show(ui, &mut module.objects, |ui, object| {
+                    Object::new().show(ui, object);
                 });
                 Attributes::new().show(ui, &mut module.attributes);
             });

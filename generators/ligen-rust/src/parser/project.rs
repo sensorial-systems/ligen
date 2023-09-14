@@ -436,7 +436,7 @@ mod tests {
                     attributes: Default::default(),
                     inputs: Default::default(),
                     output: Default::default(),
-                    asyncness: Default::default(),
+                    synchrony: Default::default(),
                     visibility: Visibility::Private,
                     path: "method".into(),
                     mutability: Mutability::Constant,

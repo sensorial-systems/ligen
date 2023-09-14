@@ -1,6 +1,8 @@
 mod synchrony;
 mod parameter;
+mod method;
 
+pub use method::*;
 pub use synchrony::*;
 pub use parameter::*;
 
