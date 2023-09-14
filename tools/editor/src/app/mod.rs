@@ -1,3 +1,4 @@
+use egui::{Style, Visuals};
 use ligen_ir::Project;
 pub mod ui;
 
@@ -26,22 +27,21 @@ impl TemplateApp {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
 
+        cc.egui_ctx.set_style(Style {
+            visuals: Visuals::dark(),
+            ..Default::default()
+        });
+
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
-        }
-
-        Default::default()
+        cc
+            .storage
+            .and_then(|storage| eframe::get_value(storage, eframe::APP_KEY))
+            .unwrap_or_default()
     }
 }
 
 impl eframe::App for TemplateApp {
-    /// Called by the frame work to save state before shutdown.
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
-    }
-
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -50,6 +50,44 @@ impl eframe::App for TemplateApp {
             // The top panel is often a good place for a menu bar:
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
+                    if ui.button("Save").clicked() {
+                        if let Some(project) = self.project.as_ref() {
+                            let directory = project
+                                    .directory
+                                    .display()
+                                    .to_string();
+                            let file = rfd::FileDialog::new()
+                                .add_filter("ligen-ir", &["lir"])
+                                .set_directory(directory)
+                                .save_file();
+                            if let Some(file) = file {
+                                if let Ok(json) = serde_json::to_string_pretty(&project) {
+                                    std::fs::write(file, json).ok();
+                                }
+                            }
+                        }
+                        ui.close_menu();
+                    }
+                    if ui.button("Load").clicked() {
+                        if let Some(project) = self.project.as_ref() {
+                            let directory = project
+                                .directory
+                                .display()
+                                .to_string();
+                            let file = rfd::FileDialog::new()
+                                .add_filter("ligen-ir", &["lir"])
+                                .set_directory(directory)
+                                .pick_file();
+                            if let Some(file) = file {
+                                if let Ok(json) = std::fs::read_to_string(file) {
+                                    if let Ok(project) = serde_json::from_str(&json) {
+                                        self.project = Some(project);
+                                    }
+                                }
+                            }
+                            ui.close_menu();
+                        }
+                    }
                     if ui.button("Quit").clicked() {
                         _frame.close();
                     }
@@ -62,5 +100,10 @@ impl eframe::App for TemplateApp {
             } else {
             }
         });
+    }
+
+    /// Called by the frame work to save state before shutdown.
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, self);
     }
 }
