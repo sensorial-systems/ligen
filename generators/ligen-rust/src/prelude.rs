@@ -50,6 +50,7 @@ new_type!(syn::ItemConst, SynItemConst);
 new_type!(syn::AttributeArgs, SynAttributeArgs);
 new_type!(syn::PathArguments, SynPathArguments);
 new_type!(syn::Visibility, SynVisibility);
+new_type!(Option<syn::token::Async>, SynAsyncness);
 new_type!(syn::Lit, SynLit);
 
 pub trait ToTokens {

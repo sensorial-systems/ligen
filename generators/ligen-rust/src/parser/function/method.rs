@@ -45,10 +45,19 @@ impl From<SynImplItemMethod> for Method {
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),
-            synchrony: Synchrony::from(asyncness),
+            synchrony: Synchrony::from(SynAsyncness::from(asyncness)),
             path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
             output,
+        }
+    }
+}
+
+impl From<SynAsyncness> for Synchrony {
+    fn from(value: SynAsyncness) -> Self {
+        match value {
+            SynAsyncness(Some(_)) => Synchrony::Asynchronous,
+            SynAsyncness(None) => Synchrony::Synchronous,
         }
     }
 }
@@ -84,8 +93,8 @@ impl From<SynImplItemMethod> for Function {
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),
             synchrony: match asyncness {
-                Some(_x) => Some(Async),
-                None => None,
+                Some(_x) => Synchrony::Asynchronous,
+                None => Synchrony::Synchronous,
             },
             path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
