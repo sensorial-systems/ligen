@@ -1,5 +1,6 @@
 //! Ligen intermediate representation.
 
+pub use source::*;
 pub use module::*;
 pub use constant::*;
 pub use function::*;
@@ -28,5 +29,6 @@ mod types;
 mod path;
 mod object;
 mod mutability;
+mod source;
 pub mod project;
 pub mod conventions;

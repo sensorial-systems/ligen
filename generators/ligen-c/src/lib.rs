@@ -26,10 +26,10 @@ fn type_mapping(type_: &Type, root: bool) -> String {
                 Mutability::Constant => format!("const {}*", type_),
             }
         },
-        Type::Compound(compound, _generics) => {
+        Type::Composite(composite, _generics) => {
             // FIXME: Hardcoded.
             let opaque = true && root;
-            let mut mapped = compound.to_string("_");
+            let mut mapped = composite.to_string("_");
             if opaque {
                 mapped.push('*');
                 mapped

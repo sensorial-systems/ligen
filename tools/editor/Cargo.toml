@@ -1,0 +1,28 @@
+[package]
+name = "ligen-editor"
+version = "0.1.0"
+authors = ["Danilo Guanabara <danilo@sensorial.systems>"]
+edition = "2021"
+rust-version = "1.71"
+
+[dependencies]
+ligen-ir = { path = "../../ligen/ir" }
+egui = "0.22.0"
+eframe = { version = "0.22.0", default-features = false, features = [
+    "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
+    "default_fonts", # Embed the default egui fonts.
+    "glow",          # Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring app state when restarting the app.
+] }
+log = "0.4"
+
+# You only need serde if you want app persistence:
+serde = { version = "1", features = ["derive"] }
+
+# native:
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+env_logger = "0.10"
+
+# web:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"

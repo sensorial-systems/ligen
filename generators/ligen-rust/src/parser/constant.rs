@@ -47,7 +47,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
-                        type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("str").into(), Default::default()))
                     }
                 ),
                 literal: Literal::String(String::from("test"))
@@ -64,7 +64,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
-                        type_: Box::new(Type::Compound(Identifier::new("str").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("str").into(), Default::default()))
                     }
                 ),
                 literal: Literal::String(String::from("test"))

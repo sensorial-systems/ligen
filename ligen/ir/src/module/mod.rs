@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Object, Path, Visibility, Attributes, Function, Literal};
+use crate::{Object, Path, Visibility, Attributes, Function, Literal, Constant};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -17,12 +17,14 @@ pub struct Module {
     pub path: Path,
     /// Imports.
     pub imports: Vec<Import>,
-    /// Sub-modules.
-    pub modules: Vec<Module>,
+    /// Constants.
+    pub constants: Vec<Constant>,
     /// Functions.
     pub functions: Vec<Function>,
     /// Objects.
-    pub objects: Vec<Object>
+    pub objects: Vec<Object>,
+    /// Sub-modules.
+    pub modules: Vec<Module>,
 }
 
 impl Module {

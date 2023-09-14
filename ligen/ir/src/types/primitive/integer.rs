@@ -30,6 +30,16 @@ pub enum Integer {
     ISize,
 }
 
+impl Integer {
+    /// Check if the `Integer` is unsigned.
+    pub fn is_unsigned(&self) -> bool {
+        match self {
+            Self::U8 | Self::U16 | Self::U32 | Self::U64 | Self::U128 | Self::USize => true,
+            _ => false
+        }
+    }
+}
+
 impl From<Integer> for Identifier {
     fn from(from: Integer) -> Self {
         format!("{:#?}", from).into()

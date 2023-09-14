@@ -1,7 +1,7 @@
 use ligen_ir::Identifier;
 use crate::prelude::*;
 
-use crate::{Async, Attributes, Function, Parameter, Type, Visibility};
+use crate::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
 
 pub mod parameter;
 pub mod method;
@@ -35,9 +35,9 @@ impl From<SynItemFn> for Function {
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(item_fn.vis)),
-            asyncness: match asyncness {
-                Some(_x) => Some(Async),
-                None => None,
+            synchrony: match asyncness {
+                Some(_x) => Synchrony::Asynchronous,
+                None => Synchrony::Synchronous,
             },
             path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
@@ -63,7 +63,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -78,7 +78,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -93,18 +93,18 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
+                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
-                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
+                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
                     },
                 ],
                 output: None
@@ -119,10 +119,10 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
-                output: Some(Type::Compound(Identifier::new("String").into(), Default::default()))
+                output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
             }
         );
     }
@@ -136,20 +136,20 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
+                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             mutability: Mutability::Constant,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                         })
                     },
                     Parameter {
@@ -157,13 +157,13 @@ mod test {
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             mutability: Mutability::Mutable,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     mutability: Mutability::Constant,
-                    type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                 }))
             }
         );
@@ -189,7 +189,7 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -204,7 +204,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                asyncness: Some(Async),
+                synchrony: Some(Async),
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -232,20 +232,20 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                asyncness: Some(Async),
+                synchrony: Some(Async),
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("a"),
-                        type_: Type::Compound(Identifier::new("String").into(), Default::default())
+                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
                     },
                     Parameter {
                         attributes: Default::default(),
                         identifier: Identifier::new("b"),
                         type_: Type::Reference(Reference {
                             mutability: Mutability::Constant,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                         })
                     },
                     Parameter {
@@ -253,13 +253,13 @@ mod test {
                         identifier: Identifier::new("c"),
                         type_: Type::Reference(Reference {
                             mutability: Mutability::Mutable,
-                            type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                         })
                     },
                 ],
                 output: Some(Type::Reference(Reference {
                     mutability: Mutability::Constant,
-                    type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                 }))
             }
         );
@@ -272,7 +272,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Public,
-                asyncness: None,
+                synchrony: None,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None

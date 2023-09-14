@@ -4,13 +4,11 @@ use crate::{Attributes, Path, Type, Visibility};
 
 pub mod parameter;
 pub mod method;
+pub mod synchrony;
 
 pub use parameter::*;
 pub use method::*;
-
-/// Async structure.
-#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-pub struct Async;
+pub use synchrony::*;
 
 /// Function structure.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
@@ -19,8 +17,8 @@ pub struct Function {
     pub attributes: Attributes,
     /// Visibility field.
     pub visibility: Visibility,
-    /// Asyncness field.
-    pub asyncness: Option<Async>,
+    /// Synchrony field.
+    pub synchrony: Synchrony,
     /// Function's absolute path.
     pub path: Path,
     /// Inputs field.

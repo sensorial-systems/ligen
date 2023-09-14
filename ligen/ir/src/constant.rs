@@ -1,7 +1,7 @@
 use crate::{Literal, Path, Type};
 use crate::prelude::*;
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 /// Constant Struct
 pub struct Constant {
     /// Constant's path.

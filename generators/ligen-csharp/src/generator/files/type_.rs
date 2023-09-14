@@ -2,7 +2,7 @@ use ligen::ir::Module;
 use crate::ast::Type;
 
 pub fn generate_type(module: &Module, kind: &str, type_: &ligen::ir::Type) -> String {
-    let generics = if let ligen::ir::Type::Compound(_, generics) = &type_ {
+    let generics = if let ligen::ir::Type::Composite(_, generics) = &type_ {
         if generics.types.is_empty() {
             Default::default()
         } else {

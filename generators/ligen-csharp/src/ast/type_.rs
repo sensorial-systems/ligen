@@ -61,8 +61,8 @@ impl AsRef<str> for Primitive {
 pub enum Types {
     /// Primitive variant
     Primitive(Primitive),
-    /// Compound variant
-    Compound(Identifier),
+    /// Composite variant
+    Composite(Identifier),
 }
 
 /// Constant.
@@ -125,8 +125,8 @@ impl From<ir::Type> for Types {
     fn from(type_: ir::Type) -> Self {
         match type_ {
             ir::Type::Primitive(primitive) => Self::Primitive(Primitive::from(primitive)),
-            ir::Type::Compound(compound, _) => {
-                Self::Compound(compound.segments.last().unwrap().clone())
+            ir::Type::Composite(composite, _) => {
+                Self::Composite(composite.segments.last().unwrap().clone())
             }
             ir::Type::Reference(_reference) => {
                 unimplemented!("Conversion from reference to Types isn't implemented yet.")
@@ -159,9 +159,9 @@ impl From<ir::Type> for Type {
                 type_: Types::Primitive(type_.into()),
                 pointer: None,
             },
-            ir::Type::Compound(path, _) => Self {
+            ir::Type::Composite(path, _) => Self {
                 constness: None,
-                type_: Types::Compound(path.segments.last().unwrap().clone()),
+                type_: Types::Composite(path.segments.last().unwrap().clone()),
                 pointer: None,
             },
             ir::Type::Reference(reference) => Self::from(reference),
@@ -179,7 +179,7 @@ impl fmt::Display for Type {
         } else {
             match &self.type_ {
                 Types::Primitive(primitive) => write!(f, "{}", primitive.as_ref()),
-                Types::Compound(identifier) => write!(f, "{}", identifier.name)
+                Types::Composite(identifier) => write!(f, "{}", identifier.name)
             }
         }
     }
@@ -192,7 +192,7 @@ mod test {
 
     #[test]
     fn ast_type_primitive() {
-        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, mutability: Mutability::Constant, type_: ligen::ir::Type::Compound("i8".into(), Default::default()).into() });
+        let out_type = ligen::ir::Type::Reference(Reference { kind: ReferenceKind::Pointer, mutability: Mutability::Constant, type_: ligen::ir::Type::Composite("i8".into(), Default::default()).into() });
         let in_type = Type::from(out_type);
         println!("{:#?}", in_type);
     }

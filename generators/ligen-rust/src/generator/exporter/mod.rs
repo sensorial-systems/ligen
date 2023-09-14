@@ -13,7 +13,7 @@ fn marshal_output(inputs: &Inputs) -> String {
     let type_ = inputs
         .get(0)
         .and_then(|input| serde_json::from_value::<Type>(input).ok());
-    if let Some(Type::Compound(_, _)) = type_ {
+    if let Some(Type::Composite(_, _)) = type_ {
         "Box::into_raw(Box::new(result))"
     } else {
         "result"
@@ -30,10 +30,10 @@ fn type_mapping(type_: &Type, root: bool) -> String {
                 Mutability::Constant => format!("&{}", type_),
             }
         },
-        Type::Compound(compound, _generics) => {
+        Type::Composite(composite, _generics) => {
             // FIXME: Hardcoded.
             let opaque = true && root;
-            let mapped = compound.to_string("::");
+            let mapped = composite.to_string("::");
             if opaque {
                 format!("*mut {}", mapped)
             } else {

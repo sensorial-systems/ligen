@@ -1,20 +1,53 @@
 use crate::prelude::*;
+use crate::Type;
 
 /// Literal Enum
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Literal {
     /// String variant
     String(String),
-    /// Bool variant
-    Bool(bool),
-    /// Char variant
-    Char(char),
+    /// Boolean variant
+    Boolean(bool),
+    /// Character variant
+    Character(char),
     /// Integer variant
     Integer(i64),
     /// UnsignedInteger variant
     UnsignedInteger(u64),
     /// Float variant
     Float(f64),
+}
+
+impl Literal {
+    /// Check if `Literal` is compatible with `Type`.
+    pub fn is_compatible_with(&self, type_: &Type) -> bool {
+        match self {
+            Literal::String(_) => type_.is_string() | !type_.is_primitive(),
+            Literal::Boolean(_) => type_.is_boolean(),
+            Literal::Character(_) => type_.is_character(),
+            Literal::Integer(_) => type_.is_integer(),
+            Literal::UnsignedInteger(_) => type_.is_unsigned_integer(),
+            Literal::Float(_) => type_.is_float(),
+        }
+    }
+
+    pub fn default_for_type(type_: &Type) -> Self {
+        if type_.is_string() {
+            Self::String(Default::default())
+        } else if type_.is_boolean() {
+            Self::Boolean(false)
+        } else if type_.is_character() {
+            Self::Character('A')
+        } else if type_.is_integer() {
+            Self::Integer(0)
+        } else if type_.is_unsigned_integer() {
+            Self::UnsignedInteger(0)
+        } else if type_.is_float() {
+            Self::Float(0.0)
+        } else {
+            Self::String(Default::default())
+        }
+    }
 }
 
 impl Default for Literal {
@@ -37,7 +70,7 @@ impl From<String> for Literal {
 
 impl From<bool> for Literal {
     fn from(value: bool) -> Self {
-        Self::Bool(value)
+        Self::Boolean(value)
     }
 }
 
@@ -81,8 +114,8 @@ impl std::fmt::Display for Literal {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Literal::String(value) => write!(f, "{}", value),
-            Literal::Bool(value) => write!(f, "{}", value),
-            Literal::Char(value) => write!(f, "{}", value),
+            Literal::Boolean(value) => write!(f, "{}", value),
+            Literal::Character(value) => write!(f, "{}", value),
             Literal::Integer(value) => write!(f, "{}", value),
             Literal::UnsignedInteger(value) => write!(f, "{}", value),
             Literal::Float(value) => write!(f, "{}", value),

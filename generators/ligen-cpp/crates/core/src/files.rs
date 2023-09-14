@@ -56,8 +56,8 @@ impl FunctionProcessor {
             .as_ref()
             .map(|type_| {
                 let typ_ = Type::from(type_.clone());
-                if let Types::Compound(compound) = typ_.type_ {
-                    match compound.name.as_str() {
+                if let Types::Composite(composite) = typ_.type_ {
+                    match composite.name.as_str() {
                         "String" => "RString".to_string(),
                         _ => Type::from(type_.clone()).to_string(),
                     }
@@ -97,7 +97,7 @@ impl FileProcessorVisitor for ParameterProcessor {
         let file = file_set.entry(&path(&visitor.parent.parent));
 
         let mut type_ = Type::from(visitor.current.type_.clone());
-        if let (Some(_pointer), Types::Compound(_type)) = (&type_.pointer, &type_.type_) {
+        if let (Some(_pointer), Types::Composite(_type)) = (&type_.pointer, &type_.type_) {
             type_.pointer = None;
         }
         let ident = &visitor.current.identifier.name;

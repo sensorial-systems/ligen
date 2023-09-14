@@ -51,7 +51,7 @@ impl ToTokens for Primitive {
             Primitive::Integer(integer) => integer.to_tokens(tokens),
             Primitive::Float(float) => float.to_tokens(tokens),
             Primitive::Boolean => tokens.append_all(quote! {bool}),
-            Primitive::Character => tokens.append_all(quote! {char}),
+            Primitive::Character => tokens.append_all(quote! {char})
         }
     }
 }

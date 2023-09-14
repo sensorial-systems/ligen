@@ -2,7 +2,7 @@ use syn::FnArg;
 use ligen_ir::{Function, Identifier, Mutability, Path};
 use crate::prelude::*;
 
-use crate::{Async, Attributes, Method, Parameter, Type, Visibility};
+use crate::{Synchrony, Attributes, Method, Parameter, Type, Visibility};
 
 impl From<SynImplItemMethod> for Method {
     fn from(SynImplItemMethod(method): SynImplItemMethod) -> Self {
@@ -33,7 +33,7 @@ impl From<SynImplItemMethod> for Method {
         };
         // FIXME: Hardcoded.
         let path = Path::default();
-        let owner = Type::Compound(path, Default::default());
+        let owner = Type::Composite(path, Default::default());
         Self {
             owner,
             mutability,
@@ -45,10 +45,7 @@ impl From<SynImplItemMethod> for Method {
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),
-            asyncness: match asyncness {
-                Some(_x) => Some(Async),
-                None => None,
-            },
+            synchrony: Synchrony::from(asyncness),
             path: Identifier::from(SynIdent::from(ident)).into(),
             inputs,
             output,
@@ -86,7 +83,7 @@ impl From<SynImplItemMethod> for Function {
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),
-            asyncness: match asyncness {
+            synchrony: match asyncness {
                 Some(_x) => Some(Async),
                 None => None,
             },

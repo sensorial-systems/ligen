@@ -1,9 +1,10 @@
 //! Function parameter.
 
+use std::fmt::{Display, Formatter};
 use crate::prelude::*;
 use crate::{Identifier, Type, Attributes, Mutability};
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
 /// Parameter representation.
 pub struct Parameter {
     /// Attributes.
@@ -21,5 +22,12 @@ impl Parameter {
             Type::Reference(reference) => reference.mutability,
             _ => Mutability::Constant
         }
+    }
+}
+
+impl Display for Parameter {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let attributes = if self.attributes.is_empty() { "".into() } else { format!(" {}", self.attributes) };
+        f.write_str(&format!("{}: {}{}", self.identifier, self.type_, attributes))
     }
 }

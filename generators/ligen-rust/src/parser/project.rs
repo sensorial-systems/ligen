@@ -426,7 +426,7 @@ mod tests {
                     attributes: Default::default(),
                     inputs: Default::default(),
                     output: Default::default(),
-                    asyncness: Default::default(),
+                    synchrony: Default::default(),
                     visibility: Visibility::Private,
                     path: "function".into()
                 }
@@ -440,7 +440,7 @@ mod tests {
                     visibility: Visibility::Private,
                     path: "method".into(),
                     mutability: Mutability::Constant,
-                    owner: Type::Compound(Default::default(), Default::default())
+                    owner: Type::Composite(Default::default(), Default::default())
                 }
             ]
         };

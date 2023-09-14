@@ -7,23 +7,83 @@ use std::ops::Deref;
 pub enum Type {
     /// Primitive variant
     Primitive(Primitive),
-    /// Compound variant
-    Compound(Path, Generics),
+    /// Composite variant
+    Composite(Path, Generics),
     /// Reference variant
     Reference(Reference),
 }
 
+impl Default for Type {
+    fn default() -> Self {
+        Self::Primitive(Primitive::Boolean)
+    }
+}
+
 impl Type {
+    /// Check if the `Type` is `Primitive`.
+    pub fn is_primitive(&self) -> bool {
+        match self {
+            Self::Primitive(_) => true,
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `Boolean`.
+    pub fn is_boolean(&self) -> bool {
+        match self {
+            Self::Primitive(primitive) => primitive.is_boolean(),
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `Character`.
+    pub fn is_character(&self) -> bool {
+        match self {
+            Self::Primitive(primitive) => primitive.is_character(),
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `Integer`.
+    pub fn is_integer(&self) -> bool {
+        match self {
+            Self::Primitive(primitive) => primitive.is_integer(),
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `UnsignedInteger`.
+    pub fn is_unsigned_integer(&self) -> bool {
+        match self {
+            Self::Primitive(primitive) => primitive.is_unsigned_integer(),
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `Float`.
+    pub fn is_float(&self) -> bool {
+        match self {
+            Self::Primitive(primitive) => primitive.is_float(),
+            _ => false
+        }
+    }
+
+    /// Check if the `Type` is `String`.
+    pub fn is_string(&self) -> bool {
+        // TODO: Implement it.
+        false
+    }
+
     /// Gets the path of the type without the reference.
     pub fn path(&self) -> Path {
         match self {
             Self::Reference(reference) => reference.type_.path(),
-            Self::Compound(path, _) => path.clone(),
+            Self::Composite(path, _) => path.clone(),
             Self::Primitive(primitive) => primitive.clone().into()
         }
     }
 
-    /// Transforms Type::Reference to Type::Compound
+    /// Transforms Type::Reference to Type::Composite
     pub fn drop_reference(&self) -> Self {
         match self {
             Self::Reference(reference) => reference.type_.deref().clone(),
@@ -34,13 +94,13 @@ impl Type {
 
 impl From<Identifier> for Type {
     fn from(identifier: Identifier) -> Self {
-        Self::Compound(identifier.into(), Default::default())
+        Self::Composite(identifier.into(), Default::default())
     }
 }
 
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        Self::Compound(path, Default::default())
+        Self::Composite(path, Default::default())
     }
 }
 
@@ -72,7 +132,7 @@ impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
             Type::Primitive(primitive)               => format!("{}", primitive),
-            Type::Compound(compound, generics) => format!("{}{}", compound, generics),
+            Type::Composite(composite, generics) => format!("{}{}", composite, generics),
             Type::Reference(reference)         => format!("{}", reference),
         };
         f.write_str(&display)

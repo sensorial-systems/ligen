@@ -3,7 +3,7 @@ use crate::prelude::*;
 use crate::conventions::naming::SnakeCase;
 
 /// Identifier structure
-#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize)]
 #[display(fmt = "{}", name)]
 pub struct Identifier {
     /// Name field of Identifier

@@ -75,13 +75,13 @@ mod test {
     }
 
     #[test]
-    fn parameter_compound() {
+    fn parameter_composite() {
         assert_eq!(
             Parameter::try_from(SynFnArg(parse::<syn::FnArg>(quote! {name: String}))).expect("Returned Error"),
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("name"),
-                type_: Type::Compound(Identifier::new("String").into(), Default::default())
+                type_: Type::Composite(Identifier::new("String").into(), Default::default())
             }
         );
     }
@@ -96,7 +96,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -115,7 +115,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -134,7 +134,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                     }
                 )
 
@@ -153,7 +153,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Compound(Identifier::new("String").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
                     }
                 )
             }
@@ -167,7 +167,7 @@ mod test {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("self").into(),
-                type_: Type::Compound(Identifier::new("Self").into(), Default::default())
+                type_: Type::Composite(Identifier::new("Self").into(), Default::default())
             }
         );
     }
@@ -182,7 +182,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
-                        type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("Self").into(), Default::default()))
                     }
                 )
             }
@@ -199,7 +199,7 @@ mod test {
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Compound(Identifier::new("Self").into(), Default::default()))
+                        type_: Box::new(Type::Composite(Identifier::new("Self").into(), Default::default()))
                     }
                 )
             }

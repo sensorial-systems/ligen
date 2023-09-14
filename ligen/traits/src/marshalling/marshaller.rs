@@ -136,27 +136,27 @@ mod tests {
     #[test]
     fn reference_to() {
         let marshaller = Marshaller::new();
-        let type_ = Type::Compound("Object".into(), Default::default());
+        let type_ = Type::Composite("Object".into(), Default::default());
         let type_ = Type::Reference(Reference { mutability: Mutability::Constant, type_: type_.into() });
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "*const Object");
 
-        let type_ = Type::Compound("Object".into(), Default::default());
+        let type_ = Type::Composite("Object".into(), Default::default());
         let type_ = Type::Reference(Reference { mutability: Mutability::Mutable, type_: type_.into() });
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "*mut Object");
     }
 
     #[test]
-    fn compound_to() {
+    fn composite_to() {
         let marshaller = Marshaller::new();
-        let type_ = Type::Compound("Object".into(), Default::default());
+        let type_ = Type::Composite("Object".into(), Default::default());
         assert_eq!(marshaller.marshal_input(&type_).to_string(), "Object");
     }
 
     #[test]
     fn mapped_to() {
         let mut marshaller = Marshaller::new();
-        marshaller.add_input_marshalling(Type::Compound("String".into(), Default::default()), Type::Reference(Reference { type_: Type::Compound("FFIString".into(), Default::default()).into(), mutability: Mutability::Constant }));
-        let type_ = Type::Compound("String".into(), Default::default());
+        marshaller.add_input_marshalling(Type::Composite("String".into(), Default::default()), Type::Reference(Reference { type_: Type::Composite("FFIString".into(), Default::default()).into(), mutability: Mutability::Constant }));
+        let type_ = Type::Composite("String".into(), Default::default());
         let marshalled_type = marshaller.marshal_input(&type_);
         assert_eq!(marshalled_type.to_string(), "*const FFIString");
     }
@@ -164,8 +164,8 @@ mod tests {
     #[test]
     fn mapped_from() {
         let mut marshaller = Marshaller::new();
-        marshaller.add_output_marshalling(Type::Compound("String".into(), Default::default()), Type::Compound("CharPointer".into(), Default::default()));
-        let type_ = Type::Compound("String".into(), Default::default());
+        marshaller.add_output_marshalling(Type::Composite("String".into(), Default::default()), Type::Composite("CharPointer".into(), Default::default()));
+        let type_ = Type::Composite("String".into(), Default::default());
         assert_eq!(marshaller.marshal_output(&type_).to_string(), "CharPointer");
     }
 }

@@ -11,7 +11,7 @@ impl From<SynLit> for Literal {
             syn::Lit::Char(litchar) => Self::UnsignedInteger(litchar.value() as u64),
             syn::Lit::Int(litint) => Self::Integer(litint.base10_parse().unwrap()),
             syn::Lit::Float(litfloat) => Self::Float(litfloat.base10_parse().unwrap()),
-            syn::Lit::Bool(litbool) => Self::Bool(litbool.value),
+            syn::Lit::Bool(litbool) => Self::Boolean(litbool.value),
         }
     }
 }
@@ -29,11 +29,11 @@ impl ToTokens for Literal {
                 let y = proc_macro2::Literal::string(&x);
                 tokens.append_all(quote! {#y})
             }
-            Literal::Bool(x) => {
+            Literal::Boolean(x) => {
                 let y = proc_macro2::Ident::new(&x.to_string(), proc_macro2::Span::call_site());
                 tokens.append_all(quote! {#y})
             }
-            Literal::Char(x) => {
+            Literal::Character(x) => {
                 let y = proc_macro2::Literal::character(x);
                 tokens.append_all(quote! {#y})
             }
@@ -104,7 +104,7 @@ mod test {
         let tokenstream = quote! { true };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = SynLit(lit).into();
-        if let Literal::Bool(value) = literal {
+        if let Literal::Boolean(value) = literal {
             assert_eq!(value, true);
         }
     }
@@ -114,7 +114,7 @@ mod test {
         let tokenstream = quote! { 'a' };
         let lit: syn::Lit = parse(tokenstream);
         let literal: Literal = SynLit(lit).into();
-        if let Literal::Char(value) = literal {
+        if let Literal::Character(value) = literal {
             assert_eq!(value, 'a');
         }
     }

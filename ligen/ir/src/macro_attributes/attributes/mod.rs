@@ -1,4 +1,6 @@
 mod attribute;
+
+use std::fmt::{Display, Formatter};
 pub use attribute::*;
 
 use crate::{Identifier, Path};
@@ -103,5 +105,11 @@ impl From<Attribute> for Attributes {
     fn from(attribute: Attribute) -> Self {
         let attributes = vec![attribute];
         Self { attributes }
+    }
+}
+
+impl Display for Attributes {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.attributes.iter().map(|attribute| attribute.to_string()).collect::<Vec<_>>().join(",").as_str())
     }
 }

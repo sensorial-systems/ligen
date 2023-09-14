@@ -2,7 +2,8 @@
 
 mod import;
 
-use ligen_ir::{Enumeration, Object, Path, Project, Structure};
+use syn::Item;
+use ligen_ir::{Constant, Enumeration, Object, Path, Project, Structure};
 use ligen_parsing::{Context, ParseFrom};
 use crate::prelude::*;
 use crate::{Identifier, Function, Module};
@@ -141,9 +142,20 @@ impl ParseFrom<SynItemMod> for Module {
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
         let functions = extract_functions(items.as_slice());
         let objects = extract_object_definitions(false, items.as_slice())?;
+        let constants = extract_constants(context, false, items.as_slice())?;
         let modules = extract_modules(context, false, items)?;
-        Ok(Self { attributes, visibility, path, imports, functions, objects, modules })
+        Ok(Self { attributes, visibility, path, imports, functions, objects, constants, modules })
     }
+}
+
+fn extract_constants(_context: &Context, _: bool, items: &[Item]) -> Result<Vec<Constant>> {
+    let mut constants = Vec::new();
+    for item in items {
+        if let syn::Item::Const(constant) = item {
+            constants.push(SynItemConst(constant.clone()).into());
+        }
+    }
+    Ok(constants)
 }
 
 #[cfg(test)]

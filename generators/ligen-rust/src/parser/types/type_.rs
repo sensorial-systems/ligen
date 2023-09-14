@@ -12,7 +12,7 @@ impl From<SynPath> for Type {
                 .last()
                 .map(|segment| Generics::from(SynPathArguments(segment.arguments.clone())))
                 .unwrap_or_default();
-            Self::Compound(SynPath(path).into(), generics)
+            Self::Composite(SynPath(path).into(), generics)
         }
     }
 }
@@ -51,8 +51,8 @@ impl ToTokens for Type {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match &self {
             Type::Primitive(primitive) => tokens.append_all(primitive.to_token_stream()),
-            Type::Compound(compound, generics) => {
-                tokens.append_all(compound.to_token_stream());
+            Type::Composite(composite, generics) => {
+                tokens.append_all(composite.to_token_stream());
                 tokens.append_all(generics.to_token_stream());
             },
             Type::Reference(reference) => tokens.append_all(reference.to_token_stream()),
