@@ -1,4 +1,4 @@
-use crate::app::ui::{Constant, EditableList, Function, Method, TypeDefinition};
+use crate::app::ui::{Attributes, Constant, EditableList, Function, Method, Path, TypeDefinition, Visibility};
 
 pub struct Object {
 
@@ -11,6 +11,10 @@ impl Object {
 
     pub fn show(&mut self, ui: &mut egui::Ui, object: &mut ligen_ir::Object) {
         ui.vertical(|ui| {
+            ui.horizontal_top(|ui| {
+                Visibility::new().show(ui, &mut object.visibility);
+                Path::new().show(ui, &mut object.path);
+            });
             TypeDefinition::new().show(ui, &mut object.definition);
             EditableList::new("Constants", "Add constant").show(ui, &mut object.constants, |ui, constant| {
                 Constant::new().show(ui, constant);
@@ -21,6 +25,7 @@ impl Object {
             EditableList::new("Methods", "Add method").show(ui, &mut object.methods, |ui, method| {
                 Method::new().show(ui, method);
             });
+            Attributes::new().show(ui, &mut object.attributes);
         });
     }
 }

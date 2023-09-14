@@ -161,10 +161,7 @@ fn extract_constants(_context: &Context, _: bool, items: &[Item]) -> Result<Vec<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Visibility, Structure};
     use quote::quote;
-    use pretty_assertions::assert_eq;
-    use ligen_ir::Object;
 
     #[test]
     fn module_file() -> Result<()> {

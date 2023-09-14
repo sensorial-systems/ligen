@@ -2,21 +2,21 @@
 
 pub mod variant;
 
-use ligen_ir::Identifier;
 use crate::prelude::*;
 use crate::Enumeration;
 
 impl TryFrom<SynItemEnum> for Enumeration {
     type Error = Error;
     fn try_from(SynItemEnum(enumeration): SynItemEnum) -> Result<Self> {
-        let attributes = (LigenAttributes::try_from(enumeration.attrs)?).into();
-        let path = (Identifier::from(SynIdent(enumeration.ident))).into();
-        let visibility = SynVisibility(enumeration.vis).into();
+        // TODO: Move this info to object.
+        // let attributes = (LigenAttributes::try_from(enumeration.attrs)?).into();
+        // let path = (Identifier::from(SynIdent(enumeration.ident))).into();
+        // let visibility = SynVisibility(enumeration.vis).into();
         let mut variants = Vec::new();
         for variant in enumeration.variants {
             variants.push(SynVariant(variant).try_into()?);
         }
-        Ok(Self { attributes, visibility, path, variants })
+        Ok(Self { variants })
     }
 }
 
@@ -25,7 +25,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Visibility, Enumeration, Variant};
+    use crate::{Enumeration, Variant};
     use crate::prelude::SynItemEnum;
 
     #[test]
@@ -40,9 +40,6 @@ mod tests {
         assert_eq!(
             Enumeration::try_from(SynItemEnum(enumeration)).expect("Failed to convert structure."),
             Enumeration {
-                attributes: Default::default(),
-                visibility: Visibility::Private,
-                path: "Enumeration".into(),
                 variants: vec! [
                     Variant {
                         attributes: Default::default(),

@@ -73,7 +73,7 @@ impl Module {
         let object = self
             .objects
             .iter_mut()
-            .find(|object| object.definition.path() == path);
+            .find(|object| object.path == *path);
         if let Some(object) = object {
             Some(object)
         } else {
@@ -90,7 +90,7 @@ impl Module {
         let object = self
             .objects
             .iter()
-            .find(|object| object.definition.path() == path);
+            .find(|object| object.path == *path);
         if let Some(object) = object {
             Some(object)
         } else {
@@ -140,12 +140,12 @@ impl Module {
             println!("ModulePath: {}", module_path);
             if let Some(module) = self.find_module(&module_path) {
                 for object in &module.objects {
-                    if let Visibility::Public = object.definition.visibility() {
+                    if let Visibility::Public = object.visibility {
                         imports.push(Import {
                             attributes: import.attributes.clone(),
                             visibility: import.visibility.clone(),
                             renaming: import.renaming.clone(),
-                            path: object.definition.path().clone()
+                            path: object.path.clone()
                         })
                     }
                 }
@@ -186,7 +186,7 @@ impl Module {
             module.guarantee_absolute_paths_with_parent(self.path.clone());
         }
         for object in &mut self.objects {
-            *object.definition.path_mut() = self.path.clone().join(object.definition.path().clone());
+            object.path = self.path.clone().join(object.path.clone());
         }
     }
 }

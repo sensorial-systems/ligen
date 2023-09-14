@@ -2,7 +2,6 @@
 
 pub mod field;
 pub use field::*;
-use ligen_ir::Identifier;
 
 use crate::prelude::*;
 use crate::Structure;
@@ -19,14 +18,15 @@ impl TryFrom<ProcMacro2TokenStream> for Structure {
 impl TryFrom<SynItemStruct> for Structure {
     type Error = Error;
     fn try_from(SynItemStruct(structure): SynItemStruct) -> Result<Self> {
-        let attributes = (LigenAttributes::try_from(structure.attrs)?).into();
-        let path = Identifier::from(SynIdent(structure.ident)).into();
-        let visibility = SynVisibility(structure.vis).into();
+        // TODO: Move this info to object.
+        // let attributes = (LigenAttributes::try_from(structure.attrs)?).into();
+        // let path = Identifier::from(SynIdent(structure.ident)).into();
+        // let visibility = SynVisibility(structure.vis).into();
         let mut fields = Vec::new();
         for field in structure.fields {
             fields.push(SynField(field).try_into()?);
         }
-        Ok(Self { attributes, visibility, path, fields })
+        Ok(Self { fields })
     }
 }
 
@@ -48,9 +48,6 @@ mod tests {
         assert_eq!(
             Structure::try_from(SynItemStruct(structure)).expect("Failed to convert structure."),
             Structure {
-                attributes: Default::default(),
-                visibility: Visibility::Private,
-                path: "Structure".into(),
                 fields: vec! [
                     Field {
                         attributes: Default::default(),

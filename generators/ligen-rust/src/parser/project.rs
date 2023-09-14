@@ -39,8 +39,7 @@ fn import_full_path(module: &mut Module, context: &Context) {
 
 fn object_full_path(module: &mut Module) {
     for object in &mut module.objects {
-        let path = object.definition.path_mut();
-        *path = module.path.clone().join(path.clone());
+        object.path = module.path.clone().join(object.path.clone());
     }
     for module in &mut module.modules {
         object_full_path(module)
@@ -275,17 +274,17 @@ mod tests {
         let project = Project::parse_from(&context, rust_project)?;
         let expected_module = Module {
             path: "root".into(),
-            objects: vec![ Structure { path: "root::Root".into(), ..Default::default() }.into() ],
+            objects: vec![ Object { path: "root::Root".into(), ..Default::default() } ],
             imports: vec![ Import { path: "root::branch::leaf".into(), ..Default::default() }],
             modules: vec![
                 Module {
                     path: "root::branch".into(),
-                    objects: vec![ Structure { path: "root::branch::Branch".into(), ..Default::default() }.into() ],
+                    objects: vec![ Object { path: "root::branch::Branch".into(), ..Default::default() }.into() ],
                     imports: vec![ Import { path: "root::branch::leaf::Leaf".into(), ..Default::default() } ],
                     modules: vec![
                         Module {
                             path: "root::branch::leaf".into(),
-                            objects: vec![ Structure { path: "root::branch::leaf::Leaf".into(), ..Default::default() }.into() ],
+                            objects: vec![ Object { path: "root::branch::leaf::Leaf".into(), ..Default::default() }.into() ],
                             ..Default::default()
                         }
                     ],
@@ -410,9 +409,11 @@ mod tests {
             #[ligen(opaque)]
             pub struct Instant(std::time::Instant);
         };
-        let mut structure = Structure::try_from(ProcMacro2TokenStream(expected_object))?;
-        structure.path = "test_project::time::instant::Instant".into();
+        let structure = Structure::try_from(ProcMacro2TokenStream(expected_object))?;
         let expected_object = Object {
+            attributes: Default::default(),
+            visibility: Visibility::Public,
+            path: "test_project::time::instant::Instant".into(),
             definition: structure.into(),
             constants: vec![
                 Constant {

@@ -64,7 +64,7 @@ impl Marshaller {
 
     /// Register masrhallers in definition.
     pub fn register_structure(&mut self, structure: &StructureVisitor) {
-        if structure.current.attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("opaque".into(), Default::default()).into())) {
+        if structure.parent.attributes.contains(&Attribute::Group("ligen".into(), Attribute::Group("opaque".into(), Default::default()).into())) {
             let type_ = Type::from(structure.path());
             let opaque_type = Type::Reference(Reference {
                 mutability: Mutability::Constant,

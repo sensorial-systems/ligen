@@ -1,4 +1,4 @@
-use ligen_ir::{Module, Project};
+use ligen_ir::Project;
 pub mod ui;
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
@@ -11,9 +11,9 @@ pub struct TemplateApp {
 impl Default for TemplateApp {
     fn default() -> Self {
         let project = Project {
-            directory: "dummy".into(),
-            name: "dummy".try_into().unwrap(),
-            root_module: Module::default()
+            directory: Default::default(),
+            name: "Project".try_into().unwrap(),
+            root_module: Default::default()
         };
         let project = Some(project);
         Self { project }

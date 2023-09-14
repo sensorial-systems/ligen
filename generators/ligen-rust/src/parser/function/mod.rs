@@ -50,11 +50,12 @@ impl From<SynItemFn> for Function {
 mod test {
     use quote::quote;
     use syn::parse_quote::parse;
+    use ligen_ir::Synchrony;
 
     use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
     use crate::prelude::SynItemFn;
 
-    use super::{Async, Function, Type};
+    use super::{Function, Type};
 
     #[test]
     fn function() {
@@ -63,7 +64,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -78,7 +79,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -93,7 +94,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
@@ -119,7 +120,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
@@ -136,7 +137,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
@@ -189,7 +190,7 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -204,7 +205,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
-                synchrony: Some(Async),
+                synchrony: Synchrony::Asynchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
@@ -232,7 +233,7 @@ mod test {
                     )]
                 },
                 visibility: Visibility::Private,
-                synchrony: Some(Async),
+                synchrony: Synchrony::Asynchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![
                     Parameter {
@@ -272,7 +273,7 @@ mod test {
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Public,
-                synchrony: None,
+                synchrony: Synchrony::Synchronous,
                 path: Identifier::new("test").into(),
                 inputs: vec![],
                 output: None
