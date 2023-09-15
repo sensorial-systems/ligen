@@ -1,5 +1,5 @@
 # Ligen
-Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
+Ligen (Language Interface Generator) is an extensible multi-language binding
 generator.
 
 ### Features
@@ -9,9 +9,13 @@ generator.
 
 ### Getting started
 
-Here are a few links to get started:
-* [List of officially supported languages](https://github.com/sensorial-systems/ligen/tree/dev/generators).
-* [Usage example](https://github.com/sensorial-systems/ligen/tree/dev/examples/example).
+TO-DO
 
-### TODO:
-* Create a table with implementation status of the generators.
+### Languages Support
+
+| Language | Runtime | Importer | Exporter |
+|----------|---------|----------|----------|
+| Rust     | Planned | Planned  | WIP      |
+| C        | Planned | Planned  | Planned  |
+| C++      | Planned | Planned  | Planned  |
+| Python   | Planned | Planned  | Planned  |
