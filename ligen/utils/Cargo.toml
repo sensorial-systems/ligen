@@ -1,10 +1,13 @@
 [package]
 name = "ligen-utils"
-version = "0.1.0"
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
 
 [dependencies]
-ligen-ir     = { path = "../ir" }
-ligen-common = { path = "../common" }
+ligen-ir.workspace     = true
+ligen-common.workspace = true

@@ -7,9 +7,6 @@ generator.
 * Zero-effort binding generation
 * ...
 
-### Examples
-You can find them in the [examples folder](examples/README.md).
-
 ### Getting started
 
 Here are a few links to get started:

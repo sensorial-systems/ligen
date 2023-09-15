@@ -1,12 +1,17 @@
 [package]
 name = "ligen-editor"
-version = "0.1.0"
-authors = ["Danilo Guanabara <danilo@sensorial.systems>"]
-edition = "2021"
-rust-version = "1.71"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+readme.workspace        = true
+#rust-version = "1.71" # FIXME: Is this really needed?
 
 [dependencies]
-ligen-ir = { path = "../../ligen/ir" }
+ligen-ir.workspace = true
+serde_json.workspace = true
+serde.workspace = true
 egui = "0.22.0"
 eframe = { version = "0.22.0", default-features = false, features = [
     "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
@@ -16,10 +21,6 @@ eframe = { version = "0.22.0", default-features = false, features = [
 ] }
 log = "0.4"
 rfd = "0.11.4"
-serde_json = "1"
-
-# You only need serde if you want app persistence:
-serde = { version = "1", features = ["derive"] }
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

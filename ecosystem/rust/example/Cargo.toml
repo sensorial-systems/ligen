@@ -1,0 +1,22 @@
+[package]
+name    = "example"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+bindings = ["ligen", "ligen-cargo", "ligen-rust", "ligen-c", "ligen-cmake"]
+
+[lib]
+crate-type = ["lib", "staticlib"]
+
+[dependencies]
+ligen-macro.workspace = true
+
+[build-dependencies]
+ligen        = { workspace = true, optional = true }
+ligen-cargo  = { workspace = true, optional = true }
+ligen-rust   = { workspace = true, optional = true }
+ligen-cmake  = { workspace = true, optional = true }
+ligen-c      = { workspace = true, optional = true }

@@ -1,11 +1,14 @@
 [package]
 name = "ligen-macro"
-version = "0.1.0"
-edition = "2018"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
 
 [lib]
 proc-macro = true
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

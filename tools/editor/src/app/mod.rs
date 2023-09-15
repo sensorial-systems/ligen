@@ -61,9 +61,7 @@ impl eframe::App for TemplateApp {
                                 .set_directory(directory)
                                 .save_file();
                             if let Some(file) = file {
-                                if let Ok(json) = serde_json::to_string_pretty(&project) {
-                                    std::fs::write(file, json).ok();
-                                }
+                                project.save(file).ok();
                             }
                         }
                         ui.close_menu();
@@ -79,10 +77,8 @@ impl eframe::App for TemplateApp {
                                 .set_directory(directory)
                                 .pick_file();
                             if let Some(file) = file {
-                                if let Ok(json) = std::fs::read_to_string(file) {
-                                    if let Ok(project) = serde_json::from_str(&json) {
-                                        self.project = Some(project);
-                                    }
+                                if let Ok(project) = Project::load(file) {
+                                    self.project = Some(project);
                                 }
                             }
                             ui.close_menu();

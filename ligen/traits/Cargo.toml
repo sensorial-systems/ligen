@@ -1,14 +1,17 @@
 [package]
-name     = "ligen-traits"
-version = "0.1.0"
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "ligen-traits"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
 
 [dependencies]
-ligen-ir       = { path = "../ir" }
-ligen-utils    = { path = "../utils" }
-ligen-common   = { path = "../common" }
-serde          = { version = "1.0.126", features = [ "derive" ] }
-serde_json     = "1.0.87"
-handlebars     = "4.1.6"
+ligen-ir.workspace     = true
+ligen-utils.workspace  = true
+ligen-common.workspace = true
+serde.workspace        = true
+serde_json.workspace   = true
+handlebars             = "4.1.6"
