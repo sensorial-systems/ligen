@@ -18,10 +18,6 @@ impl TryFrom<ProcMacro2TokenStream> for Structure {
 impl TryFrom<SynItemStruct> for Structure {
     type Error = Error;
     fn try_from(SynItemStruct(structure): SynItemStruct) -> Result<Self> {
-        // TODO: Move this info to object.
-        // let attributes = (LigenAttributes::try_from(structure.attrs)?).into();
-        // let path = Identifier::from(SynIdent(structure.ident)).into();
-        // let visibility = SynVisibility(structure.vis).into();
         let mut fields = Vec::new();
         for field in structure.fields {
             fields.push(SynField(field).try_into()?);

@@ -8,10 +8,6 @@ use crate::Enumeration;
 impl TryFrom<SynItemEnum> for Enumeration {
     type Error = Error;
     fn try_from(SynItemEnum(enumeration): SynItemEnum) -> Result<Self> {
-        // TODO: Move this info to object.
-        // let attributes = (LigenAttributes::try_from(enumeration.attrs)?).into();
-        // let path = (Identifier::from(SynIdent(enumeration.ident))).into();
-        // let visibility = SynVisibility(enumeration.vis).into();
         let mut variants = Vec::new();
         for variant in enumeration.variants {
             variants.push(SynVariant(variant).try_into()?);

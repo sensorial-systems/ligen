@@ -56,12 +56,30 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
         for item in items {
             match item {
                 syn::Item::Enum(enumeration) => {
+                    let attributes = (LigenAttributes::try_from(enumeration.attrs.clone())?).into();
+                    let path = Identifier::from(SynIdent(enumeration.ident.clone())).into();
+                    let visibility = SynVisibility(enumeration.vis.clone()).into();
                     let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
-                    objects.push(Object::from(enumeration));
+                    objects.push(Object {
+                        attributes,
+                        path,
+                        visibility,
+                        definition: enumeration.into(),
+                        .. Default::default()
+                    });
                 },
                 syn::Item::Struct(structure) => {
+                    let attributes = (LigenAttributes::try_from(structure.attrs.clone())?).into();
+                    let path = Identifier::from(SynIdent(structure.ident.clone())).into();
+                    let visibility = SynVisibility(structure.vis.clone()).into();
                     let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
-                    objects.push(Object::from(structure));
+                    objects.push(Object {
+                        attributes,
+                        path,
+                        visibility,
+                        definition: structure.into(),
+                        .. Default::default()
+                    });
                 },
                 syn::Item::Type(_type) => {
                     todo!("Type object isn't implemented yet.")
@@ -187,7 +205,7 @@ mod tests {
                 }
             }
         };
-        let rust_project = RustProject::try_from(ProcMacro2TokenStream(module.clone()))?;
+        let rust_project = RustProject::try_from(module.clone())?;
         let path_tree = rust_project.get_path_tree();
         let context = Context::from(&path_tree);
         let mut module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
@@ -222,23 +240,24 @@ mod tests {
                 pub struct Type;
             }
         };
-        // let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        // let expected_module = Module {
-        //     path: "types".into(),
-        //     visibility: Visibility::Public,
-        //     objects: vec![
-        //         Object::from(Structure {
-        //                 attributes: Default::default(),
-        //                 visibility: Visibility::Public,
-        //                 fields: Default::default(),
-        //                 path: "Type".into()
-        //         })
-        //     ],
-        //     ..Default::default()
-        // };
-        // assert_eq!(module, expected_module);
-        // Ok(())
-        panic!("Not implemented yet.");
+        let rust_project = RustProject::try_from(module.clone())?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        let expected_module = Module {
+            path: "types".into(),
+            visibility: Visibility::Public,
+            objects: vec![
+                Object {
+                    visibility: Visibility::Public,
+                    path: "Type".into(),
+                    .. Default::default()
+                }
+            ],
+            ..Default::default()
+        };
+        assert_eq!(module, expected_module);
+        Ok(())
     }
 
     #[test]
