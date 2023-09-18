@@ -162,14 +162,20 @@ fn extract_constants(_context: &Context, _: bool, items: &[Item]) -> Result<Vec<
 mod tests {
     use super::*;
     use quote::quote;
+    use ligen_parsing::{GetPathTree, Parser, PathTree};
+    use crate::parser::project::RustProject;
+    use pretty_assertions::assert_eq;
+    use ligen_ir::Visibility;
 
     #[test]
     fn module_file() -> Result<()> {
-        // let module = quote! { mod module; };
-        // let result = Module::parse(ProcMacro2TokenStream(module));
-        // assert!(result.is_err()); // Module file isn't loaded.
-        // Ok(())
-        panic!("Not implemented yet.");
+        let path_tree = PathTree::new("root");
+        let parser = Parser::from(path_tree);
+        let context = parser.root_context();
+        let module = quote! { mod module; };
+        let result = Module::parse_from(&context, ProcMacro2TokenStream(module));
+        assert!(result.is_err()); // Module file isn't loaded.
+        Ok(())
     }
 
     #[test]
@@ -181,27 +187,32 @@ mod tests {
                 }
             }
         };
-        // let mut module = Module::try_from(ProcMacro2TokenStream(module))?;
-        // module.guarantee_absolute_paths();
-        // let expected_module = Module {
-        //     path: "root".into(),
-        //     modules: vec![
-        //         Module {
-        //             path: "root::branch".into(),
-        //             modules: vec![
-        //                 Module {
-        //                     path: "root::branch::leaf".into(),
-        //                     ..Default::default()
-        //                 }
-        //             ],
-        //             ..Default::default()
-        //         }
-        //     ],
-        //     ..Default::default()
-        // };
-        // assert_eq!(module, expected_module);
-        // Ok(())
-        panic!("Not implemented yet.");
+        let rust_project = RustProject::try_from(ProcMacro2TokenStream(module.clone()))?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let mut module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        module.guarantee_absolute_paths();
+        let expected_module = Module {
+            path: "root".into(),
+            modules: vec![
+                Module {
+                    path: "root::branch".into(),
+                    modules: vec![
+                        Module {
+                            path: "root::branch::leaf".into(),
+                            visibility: Visibility::Private,
+                            ..Default::default()
+                        }
+                    ],
+                    visibility: Visibility::Private,
+                    ..Default::default()
+                }
+            ],
+            visibility: Visibility::Private,
+            ..Default::default()
+        };
+        assert_eq!(module, expected_module);
+        Ok(())
     }
 
     #[test]

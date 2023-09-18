@@ -7,6 +7,18 @@ pub struct Parser<'a> {
     pub path_tree: Pin<Box<PathTree<'a>>>
 }
 
+impl<'a> Parser<'a> {
+    pub fn root_context(&'a self) -> Context<'a> {
+        (&self.path_tree).into()
+    }
+}
+
+impl<'a> From<Pin<Box<PathTree<'a>>>> for Parser<'a> {
+    fn from(path_tree: Pin<Box<PathTree<'a>>>) -> Self {
+        Self { path_tree }
+    }
+}
+
 pub trait ParseFrom<T> {
     fn parse_from(context: &Context<'_>, from: T) -> Result<Self> where Self: Sized;
 }
@@ -23,11 +35,6 @@ pub trait Parse<'a, T: GetPathTree<'a>> {
 //     }
 // }
 
-impl<'a> Parser<'a> {
-    pub fn root_context(&'a self) -> Context<'a> {
-        (&self.path_tree).into()
-    }
-}
 
 pub struct Context<'a> {
     pub path: Path,
