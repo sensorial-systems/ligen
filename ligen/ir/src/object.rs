@@ -35,15 +35,3 @@ impl From<TypeDefinition> for Object {
         }
     }
 }
-
-impl From<Structure> for Object {
-    fn from(structure: Structure) -> Self {
-        TypeDefinition::Structure(structure).into()
-    }
-}
-
-impl From<Enumeration> for Object {
-    fn from(enumeration: Enumeration) -> Self {
-        TypeDefinition::Enumeration(enumeration).into()
-    }
-}

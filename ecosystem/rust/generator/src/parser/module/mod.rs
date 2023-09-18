@@ -267,13 +267,18 @@ mod tests {
                 pub struct Type;
             }
         };
-        // let module = Module::try_from(ProcMacro2TokenStream(module))?;
-        // let object = module.find_object(&"Type".into());
-        // let definition = quote! { pub struct Type; };
-        // let definition = Structure::try_from(ProcMacro2TokenStream(definition))?;
-        // let expected_object = Some(Object::from(definition));
-        // assert_eq!(object, expected_object.as_ref());
-        // Ok(())
-        panic!("Not implemented yet.");
+        let rust_project = RustProject::try_from(module.clone())?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        let object = module.find_object(&"Type".into());
+        let expected_object = Some(Object {
+            visibility: Visibility::Public,
+            path: "Type".into(),
+            definition: Structure::default().into(),
+            .. Default::default()
+        });
+        assert_eq!(object, expected_object.as_ref());
+        Ok(())
     }
 }
