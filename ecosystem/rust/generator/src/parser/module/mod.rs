@@ -97,7 +97,7 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
                                 for item in &implementation.items {
                                     match item {
                                         syn::ImplItem::Const(constant) => {
-                                            let constant = SynImplItemConst(constant.clone()).into();
+                                            let constant = SynImplItemConst(constant.clone()).try_into()?;
                                             object.constants.push(constant)
                                         },
                                         syn::ImplItem::Method(method) => {
@@ -152,7 +152,7 @@ fn extract_constants(_context: &Context, _: bool, items: &[Item]) -> Result<Vec<
     let mut constants = Vec::new();
     for item in items {
         if let syn::Item::Const(constant) = item {
-            constants.push(SynItemConst(constant.clone()).into());
+            constants.push(SynItemConst(constant.clone()).try_into()?);
         }
     }
     Ok(constants)

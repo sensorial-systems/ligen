@@ -2,17 +2,18 @@ use crate::{Primitive, Reference, Generics, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 
-impl From<SynPath> for Type {
-    fn from(SynPath(path): SynPath) -> Self {
+impl TryFrom<SynPath> for Type {
+    type Error = Error;
+    fn try_from(SynPath(path): SynPath) -> Result<Self> {
         if Primitive::is_primitive(SynPath(path.clone())) {
-            Self::Primitive(SynPath(path).into())
+            Ok(Self::Primitive(SynPath(path).try_into()?))
         } else {
             let generics = path
                 .segments
                 .last()
                 .map(|segment| Generics::from(SynPathArguments(segment.arguments.clone())))
                 .unwrap_or_default();
-            Self::Composite(SynPath(path).into(), generics)
+            Ok(Self::Composite(SynPath(path).into(), generics))
         }
     }
 }
@@ -21,7 +22,7 @@ impl TryFrom<SynType> for Type {
     type Error = Error;
     fn try_from(SynType(syn_type): SynType) -> Result<Self> {
         if let syn::Type::Path(TypePath { path, .. }) = syn_type {
-            Ok(SynPath(path).into())
+            Ok(SynPath(path).try_into()?)
         } else {
             let reference = match &syn_type {
                 syn::Type::Reference(TypeReference {
@@ -35,7 +36,7 @@ impl TryFrom<SynType> for Type {
             if let Some((elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                    let type_ = Box::new(SynPath(path).into());
+                    let type_ = Box::new(SynPath(path).try_into()?);
                     Ok(Self::Reference(Reference { mutability, type_, }))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))

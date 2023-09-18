@@ -67,7 +67,7 @@ impl Primitive {
         let identifier = path.last();
         match identifier.name.as_ref() {
             "u8" | "u16" | "u32" | "u64" | "u128" | "usize" | "i8" | "i16" | "i32" | "i64"
-            | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" | "str" | "string" => true, // TODO: Is this Rusty? What are these c_char for?
+            | "i128" | "isize" | "f32" | "f64" | "bool" | "char" | "c_char" | "c_uchar" => true, // TODO: Is this Rusty? What are these c_char for?
             _ => false
         }
     }

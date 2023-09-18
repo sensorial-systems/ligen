@@ -1,31 +1,32 @@
 use crate::{Constant, Identifier, Literal, Type};
 use crate::prelude::*;
 
-// TODO: Should be TryFrom?
-impl From<SynImplItemConst> for Constant {
-    fn from(SynImplItemConst(item_const): SynImplItemConst) -> Self {
+impl TryFrom<SynImplItemConst> for Constant {
+    type Error = Error;
+    fn try_from(SynImplItemConst(item_const): SynImplItemConst) -> Result<Self> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
-            Self {
+            Ok(Self {
                 path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
-                type_: Type::try_from(SynType(item_const.ty)).expect("Failed to convert from Type"),
+                type_: Type::try_from(SynType(item_const.ty))?,
                 literal: Literal::from(SynLit(lit)),
-            }
+            })
         } else {
-            panic!("Undefined Constant inside Impl block");
+            Err("Undefined Constant inside Impl block".into())
         }
     }
 }
 
-impl From<SynItemConst> for Constant {
-    fn from(SynItemConst(item_const): SynItemConst) -> Self {
+impl TryFrom<SynItemConst> for Constant {
+    type Error = Error;
+    fn try_from(SynItemConst(item_const): SynItemConst) -> Result<Self> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
-            Self {
+            Ok(Self {
                 path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
-                type_: Type::try_from(SynType(*item_const.ty)).expect("Failed to convert from Type"),
+                type_: Type::try_from(SynType(*item_const.ty))?,
                 literal: Literal::from(SynLit(lit)),
-            }
+            })
         } else {
-            panic!("Undefined Constant");
+            Err("Undefined Constant".into())
         }
     }
 }
@@ -36,12 +37,12 @@ mod test {
     use crate::{Literal, Mutability, Reference};
     use quote::quote;
     use syn::parse_quote::parse;
-    use crate::prelude::{SynImplItemConst, SynItemConst};
+    use crate::prelude::*;
 
     #[test]
-    fn impl_const_impl() {
+    fn impl_const_impl() -> Result<()> {
         assert_eq!(
-            Constant::from(SynImplItemConst(parse::<syn::ImplItemConst>(quote! {const a: &str = "test";}))),
+            Constant::try_from(SynImplItemConst(parse::<syn::ImplItemConst>(quote! {const a: &str = "test";})))?,
             Constant {
                 path: "a".into(),
                 type_: Type::Reference(
@@ -53,12 +54,13 @@ mod test {
                 literal: Literal::String(String::from("test"))
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn impl_const() {
+    fn impl_const() -> Result<()> {
         assert_eq!(
-            Constant::from(SynItemConst(parse::<syn::ItemConst>(quote! {const a: &str = "test";}))),
+            Constant::try_from(SynItemConst(parse::<syn::ItemConst>(quote! {const a: &str = "test";})))?,
             Constant {
                 path: "a".into(),
                 type_: Type::Reference(
@@ -70,5 +72,6 @@ mod test {
                 literal: Literal::String(String::from("test"))
             }
         );
+        Ok(())
     }
 }

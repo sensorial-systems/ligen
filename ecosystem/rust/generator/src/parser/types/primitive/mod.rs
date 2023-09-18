@@ -34,12 +34,12 @@ impl TryFrom<SynIdent> for Primitive {
     }
 }
 
-// TODO: Why is it not a TryFrom?
-impl From<SynPath> for Primitive {
-    fn from(SynPath(path): SynPath) -> Self {
+impl TryFrom<SynPath> for Primitive {
+    type Error = Error;
+    fn try_from(SynPath(path): SynPath) -> Result<Self> {
         match path {
             syn::Path { segments, .. } => {
-                Self::try_from(SynIdent(segments.last().unwrap().ident.clone())).expect("Failed to convert from Ident")
+                Ok(Self::try_from(SynIdent(segments.last().unwrap().ident.clone()))?)
             }
         }
     }
