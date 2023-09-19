@@ -6,7 +6,14 @@ edition.workspace = true
 license.workspace = true
 
 [features]
-bindings = ["ligen", "ligen-cargo", "ligen-rust", "ligen-c", "ligen-cmake"]
+bindings = [
+    "ligen",
+    "ligen-cargo",
+    "ligen-rust-exporter",
+    "ligen-rust-parser",
+    "ligen-c",
+    "ligen-cmake"
+]
 
 [lib]
 crate-type = ["lib", "staticlib"]
@@ -15,8 +22,9 @@ crate-type = ["lib", "staticlib"]
 ligen-macro.workspace = true
 
 [build-dependencies]
-ligen        = { workspace = true, optional = true }
-ligen-cargo  = { workspace = true, optional = true }
-ligen-rust   = { workspace = true, optional = true }
-ligen-cmake  = { workspace = true, optional = true }
-ligen-c      = { workspace = true, optional = true }
+ligen               = { workspace = true, optional = true }
+ligen-cargo         = { workspace = true, optional = true }
+ligen-rust-parser   = { workspace = true, optional = true }
+ligen-rust-exporter = { workspace = true, optional = true }
+ligen-cmake         = { workspace = true, optional = true }
+ligen-c             = { workspace = true, optional = true }

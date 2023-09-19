@@ -6,9 +6,9 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-ligen-ir.workspace      = true
-ligen-traits.workspace  = true
-ligen-utils.workspace   = true
-ligen-parsing.workspace = true
-ligen-rust.workspace    = true
-cargo_toml.workspace    = true # FIXME: This is the only package that should depend on cargo_toml
+ligen-ir.workspace          = true
+ligen-traits.workspace      = true
+ligen-utils.workspace       = true
+ligen-parsing.workspace     = true
+ligen-rust-parser.workspace = true
+cargo_toml.workspace        = true

@@ -78,7 +78,7 @@ impl<'a> GetPathTree<'a> for RustProject {
 
 impl RustProject {
     fn get_name_from_root_folder(root_folder: &PathBuf) -> Result<String> {
-        let cargo = cargo_toml::Manifest::from_path(root_folder.join("Cargo.toml")).map_err(|e| Error::Generic(Box::new(e)))?;
+        let cargo = cargo_toml::Manifest::from_path(root_folder.join("../../../../Cargo.toml")).map_err(|e| Error::Generic(Box::new(e)))?;
         let name = cargo
             .package
             .ok_or("Couldn't find the package name.")?
@@ -179,7 +179,7 @@ mod tests {
     use crate::prelude::*;
     use pretty_assertions::assert_eq;
     use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor};
-    use crate::parser::project::RustProject;
+    use crate::project::RustProject;
 
     #[test]
     fn relative_path_to_absolute_path_imports() -> Result<()> {

@@ -8,8 +8,9 @@ members = [
     "ligen/traits",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
-    "ecosystem/rust/generator",
+    "ecosystem/rust/exporter",
     "ecosystem/rust/runtime",
+    "ecosystem/rust/parser",
     "ecosystem/c/cmake",
     "ecosystem/c/generator",
     "tools/editor"
@@ -26,25 +27,26 @@ documentation = "https://docs.rs/ligen"
 readme        = "README.md"
 
 [workspace.dependencies]
-ligen             = { path = "ligen" }
-ligen-common      = { path = "ligen/common" }
-ligen-ir          = { path = "ligen/ir" }
-ligen-macro       = { path = "ligen/macro" }
-ligen-parsing     = { path = "ligen/parsing" }
-ligen-traits      = { path = "ligen/traits" }
-ligen-utils       = { path = "ligen/utils" }
-ligen-c           = { path = "ecosystem/c/generator" }
-ligen-cmake       = { path = "ecosystem/c/cmake" }
-ligen-rust        = { path = "ecosystem/rust/generator" }
-ligen-cargo       = { path = "ecosystem/rust/cargo" }
-serde             = { version = "1", features = ["derive"] }
-serde_json        = "1"
-shrinkwraprs      = "0.3"
-derive_more       = "0.99"
-proc-macro2       = "1.0.26"
-lazy_static       = "1.4.0"
-cargo_toml        = "0.15.3" # FIXME: This is Rusty.
-pretty_assertions = "1.4.0"
+ligen               = { path = "ligen" }
+ligen-common        = { path = "ligen/common" }
+ligen-ir            = { path = "ligen/ir" }
+ligen-macro         = { path = "ligen/macro" }
+ligen-parsing       = { path = "ligen/parsing" }
+ligen-traits        = { path = "ligen/traits" }
+ligen-utils         = { path = "ligen/utils" }
+ligen-c             = { path = "ecosystem/c/generator" }
+ligen-cmake         = { path = "ecosystem/c/cmake" }
+ligen-rust-exporter = { path = "ecosystem/rust/exporter" }
+ligen-rust-parser   = { path = "ecosystem/rust/parser" }
+ligen-cargo         = { path = "ecosystem/rust/cargo" }
+serde               = { version = "1", features = ["derive"] }
+serde_json          = "1"
+shrinkwraprs        = "0.3"
+derive_more         = "0.99"
+proc-macro2         = "1.0.26"
+lazy_static         = "1.4.0"
+cargo_toml          = "0.15.3" # FIXME: This is Rusty.
+pretty_assertions   = "1.4.0"
 
 [patch.crates-io]
 # If you want to use the bleeding edge version of egui and eframe:

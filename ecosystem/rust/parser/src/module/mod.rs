@@ -180,7 +180,7 @@ mod tests {
     use super::*;
     use quote::quote;
     use ligen_parsing::{GetPathTree, Parser, PathTree};
-    use crate::parser::project::RustProject;
+    use crate::project::RustProject;
     use pretty_assertions::assert_eq;
     use ligen_ir::Visibility;
 
