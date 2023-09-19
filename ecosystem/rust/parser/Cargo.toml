@@ -17,7 +17,6 @@ ligen-common.workspace  = true
 ligen-parsing.workspace = true
 serde_json.workspace    = true
 proc-macro2.workspace   = true
-cargo_toml.workspace    = true # FIXME: How to reuse ligen-cargo instead of using cargo_toml?
 syn                     = { version = "1.0.73", features = [ "full" ] } # FIXME: This is also used somwehere else. DRY.
 quote                   = "1.0.9"
 

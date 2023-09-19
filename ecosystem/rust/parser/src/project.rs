@@ -78,12 +78,13 @@ impl<'a> GetPathTree<'a> for RustProject {
 
 impl RustProject {
     fn get_name_from_root_folder(root_folder: &PathBuf) -> Result<String> {
-        let cargo = cargo_toml::Manifest::from_path(root_folder.join("../../../../Cargo.toml")).map_err(|e| Error::Generic(Box::new(e)))?;
-        let name = cargo
-            .package
-            .ok_or("Couldn't find the package name.")?
-            .name
-            .replace("-", "_");
+        // let cargo = cargo_toml::Manifest::from_path(root_folder.join("../../../../Cargo.toml")).map_err(|e| Error::Generic(Box::new(e)))?;
+        // let name = cargo
+        //     .package
+        //     .ok_or("Couldn't find the package name.")?
+        //     .name
+        //     .replace("-", "_");
+        let name = Default::default();
         Ok(name)
     }
 
@@ -106,7 +107,7 @@ impl RustProject {
             let content = if let Ok(content) = std::fs::read_to_string(module_path.with_extension("rs")) {
                 content
             } else {
-                std::fs::read_to_string(module_path.join("string_editable_field"))?
+                std::fs::read_to_string(module_path.join("mod.rs"))?
             };
             let file = syn::parse_file(&content)
                 .map_err(|_e| "Failed to parse file.")?;
