@@ -5,7 +5,7 @@ mod import;
 use ligen_ir::{Constant, Enumeration, Object, Path, Project, Structure};
 use ligen_parsing::{Context, ParseFrom};
 use crate::prelude::*;
-use crate::{Identifier, Function, Module};
+use ligen_ir::{Identifier, Function, Module};
 
 fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     let mut functions = Vec::new();

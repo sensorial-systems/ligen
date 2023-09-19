@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::Float;
+use ligen_ir::Float;
 
 impl ToTokens for Float {
     fn to_tokens(&self, tokens: &mut TokenStream) {

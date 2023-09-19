@@ -1,4 +1,4 @@
-use crate::Generics;
+use ligen_ir::Generics;
 use crate::prelude::*;
 
 impl From<SynPathArguments> for Generics {

@@ -1,7 +1,7 @@
 //! Import representation.
 
 use crate::prelude::*;
-use crate::{Path, Attributes, Visibility, Imports, Import};
+use ligen_ir::{Path, Attributes, Visibility, Imports, Import};
 
 #[derive(Clone)]
 struct ImportsBuilder {
@@ -89,7 +89,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use super::*;
-    use crate::Attribute;
+    use ligen_ir::Attribute;
 
     fn attributes() -> Attributes {
         Attribute::Group("custom".into(), Attribute::Group("attribute".into(), Default::default()).into()).into()

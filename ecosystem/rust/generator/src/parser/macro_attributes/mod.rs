@@ -2,7 +2,7 @@
 
 pub mod attributes;
 
-use crate::MacroAttributes;
+use ligen_ir::MacroAttributes;
 use crate::prelude::*;
 
 impl ToTokens for MacroAttributes {

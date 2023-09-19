@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use proc_macro2::TokenStream;
-use crate::Identifier;
+use ligen_ir::Identifier;
 
 impl From<SynIdent> for Identifier {
     fn from(SynIdent(ident): SynIdent) -> Self {

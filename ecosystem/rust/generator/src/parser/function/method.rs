@@ -2,7 +2,7 @@ use syn::FnArg;
 use ligen_ir::{Function, Identifier, Mutability, Path};
 use crate::prelude::*;
 
-use crate::{Synchrony, Attributes, Method, Parameter, Type, Visibility};
+use ligen_ir::{Synchrony, Attributes, Method, Parameter, Type, Visibility};
 
 impl From<SynImplItemMethod> for Method {
     fn from(SynImplItemMethod(method): SynImplItemMethod) -> Self {

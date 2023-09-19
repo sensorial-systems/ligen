@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::Integer;
+use ligen_ir::Integer;
 
 impl ToTokens for Integer {
     fn to_tokens(&self, tokens: &mut TokenStream) {

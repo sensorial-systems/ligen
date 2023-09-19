@@ -4,7 +4,7 @@ pub mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use crate::Structure;
+use ligen_ir::Structure;
 
 impl TryFrom<ProcMacro2TokenStream> for Structure {
     type Error = Error;
@@ -31,7 +31,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Field, Type, Primitive, Integer, Visibility, Structure};
+    use ligen_ir::{Field, Type, Primitive, Integer, Visibility, Structure};
     use crate::prelude::SynItemStruct;
 
     #[test]

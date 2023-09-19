@@ -5,7 +5,7 @@ pub mod float;
 
 pub use integer::*;
 pub use float::*;
-use crate::{Primitive, Float, Integer};
+use ligen_ir::{Primitive, Float, Integer};
 
 impl TryFrom<SynIdent> for Primitive {
     type Error = Error;

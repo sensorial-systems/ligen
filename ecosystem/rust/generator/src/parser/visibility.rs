@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-use crate::Visibility;
+use ligen_ir::Visibility;
 
 impl From<SynVisibility> for Visibility {
     fn from(SynVisibility(visibility): SynVisibility) -> Self {

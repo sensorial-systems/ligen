@@ -1,7 +1,7 @@
 //! Enumeration variant representation.
 
 use crate::prelude::*;
-use crate::Variant;
+use ligen_ir::Variant;
 
 impl TryFrom<SynVariant> for Variant {
     type Error = Error;
@@ -18,7 +18,7 @@ mod tests {
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
     use crate::prelude::SynVariant;
-    use crate::Variant;
+    use ligen_ir::Variant;
 
     #[test]
     fn parameter_primitive() {

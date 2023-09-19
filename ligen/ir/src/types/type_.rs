@@ -70,8 +70,7 @@ impl Type {
 
     /// Check if the `Type` is `String`.
     pub fn is_string(&self) -> bool {
-        // TODO: Implement it.
-        false
+        todo!("Implement it.")
     }
 
     /// Gets the path of the type without the reference.

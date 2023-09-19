@@ -1,7 +1,7 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use crate::{Identifier, Reference, Type, Mutability, Parameter};
+use ligen_ir::{Identifier, Reference, Type, Mutability, Parameter};
 
 impl TryFrom<SynFnArg> for Parameter {
     type Error = Error;
@@ -55,7 +55,7 @@ mod test {
     use std::convert::TryFrom;
 
     use super::Parameter;
-    use crate::{Primitive, Identifier, Integer, Reference, Type, Attribute, Mutability};
+    use ligen_ir::{Primitive, Identifier, Integer, Reference, Type, Attribute, Mutability};
     use quote::quote;
     use syn::{parse_quote::parse};
     use crate::prelude::SynFnArg;

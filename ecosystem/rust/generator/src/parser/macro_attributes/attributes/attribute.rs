@@ -1,7 +1,7 @@
 //! Attribute enumeration.
 
 use crate::prelude::*;
-use crate::{Literal, Identifier, Attributes, Attribute};
+use ligen_ir::{Literal, Identifier, Attributes, Attribute};
 
 impl TryFrom<SynItemMacro> for Attribute {
     type Error = Error;

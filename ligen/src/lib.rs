@@ -1,3 +1,5 @@
+// TODO: Update this documentation.
+
 //! # Ligen
 //! Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
 //! generator.

@@ -3,7 +3,7 @@
 pub mod variant;
 
 use crate::prelude::*;
-use crate::Enumeration;
+use ligen_ir::Enumeration;
 
 impl TryFrom<SynItemEnum> for Enumeration {
     type Error = Error;
@@ -21,7 +21,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Enumeration, Variant};
+    use ligen_ir::{Enumeration, Variant};
     use crate::prelude::SynItemEnum;
 
     #[test]

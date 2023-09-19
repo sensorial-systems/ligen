@@ -1,7 +1,7 @@
 //! Structure field representation.
 
 use crate::prelude::*;
-use crate::Field;
+use ligen_ir::Field;
 
 impl TryFrom<SynField> for Field {
     type Error = Error;
@@ -19,7 +19,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use std::convert::TryFrom;
-    use crate::{Field, Visibility, Path};
+    use ligen_ir::{Field, Visibility, Path};
     use crate::prelude::SynField;
 
     #[test]

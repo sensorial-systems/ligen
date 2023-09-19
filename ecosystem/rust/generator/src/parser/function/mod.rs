@@ -1,7 +1,7 @@
 use ligen_ir::Identifier;
 use crate::prelude::*;
 
-use crate::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
+use ligen_ir::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
 
 pub mod parameter;
 pub mod method;
@@ -52,7 +52,7 @@ mod test {
     use syn::parse_quote::parse;
     use ligen_ir::Synchrony;
 
-    use crate::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
+    use ligen_ir::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
     use crate::prelude::SynItemFn;
 
     use super::{Function, Type};

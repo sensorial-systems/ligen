@@ -1,7 +1,7 @@
 mod attribute;
 pub use attribute::*;
 
-use crate::{Attribute, Attributes, Identifier};
+use ligen_ir::{Attribute, Attributes, Identifier};
 use crate::prelude::*;
 use syn::parse::{ParseStream, Parse};
 use syn::{parse2, Token};
@@ -108,7 +108,7 @@ impl Parse for LigenAttributes {
 
 #[cfg(test)]
 mod test {
-    use crate::{Attribute, Attributes, Identifier, Literal};
+    use ligen_ir::{Attribute, Attributes, Identifier, Literal};
     use quote::quote;
     use syn::{parse2, NestedMeta};
     use crate::prelude::{LigenAttributes, SynNestedMeta};

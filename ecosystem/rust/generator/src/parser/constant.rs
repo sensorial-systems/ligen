@@ -1,4 +1,4 @@
-use crate::{Constant, Identifier, Literal, Type};
+use ligen_ir::{Constant, Identifier, Literal, Type};
 use crate::prelude::*;
 
 impl TryFrom<SynImplItemConst> for Constant {
@@ -34,7 +34,7 @@ impl TryFrom<SynItemConst> for Constant {
 #[cfg(test)]
 mod test {
     use super::{Constant, Identifier, Type};
-    use crate::{Literal, Mutability, Reference};
+    use ligen_ir::{Literal, Mutability, Reference};
     use quote::quote;
     use syn::parse_quote::parse;
     use crate::prelude::*;

@@ -1,4 +1,4 @@
-use crate::Path;
+use ligen_ir::Path;
 use crate::prelude::*;
 
 impl From<SynPath> for Path {
@@ -34,8 +34,7 @@ impl ToTokens for Path {
 mod test {
     use quote::quote;
     use syn::parse_quote::parse;
-    use crate::Path;
-    use crate::Identifier;
+    use ligen_ir::{Path, Identifier};
     use crate::prelude::SynPath;
 
     #[test]

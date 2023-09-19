@@ -1,4 +1,4 @@
-use crate::Literal;
+use ligen_ir::Literal;
 use crate::prelude::*;
 
 impl From<SynLit> for Literal {

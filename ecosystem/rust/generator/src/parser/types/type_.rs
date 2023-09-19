@@ -1,4 +1,4 @@
-use crate::{Primitive, Reference, Generics, Mutability, Type};
+use ligen_ir::{Primitive, Reference, Generics, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 
@@ -68,7 +68,7 @@ mod test {
     use quote::quote;
     use syn::parse_quote::parse;
 
-    use crate::{Float, Integer, Mutability};
+    use ligen_ir::{Float, Integer, Mutability};
     use crate::prelude::SynType;
 
     use super::{
