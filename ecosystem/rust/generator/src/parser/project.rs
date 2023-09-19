@@ -13,7 +13,7 @@ pub struct RustProject {
 
 impl ParseFrom<RustProject> for Project {
     fn parse_from(context: &Context<'_>, rust_project: RustProject) -> Result<Self> {
-        let name = rust_project.get_name()?;
+        let name = rust_project.get_name().unwrap_or_default();
         let name = SnakeCase::try_from(name.as_str())?.into();
         let directory = rust_project.root_folder;
         let mut root_module = Module::parse_from(context, SynItemMod(rust_project.root_module))?;
@@ -155,7 +155,7 @@ impl TryFrom<TokenStream> for RustProject {
     fn try_from(token_stream: TokenStream) -> Result<Self> {
         let root_folder = PathBuf::new();
         let root_module = syn::parse2::<syn::ItemMod>(token_stream)
-            .map_err(|_e| "Failed to parse TokenStream.")?;
+            .map_err(|e| format!("Failed to parse TokenStream ({:?}).", e))?;
         let mut project = Self { root_folder, root_module };
         project.parse_modules()?;
         Ok(project)
@@ -217,6 +217,11 @@ mod tests {
                 // }
             }
         };
+        let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let project = Project::parse_from(&context, rust_project)?;
+
         let absolute_paths = quote! {
             mod root {
                 mod branch {
@@ -242,14 +247,14 @@ mod tests {
                 fn new_leaf(branch1: &root::branch::Branch, leaf: &root::branch::leaf::Leaf, renamed: root::branch::leaf::Leaf, size: usize) -> root::branch::leaf::Leaf {}
             }
         };
-        // let mut absolute_paths = Module::parse_from(&context, ProcMacro2TokenStream(absolute_paths))?;
-        // let rust_project = RustProject::try_from(ProcMacro2TokenStream(relative_paths))?;
-        // let project = Project::parse(rust_project)?;
-        // // FIXME: Remove this.
-        // absolute_paths.guarantee_absolute_paths();
-        // assert_eq!(project.root_module, absolute_paths);
-        // Ok(())
-        panic!("Not implemented");
+        let rust_project = RustProject::try_from(absolute_paths.clone())?;
+        let path_tree = rust_project.get_path_tree();
+        let context = Context::from(&path_tree);
+        let mut absolute_paths = Module::parse_from(&context, ProcMacro2TokenStream(absolute_paths))?;
+        // FIXME: Remove this.
+        absolute_paths.guarantee_absolute_paths();
+        assert_eq!(project.root_module, absolute_paths);
+        Ok(())
     }
 
     #[test]
