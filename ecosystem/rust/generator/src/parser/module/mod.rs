@@ -2,7 +2,6 @@
 
 mod import;
 
-use syn::Item;
 use ligen_ir::{Constant, Enumeration, Object, Path, Project, Structure};
 use ligen_parsing::{Context, ParseFrom};
 use crate::prelude::*;
@@ -166,7 +165,7 @@ impl ParseFrom<SynItemMod> for Module {
     }
 }
 
-fn extract_constants(_context: &Context, _: bool, items: &[Item]) -> Result<Vec<Constant>> {
+fn extract_constants(_context: &Context, _: bool, items: &[syn::Item]) -> Result<Vec<Constant>> {
     let mut constants = Vec::new();
     for item in items {
         if let syn::Item::Const(constant) = item {

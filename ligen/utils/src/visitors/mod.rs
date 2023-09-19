@@ -2,7 +2,6 @@
 
 pub use enumeration_visitor::*;
 pub use function_visitor::*;
-pub use implementation_visitor::*;
 pub use module_visitor::*;
 pub use object_visitor::*;
 pub use parameter_visitor::*;
@@ -17,7 +16,6 @@ mod module_visitor;
 mod object_visitor;
 mod enumeration_visitor;
 mod structure_visitor;
-mod implementation_visitor;
 mod function_visitor;
 mod parameter_visitor;
 mod import_visitor;
