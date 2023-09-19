@@ -6,7 +6,6 @@ edition.workspace       = true
 description.workspace   = true
 license.workspace       = true
 readme.workspace        = true
-#rust-version = "1.71" # FIXME: Is this really needed?
 
 [dependencies]
 ligen-ir.workspace = true
