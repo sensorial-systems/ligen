@@ -36,7 +36,7 @@ impl Parser<proc_macro::TokenStream> for PathParser {
 impl Parser<proc_macro2::TokenStream> for PathParser {
     type Output = Path;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        self.parse(syn::parse_quote::parse::<syn::Path>(input))
+        self.parse(syn::parse2::<syn::Path>(input).expect("Failed to parse Path."))
     }
 }
 

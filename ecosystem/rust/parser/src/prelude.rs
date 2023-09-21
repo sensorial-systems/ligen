@@ -28,8 +28,6 @@ new_type!(ligen_ir::Imports, LigenImports);
 new_type!(syn::ItemStruct, SynItemStruct);
 new_type!(syn::ItemUse, SynItemUse);
 new_type!(syn::ItemEnum, SynItemEnum);
-new_type!(syn::ImplItemConst, SynImplItemConst);
-new_type!(syn::ItemConst, SynItemConst);
 new_type!(syn::AttributeArgs, SynAttributeArgs);
 new_type!(syn::PathArguments, SynPathArguments);
 

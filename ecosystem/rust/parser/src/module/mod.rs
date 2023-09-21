@@ -6,6 +6,7 @@ use ligen_ir::{Constant, Object, Project, Structure};
 use ligen_parsing::{Context, Parser};
 use crate::prelude::*;
 use ligen_ir::{Function, Module};
+use crate::constant::ConstantParser;
 use crate::function::{FunctionParser, MethodParser};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -121,7 +122,7 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
                                 for item in &implementation.items {
                                     match item {
                                         syn::ImplItem::Const(constant) => {
-                                            let constant = SynImplItemConst(constant.clone()).try_into()?;
+                                            let constant = ConstantParser.parse(constant.clone())?;
                                             object.constants.push(constant)
                                         },
                                         syn::ImplItem::Method(method) => {
@@ -178,7 +179,7 @@ fn extract_constants(_parser: &ModuleParser<'_>, _: bool, items: &[syn::Item]) -
     let mut constants = Vec::new();
     for item in items {
         if let syn::Item::Const(constant) = item {
-            constants.push(SynItemConst(constant.clone()).try_into()?);
+            constants.push(ConstantParser.parse(constant.clone())?);
         }
     }
     Ok(constants)
