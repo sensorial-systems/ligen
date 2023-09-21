@@ -1,6 +1,8 @@
 //! Structure representation.
 
 pub mod field;
+
+use syn::ItemStruct;
 pub use field::*;
 
 use crate::prelude::*;
@@ -9,43 +11,50 @@ use ligen_parsing::Parser;
 
 pub struct StructureParser;
 
-impl Parser<proc_macro2::TokenStream> for StructureParser {
+impl Parser<proc_macro::TokenStream> for StructureParser {
     type Output = Structure;
-    fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        syn::parse2::<syn::ItemStruct>(tokenstream.into())
-            .map_err(|_| "Failed to parse to Structure.".into())
-            .and_then(|item| SynItemStruct::from(item).try_into())
+    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(token_stream);
+        self.parse(token_stream)
     }
 }
 
-impl TryFrom<SynItemStruct> for Structure {
-    type Error = Error;
-    fn try_from(SynItemStruct(structure): SynItemStruct) -> Result<Self> {
+impl Parser<proc_macro2::TokenStream> for StructureParser {
+    type Output = Structure;
+    fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let input = syn::parse2::<syn::ItemStruct>(tokenstream.into())
+            .map_err(|_| "Failed to parse to Structure.".to_string())?;
+        self.parse(input)
+    }
+}
+
+impl Parser<syn::ItemStruct> for StructureParser {
+    type Output = Structure;
+    fn parse(&self, structure: ItemStruct) -> Result<Self::Output> {
         let mut fields = Vec::new();
         for field in structure.fields {
             fields.push(SynField(field).try_into()?);
         }
-        Ok(Self { fields })
+        Ok(Self::Output { fields })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use quote::quote;
-    use syn::parse_quote::parse;
-    use std::convert::TryFrom;
     use ligen_ir::{Field, Type, Primitive, Integer, Visibility, Structure};
-    use crate::prelude::SynItemStruct;
+    use ligen_parsing::Parser;
+    use crate::types::structure::StructureParser;
+    use crate::prelude::*;
 
     #[test]
-    fn structure() {
-        let structure = parse::<syn::ItemStruct>(quote! {
+    fn structure() -> Result<()> {
+        let structure = quote! {
             struct Structure {
                 integer: i32
             }
-        });
+        };
         assert_eq!(
-            Structure::try_from(SynItemStruct(structure)).expect("Failed to convert structure."),
+            StructureParser.parse(structure)?,
             Structure {
                 fields: vec! [
                     Field {
@@ -57,5 +66,6 @@ mod tests {
                 ]
             }
         );
+        Ok(())
     }
 }

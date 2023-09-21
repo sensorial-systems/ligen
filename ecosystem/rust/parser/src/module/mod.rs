@@ -2,7 +2,7 @@
 
 mod import;
 
-use ligen_ir::{Constant, Object, Project, Structure};
+use ligen_ir::{Constant, Object, Project};
 use ligen_parsing::{Context, Parser};
 use crate::prelude::*;
 use ligen_ir::{Function, Module};
@@ -13,6 +13,7 @@ use crate::macro_attributes::attributes::AttributesParser;
 use crate::module::import::ImportsParser;
 use crate::path::PathParser;
 use crate::types::enumeration::EnumerationParser;
+use crate::types::structure::StructureParser;
 use crate::visibility::VisibilityParser;
 
 fn extract_functions(items: &[syn::Item]) -> Result<Vec<Function>> {
@@ -80,7 +81,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
                     let attributes = AttributesParser.parse(structure.attrs.clone())?;
                     let path = IdentifierParser.parse(structure.ident.clone())?.into();
                     let visibility = VisibilityParser.parse(structure.vis.clone())?;
-                    let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
+                    let structure = StructureParser.parse(structure.clone())?;
                     objects.push(Object {
                         attributes,
                         path,
@@ -197,7 +198,7 @@ mod tests {
     use quote::quote;
     use ligen_parsing::PathTree;
     use pretty_assertions::assert_eq;
-    use ligen_ir::Visibility;
+    use ligen_ir::{Structure, Visibility};
 
     #[test]
     fn module_file() -> Result<()> {
