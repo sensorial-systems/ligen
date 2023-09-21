@@ -2,20 +2,24 @@
 
 mod import;
 
-use ligen_ir::{Constant, Enumeration, Object, Path, Project, Structure};
+use ligen_ir::{Constant, Object, Project, Structure};
 use ligen_parsing::{Context, Parser};
 use crate::prelude::*;
-use ligen_ir::{Identifier, Function, Module};
+use ligen_ir::{Function, Module};
+use crate::function::{FunctionParser, MethodParser};
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
+use crate::path::PathParser;
+use crate::types::enumeration::EnumerationParser;
 
-fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
+fn extract_functions(items: &[syn::Item]) -> Result<Vec<Function>> {
     let mut functions = Vec::new();
     for item in items {
         if let syn::Item::Fn(function) = item {
-            functions.push(SynItemFn(function.clone()).into());
+            functions.push(FunctionParser.parse(function.clone())?);
         }
     }
-    functions
+    Ok(functions)
 }
 
 fn extract_modules(parser: &ModuleParser<'_>, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
@@ -58,9 +62,9 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
             match item {
                 syn::Item::Enum(enumeration) => {
                     let attributes = AttributesParser.parse(enumeration.attrs.clone())?;
-                    let path = Identifier::from(SynIdent(enumeration.ident.clone())).into();
+                    let path = IdentifierParser.parse(enumeration.ident.clone())?.into();
                     let visibility = SynVisibility(enumeration.vis.clone()).into();
-                    let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
+                    let enumeration = EnumerationParser.parse(enumeration.clone())?;
                     objects.push(Object {
                         attributes,
                         path,
@@ -71,7 +75,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
                 },
                 syn::Item::Struct(structure) => {
                     let attributes = AttributesParser.parse(structure.attrs.clone())?;
-                    let path = Identifier::from(SynIdent(structure.ident.clone())).into();
+                    let path = IdentifierParser.parse(structure.ident.clone())?.into();
                     let visibility = SynVisibility(structure.vis.clone()).into();
                     let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
                     objects.push(Object {
@@ -109,7 +113,7 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
                     if implementation.trait_.is_none() {
                         if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
                             // FIXME: Transform relative path to absolute path.
-                            let path = Path::from(SynPath(path.clone()));
+                            let path = PathParser.parse(path.clone())?;
                             if let Some(object) = project.root_module.find_object_mut(&path) {
                                 // TODO: Parse attributes and merge them with individual items.
                                 // let attributes = implementation.attrs;
@@ -121,10 +125,10 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
                                         },
                                         syn::ImplItem::Method(method) => {
                                             if method.sig.receiver().is_some() {
-                                                let method = SynImplItemMethod(method.clone()).into();
+                                                let method = MethodParser.parse(method.clone())?;
                                                 object.methods.push(method)
                                             } else {
-                                                let function = SynImplItemMethod(method.clone()).into();
+                                                let function = FunctionParser.parse(method.clone())?;
                                                 object.functions.push(function)
                                             }
                                         }
@@ -159,9 +163,9 @@ impl<'a> Parser<syn::ItemMod> for ModuleParser<'a> {
             .ok_or("Module file isn't loaded.")?;
         let attributes = AttributesParser.parse(module.attrs)?;
         let visibility = SynVisibility(module.vis).into();
-        let path = Identifier::from(SynIdent(module.ident)).into();
+        let path = IdentifierParser.parse(module.ident)?.into();
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
-        let functions = extract_functions(items.as_slice());
+        let functions = extract_functions(items.as_slice())?;
         let objects = extract_object_definitions(false, items.as_slice())?;
         let constants = extract_constants(self, false, items.as_slice())?;
         let modules = extract_modules(self, false, items)?;

@@ -3,15 +3,17 @@
 use crate::prelude::*;
 use ligen_ir::Field;
 use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
+use crate::types::TypeParser;
 
 impl TryFrom<SynField> for Field {
     type Error = Error;
     fn try_from(SynField(field): SynField) -> Result<Self> {
         let attributes = AttributesParser.parse(field.attrs)?;
         let visibility = SynVisibility(field.vis).into();
-        let identifier = field.ident.map(|identifier| SynIdent(identifier).into());
-        let type_ = SynType(field.ty).try_into()?;
+        let identifier = field.ident.map(|identifier| IdentifierParser.parse(identifier).expect("Failed to parse identifier."));
+        let type_ = TypeParser.parse(field.ty)?;
         Ok(Self { attributes, visibility, identifier, type_ })
     }
 }

@@ -1,21 +1,42 @@
 use ligen_ir::Path;
+use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
-impl From<SynPath> for Path {
-    fn from(SynPath(path): SynPath) -> Self {
+pub struct PathParser;
+
+impl Parser<syn::Path> for PathParser {
+    type Output = Path;
+    fn parse(&self, path: syn::Path) -> Result<Self::Output> {
         let segments = path
             .segments
             .iter()
-            .map(|segment| SynIdent(segment.ident.clone()).into())
+            .map(|segment| IdentifierParser.parse(segment.ident.clone()).expect("Failed to parse segment."))
             .collect();
-        Self { segments }
+        Ok(Self::Output { segments })
     }
 }
 
-impl From<SynIdent> for Path {
-    fn from(identifier: SynIdent) -> Self {
-        let segments = vec![identifier.into()];
-        Self { segments }
+impl Parser<syn::Ident> for PathParser {
+    type Output = Path;
+    fn parse(&self, identifier: syn::Ident) -> Result<Self::Output> {
+        let segments = vec![IdentifierParser.parse(identifier)?];
+        Ok(Self::Output { segments })
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for PathParser {
+    type Output = Path;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for PathParser {
+    type Output = Path;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        self.parse(syn::parse_quote::parse::<syn::Path>(input))
     }
 }
 
@@ -32,22 +53,24 @@ impl ToTokens for Path {
 
 #[cfg(test)]
 mod test {
-    use quote::quote;
-    use syn::parse_quote::parse;
     use ligen_ir::{Path, Identifier};
-    use crate::prelude::SynPath;
+    use ligen_parsing::Parser;
+    use crate::path::PathParser;
+    use crate::prelude::*;
 
     #[test]
-    fn identifier_as_path() {
-        let path: Path = SynPath(parse::<syn::Path>(quote! { u8 })).into();
+    fn identifier_as_path() -> Result<()> {
+        let path: Path = PathParser.parse(quote! { u8 })?;
         assert_eq!(path.segments.first(), Some(&Identifier::new("u8")));
+        Ok(())
     }
 
     #[test]
-    fn path() {
-        let path: Path = SynPath(parse::<syn::Path>(quote! { std::convert::TryFrom })).into();
+    fn path() -> Result<()> {
+        let path: Path = PathParser.parse(quote! { std::convert::TryFrom })?;
         let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
         assert_eq!(path.segments, segments);
+        Ok(())
     }
 
     #[test]

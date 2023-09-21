@@ -3,7 +3,9 @@
 use crate::prelude::*;
 use ligen_ir::{Identifier, Reference, Type, Mutability, Parameter};
 use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
+use crate::types::TypeParser;
 
 pub struct ParameterParser;
 
@@ -16,8 +18,8 @@ impl Parser<syn::FnArg> for ParameterParser {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self::Output {
                         attributes: AttributesParser.parse(attrs)?,
-                        identifier: SynIdent::from(ident).into(),
-                        type_: Type::try_from(SynType::from(*ty)).expect("Failed to convert from Type"),
+                        identifier: IdentifierParser.parse(ident)?,
+                        type_: TypeParser.parse(*ty)?,
                     })
                 } else {
                     Err(Error::Message("Identifier not found".into()))

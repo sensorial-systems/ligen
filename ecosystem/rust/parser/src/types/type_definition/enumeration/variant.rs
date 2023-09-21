@@ -3,14 +3,17 @@
 use crate::prelude::*;
 use ligen_ir::Variant;
 use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
-impl TryFrom<SynVariant> for Variant {
-    type Error = Error;
-    fn try_from(SynVariant(variant): SynVariant) -> Result<Self> {
+pub struct VariantParser;
+
+impl Parser<syn::Variant> for VariantParser {
+    type Output = Variant;
+    fn parse(&self, variant: syn::Variant) -> Result<Self::Output> {
         let attributes = AttributesParser.parse(variant.attrs)?;
-        let identifier = SynIdent(variant.ident).into();
-        Ok(Self { attributes, identifier })
+        let identifier = IdentifierParser.parse(variant.ident)?;
+        Ok(Self::Output { attributes, identifier })
     }
 }
 
@@ -18,9 +21,9 @@ impl TryFrom<SynVariant> for Variant {
 mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
-    use std::convert::TryFrom;
-    use crate::prelude::SynVariant;
     use ligen_ir::Variant;
+    use ligen_parsing::Parser;
+    use crate::types::type_definition::enumeration::variant::VariantParser;
 
     #[test]
     fn parameter_primitive() {
@@ -30,7 +33,7 @@ mod tests {
             }
         });
         assert_eq!(
-            Variant::try_from(SynVariant(enumeration.variants.into_iter().next().expect("Couldn't get field."))).expect("Failed to convert field."),
+            VariantParser.parse(enumeration.variants.into_iter().next().expect("Couldn't get field.")).expect("Failed to convert field."),
             Variant {
                 attributes: Default::default(),
                 identifier: "Integer".into(),

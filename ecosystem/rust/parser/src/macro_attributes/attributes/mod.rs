@@ -4,7 +4,7 @@ pub use attribute::*;
 use ligen_ir::{Attribute, Attributes, Identifier};
 use crate::prelude::*;
 use syn::parse::{ParseStream, Parse};
-use syn::{parse2, Token};
+use syn::{MetaList, parse2, Token};
 use ligen_parsing::Parser;
 
 pub struct AttributesParser;
@@ -43,6 +43,19 @@ impl Parser<syn::AttributeArgs> for AttributesParser {
             .map(|nested_meta| AttributeParser.parse(nested_meta.clone()).expect("Failed to parse nested meta."))
             .collect();
         Ok(Self::Output { attributes })
+    }
+}
+
+impl Parser<syn::MetaList> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, input: MetaList) -> Result<Self::Output> {
+        Ok(Self::Output {
+            attributes: input
+                .nested
+                .into_iter()
+                .map(|nested_meta| AttributeParser.parse(nested_meta).expect("Failed to parse nested meta."))
+                .collect(),
+        })
     }
 }
 

@@ -3,6 +3,7 @@
 use crate::prelude::*;
 use ligen_ir::{Path, Attributes, Visibility, Imports, Import};
 use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
 #[derive(Clone)]
@@ -42,12 +43,12 @@ impl TryFrom<ImportsBuilder> for Imports {
         let mut builder = builder;
         match builder.tree {
             syn::UseTree::Path(use_path) => {
-                builder.path = builder.path.join(SynIdent(use_path.ident));
+                builder.path = builder.path.join(IdentifierParser.parse(use_path.ident)?);
                 builder.tree = (*use_path.tree).clone();
                 builder.try_into()
             },
             syn::UseTree::Name(name) => {
-                builder.path = builder.path.join(SynIdent(name.ident));
+                builder.path = builder.path.join(IdentifierParser.parse(name.ident)?);
                 Ok(Self(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
@@ -56,12 +57,12 @@ impl TryFrom<ImportsBuilder> for Imports {
                 }]))
             },
             syn::UseTree::Rename(rename) => {
-                builder.path = builder.path.join(SynIdent(rename.ident));
+                builder.path = builder.path.join(IdentifierParser.parse(rename.ident)?);
                 Ok(Self(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
                     path: builder.path,
-                    renaming: Some(SynIdent(rename.rename).into())
+                    renaming: Some(IdentifierParser.parse(rename.rename)?)
                 }]))
             },
             syn::UseTree::Glob(_) => {

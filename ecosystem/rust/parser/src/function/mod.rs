@@ -1,16 +1,27 @@
-use ligen_ir::Identifier;
+use syn::{ImplItemMethod, ItemFn};
+
 use crate::prelude::*;
 
 use ligen_ir::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
 use ligen_parsing::Parser;
 use crate::function::parameter::ParameterParser;
+use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributeParser;
+use crate::types::TypeParser;
 
-pub mod parameter;
-pub mod method;
+mod parameter;
+mod method;
+mod synchrony;
 
-impl From<SynItemFn> for Function {
-    fn from(SynItemFn(item_fn): SynItemFn) -> Self {
+pub use parameter::*;
+pub use method::*;
+pub use synchrony::*;
+
+pub struct FunctionParser;
+
+impl Parser<syn::ItemFn> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, item_fn: ItemFn) -> Result<Self::Output> {
         let syn::Signature {
             asyncness,
             ident,
@@ -26,10 +37,10 @@ impl From<SynItemFn> for Function {
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_x, y) => {
-                Some(Type::try_from(SynType::from(*y)).expect("Failed to convert from ReturnType::Type"))
+                Some(TypeParser.parse(*y)?)
             }
         };
-        Self {
+        Ok(Self::Output {
             attributes: Attributes {
                 attributes: item_fn
                     .attrs
@@ -42,28 +53,86 @@ impl From<SynItemFn> for Function {
                 Some(_x) => Synchrony::Asynchronous,
                 None => Synchrony::Synchronous,
             },
-            path: Identifier::from(SynIdent::from(ident)).into(),
+            path: IdentifierParser.parse(ident)?.into(),
             inputs,
             output,
-        }
+        })
+    }
+}
+
+// FIXME: Can we make this a subset of method? What about using the MethodParser and then just catch the things we care about.
+//  This is repeating Parser<syn::ImplItemMethod> for MethodParser.
+impl Parser<syn::ImplItemMethod> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, method: ImplItemMethod) -> Result<Self::Output> {
+        let syn::Signature {
+            asyncness,
+            ident,
+            inputs,
+            output,
+            ..
+        } = method.sig;
+        let inputs: Vec<Parameter> = inputs
+            .clone()
+            .into_iter()
+            .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
+            .collect();
+        let output: Option<Type> = match output {
+            syn::ReturnType::Default => None,
+            syn::ReturnType::Type(_x, y) => {
+                Some(TypeParser.parse(*y).expect("Failed to convert from ReturnType::Type"))
+            }
+        };
+        Ok(Self::Output {
+            attributes: Attributes {
+                attributes: method
+                    .attrs
+                    .into_iter()
+                    .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse Meta"))
+                    .collect(),
+            },
+            visibility: Visibility::from(SynVisibility::from(method.vis)),
+            synchrony: match asyncness {
+                Some(_x) => Synchrony::Asynchronous,
+                None => Synchrony::Synchronous,
+            },
+            path: IdentifierParser.parse(ident)?.into(),
+            inputs,
+            output,
+        })
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
+        let item_fn = proc_macro2::TokenStream::from(token_stream);
+        self.parse(item_fn)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let item_fn = syn::parse2::<ItemFn>(token_stream).expect("Failed to parse ItemFn");
+        self.parse(item_fn)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use quote::quote;
-    use syn::parse_quote::parse;
     use ligen_ir::Synchrony;
-
     use ligen_ir::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
-    use crate::prelude::SynItemFn;
+    use ligen_parsing::Parser;
+    use crate::function::FunctionParser;
+    use crate::prelude::*;
 
     use super::{Function, Type};
 
     #[test]
-    fn function() {
+    fn function() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
+            FunctionParser.parse(quote! {fn test() {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -73,12 +142,13 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_impl() {
+    fn function_impl() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() {}}))),
+            FunctionParser.parse(quote! {fn test() {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -88,12 +158,13 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_input() {
+    fn function_input() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test(a: String, b: String) {}}))),
+            FunctionParser.parse(quote! {fn test(a: String, b: String) {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -114,12 +185,13 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_output() {
+    fn function_output() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {fn test() -> String {}}))),
+            FunctionParser.parse(quote! {fn test() -> String {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -129,14 +201,13 @@ mod test {
                 output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_input_output() {
+    fn function_input_output() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(
-                quote! {fn test(a: String, b: &String, c: &mut String) -> &String {}}
-            ))),
+            FunctionParser.parse(quote! {fn test(a: String, b: &String, c: &mut String) -> &String {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -171,15 +242,16 @@ mod test {
                 }))
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_attribute() {
+    fn function_attribute() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {
+            FunctionParser.parse(quote! {
                 #[test(a = "b")]
                 fn test() {}
-            }))),
+            })?,
             Function {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -199,12 +271,13 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_async() {
+    fn function_async() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {async fn test() {}}))),
+            FunctionParser.parse(quote! {async fn test() {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Private,
@@ -214,15 +287,16 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_complete() {
+    fn function_complete() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {
+            FunctionParser.parse(quote! {
             #[test(a = "b")]
                 async fn test(a: String, b: &String, c: &mut String) -> &String {}
-            }))),
+            })?,
             Function {
                 attributes: Attributes {
                     attributes: vec![Attribute::Group(
@@ -267,12 +341,13 @@ mod test {
                 }))
             }
         );
+        Ok(())
     }
 
     #[test]
-    fn function_pub() {
+    fn function_pub() -> Result<()> {
         assert_eq!(
-            Function::from(SynItemFn(parse::<syn::ItemFn>(quote! {pub fn test() {}}))),
+            FunctionParser.parse(quote! {pub fn test() {}})?,
             Function {
                 attributes: Attributes { attributes: vec![] },
                 visibility: Visibility::Public,
@@ -282,5 +357,6 @@ mod test {
                 output: None
             }
         );
+        Ok(())
     }
 }

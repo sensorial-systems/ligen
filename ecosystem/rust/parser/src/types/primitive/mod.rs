@@ -1,3 +1,4 @@
+use proc_macro2::Ident;
 use crate::prelude::*;
 
 pub mod integer;
@@ -6,42 +7,56 @@ pub mod float;
 pub use integer::*;
 pub use float::*;
 use ligen_ir::{Primitive, Float, Integer};
+use ligen_parsing::Parser;
 
-impl TryFrom<SynIdent> for Primitive {
-    type Error = Error;
-    fn try_from(SynIdent(ident): SynIdent) -> Result<Self> {
+pub struct PrimitiveParser;
+
+impl Parser<syn::Ident> for PrimitiveParser {
+    type Output = Primitive;
+    fn parse(&self, ident: Ident) -> Result<Self::Output> {
         match ident.to_string().as_str() {
-            "u8" => Ok(Self::Integer(Integer::U8)),
-            "u16" => Ok(Self::Integer(Integer::U16)),
-            "u32" => Ok(Self::Integer(Integer::U32)),
-            "u64" => Ok(Self::Integer(Integer::U64)),
-            "u128" => Ok(Self::Integer(Integer::U128)),
-            "usize" => Ok(Self::Integer(Integer::USize)),
-            "i8" => Ok(Self::Integer(Integer::I8)),
-            "i16" => Ok(Self::Integer(Integer::I16)),
-            "i32" => Ok(Self::Integer(Integer::I32)),
-            "i64" => Ok(Self::Integer(Integer::I64)),
-            "i128" => Ok(Self::Integer(Integer::I128)),
-            "isize" => Ok(Self::Integer(Integer::ISize)),
-            "c_char" => Ok(Self::Integer(Integer::I8)),
-            "c_uchar" => Ok(Self::Integer(Integer::U8)),
-            "f32" => Ok(Self::Float(Float::F32)),
-            "f64" => Ok(Self::Float(Float::F64)),
-            "bool" => Ok(Self::Boolean),
-            "char" => Ok(Self::Character),
+            "u8"      => Ok(Self::Output::Integer(Integer::U8)),
+            "u16"     => Ok(Self::Output::Integer(Integer::U16)),
+            "u32"     => Ok(Self::Output::Integer(Integer::U32)),
+            "u64"     => Ok(Self::Output::Integer(Integer::U64)),
+            "u128"    => Ok(Self::Output::Integer(Integer::U128)),
+            "usize"   => Ok(Self::Output::Integer(Integer::USize)),
+            "i8"      => Ok(Self::Output::Integer(Integer::I8)),
+            "i16"     => Ok(Self::Output::Integer(Integer::I16)),
+            "i32"     => Ok(Self::Output::Integer(Integer::I32)),
+            "i64"     => Ok(Self::Output::Integer(Integer::I64)),
+            "i128"    => Ok(Self::Output::Integer(Integer::I128)),
+            "isize"   => Ok(Self::Output::Integer(Integer::ISize)),
+            "c_char"  => Ok(Self::Output::Integer(Integer::I8)),
+            "c_uchar" => Ok(Self::Output::Integer(Integer::U8)),
+            "f32"     => Ok(Self::Output::Float(Float::F32)),
+            "f64"     => Ok(Self::Output::Float(Float::F64)),
+            "bool"    => Ok(Self::Output::Boolean),
+            "char"    => Ok(Self::Output::Character),
             _ => Err(Error::Message("Unknown Ident".into())),
         }
     }
 }
 
-impl TryFrom<SynPath> for Primitive {
-    type Error = Error;
-    fn try_from(SynPath(path): SynPath) -> Result<Self> {
-        match path {
-            syn::Path { segments, .. } => {
-                Ok(Self::try_from(SynIdent(segments.last().unwrap().ident.clone()))?)
-            }
-        }
+impl Parser<syn::Path> for PrimitiveParser {
+    type Output = Primitive;
+    fn parse(&self, path: syn::Path) -> Result<Self::Output> {
+        self.parse(path.segments.last().unwrap().ident.clone())
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for PrimitiveParser {
+    type Output = Primitive;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for PrimitiveParser {
+    type Output = Primitive;
+    fn parse(&self, input: TokenStream) -> Result<Self::Output> {
+        self.parse(parse::<syn::Path>(input))
     }
 }
 
@@ -58,16 +73,13 @@ impl ToTokens for Primitive {
 
 #[cfg(test)]
 mod test {
-
-    use std::convert::TryInto;
-
     use super::{Primitive, Float, Integer};
-    use quote::quote;
-    use syn::parse_quote::parse;
-    use crate::prelude::SynIdent;
+    use ligen_parsing::Parser;
+    use crate::types::primitive::PrimitiveParser;
+    use crate::prelude::*;
 
     #[test]
-    fn primitive_integer() {
+    fn primitive_integer() -> Result<()> {
         let vec: Vec<Primitive> = vec![
             quote! { u8 },
             quote! { u16 },
@@ -83,7 +95,7 @@ mod test {
             quote! { isize },
         ]
             .into_iter()
-            .map(|x| SynIdent(parse::<syn::Ident>(x)).try_into().expect("Failed to parse"))
+            .map(|x| PrimitiveParser.parse(x).expect("Failed to parse"))
             .collect();
         let expected: Vec<Integer> = vec![
             Integer::U8,
@@ -107,13 +119,14 @@ mod test {
         while let Some((Primitive::Integer(value), expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
+        Ok(())
     }
 
     #[test]
-    fn primitive_float() {
+    fn primitive_float() -> Result<()> {
         let vec: Vec<Primitive> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
-            .map(|x| SynIdent(parse::<syn::Ident>(x)).try_into().expect("Failed to parse"))
+            .map(|x| PrimitiveParser.parse(x).expect("Failed to parse"))
             .collect();
         let expected: Vec<Float> = vec![Float::F32, Float::F64].into_iter().collect();
 
@@ -122,25 +135,24 @@ mod test {
         while let Some((Primitive::Float(value), expected_value)) = iter.next() {
             assert_eq!(value, expected_value);
         }
+        Ok(())
     }
 
     #[test]
-    fn primitive_boolean() {
+    fn primitive_boolean() -> Result<()> {
         assert_eq!(
             Primitive::Boolean,
-            SynIdent(parse::<syn::Ident>(quote! {bool}))
-                .try_into()
-                .expect("Failed to parse")
+            PrimitiveParser.parse(quote! {bool})?
         );
+        Ok(())
     }
 
     #[test]
-    fn primitive_character() {
+    fn primitive_character() -> Result<()> {
         assert_eq!(
             Primitive::Character,
-            SynIdent(parse::<syn::Ident>(quote! {char}))
-                .try_into()
-                .expect("Failed to parse")
+            PrimitiveParser.parse(quote! {char})?
         );
+        Ok(())
     }
 }

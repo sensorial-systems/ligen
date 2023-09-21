@@ -1,24 +1,47 @@
+use proc_macro2::Ident;
+use syn::Lit;
 use ligen_ir::Literal;
+use ligen_parsing::Parser;
 use crate::prelude::*;
 
-impl From<SynLit> for Literal {
-    fn from(SynLit(lit): SynLit) -> Self {
-        match lit {
-            syn::Lit::Str(litstr) => Self::String(litstr.value()),
-            syn::Lit::Verbatim(litverb) => Self::String(litverb.to_string()),
-            syn::Lit::ByteStr(litbytestr) => Self::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
-            syn::Lit::Byte(litbyte) => Self::UnsignedInteger(litbyte.value() as u64),
-            syn::Lit::Char(litchar) => Self::UnsignedInteger(litchar.value() as u64),
-            syn::Lit::Int(litint) => Self::Integer(litint.base10_parse().unwrap()),
-            syn::Lit::Float(litfloat) => Self::Float(litfloat.base10_parse().unwrap()),
-            syn::Lit::Bool(litbool) => Self::Boolean(litbool.value),
-        }
+pub struct LiteralParser;
+
+impl Parser<syn::Lit> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, lit: Lit) -> Result<Self::Output> {
+        Ok(match lit {
+            syn::Lit::Str(litstr) => Self::Output::String(litstr.value()),
+            syn::Lit::Verbatim(litverb) => Self::Output::String(litverb.to_string()),
+            syn::Lit::ByteStr(litbytestr) => Self::Output::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
+            syn::Lit::Byte(litbyte) => Self::Output::UnsignedInteger(litbyte.value() as u64),
+            syn::Lit::Char(litchar) => Self::Output::Character(litchar.value()),
+            syn::Lit::Int(litint) => Self::Output::Integer(litint.base10_parse().unwrap()),
+            syn::Lit::Float(litfloat) => Self::Output::Float(litfloat.base10_parse().unwrap()),
+            syn::Lit::Bool(litbool) => Self::Output::Boolean(litbool.value),
+        })
     }
 }
 
-impl From<SynIdent> for Literal {
-    fn from(SynIdent(ident): SynIdent) -> Self {
-        Self::String(ident.to_string())
+impl Parser<syn::Ident> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: Ident) -> Result<Self::Output> {
+        Ok(Self::Output::String(input.to_string()))
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let lit: syn::Lit = syn::parse2(input).expect("Failed to parse literal");
+        self.parse(lit)
     }
 }
 
@@ -56,96 +79,64 @@ impl ToTokens for Literal {
 #[cfg(test)]
 mod test {
     use super::Literal;
-    use quote::quote;
-    use syn::parse_quote::parse;
-    use crate::prelude::SynLit;
+    use ligen_parsing::Parser;
+    use crate::literal::LiteralParser;
+    use crate::prelude::*;
 
     #[test]
-    fn literal_string() {
-        let tokenstream = quote! { "value" };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::String(value) = literal {
-            assert_eq!(value, "value");
-        }
-    }
-
-    #[test]
-    fn literal_verbatim() {
+    fn literal_verbatim() -> Result<()> {
         let lit = syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim"));
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::String(value) = literal {
-            assert_eq!(value, "\"verbatim\"");
-        }
+        let literal = LiteralParser.parse(lit)?;
+        assert_eq!(literal, Literal::String("\"verbatim\"".into()));
+        Ok(())
     }
 
     #[test]
-    fn literal_byte() {
-        let tokenstream = quote! { b'A' };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::UnsignedInteger(value) = literal {
-            assert_eq!(value, b'A' as u64);
-        }
+    fn literal_string() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { "value" })?;
+        assert_eq!(literal, Literal::String("value".into()));
+        Ok(())
     }
 
     #[test]
-    fn literal_byte_str() {
-        let tokenstream = quote! { b"bytestr" };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::String(value) = literal {
-            assert_eq!(value, "bytestr");
-        }
+    fn literal_byte() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { b'A' })?;
+        assert_eq!(literal, Literal::UnsignedInteger(b'A' as u64));
+        Ok(())
     }
 
     #[test]
-    fn literal_bool() {
-        let tokenstream = quote! { true };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::Boolean(value) = literal {
-            assert_eq!(value, true);
-        }
+    fn literal_byte_str() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { b"bytestr" })?;
+        assert_eq!(literal, Literal::String("bytestr".into()));
+        Ok(())
     }
 
     #[test]
-    fn literal_char() {
-        let tokenstream = quote! { 'a' };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::Character(value) = literal {
-            assert_eq!(value, 'a');
-        }
+    fn literal_bool() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { true })?;
+        assert_eq!(literal, Literal::Boolean(true));
+        Ok(())
     }
 
     #[test]
-    fn literal_integer() {
-        let tokenstream = quote! { 2 };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::Integer(value) = literal {
-            assert_eq!(value, 2);
-        }
+    fn literal_char() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { 'a' })?;
+        assert_eq!(literal, Literal::Character('a'));
+        Ok(())
     }
 
     #[test]
-    fn literal_unsigned_integer() {
-        let tokenstream = quote! { 2 };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::UnsignedInteger(value) = literal {
-            assert_eq!(value, 2);
-        }
+    fn literal_integer() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { -2 })?;
+        assert_eq!(literal, Literal::Integer(-2));
+        Ok(())
     }
 
     #[test]
-    fn literal_float() {
-        let tokenstream = quote! { 2.0 };
-        let lit: syn::Lit = parse(tokenstream);
-        let literal: Literal = SynLit(lit).into();
-        if let Literal::Float(value) = literal {
-            assert_eq!(value, 2.0);
-        }
+    fn literal_float() -> Result<()> {
+        let literal = LiteralParser.parse(quote! { 3.5 })?;
+        assert_eq!(literal, Literal::Float(3.5));
+        Ok(())
     }
 }

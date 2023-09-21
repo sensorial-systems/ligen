@@ -1,11 +1,32 @@
 use crate::prelude::*;
 
 use ligen_ir::Identifier;
+use ligen_parsing::Parser;
 
-impl From<SynIdent> for Identifier {
-    fn from(SynIdent(ident): SynIdent) -> Self {
+pub struct IdentifierParser;
+
+impl Parser<proc_macro::TokenStream> for IdentifierParser {
+    type Output = Identifier;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for IdentifierParser {
+    type Output = Identifier;
+    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let identifier: syn::Ident = parse(token_stream);
+        self.parse(identifier)
+    }
+}
+
+
+impl Parser<syn::Ident> for IdentifierParser {
+    type Output = Identifier;
+    fn parse(&self, ident: syn::Ident) -> Result<Self::Output> {
         let name = ident.to_string();
-        Self { name }
+        Ok(Self::Output { name })
     }
 }
 
@@ -20,16 +41,14 @@ impl ToTokens for Identifier {
 
 #[cfg(test)]
 mod test {
-    use super::quote;
-    use super::Identifier;
-    use syn::parse_quote::parse;
-    use crate::prelude::SynIdent;
+    use ligen_parsing::Parser;
+    use crate::identifier::IdentifierParser;
+    use crate::prelude::*;
 
     #[test]
-    fn identifier() {
-        let tokenstream = quote! { id };
-        let identifier: syn::Ident = parse(tokenstream);
-        let identifier = Identifier::from(SynIdent(identifier));
+    fn identifier() -> Result<()> {
+        let identifier = IdentifierParser.parse(quote! { id })?;
         assert_eq!(identifier.name, "id");
+        Ok(())
     }
 }

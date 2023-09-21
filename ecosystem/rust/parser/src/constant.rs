@@ -1,14 +1,18 @@
-use ligen_ir::{Constant, Identifier, Literal, Type};
+use ligen_ir::Constant;
+use ligen_parsing::Parser;
+use crate::identifier::IdentifierParser;
+use crate::literal::LiteralParser;
 use crate::prelude::*;
+use crate::types::TypeParser;
 
 impl TryFrom<SynImplItemConst> for Constant {
     type Error = Error;
     fn try_from(SynImplItemConst(item_const): SynImplItemConst) -> Result<Self> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             Ok(Self {
-                path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
-                type_: Type::try_from(SynType(item_const.ty))?,
-                literal: Literal::from(SynLit(lit)),
+                path: IdentifierParser.parse(item_const.ident.clone())?.into(),
+                type_: TypeParser.parse(item_const.ty)?,
+                literal: LiteralParser.parse(lit)?,
             })
         } else {
             Err("Undefined Constant inside Impl block".into())
@@ -21,9 +25,9 @@ impl TryFrom<SynItemConst> for Constant {
     fn try_from(SynItemConst(item_const): SynItemConst) -> Result<Self> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Ok(Self {
-                path: Identifier::from(SynIdent(item_const.ident.clone())).into(),
-                type_: Type::try_from(SynType(*item_const.ty))?,
-                literal: Literal::from(SynLit(lit)),
+                path: IdentifierParser.parse(item_const.ident.clone())?.into(),
+                type_: TypeParser.parse(*item_const.ty)?,
+                literal: LiteralParser.parse(lit)?,
             })
         } else {
             Err("Undefined Constant".into())
@@ -33,8 +37,7 @@ impl TryFrom<SynItemConst> for Constant {
 
 #[cfg(test)]
 mod test {
-    use super::{Constant, Identifier, Type};
-    use ligen_ir::{Literal, Mutability, Reference};
+    use ligen_ir::{Literal, Mutability, Reference, Constant, Identifier, Type};
     use quote::quote;
     use syn::parse_quote::parse;
     use crate::prelude::*;

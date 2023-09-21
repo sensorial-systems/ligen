@@ -1,5 +1,7 @@
 use ligen_ir::Generics;
+use ligen_parsing::Parser;
 use crate::prelude::*;
+use crate::types::type_::TypeParser;
 
 impl From<SynPathArguments> for Generics {
     fn from(SynPathArguments(from): SynPathArguments) -> Self {
@@ -9,7 +11,7 @@ impl From<SynPathArguments> for Generics {
                     .args
                     .into_iter()
                     .filter_map(|generic| match generic {
-                        syn::GenericArgument::Type(type_) => SynType(type_).try_into().ok(),
+                        syn::GenericArgument::Type(type_) => Some(TypeParser.parse(type_).expect("Failed to parse generic type.")),
                         _ => None
                     })
                     .collect()

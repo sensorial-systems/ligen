@@ -1,28 +1,33 @@
 use ligen_ir::{Primitive, Reference, Generics, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
+use ligen_parsing::Parser;
+use crate::path::PathParser;
+use crate::types::primitive::PrimitiveParser;
 
-impl TryFrom<SynPath> for Type {
-    type Error = Error;
-    fn try_from(SynPath(path): SynPath) -> Result<Self> {
-        if Primitive::is_primitive(SynPath(path.clone())) {
-            Ok(Self::Primitive(SynPath(path).try_into()?))
+pub struct TypeParser;
+
+impl Parser<syn::Path> for TypeParser {
+    type Output = Type;
+    fn parse(&self, path: syn::Path) -> Result<Self::Output> {
+        if Primitive::is_primitive(PathParser.parse(path.clone())?) {
+            Ok(Self::Output::Primitive(PrimitiveParser.parse(path)?))
         } else {
             let generics = path
                 .segments
                 .last()
                 .map(|segment| Generics::from(SynPathArguments(segment.arguments.clone())))
                 .unwrap_or_default();
-            Ok(Self::Composite(SynPath(path).into(), generics))
+            Ok(Self::Output::Composite(PathParser.parse(path)?, generics))
         }
     }
 }
 
-impl TryFrom<SynType> for Type {
-    type Error = Error;
-    fn try_from(SynType(syn_type): SynType) -> Result<Self> {
+impl Parser<syn::Type> for TypeParser {
+    type Output = Type;
+    fn parse(&self, syn_type: syn::Type) -> Result<Self::Output> {
         if let syn::Type::Path(TypePath { path, .. }) = syn_type {
-            Ok(SynPath(path).try_into()?)
+            Ok(self.parse(path)?)
         } else {
             let reference = match &syn_type {
                 syn::Type::Reference(TypeReference {
@@ -36,8 +41,8 @@ impl TryFrom<SynType> for Type {
             if let Some((elem, mutability)) = reference {
                 if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                    let type_ = Box::new(SynPath(path).try_into()?);
-                    Ok(Self::Reference(Reference { mutability, type_, }))
+                    let type_ = Box::new(TypeParser.parse(path)?);
+                    Ok(Self::Output::Reference(Reference { mutability, type_, }))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))
                 }
@@ -45,6 +50,21 @@ impl TryFrom<SynType> for Type {
                 Err(Error::Message("Only Path, Reference and Ptr Types are currently supported".into()))
             }
         }
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        self.parse(parse::<syn::Type>(input))
     }
 }
 
@@ -63,18 +83,11 @@ impl ToTokens for Type {
 
 #[cfg(test)]
 mod test {
-    use std::convert::TryInto;
-
-    use quote::quote;
-    use syn::parse_quote::parse;
-
     use ligen_ir::{Float, Integer, Mutability};
-    use crate::prelude::SynType;
-
-    use super::{
-        Primitive::{self, Boolean, Character},
-        Reference, Type,
-    };
+    use ligen_parsing::Parser;
+    use crate::types::type_::TypeParser;
+    use crate::prelude::*;
+    use super::*;
 
     #[test]
     fn types_integer() {
@@ -94,9 +107,7 @@ mod test {
         ]
             .into_iter()
             .map(|x| {
-                SynType(parse::<syn::Type>(x))
-                    .try_into()
-                    .expect("Failed to convert from syn::Type")
+                TypeParser.parse(x).expect("Failed to convert from syn::Type")
             })
             .collect();
         let expected: Vec<Type> = vec![
@@ -129,9 +140,7 @@ mod test {
         let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
             .map(|x| {
-                SynType(parse::<syn::Type>(x))
-                    .try_into()
-                    .expect("Failed to convert from syn::Type")
+                TypeParser.parse(x).expect("Failed to convert from syn::Type")
             })
             .collect();
         let expected: Vec<Type> = vec![Float::F32, Float::F64]
@@ -147,27 +156,25 @@ mod test {
     }
 
     #[test]
-    fn types_boolean() {
+    fn types_boolean() -> Result<()> {
         assert_eq!(
-            Type::Primitive(Boolean),
-            SynType(parse::<syn::Type>(quote! {bool}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            Type::Primitive(Primitive::Boolean),
+            TypeParser.parse(quote! {bool})?
         );
+        Ok(())
     }
 
     #[test]
-    fn types_character() {
+    fn types_character() -> Result<()> {
         assert_eq!(
-            Type::Primitive(Character),
-            SynType(parse::<syn::Type>(quote! {char}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            Type::Primitive(Primitive::Character),
+            TypeParser.parse(quote! {char})?
         );
+        Ok(())
     }
 
     #[test]
-    fn types_borrow_constant() {
+    fn types_borrow_constant() -> Result<()> {
         assert_eq!(
             Type::Reference(
                 Reference {
@@ -181,14 +188,13 @@ mod test {
                     )
                 }
             ),
-            SynType(parse::<syn::Type>(quote! {&i32}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            TypeParser.parse(quote! {&i32})?
         );
+        Ok(())
     }
 
     #[test]
-    fn types_borrow_mutable() {
+    fn types_borrow_mutable() -> Result<()> {
         assert_eq!(
             Type::Reference(
                 Reference {
@@ -202,14 +208,13 @@ mod test {
                     )
                 }
             ),
-            SynType(parse::<syn::Type>(quote! {&mut i32}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            TypeParser.parse(quote! {&mut i32})?
         );
+        Ok(())
     }
 
     #[test]
-    fn types_pointer_constant() {
+    fn types_pointer_constant() -> Result<()> {
         assert_eq!(
             Type::Reference(Reference {
                 mutability: Mutability::Constant,
@@ -221,14 +226,13 @@ mod test {
                     )
                 )
             }),
-            SynType(parse::<syn::Type>(quote! {*const i32}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            TypeParser.parse(quote! {*const i32})?
         );
+        Ok(())
     }
 
     #[test]
-    fn types_pointer_mutable() {
+    fn types_pointer_mutable() -> Result<()> {
         assert_eq!(
             Type::Reference(Reference {
                 mutability: Mutability::Mutable,
@@ -240,9 +244,8 @@ mod test {
                     )
                 )
             }),
-            SynType(parse::<syn::Type>(quote! {*mut i32}))
-                .try_into()
-                .expect("Failed to convert from syn::Type")
+            TypeParser.parse(quote! {*mut i32})?
         );
+        Ok(())
     }
 }

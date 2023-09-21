@@ -2,6 +2,7 @@ pub use ligen_common::*;
 pub use ligen_utils::prelude::*;
 pub use proc_macro2::TokenStream;
 pub use quote::{quote, TokenStreamExt};
+pub use syn::parse_quote::parse;
 
 // TODO: Move these to new_types.rs
 macro_rules! new_type {
@@ -21,7 +22,6 @@ macro_rules! new_type {
 }
 
 pub(crate) use new_type;
-new_type!(syn::Path, SynPath);
 new_type!(syn::Field, SynField);
 new_type!(ligen_ir::Imports, LigenImports);
 new_type!(syn::ItemStruct, SynItemStruct);

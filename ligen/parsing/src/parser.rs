@@ -1,3 +1,5 @@
+// TODO: Organize this module.
+
 use std::pin::Pin;
 use ligen_ir::{Identifier, Path};
 use ligen_common::Result;
@@ -25,6 +27,7 @@ pub trait Parser<Input> {
     fn parse(&self, input: Input) -> Result<Self::Output>;
 }
 
+// FIXME: Remove this.
 pub trait Parse<'a, T: GetPathTree<'a>> {
     fn parse(data: T) -> Result<Self> where Self: Sized;
 }

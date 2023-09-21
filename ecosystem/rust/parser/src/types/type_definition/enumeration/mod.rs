@@ -2,39 +2,59 @@
 
 pub mod variant;
 
+use syn::ItemEnum;
 use crate::prelude::*;
 use ligen_ir::Enumeration;
+use ligen_parsing::Parser;
+use crate::types::type_definition::enumeration::variant::VariantParser;
 
-impl TryFrom<SynItemEnum> for Enumeration {
-    type Error = Error;
-    fn try_from(SynItemEnum(enumeration): SynItemEnum) -> Result<Self> {
+pub struct EnumerationParser;
+
+impl Parser<syn::ItemEnum> for EnumerationParser {
+    type Output = Enumeration;
+    fn parse(&self, enumeration: ItemEnum) -> Result<Self::Output> {
         let mut variants = Vec::new();
         for variant in enumeration.variants {
-            variants.push(SynVariant(variant).try_into()?);
+            variants.push(VariantParser.parse(variant)?);
         }
-        Ok(Self { variants })
+        Ok(Self::Output { variants })
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for EnumerationParser {
+    type Output = Enumeration;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for EnumerationParser {
+    type Output = Enumeration;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let enumeration = syn::parse2::<syn::ItemEnum>(input).expect("Failed to parse enumeration");
+        self.parse(enumeration)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use quote::quote;
-    use syn::parse_quote::parse;
-    use std::convert::TryFrom;
     use ligen_ir::{Enumeration, Variant};
-    use crate::prelude::SynItemEnum;
+    use ligen_parsing::Parser;
+    use crate::prelude::*;
+    use crate::types::type_definition::enumeration::EnumerationParser;
 
     #[test]
-    fn enumeration() {
-        let enumeration = parse::<syn::ItemEnum>(quote! {
+    fn enumeration() -> Result<()> {
+        let enumeration = quote! {
             enum Enumeration {
                 Integer,
                 Float,
                 Boolean
             }
-        });
+        };
         assert_eq!(
-            Enumeration::try_from(SynItemEnum(enumeration)).expect("Failed to convert structure."),
+            EnumerationParser.parse(enumeration)?,
             Enumeration {
                 variants: vec! [
                     Variant {
@@ -52,5 +72,6 @@ mod tests {
                 ]
             }
         );
+        Ok(())
     }
 }
