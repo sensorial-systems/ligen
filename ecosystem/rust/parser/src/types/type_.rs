@@ -1,8 +1,9 @@
-use ligen_ir::{Primitive, Reference, Generics, Mutability, Type};
+use ligen_ir::{Primitive, Reference, Mutability, Type};
 use crate::prelude::*;
 use syn::{TypePath, TypePtr, TypeReference};
 use ligen_parsing::Parser;
 use crate::path::PathParser;
+use crate::types::GenericsParser;
 use crate::types::primitive::PrimitiveParser;
 
 pub struct TypeParser;
@@ -16,7 +17,7 @@ impl Parser<syn::Path> for TypeParser {
             let generics = path
                 .segments
                 .last()
-                .map(|segment| Generics::from(SynPathArguments(segment.arguments.clone())))
+                .map(|segment| GenericsParser.parse(segment.arguments.clone()).expect("Failed to parse generics."))
                 .unwrap_or_default();
             Ok(Self::Output::Composite(PathParser.parse(path)?, generics))
         }

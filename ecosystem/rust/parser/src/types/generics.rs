@@ -1,11 +1,15 @@
+use syn::PathArguments;
 use ligen_ir::Generics;
 use ligen_parsing::Parser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
-impl From<SynPathArguments> for Generics {
-    fn from(SynPathArguments(from): SynPathArguments) -> Self {
-        let types = match from {
+pub struct GenericsParser;
+
+impl Parser<syn::PathArguments> for GenericsParser {
+    type Output = Generics;
+    fn parse(&self, input: PathArguments) -> Result<Self::Output> {
+        let types = match input {
             syn::PathArguments::AngleBracketed(arguments) => {
                 arguments
                     .args
@@ -18,7 +22,7 @@ impl From<SynPathArguments> for Generics {
             },
             _ => Default::default()
         };
-        Self { types }
+        Ok(Self::Output { types })
     }
 }
 

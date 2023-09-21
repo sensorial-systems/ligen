@@ -29,7 +29,6 @@ new_type!(syn::ItemStruct, SynItemStruct);
 new_type!(syn::ItemUse, SynItemUse);
 new_type!(syn::ItemEnum, SynItemEnum);
 new_type!(syn::AttributeArgs, SynAttributeArgs);
-new_type!(syn::PathArguments, SynPathArguments);
 
 pub trait ToTokens {
     fn to_tokens(&self, tokens: &mut TokenStream);
