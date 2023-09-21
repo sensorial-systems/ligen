@@ -24,11 +24,7 @@ macro_rules! new_type {
 
 pub(crate) use new_type;
 new_type!(syn::Field, SynField);
-new_type!(ligen_ir::Imports, LigenImports);
 new_type!(syn::ItemStruct, SynItemStruct);
-new_type!(syn::ItemUse, SynItemUse);
-new_type!(syn::ItemEnum, SynItemEnum);
-new_type!(syn::AttributeArgs, SynAttributeArgs);
 
 pub trait ToTokens {
     fn to_tokens(&self, tokens: &mut TokenStream);

@@ -15,28 +15,47 @@ struct ImportsBuilder {
     pub tree: syn::UseTree
 }
 
-impl TryFrom<&[syn::Item]> for LigenImports {
-    type Error = Error;
-    fn try_from(items: &[syn::Item]) -> Result<Self> {
+impl Parser<&[syn::Item]> for ImportsParser {
+    type Output = Imports;
+    fn parse(&self, items: &[syn::Item]) -> Result<Self::Output> {
         let mut imports = Imports::default();
         for item in items {
             if let syn::Item::Use(import) = item {
-                imports.0.append(&mut Imports::try_from(SynItemUse(import.clone()))?.0);
+                imports.0.append(&mut (ImportsParser.parse(import.clone())?).0);
             }
         }
-        Ok(LigenImports(imports))
+        Ok(imports)
     }
 }
 
-impl TryFrom<SynItemUse> for Imports {
-    type Error = Error;
-    fn try_from(SynItemUse(import): SynItemUse) -> Result<Self> {
+pub struct ImportsParser;
+
+impl Parser<syn::ItemUse> for ImportsParser {
+    type Output = Imports;
+    fn parse(&self, import: syn::ItemUse) -> Result<Self::Output> {
         let attributes = AttributesParser.parse(import.attrs)?;
         let visibility = VisibilityParser.parse(import.vis)?;
         let path = Path::default();
         ImportsBuilder { attributes, visibility, path, tree: import.tree }.try_into()
     }
 }
+
+impl Parser<proc_macro::TokenStream> for ImportsParser {
+    type Output = Imports;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        let token_stream = proc_macro2::TokenStream::from(input);
+        self.parse(token_stream)
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for ImportsParser {
+    type Output = Imports;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        let import = syn::parse2::<syn::ItemUse>(input).expect("Failed to parse import.");
+        self.parse(import)
+    }
+}
+
 
 impl TryFrom<ImportsBuilder> for Imports {
     type Error = Error;
@@ -90,8 +109,6 @@ impl TryFrom<ImportsBuilder> for Imports {
 
 #[cfg(test)]
 mod tests {
-    use quote::quote;
-    use syn::parse_quote::parse;
     use super::*;
     use ligen_ir::Attribute;
 
@@ -101,11 +118,11 @@ mod tests {
 
     #[test]
     fn import() -> Result<()> {
-        let import = parse::<syn::ItemUse>(quote! {
+        let import = quote! {
             #[custom(attribute)]
             pub use std::collections::HashMap;
-        });
-        let imports = Imports::try_from(SynItemUse(import))?;
+        };
+        let imports = ImportsParser.parse(import)?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -119,11 +136,11 @@ mod tests {
 
     #[test]
     fn glob_import() -> Result<()> {
-        let import = parse::<syn::ItemUse>(quote! {
+        let import = quote! {
             #[custom(attribute)]
             pub use std::collections::*;
-        });
-        let imports = Imports::try_from(SynItemUse(import))?;
+        };
+        let imports = ImportsParser.parse(import)?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -137,11 +154,11 @@ mod tests {
 
     #[test]
     fn renamed_import() -> Result<()> {
-        let import = parse::<syn::ItemUse>(quote! {
+        let import = quote! {
             #[custom(attribute)]
             pub use std::collections::HashMap as Map;
-        });
-        let imports = Imports::try_from(SynItemUse(import))?;
+        };
+        let imports = ImportsParser.parse(import)?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),
@@ -155,7 +172,7 @@ mod tests {
 
     #[test]
     fn group_import() -> Result<()> {
-        let import = parse::<syn::ItemUse>(quote! {
+        let import = quote! {
             #[custom(attribute)]
             pub use std::{
                 collections::{
@@ -164,8 +181,8 @@ mod tests {
                 },
                 rc::Rc
             };
-        });
-        let imports = Imports::try_from(SynItemUse(import))?;
+        };
+        let imports = ImportsParser.parse(import)?;
         assert_eq!(imports, Imports(vec![
             Import {
                 attributes: attributes(),

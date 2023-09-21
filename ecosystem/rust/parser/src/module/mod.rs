@@ -10,6 +10,7 @@ use crate::constant::ConstantParser;
 use crate::function::{FunctionParser, MethodParser};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
+use crate::module::import::ImportsParser;
 use crate::path::PathParser;
 use crate::types::enumeration::EnumerationParser;
 use crate::visibility::VisibilityParser;
@@ -166,7 +167,7 @@ impl<'a> Parser<syn::ItemMod> for ModuleParser<'a> {
         let attributes = AttributesParser.parse(module.attrs)?;
         let visibility = VisibilityParser.parse(module.vis)?;
         let path = IdentifierParser.parse(module.ident)?.into();
-        let imports = LigenImports::try_from(items.as_slice())?.0.0;
+        let imports = ImportsParser.parse(items.as_slice())?.0;
         let functions = extract_functions(items.as_slice())?;
         let objects = extract_object_definitions(false, items.as_slice())?;
         let constants = extract_constants(self, false, items.as_slice())?;
