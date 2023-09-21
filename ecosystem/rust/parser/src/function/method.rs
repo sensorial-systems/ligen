@@ -5,6 +5,7 @@ use crate::prelude::*;
 use ligen_ir::{Synchrony, Attributes, Method, Parameter, Type, Visibility};
 use ligen_parsing::Parser;
 use crate::function::parameter::ParameterParser;
+use crate::macro_attributes::attributes::AttributeParser;
 
 impl From<SynImplItemMethod> for Method {
     fn from(SynImplItemMethod(method): SynImplItemMethod) -> Self {
@@ -43,7 +44,7 @@ impl From<SynImplItemMethod> for Method {
                 attributes: method
                     .attrs
                     .into_iter()
-                    .map(|x| SynMeta::from(x.parse_meta().expect("Failed to parse Meta")).into())
+                    .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse meta."))
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),
@@ -90,7 +91,7 @@ impl From<SynImplItemMethod> for Function {
                 attributes: method
                     .attrs
                     .into_iter()
-                    .map(|x| SynMeta::from(x.parse_meta().expect("Failed to parse Meta")).into())
+                    .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse Meta"))
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(method.vis)),

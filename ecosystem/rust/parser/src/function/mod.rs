@@ -4,6 +4,7 @@ use crate::prelude::*;
 use ligen_ir::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
 use ligen_parsing::Parser;
 use crate::function::parameter::ParameterParser;
+use crate::macro_attributes::attributes::AttributeParser;
 
 pub mod parameter;
 pub mod method;
@@ -33,7 +34,7 @@ impl From<SynItemFn> for Function {
                 attributes: item_fn
                     .attrs
                     .into_iter()
-                    .map(|x| SynMeta::from(x.parse_meta().expect("Failed to parse Meta")).into())
+                    .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse Meta"))
                     .collect(),
             },
             visibility: Visibility::from(SynVisibility::from(item_fn.vis)),

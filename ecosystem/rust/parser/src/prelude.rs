@@ -21,16 +21,7 @@ macro_rules! new_type {
 }
 
 pub(crate) use new_type;
-new_type!(syn::ImplItem, SynImplItem);
-new_type!(syn::ItemMod, SynItemMod);
-new_type!(syn::ItemImpl, SynItemImpl);
-new_type!(syn::ItemMacro, SynItemMacro);
-new_type!(syn::Attribute, SynAttribute);
-new_type!(syn::MetaList, SynMetaList);
 new_type!(syn::Path, SynPath);
-new_type!(syn::Meta, SynMeta);
-new_type!(syn::MetaNameValue, SynMetaNameValue);
-new_type!(syn::NestedMeta, SynNestedMeta);
 new_type!(syn::Field, SynField);
 new_type!(ligen_ir::Imports, LigenImports);
 new_type!(syn::ItemStruct, SynItemStruct);
