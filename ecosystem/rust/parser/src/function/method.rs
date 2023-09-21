@@ -1,4 +1,3 @@
-use syn::FnArg;
 use ligen_ir::{Mutability, Path};
 use crate::prelude::*;
 
@@ -18,8 +17,8 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
     fn parse(&self, method: syn::ImplItemMethod) -> Result<Self::Output> {
         let mutability = method.sig.receiver().map(|arg| {
             match arg {
-                FnArg::Receiver(receiver) => if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant },
-                FnArg::Typed(_pat) => Mutability::Constant // FIXME: This needs better treatment.
+                syn::FnArg::Receiver(receiver) => if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant },
+                syn::FnArg::Typed(_pat) => Mutability::Constant // FIXME: This needs better treatment.
             }
         }).unwrap_or(Mutability::Constant);
         let syn::Signature {
@@ -32,7 +31,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
         let inputs: Vec<Parameter> = inputs
             .clone()
             .into_iter()
-            .filter(|input| if let FnArg::Receiver(_) = input { false } else { true })
+            .filter(|input| if let syn::FnArg::Receiver(_) = input { false } else { true })
             .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {

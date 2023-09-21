@@ -3,8 +3,6 @@ pub use attribute::*;
 
 use ligen_ir::{Attribute, Attributes, Identifier};
 use crate::prelude::*;
-use syn::parse::{ParseStream, Parse};
-use syn::{MetaList, parse2, Token};
 use ligen_parsing::Parser;
 
 pub struct AttributesParser;
@@ -23,7 +21,7 @@ impl Parser<Vec<syn::Attribute>> for AttributesParser {
 impl Parser<proc_macro2::TokenStream> for AttributesParser {
     type Output = Attributes;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        Ok(parse2::<LigenAttributes>(tokenstream.clone()).map_err(|e| format!("Failed to parse Attributes: {:?}, input: {}", e, tokenstream.to_string()))?.0)
+        Ok(syn::parse2::<LigenAttributes>(tokenstream.clone()).map_err(|e| format!("Failed to parse Attributes: {:?}, input: {}", e, tokenstream.to_string()))?.0)
     }
 }
 
@@ -48,7 +46,7 @@ impl Parser<syn::AttributeArgs> for AttributesParser {
 
 impl Parser<syn::MetaList> for AttributesParser {
     type Output = Attributes;
-    fn parse(&self, input: MetaList) -> Result<Self::Output> {
+    fn parse(&self, input: syn::MetaList) -> Result<Self::Output> {
         Ok(Self::Output {
             attributes: input
                 .nested
@@ -111,15 +109,15 @@ impl ToTokens for Attribute {
 // TODO: Can we remove this?
 struct LigenAttributes(pub Attributes);
 
-impl Parse for LigenAttributes {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
+impl syn::parse::Parse for LigenAttributes {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut metas: Vec<Attribute> = Vec::new();
 
         while !input.is_empty() {
             let value = AttributeParser.parse(input.parse::<syn::NestedMeta>()?).expect("Failed to parse attribute");
             metas.push(value);
             if !input.is_empty() {
-                input.parse::<Token![,]>()?;
+                input.parse::<syn::Token![,]>()?;
             }
         }
         Ok(LigenAttributes(Attributes::from(metas)))

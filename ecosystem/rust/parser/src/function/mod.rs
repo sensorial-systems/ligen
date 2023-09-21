@@ -1,5 +1,3 @@
-use syn::{ImplItemMethod, ItemFn};
-
 use crate::prelude::*;
 
 use ligen_ir::{Attributes, Function, Parameter, Type};
@@ -22,7 +20,7 @@ pub struct FunctionParser;
 
 impl Parser<syn::ItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, item_fn: ItemFn) -> Result<Self::Output> {
+    fn parse(&self, item_fn: syn::ItemFn) -> Result<Self::Output> {
         let syn::Signature {
             asyncness,
             ident,
@@ -62,7 +60,7 @@ impl Parser<syn::ItemFn> for FunctionParser {
 //  This is repeating Parser<syn::ImplItemMethod> for MethodParser.
 impl Parser<syn::ImplItemMethod> for FunctionParser {
     type Output = Function;
-    fn parse(&self, method: ImplItemMethod) -> Result<Self::Output> {
+    fn parse(&self, method: syn::ImplItemMethod) -> Result<Self::Output> {
         let syn::Signature {
             asyncness,
             ident,
@@ -109,7 +107,7 @@ impl Parser<proc_macro::TokenStream> for FunctionParser {
 impl Parser<proc_macro2::TokenStream> for FunctionParser {
     type Output = Function;
     fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let item_fn = syn::parse2::<ItemFn>(token_stream).expect("Failed to parse ItemFn");
+        let item_fn = syn::parse2::<syn::ItemFn>(token_stream).expect("Failed to parse ItemFn");
         self.parse(item_fn)
     }
 }

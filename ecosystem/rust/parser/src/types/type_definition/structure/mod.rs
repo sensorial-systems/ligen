@@ -2,7 +2,6 @@
 
 pub mod field;
 
-use syn::ItemStruct;
 pub use field::*;
 
 use crate::prelude::*;
@@ -30,10 +29,10 @@ impl Parser<proc_macro2::TokenStream> for StructureParser {
 
 impl Parser<syn::ItemStruct> for StructureParser {
     type Output = Structure;
-    fn parse(&self, structure: ItemStruct) -> Result<Self::Output> {
+    fn parse(&self, structure: syn::ItemStruct) -> Result<Self::Output> {
         let mut fields = Vec::new();
         for field in structure.fields {
-            fields.push(SynField(field).try_into()?);
+            fields.push(FieldParser.parse(field)?);
         }
         Ok(Self::Output { fields })
     }

@@ -1,5 +1,3 @@
-use proc_macro2::Ident;
-use syn::Lit;
 use ligen_ir::Literal;
 use ligen_parsing::Parser;
 use crate::prelude::*;
@@ -8,7 +6,7 @@ pub struct LiteralParser;
 
 impl Parser<syn::Lit> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, lit: Lit) -> Result<Self::Output> {
+    fn parse(&self, lit: syn::Lit) -> Result<Self::Output> {
         Ok(match lit {
             syn::Lit::Str(litstr) => Self::Output::String(litstr.value()),
             syn::Lit::Verbatim(litverb) => Self::Output::String(litverb.to_string()),
@@ -24,7 +22,7 @@ impl Parser<syn::Lit> for LiteralParser {
 
 impl Parser<syn::Ident> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: Ident) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Ident) -> Result<Self::Output> {
         Ok(Self::Output::String(input.to_string()))
     }
 }

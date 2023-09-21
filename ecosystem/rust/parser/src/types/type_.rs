@@ -1,6 +1,5 @@
 use ligen_ir::{Primitive, Reference, Mutability, Type};
 use crate::prelude::*;
-use syn::{TypePath, TypePtr, TypeReference};
 use ligen_parsing::Parser;
 use crate::path::PathParser;
 use crate::types::GenericsParser;
@@ -27,20 +26,20 @@ impl Parser<syn::Path> for TypeParser {
 impl Parser<syn::Type> for TypeParser {
     type Output = Type;
     fn parse(&self, syn_type: syn::Type) -> Result<Self::Output> {
-        if let syn::Type::Path(TypePath { path, .. }) = syn_type {
+        if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
             Ok(self.parse(path)?)
         } else {
             let reference = match &syn_type {
-                syn::Type::Reference(TypeReference {
+                syn::Type::Reference(syn::TypeReference {
                                          elem, mutability, ..
                                      }) => Some((elem, mutability)),
-                syn::Type::Ptr(TypePtr {
+                syn::Type::Ptr(syn::TypePtr {
                                    elem, mutability, ..
                                }) => Some((elem, mutability)),
                 _ => None,
             };
             if let Some((elem, mutability)) = reference {
-                if let syn::Type::Path(TypePath { path, .. }) = *elem.clone() {
+                if let syn::Type::Path(syn::TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
                     let type_ = Box::new(TypeParser.parse(path)?);
                     Ok(Self::Output::Reference(Reference { mutability, type_, }))
@@ -65,7 +64,9 @@ impl Parser<proc_macro::TokenStream> for TypeParser {
 impl Parser<proc_macro2::TokenStream> for TypeParser {
     type Output = Type;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        self.parse(parse::<syn::Type>(input))
+        syn::parse2::<syn::Type>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse type: {}", e)))
+            .and_then(|syn_type| self.parse(syn_type))
     }
 }
 

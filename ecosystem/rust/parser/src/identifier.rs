@@ -16,8 +16,9 @@ impl Parser<proc_macro::TokenStream> for IdentifierParser {
 impl Parser<proc_macro2::TokenStream> for IdentifierParser {
     type Output = Identifier;
     fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let identifier: syn::Ident = parse(token_stream);
-        self.parse(identifier)
+        syn::parse2::<syn::Ident>(token_stream)
+            .map_err(|e| Error::Message(format!("Failed to parse identifier: {:?}", e)))
+            .and_then(|ident| self.parse(ident))
     }
 }
 

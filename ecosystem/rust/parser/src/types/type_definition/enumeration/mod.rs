@@ -2,7 +2,6 @@
 
 pub mod variant;
 
-use syn::ItemEnum;
 use crate::prelude::*;
 use ligen_ir::Enumeration;
 use ligen_parsing::Parser;
@@ -12,7 +11,7 @@ pub struct EnumerationParser;
 
 impl Parser<syn::ItemEnum> for EnumerationParser {
     type Output = Enumeration;
-    fn parse(&self, enumeration: ItemEnum) -> Result<Self::Output> {
+    fn parse(&self, enumeration: syn::ItemEnum) -> Result<Self::Output> {
         let mut variants = Vec::new();
         for variant in enumeration.variants {
             variants.push(VariantParser.parse(variant)?);

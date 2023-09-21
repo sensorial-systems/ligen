@@ -1,4 +1,3 @@
-use syn::ItemConst;
 use ligen_ir::Constant;
 use ligen_parsing::Parser;
 use crate::identifier::IdentifierParser;
@@ -25,7 +24,7 @@ impl Parser<syn::ImplItemConst> for ConstantParser {
 
 impl Parser<syn::ItemConst> for ConstantParser {
     type Output = Constant;
-    fn parse(&self, item_const: ItemConst) -> Result<Self::Output> {
+    fn parse(&self, item_const: syn::ItemConst) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Ok(Self::Output {
                 path: IdentifierParser.parse(item_const.ident.clone())?.into(),
