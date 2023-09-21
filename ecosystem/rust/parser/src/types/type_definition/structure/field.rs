@@ -2,11 +2,13 @@
 
 use crate::prelude::*;
 use ligen_ir::Field;
+use ligen_parsing::Parser;
+use crate::macro_attributes::attributes::AttributesParser;
 
 impl TryFrom<SynField> for Field {
     type Error = Error;
     fn try_from(SynField(field): SynField) -> Result<Self> {
-        let attributes = (LigenAttributes::try_from(field.attrs)?).into();
+        let attributes = AttributesParser.parse(field.attrs)?;
         let visibility = SynVisibility(field.vis).into();
         let identifier = field.ident.map(|identifier| SynIdent(identifier).into());
         let type_ = SynType(field.ty).try_into()?;

@@ -3,24 +3,26 @@ use ligen_ir::{Identifier, Path};
 use ligen_common::Result;
 use crate::{GetPathTree, PathTree};
 
-pub struct Parser<'a> {
-    pub path_tree: Pin<Box<PathTree<'a>>>
-}
+// TODO: Remove this.
+// pub struct Parser<'a> {
+//     pub path_tree: Pin<Box<PathTree<'a>>>
+// }
+//
+// impl<'a> Parser<'a> {
+//     pub fn root_context(&'a self) -> Context<'a> {
+//         (&self.path_tree).into()
+//     }
+// }
+//
+// impl<'a> From<Pin<Box<PathTree<'a>>>> for Parser<'a> {
+//     fn from(path_tree: Pin<Box<PathTree<'a>>>) -> Self {
+//         Self { path_tree }
+//     }
+// }
 
-impl<'a> Parser<'a> {
-    pub fn root_context(&'a self) -> Context<'a> {
-        (&self.path_tree).into()
-    }
-}
-
-impl<'a> From<Pin<Box<PathTree<'a>>>> for Parser<'a> {
-    fn from(path_tree: Pin<Box<PathTree<'a>>>) -> Self {
-        Self { path_tree }
-    }
-}
-
-pub trait ParseFrom<T> {
-    fn parse_from(context: &Context<'_>, from: T) -> Result<Self> where Self: Sized;
+pub trait Parser<Input> {
+    type Output;
+    fn parse(&self, input: Input) -> Result<Self::Output>;
 }
 
 pub trait Parse<'a, T: GetPathTree<'a>> {
@@ -36,6 +38,7 @@ pub trait Parse<'a, T: GetPathTree<'a>> {
 // }
 
 
+#[derive(Clone)]
 pub struct Context<'a> {
     pub path: Path,
     pub path_tree: &'a PathTree<'a>
@@ -58,22 +61,22 @@ impl<'a> From<&'a Pin<Box<PathTree<'a>>>> for Context<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Parser, PathTree};
+    use std::pin::Pin;
+    use crate::{Context, PathTree};
 
-    fn parser<'a>() -> Parser<'a> {
+    fn path_tree<'a>() -> Pin<Box<PathTree<'a>>> {
         let path_tree = PathTree::new("root");
         let branch = PathTree::new("branch");
         let leaf = PathTree::new("leaf");
         branch.add_child(leaf);
         path_tree.add_child(branch);
-        Parser { path_tree }
+        path_tree
     }
 
     #[test]
     fn test() {
-        let parser = parser();
-
-        let context = parser.root_context();
+        let path_tree = path_tree();
+        let context = Context::from(&path_tree);
         let new_context = context.switch_to("branch");
 
         assert_eq!(context.path, "root".into());

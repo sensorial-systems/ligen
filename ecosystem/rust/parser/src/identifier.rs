@@ -1,6 +1,5 @@
 use crate::prelude::*;
 
-use proc_macro2::TokenStream;
 use ligen_ir::Identifier;
 
 impl From<SynIdent> for Identifier {

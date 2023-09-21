@@ -3,7 +3,6 @@ use super::CargoBuilder;
 use std::path::PathBuf;
 use ligen_ir::conventions::naming::NamingConvention;
 use std::ffi::OsString;
-use ligen_parsing::{Context, ParseFrom};
 use ligen_traits::build::BuildSystem;
 // use ligen_utils::transformers::alias::ReplaceCrateAlias;
 // use ligen_utils::transformers::path::RelativePathToAbsolutePath;
@@ -44,13 +43,13 @@ impl TryFrom<&std::path::Path> for CargoProject {
     }
 }
 
-impl ParseFrom<CargoProject> for Project {
-    fn parse_from(_context: &Context<'_>, _from: CargoProject) -> Result<Self> where Self: Sized {
-        todo!("RustProject shouldn't be used anymore.");
-        // let project = RustProject::try_from(from.path)?;
-        // let project = Project::parse_from(context, project)?;
-        // // FIXME: Move this to a more generic place.
-        // let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
-        // Ok(project)
-    }
-}
+// impl ParseFrom<CargoProject> for Project {
+//     fn parse_from(_context: &Context<'_>, _from: CargoProject) -> Result<Self> where Self: Sized {
+//         todo!("RustProject shouldn't be used anymore.");
+//         // let project = RustProject::try_from(from.path)?;
+//         // let project = Project::parse_from(context, project)?;
+//         // // FIXME: Move this to a more generic place.
+//         // let project = project.transforms(&[&ReplaceCrateAlias, &RelativePathToAbsolutePath]);
+//         // Ok(project)
+//     }
+// }

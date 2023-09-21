@@ -5,10 +5,13 @@ pub use field::*;
 
 use crate::prelude::*;
 use ligen_ir::Structure;
+use ligen_parsing::Parser;
 
-impl TryFrom<ProcMacro2TokenStream> for Structure {
-    type Error = Error;
-    fn try_from(tokenstream: ProcMacro2TokenStream) -> Result<Self> {
+pub struct StructureParser;
+
+impl Parser<proc_macro2::TokenStream> for StructureParser {
+    type Output = Structure;
+    fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
         syn::parse2::<syn::ItemStruct>(tokenstream.into())
             .map_err(|_| "Failed to parse to Structure.".into())
             .and_then(|item| SynItemStruct::from(item).try_into())

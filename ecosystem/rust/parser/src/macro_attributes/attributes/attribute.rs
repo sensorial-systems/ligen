@@ -2,11 +2,13 @@
 
 use crate::prelude::*;
 use ligen_ir::{Literal, Identifier, Attributes, Attribute};
+use ligen_parsing::Parser;
+use crate::macro_attributes::attributes::AttributesParser;
 
 impl TryFrom<SynItemMacro> for Attribute {
     type Error = Error;
     fn try_from(SynItemMacro(call): SynItemMacro) -> Result<Self> {
-        Ok(Self::Group(SynIdent(call.mac.path.segments.last().expect("Failed to get identifier from syn::ItemMacro").ident.clone()).into(), ProcMacro2TokenStream::from(call.mac.tokens).try_into()?))
+        Ok(Self::Group(SynIdent(call.mac.path.segments.last().expect("Failed to get identifier from syn::ItemMacro").ident.clone()).into(), AttributesParser.parse(call.mac.tokens)?))
     }
 }
 

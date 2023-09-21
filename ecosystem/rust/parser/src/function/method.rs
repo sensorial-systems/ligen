@@ -3,6 +3,8 @@ use ligen_ir::{Function, Identifier, Mutability, Path};
 use crate::prelude::*;
 
 use ligen_ir::{Synchrony, Attributes, Method, Parameter, Type, Visibility};
+use ligen_parsing::Parser;
+use crate::function::parameter::ParameterParser;
 
 impl From<SynImplItemMethod> for Method {
     fn from(SynImplItemMethod(method): SynImplItemMethod) -> Self {
@@ -23,7 +25,7 @@ impl From<SynImplItemMethod> for Method {
             .clone()
             .into_iter()
             .filter(|input| if let FnArg::Receiver(_) = input { false } else { true })
-            .map(|x| SynFnArg::from(x).try_into().expect("Failed to convert Parameter"))
+            .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,
@@ -75,7 +77,7 @@ impl From<SynImplItemMethod> for Function {
         let inputs: Vec<Parameter> = inputs
             .clone()
             .into_iter()
-            .map(|x| SynFnArg::from(x).try_into().expect("Failed to convert Parameter"))
+            .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,

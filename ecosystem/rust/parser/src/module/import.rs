@@ -2,6 +2,8 @@
 
 use crate::prelude::*;
 use ligen_ir::{Path, Attributes, Visibility, Imports, Import};
+use ligen_parsing::Parser;
+use crate::macro_attributes::attributes::AttributesParser;
 
 #[derive(Clone)]
 struct ImportsBuilder {
@@ -27,7 +29,7 @@ impl TryFrom<&[syn::Item]> for LigenImports {
 impl TryFrom<SynItemUse> for Imports {
     type Error = Error;
     fn try_from(SynItemUse(import): SynItemUse) -> Result<Self> {
-        let attributes = (LigenAttributes::try_from(import.attrs)?).into();
+        let attributes = AttributesParser.parse(import.attrs)?;
         let visibility = SynVisibility(import.vis).into();
         let path = Path::default();
         ImportsBuilder { attributes, visibility, path, tree: import.tree }.try_into()

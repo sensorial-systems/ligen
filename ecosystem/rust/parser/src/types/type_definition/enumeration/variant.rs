@@ -2,11 +2,13 @@
 
 use crate::prelude::*;
 use ligen_ir::Variant;
+use ligen_parsing::Parser;
+use crate::macro_attributes::attributes::AttributesParser;
 
 impl TryFrom<SynVariant> for Variant {
     type Error = Error;
     fn try_from(SynVariant(variant): SynVariant) -> Result<Self> {
-        let attributes = (LigenAttributes::try_from(variant.attrs)?).into();
+        let attributes = AttributesParser.parse(variant.attrs)?;
         let identifier = SynIdent(variant.ident).into();
         Ok(Self { attributes, identifier })
     }

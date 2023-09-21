@@ -2,6 +2,8 @@ use ligen_ir::Identifier;
 use crate::prelude::*;
 
 use ligen_ir::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
+use ligen_parsing::Parser;
+use crate::function::parameter::ParameterParser;
 
 pub mod parameter;
 pub mod method;
@@ -18,7 +20,7 @@ impl From<SynItemFn> for Function {
         let inputs: Vec<Parameter> = inputs
             .clone()
             .into_iter()
-            .map(|x| SynFnArg::from(x).try_into().expect("Failed to convert Parameter"))
+            .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,

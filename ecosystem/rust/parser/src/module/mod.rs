@@ -3,9 +3,10 @@
 mod import;
 
 use ligen_ir::{Constant, Enumeration, Object, Path, Project, Structure};
-use ligen_parsing::{Context, ParseFrom};
+use ligen_parsing::{Context, Parser};
 use crate::prelude::*;
 use ligen_ir::{Identifier, Function, Module};
+use crate::macro_attributes::attributes::AttributesParser;
 
 fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     let mut functions = Vec::new();
@@ -17,12 +18,12 @@ fn extract_functions(items: &[syn::Item]) -> Vec<Function> {
     functions
 }
 
-fn extract_modules(context: &Context<'_>, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
+fn extract_modules(parser: &ModuleParser<'_>, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
     let mut modules = Vec::new();
     if !ignored {
         let items = items.into_iter().filter_map(|item| if let syn::Item::Mod(module) = item { Some(module) } else { None });
         for item in items {
-            let module = Module::parse_from(context, SynItemMod(item))?;
+            let module = parser.parse(item)?;
             if !module.ignored() {
                 modules.push(module)
             }
@@ -31,6 +32,7 @@ fn extract_modules(context: &Context<'_>, ignored: bool, items: Vec<syn::Item>) 
     Ok(modules)
 }
 
+// TODO: Is it still useful?
 // fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Result<Attributes> {
 //     let mut attributes = attributes.clone();
 //     for item in items {
@@ -55,7 +57,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
         for item in items {
             match item {
                 syn::Item::Enum(enumeration) => {
-                    let attributes = (LigenAttributes::try_from(enumeration.attrs.clone())?).into();
+                    let attributes = AttributesParser.parse(enumeration.attrs.clone())?;
                     let path = Identifier::from(SynIdent(enumeration.ident.clone())).into();
                     let visibility = SynVisibility(enumeration.vis.clone()).into();
                     let enumeration = Enumeration::try_from(SynItemEnum(enumeration.clone()))?;
@@ -68,7 +70,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
                     });
                 },
                 syn::Item::Struct(structure) => {
-                    let attributes = (LigenAttributes::try_from(structure.attrs.clone())?).into();
+                    let attributes = AttributesParser.parse(structure.attrs.clone())?;
                     let path = Identifier::from(SynIdent(structure.ident.clone())).into();
                     let visibility = SynVisibility(structure.vis.clone()).into();
                     let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
@@ -140,32 +142,34 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
     Ok(())
 }
 
-impl ParseFrom<ProcMacro2TokenStream> for Module {
-    fn parse_from(context: &Context<'_>, ProcMacro2TokenStream(token_stream): ProcMacro2TokenStream) -> Result<Self> {
+impl<'a> Parser<proc_macro2::TokenStream> for ModuleParser<'a> {
+    type Output = Module;
+    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
         let module = syn::parse2::<syn::ItemMod>(token_stream).map_err(|_e| "Failed to parse syn::ItemMod")?;
-        Module::parse_from(context, SynItemMod(module))
+        self.parse(module)
     }
 }
 
-impl ParseFrom<SynItemMod> for Module {
-    fn parse_from(context: &Context<'_>, SynItemMod(module): SynItemMod) -> Result<Self> {
+impl<'a> Parser<syn::ItemMod> for ModuleParser<'a> {
+    type Output = Module;
+    fn parse(&self, module: syn::ItemMod) -> Result<Self::Output> {
         let items = module
             .content
             .map(|(_, items)| items)
             .ok_or("Module file isn't loaded.")?;
-        let attributes = (LigenAttributes::try_from(module.attrs)?).into();
+        let attributes = AttributesParser.parse(module.attrs)?;
         let visibility = SynVisibility(module.vis).into();
         let path = Identifier::from(SynIdent(module.ident)).into();
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
         let functions = extract_functions(items.as_slice());
         let objects = extract_object_definitions(false, items.as_slice())?;
-        let constants = extract_constants(context, false, items.as_slice())?;
-        let modules = extract_modules(context, false, items)?;
-        Ok(Self { attributes, visibility, path, imports, functions, objects, constants, modules })
+        let constants = extract_constants(self, false, items.as_slice())?;
+        let modules = extract_modules(self, false, items)?;
+        Ok(Self::Output { attributes, visibility, path, imports, functions, objects, constants, modules })
     }
 }
 
-fn extract_constants(_context: &Context, _: bool, items: &[syn::Item]) -> Result<Vec<Constant>> {
+fn extract_constants(_parser: &ModuleParser<'_>, _: bool, items: &[syn::Item]) -> Result<Vec<Constant>> {
     let mut constants = Vec::new();
     for item in items {
         if let syn::Item::Const(constant) = item {
@@ -175,22 +179,26 @@ fn extract_constants(_context: &Context, _: bool, items: &[syn::Item]) -> Result
     Ok(constants)
 }
 
+pub struct ModuleParser<'a> {
+    pub context: Context<'a>
+}
+
 #[cfg(test)]
 mod tests {
+    use std::pin::Pin;
     use super::*;
     use quote::quote;
-    use ligen_parsing::{GetPathTree, Parser, PathTree};
-    use crate::project::RustProject;
+    use ligen_parsing::PathTree;
     use pretty_assertions::assert_eq;
     use ligen_ir::Visibility;
 
     #[test]
     fn module_file() -> Result<()> {
         let path_tree = PathTree::new("root");
-        let parser = Parser::from(path_tree);
-        let context = parser.root_context();
+        let context = (&path_tree).into();
+        let parser = ModuleParser { context };
         let module = quote! { mod module; };
-        let result = Module::parse_from(&context, ProcMacro2TokenStream(module));
+        let result = parser.parse(module);
         assert!(result.is_err()); // Module file isn't loaded.
         Ok(())
     }
@@ -204,10 +212,10 @@ mod tests {
                 }
             }
         };
-        let rust_project = RustProject::try_from(module.clone())?;
-        let path_tree = rust_project.get_path_tree();
-        let context = Context::from(&path_tree);
-        let mut module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        let path_tree = path_tree();
+        let context = (&path_tree).into();
+        let parser = ModuleParser { context };
+        let mut module = parser.parse(module)?;
         module.guarantee_absolute_paths();
         let expected_module = Module {
             path: "root".into(),
@@ -232,6 +240,15 @@ mod tests {
         Ok(())
     }
 
+    fn path_tree() -> Pin<Box<PathTree<'static>>> {
+        let path_tree = PathTree::new("root");
+        let branch = PathTree::new("branch");
+        let leaf = PathTree::new("leaf");
+        branch.add_child(leaf);
+        path_tree.add_child(branch);
+        path_tree
+    }
+
     #[test]
     fn module_objects() -> Result<()> {
         let module = quote! {
@@ -239,10 +256,10 @@ mod tests {
                 pub struct Type;
             }
         };
-        let rust_project = RustProject::try_from(module.clone())?;
-        let path_tree = rust_project.get_path_tree();
-        let context = Context::from(&path_tree);
-        let module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        let path_tree = path_tree();
+        let context = (&path_tree).into();
+        let parser = ModuleParser { context };
+        let module = parser.parse(module)?;
         let expected_module = Module {
             path: "types".into(),
             visibility: Visibility::Public,
@@ -266,10 +283,10 @@ mod tests {
                 pub struct Type;
             }
         };
-        let rust_project = RustProject::try_from(module.clone())?;
-        let path_tree = rust_project.get_path_tree();
-        let context = Context::from(&path_tree);
-        let module = Module::parse_from(&context, ProcMacro2TokenStream(module))?;
+        let path_tree = path_tree();
+        let context = (&path_tree).into();
+        let parser = ModuleParser { context };
+        let module = parser.parse(module)?;
         let object = module.find_object(&"Type".into());
         let expected_object = Some(Object {
             visibility: Visibility::Public,

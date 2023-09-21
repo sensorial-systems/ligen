@@ -5,41 +5,44 @@ use ligen_ir::{Attribute, Attributes, Identifier};
 use crate::prelude::*;
 use syn::parse::{ParseStream, Parse};
 use syn::{parse2, Token};
+use ligen_parsing::Parser;
 
-impl TryFrom<Vec<syn::Attribute>> for LigenAttributes {
-    type Error = Error;
-    fn try_from(in_attributes: Vec<syn::Attribute>) -> Result<Self> {
+pub struct AttributesParser;
+
+impl Parser<Vec<syn::Attribute>> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, in_attributes: Vec<syn::Attribute>) -> Result<Self::Output> {
         let mut attributes = Vec::new();
         for attribute in in_attributes {
             attributes.push(SynAttribute::from(attribute).try_into()?);
         }
-        Ok(Self(Attributes { attributes }))
+        Ok(Self::Output { attributes })
     }
 }
 
-impl TryFrom<ProcMacro2TokenStream> for Attributes {
-    type Error = Error;
-    fn try_from(ProcMacro2TokenStream(tokenstream): ProcMacro2TokenStream) -> Result<Self> {
-        parse2::<LigenAttributes>(tokenstream.clone()).map_err(|e| format!("Failed to parse Attributes: {:?}, input: {}", e, tokenstream.to_string()).into())
-            .map(|LigenAttributes(attributes)| attributes)
+impl Parser<proc_macro2::TokenStream> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
+        Ok(parse2::<LigenAttributes>(tokenstream.clone()).map_err(|e| format!("Failed to parse Attributes: {:?}, input: {}", e, tokenstream.to_string()))?.0)
     }
 }
 
-impl TryFrom<ProcMacroTokenStream> for Attributes {
-    type Error = Error;
-    fn try_from(ProcMacroTokenStream(tokenstream): ProcMacroTokenStream) -> Result<Self> {
+impl Parser<proc_macro::TokenStream> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, tokenstream: proc_macro::TokenStream) -> Result<Self::Output> {
         let tokenstream: TokenStream = tokenstream.into();
-        ProcMacro2TokenStream(tokenstream).try_into()
+        self.parse(tokenstream)
     }
 }
 
-impl From<SynAttributeArgs> for Attributes {
-    fn from(SynAttributeArgs(attribute_args): SynAttributeArgs) -> Self {
+impl Parser<syn::AttributeArgs> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, attribute_args: syn::AttributeArgs) -> Result<Self::Output> {
         let attributes = attribute_args
             .iter()
             .map(|nested_meta| Attribute::from(SynNestedMeta(nested_meta.clone())))
             .collect();
-        Self { attributes }
+        Ok(Self::Output { attributes })
     }
 }
 
@@ -91,6 +94,8 @@ impl ToTokens for Attribute {
     }
 }
 
+pub struct LigenAttributes(pub Attributes);
+
 impl Parse for LigenAttributes {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut metas: Vec<Attribute> = Vec::new();
@@ -110,8 +115,10 @@ impl Parse for LigenAttributes {
 mod test {
     use ligen_ir::{Attribute, Attributes, Identifier, Literal};
     use quote::quote;
-    use syn::{parse2, NestedMeta};
-    use crate::prelude::{LigenAttributes, SynNestedMeta};
+    use syn::NestedMeta;
+    use ligen_parsing::Parser;
+    use crate::macro_attributes::attributes::AttributesParser;
+    use crate::prelude::SynNestedMeta;
 
     #[test]
     fn attribute_literal() {
@@ -183,7 +190,7 @@ mod test {
                     }
                 )]
             },
-            parse2::<LigenAttributes>(quote! {c(int = "sized")}).expect("Failed to parse Attributes").0
+            AttributesParser.parse(quote! {c(int = "sized")}).expect("Failed to parse Attributes")
         );
     }
 }
