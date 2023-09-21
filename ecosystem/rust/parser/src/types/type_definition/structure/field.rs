@@ -6,12 +6,13 @@ use ligen_parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
+use crate::visibility::VisibilityParser;
 
 impl TryFrom<SynField> for Field {
     type Error = Error;
     fn try_from(SynField(field): SynField) -> Result<Self> {
         let attributes = AttributesParser.parse(field.attrs)?;
-        let visibility = SynVisibility(field.vis).into();
+        let visibility = VisibilityParser.parse(field.vis)?;
         let identifier = field.ident.map(|identifier| IdentifierParser.parse(identifier).expect("Failed to parse identifier."));
         let type_ = TypeParser.parse(field.ty)?;
         Ok(Self { attributes, visibility, identifier, type_ })

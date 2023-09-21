@@ -11,6 +11,7 @@ use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::path::PathParser;
 use crate::types::enumeration::EnumerationParser;
+use crate::visibility::VisibilityParser;
 
 fn extract_functions(items: &[syn::Item]) -> Result<Vec<Function>> {
     let mut functions = Vec::new();
@@ -63,7 +64,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
                 syn::Item::Enum(enumeration) => {
                     let attributes = AttributesParser.parse(enumeration.attrs.clone())?;
                     let path = IdentifierParser.parse(enumeration.ident.clone())?.into();
-                    let visibility = SynVisibility(enumeration.vis.clone()).into();
+                    let visibility = VisibilityParser.parse(enumeration.vis.clone())?;
                     let enumeration = EnumerationParser.parse(enumeration.clone())?;
                     objects.push(Object {
                         attributes,
@@ -76,7 +77,7 @@ fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<
                 syn::Item::Struct(structure) => {
                     let attributes = AttributesParser.parse(structure.attrs.clone())?;
                     let path = IdentifierParser.parse(structure.ident.clone())?.into();
-                    let visibility = SynVisibility(structure.vis.clone()).into();
+                    let visibility = VisibilityParser.parse(structure.vis.clone())?;
                     let structure = Structure::try_from(SynItemStruct(structure.clone()))?;
                     objects.push(Object {
                         attributes,
@@ -162,7 +163,7 @@ impl<'a> Parser<syn::ItemMod> for ModuleParser<'a> {
             .map(|(_, items)| items)
             .ok_or("Module file isn't loaded.")?;
         let attributes = AttributesParser.parse(module.attrs)?;
-        let visibility = SynVisibility(module.vis).into();
+        let visibility = VisibilityParser.parse(module.vis)?;
         let path = IdentifierParser.parse(module.ident)?.into();
         let imports = LigenImports::try_from(items.as_slice())?.0.0;
         let functions = extract_functions(items.as_slice())?;

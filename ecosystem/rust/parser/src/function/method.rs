@@ -2,13 +2,14 @@ use syn::FnArg;
 use ligen_ir::{Mutability, Path};
 use crate::prelude::*;
 
-use ligen_ir::{Attributes, Method, Parameter, Type, Visibility};
+use ligen_ir::{Attributes, Method, Parameter, Type};
 use ligen_parsing::Parser;
 use crate::function::parameter::ParameterParser;
 use crate::function::SynchronyParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributeParser;
 use crate::types::TypeParser;
+use crate::visibility::VisibilityParser;
 
 pub struct MethodParser;
 
@@ -53,7 +54,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
                     .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse meta."))
                     .collect(),
             },
-            visibility: Visibility::from(SynVisibility::from(method.vis)),
+            visibility: VisibilityParser.parse(method.vis)?,
             synchrony: SynchronyParser.parse(asyncness)?,
             path: IdentifierParser.parse(ident)?.into(),
             inputs,

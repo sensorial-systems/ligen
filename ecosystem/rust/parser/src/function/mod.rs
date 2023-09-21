@@ -2,7 +2,7 @@ use syn::{ImplItemMethod, ItemFn};
 
 use crate::prelude::*;
 
-use ligen_ir::{Synchrony, Attributes, Function, Parameter, Type, Visibility};
+use ligen_ir::{Attributes, Function, Parameter, Type};
 use ligen_parsing::Parser;
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
@@ -16,6 +16,7 @@ mod synchrony;
 pub use parameter::*;
 pub use method::*;
 pub use synchrony::*;
+use crate::visibility::VisibilityParser;
 
 pub struct FunctionParser;
 
@@ -48,11 +49,8 @@ impl Parser<syn::ItemFn> for FunctionParser {
                     .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse Meta"))
                     .collect(),
             },
-            visibility: Visibility::from(SynVisibility::from(item_fn.vis)),
-            synchrony: match asyncness {
-                Some(_x) => Synchrony::Asynchronous,
-                None => Synchrony::Synchronous,
-            },
+            visibility: VisibilityParser.parse(item_fn.vis)?,
+            synchrony: SynchronyParser.parse(asyncness)?,
             path: IdentifierParser.parse(ident)?.into(),
             inputs,
             output,
@@ -91,11 +89,8 @@ impl Parser<syn::ImplItemMethod> for FunctionParser {
                     .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse Meta"))
                     .collect(),
             },
-            visibility: Visibility::from(SynVisibility::from(method.vis)),
-            synchrony: match asyncness {
-                Some(_x) => Synchrony::Asynchronous,
-                None => Synchrony::Synchronous,
-            },
+            visibility: VisibilityParser.parse(method.vis)?,
+            synchrony: SynchronyParser.parse(asyncness)?,
             path: IdentifierParser.parse(ident)?.into(),
             inputs,
             output,

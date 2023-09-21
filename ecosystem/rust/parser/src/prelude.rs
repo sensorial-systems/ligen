@@ -3,6 +3,7 @@ pub use ligen_utils::prelude::*;
 pub use proc_macro2::TokenStream;
 pub use quote::{quote, TokenStreamExt};
 pub use syn::parse_quote::parse;
+pub(crate) use ligen_parsing::Parser;
 
 // TODO: Move these to new_types.rs
 macro_rules! new_type {
@@ -26,19 +27,11 @@ new_type!(syn::Field, SynField);
 new_type!(ligen_ir::Imports, LigenImports);
 new_type!(syn::ItemStruct, SynItemStruct);
 new_type!(syn::ItemUse, SynItemUse);
-new_type!(syn::Variant, SynVariant);
 new_type!(syn::ItemEnum, SynItemEnum);
-new_type!(syn::Ident, SynIdent);
-new_type!(syn::Type, SynType);
-new_type!(syn::ItemFn, SynItemFn);
 new_type!(syn::ImplItemConst, SynImplItemConst);
-new_type!(syn::ImplItemMethod, SynImplItemMethod);
 new_type!(syn::ItemConst, SynItemConst);
 new_type!(syn::AttributeArgs, SynAttributeArgs);
 new_type!(syn::PathArguments, SynPathArguments);
-new_type!(syn::Visibility, SynVisibility);
-new_type!(Option<syn::token::Async>, SynAsyncness);
-new_type!(syn::Lit, SynLit);
 
 pub trait ToTokens {
     fn to_tokens(&self, tokens: &mut TokenStream);
