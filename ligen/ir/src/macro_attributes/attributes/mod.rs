@@ -1,5 +1,8 @@
 pub mod attribute;
 
+#[cfg(feature = "mocks")]
+pub mod mock;
+
 use std::fmt::{Display, Formatter};
 pub use attribute::*;
 
@@ -111,5 +114,19 @@ impl From<Attribute> for Attributes {
 impl Display for Attributes {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.attributes.iter().map(|attribute| attribute.to_string()).collect::<Vec<_>>().join(",").as_str())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::attributes::mock;
+    use crate::*;
+
+    #[test]
+    fn get_literals() {
+        let attributes = mock::parse_literals();
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "int"]), Some(&Literal::String("sized".into())));
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "name"]), Some(&Literal::String("hello".into())));
+        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "uuid"]), Some(&Literal::Integer(5)));
     }
 }

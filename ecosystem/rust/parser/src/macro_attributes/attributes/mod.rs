@@ -121,47 +121,22 @@ impl ToTokens for Attribute {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::{Attribute, Attributes, Identifier, Literal};
     use quote::quote;
-    use ligen_parsing::Parser;
     use super::*;
-
+    use ligen_ir::attributes::mock;
+    use ligen_parsing::assert::assert_eq;
 
     #[test]
-    fn get_literal() -> Result<()> {
-        let args: syn::NestedMeta = syn::parse_quote!(
-            c(
-                marshal_as(
-                    name = "hello",
-                    uuid = 5
-                ),
-                int = "sized"
-            )
-        );
-        let attribute: Attribute = AttributeParser.parse(args)?;
-        let attributes: Attributes = attribute.into();
-        assert_eq!(attributes.get_literal_from_path(vec!["c", "int"]), Some(&Literal::String("sized".into())));
-        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "name"]), Some(&Literal::String("hello".into())));
-        assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "uuid"]), Some(&Literal::Integer(5)));
-        Ok(())
+    fn parse_literals() -> Result<()> {
+        assert_eq(AttributesParser, mock::parse_literals(), quote! {
+            c(marshal_as(name = "hello", uuid = 5), int = "sized")
+        })
     }
 
     #[test]
     fn parse_attributes() -> Result<()> {
-        assert_eq!(
-            Attributes {
-                attributes: vec![Attribute::Group(
-                    Identifier::new("c"),
-                    Attributes {
-                        attributes: vec![Attribute::Named(
-                            Identifier::new("int"),
-                            Literal::String(String::from("sized"))
-                        )]
-                    }
-                )]
-            },
-            AttributesParser.parse(quote! {c(int = "sized")})?
-        );
-        Ok(())
+        assert_eq(AttributesParser, mock::parse_attributes(), quote! {
+            c(int = "sized")
+        })
     }
 }
