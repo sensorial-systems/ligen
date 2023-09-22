@@ -1,8 +1,9 @@
 mod attribute;
+
 pub use attribute::*;
 
-use ligen_ir::{Attribute, Attributes, Identifier};
 use crate::prelude::*;
+use ligen_ir::{Attribute, Attributes, Identifier};
 use ligen_parsing::Parser;
 
 pub struct AttributesParser;
@@ -21,9 +22,20 @@ impl Parser<Vec<syn::Attribute>> for AttributesParser {
 impl Parser<proc_macro2::TokenStream> for AttributesParser {
     type Output = Attributes;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        syn::parse2::<LigenAttributes>(tokenstream)
+        syn::parse2::<syn2::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse attributes: {:?}", e)))
-            .map(|attributes| attributes.0)
+            .and_then(|nested_metas| self.parse(nested_metas.0))
+    }
+}
+
+impl Parser<syn::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, input: syn::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>) -> Result<Self::Output> {
+        let attributes = input
+            .into_iter()
+            .map(|nested_meta| AttributeParser.parse(nested_meta).expect("Failed to parse nested meta."))
+            .collect();
+        Ok(Self::Output { attributes })
     }
 }
 
@@ -104,24 +116,6 @@ impl ToTokens for Attribute {
                 tokens.append_all(quote! {#identifier(#attributes)})
             }
         }
-    }
-}
-
-// TODO: Can we remove this?
-struct LigenAttributes(pub Attributes);
-
-impl syn::parse::Parse for LigenAttributes {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut metas: Vec<Attribute> = Vec::new();
-
-        while !input.is_empty() {
-            let value = AttributeParser.parse(input.parse::<syn::NestedMeta>()?).expect("Failed to parse attribute");
-            metas.push(value);
-            if !input.is_empty() {
-                input.parse::<syn::Token![,]>()?;
-            }
-        }
-        Ok(LigenAttributes(Attributes::from(metas)))
     }
 }
 

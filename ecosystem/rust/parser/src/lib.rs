@@ -11,6 +11,4 @@ pub mod module;
 pub mod constant;
 pub mod project;
 
-pub mod parser;
-
 extern crate proc_macro;

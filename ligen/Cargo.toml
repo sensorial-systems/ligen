@@ -9,19 +9,20 @@ documentation.workspace = true
 readme.workspace        = true
 
 [dependencies]
-syn                    = { version = "1.0.73", features = [ "full" ] } # TODO: This dependency is Rusty.
 serde_json.workspace   = true
-cargo_toml.workspace   = true # TODO: This dependency is Rusty.
 serde.workspace        = true
 ligen-macro.workspace  = true
 ligen-ir.workspace     = true
 ligen-utils.workspace  = true
 ligen-traits.workspace = true
-proc-macro2.workspace  = true
 derive_more.workspace  = true
 lazy_static.workspace  = true
 libloading             = "0.7.0" # TODO: Do we really need it?
 backtrace              = "0.3.61"
+# FIXME: Rusty. Move to the Rust crates.
+cargo_toml.workspace   = true # TODO: This dependency is Rusty.
+proc-macro2.workspace  = true
+syn.workspace          = true
 
 [dev-dependencies]
 ligen-cargo.workspace = true # TODO: This dependency is Rusty.
