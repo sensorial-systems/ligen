@@ -1,6 +1,6 @@
 //! Macro attributes.
 
-mod attributes;
+pub mod attributes;
 pub use attributes::*;
 
 use crate::prelude::*;

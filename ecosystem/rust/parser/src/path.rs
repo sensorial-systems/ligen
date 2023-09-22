@@ -42,7 +42,7 @@ impl Parser<proc_macro2::TokenStream> for PathParser {
 }
 
 impl ToTokens for Path {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let mut segments = self.segments.iter();
         tokens.append_all(segments.next().unwrap().to_token_stream());
         for segment in segments {

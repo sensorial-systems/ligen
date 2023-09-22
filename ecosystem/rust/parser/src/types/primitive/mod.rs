@@ -54,7 +54,7 @@ impl Parser<proc_macro::TokenStream> for PrimitiveParser {
 
 impl Parser<proc_macro2::TokenStream> for PrimitiveParser {
     type Output = Primitive;
-    fn parse(&self, input: TokenStream) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
         syn::parse2::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse primitive: {}", e)))
             .and_then(|path| self.parse(path))
@@ -62,7 +62,7 @@ impl Parser<proc_macro2::TokenStream> for PrimitiveParser {
 }
 
 impl ToTokens for Primitive {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match &self {
             Primitive::Integer(integer) => integer.to_tokens(tokens),
             Primitive::Float(float) => float.to_tokens(tokens),

@@ -114,242 +114,72 @@ impl Parser<proc_macro2::TokenStream> for FunctionParser {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::Synchrony;
-    use ligen_ir::{Attribute, Attributes, Identifier, Literal, Mutability, Parameter, Reference, Visibility};
+    use proc_macro2::TokenStream;
+    use ligen_ir::Function;
     use ligen_parsing::Parser;
     use crate::function::FunctionParser;
     use crate::prelude::*;
 
-    use super::{Function, Type};
+    use ligen_parsing::test;
 
+    pub fn assert_eq(expected: Function, actual: TokenStream) -> Result<()> {
+        assert_eq!(expected, FunctionParser.parse(actual)?);
+        Ok(())
+    }
     #[test]
     fn function() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {fn test() {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: None
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_impl() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {fn test() {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: None
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_input() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {fn test(a: String, b: String) {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("a"),
-                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
-                    },
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("b"),
-                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
-                    },
-                ],
-                output: None
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_output() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {fn test() -> String {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_input_output() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {fn test(a: String, b: &String, c: &mut String) -> &String {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("a"),
-                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
-                    },
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("b"),
-                        type_: Type::Reference(Reference {
-                            mutability: Mutability::Constant,
-                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                        })
-                    },
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("c"),
-                        type_: Type::Reference(Reference {
-                            mutability: Mutability::Mutable,
-                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                        })
-                    },
-                ],
-                output: Some(Type::Reference(Reference {
-                    mutability: Mutability::Constant,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                }))
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_attribute() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {
-                #[test(a = "b")]
-                fn test() {}
-            })?,
-            Function {
-                attributes: Attributes {
-                    attributes: vec![Attribute::Group(
-                        Identifier::new("test"),
-                        Attributes {
-                            attributes: vec![Attribute::Named(
-                                Identifier::new("a"),
-                                Literal::String(String::from("b"))
-                            )]
-                        }
-                    )]
-                },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: None
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_async() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {async fn test() {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Asynchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: None
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn function_complete() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {
-            #[test(a = "b")]
-                async fn test(a: String, b: &String, c: &mut String) -> &String {}
-            })?,
-            Function {
-                attributes: Attributes {
-                    attributes: vec![Attribute::Group(
-                        Identifier::new("test"),
-                        Attributes {
-                            attributes: vec![Attribute::Named(
-                                Identifier::new("a"),
-                                Literal::String(String::from("b"))
-                            )]
-                        }
-                    )]
-                },
-                visibility: Visibility::Private,
-                synchrony: Synchrony::Asynchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("a"),
-                        type_: Type::Composite(Identifier::new("String").into(), Default::default())
-                    },
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("b"),
-                        type_: Type::Reference(Reference {
-                            mutability: Mutability::Constant,
-                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                        })
-                    },
-                    Parameter {
-                        attributes: Default::default(),
-                        identifier: Identifier::new("c"),
-                        type_: Type::Reference(Reference {
-                            mutability: Mutability::Mutable,
-                            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                        })
-                    },
-                ],
-                output: Some(Type::Reference(Reference {
-                    mutability: Mutability::Constant,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                }))
-            }
-        );
-        Ok(())
+        assert_eq(test::function(), quote! {
+            fn test() {}
+        })
     }
 
     #[test]
     fn function_pub() -> Result<()> {
-        assert_eq!(
-            FunctionParser.parse(quote! {pub fn test() {}})?,
-            Function {
-                attributes: Attributes { attributes: vec![] },
-                visibility: Visibility::Public,
-                synchrony: Synchrony::Synchronous,
-                path: Identifier::new("test").into(),
-                inputs: vec![],
-                output: None
-            }
-        );
-        Ok(())
+        assert_eq(test::function_pub(), quote! {
+            pub fn test() {}
+        })
+    }
+
+    #[test]
+    fn function_input() -> Result<()> {
+        assert_eq(test::function_input(), quote! {
+            fn test(a: String, b: String) {}
+        })
+    }
+
+    #[test]
+    fn function_output() -> Result<()> {
+        assert_eq(test::function_output(), quote! {
+            fn test() -> String {}
+        })
+    }
+
+    #[test]
+    fn function_input_output() -> Result<()> {
+        assert_eq(test::function_input_output(), quote! {
+            fn test(a: String, b: &String, c: &mut String) -> &String {}
+        })
+    }
+
+    #[test]
+    fn function_attribute() -> Result<()> {
+        assert_eq(test::function_attribute(), quote! {
+            #[test(a = "b")]
+            fn test() {}
+        })
+    }
+
+    #[test]
+    fn function_async() -> Result<()> {
+        assert_eq(test::function_async(), quote! {
+            async fn test() {}
+        })    }
+
+    #[test]
+    fn function_complete() -> Result<()> {
+        assert_eq(test::function_complete(), quote! {
+            #[test(a = "b")]
+            async fn test(a: String, b: &String, c: &mut String) -> &String {}
+        })
     }
 }

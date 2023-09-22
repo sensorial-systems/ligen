@@ -1,4 +1,4 @@
-mod attribute;
+pub mod attribute;
 
 use std::fmt::{Display, Formatter};
 pub use attribute::*;

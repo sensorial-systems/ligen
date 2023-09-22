@@ -1,6 +1,6 @@
 //! Module representation.
 
-mod import;
+pub mod import;
 pub use import::*;
 
 use crate::prelude::*;

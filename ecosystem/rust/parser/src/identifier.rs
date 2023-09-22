@@ -31,7 +31,7 @@ impl Parser<syn::Ident> for IdentifierParser {
 }
 
 impl ToTokens for Identifier {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let identifier = proc_macro2::Ident::new(&self.name, proc_macro2::Span::call_site());
         tokens.append_all(quote! {
             #identifier

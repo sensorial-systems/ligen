@@ -44,7 +44,7 @@ impl Parser<proc_macro2::TokenStream> for LiteralParser {
 }
 
 impl ToTokens for Literal {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self.clone() {
             Literal::String(x) => {
                 let y = proc_macro2::Literal::string(&x);

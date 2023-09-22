@@ -1,7 +1,7 @@
 //! Type definitions.
 
-mod structure;
-mod enumeration;
+pub mod structure;
+pub mod enumeration;
 
 use crate::prelude::*;
 pub use structure::*;

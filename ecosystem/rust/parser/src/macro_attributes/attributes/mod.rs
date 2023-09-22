@@ -60,7 +60,7 @@ impl Parser<syn::MetaList> for AttributesParser {
 
 
 impl ToTokens for Attributes {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let length = self.attributes.len();
         for (index, attribute) in self.attributes.iter().enumerate() {
             let attribute = attribute.to_token_stream();
@@ -73,7 +73,7 @@ impl ToTokens for Attributes {
 }
 
 impl ToTokens for Attribute {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self {
             Attribute::Literal(literal) => {
                 let literal = literal.to_token_stream();
@@ -81,7 +81,7 @@ impl ToTokens for Attribute {
             }
             Attribute::Named(_, _) => panic!("Named variant should only be used inside groups"),
             Attribute::Group(identifier, group) => {
-                let mut attributes = TokenStream::new();
+                let mut attributes = proc_macro2::TokenStream::new();
                 group
                     .attributes
                     .clone()

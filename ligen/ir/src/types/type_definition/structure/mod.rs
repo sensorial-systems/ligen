@@ -1,6 +1,6 @@
 //! Structure representation.
 
-mod field;
+pub mod field;
 pub use field::*;
 
 use crate::prelude::*;

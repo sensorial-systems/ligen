@@ -2,7 +2,7 @@ use crate::prelude::*;
 use ligen_ir::Integer;
 
 impl ToTokens for Integer {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let type_ = match self {
             Integer::U8 => quote! {u8},
             Integer::U16 => quote! {u16},

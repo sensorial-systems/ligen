@@ -1,6 +1,6 @@
 //! Enumeration representation.
 
-mod variant;
+pub mod variant;
 pub use variant::*;
 
 use crate::prelude::*;

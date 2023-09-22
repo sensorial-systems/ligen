@@ -70,7 +70,7 @@ impl Parser<proc_macro2::TokenStream> for TypeParser {
 }
 
 impl ToTokens for Type {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match &self {
             Type::Primitive(primitive) => tokens.append_all(primitive.to_token_stream()),
             Type::Composite(composite, generics) => {

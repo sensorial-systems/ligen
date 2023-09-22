@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-mod integer;
-mod float;
+pub mod integer;
+pub mod float;
 
 pub use integer::*;
 pub use float::*;

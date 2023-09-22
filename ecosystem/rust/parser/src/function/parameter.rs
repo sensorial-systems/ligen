@@ -66,7 +66,7 @@ impl Parser<proc_macro2::TokenStream> for ParameterParser {
 }
 
 impl ToTokens for Parameter {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let ident = self.identifier.to_token_stream();
         let typ = self.type_.to_token_stream();
         tokens.append_all(quote! {#ident: #typ})

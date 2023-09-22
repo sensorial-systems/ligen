@@ -26,7 +26,7 @@ impl Parser<syn::PathArguments> for GenericsParser {
 }
 
 impl ToTokens for Generics {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         if !self.types.is_empty() {
             tokens.append_separated(self.types.iter().map(|x| x.to_token_stream()), quote! {,})
         }
