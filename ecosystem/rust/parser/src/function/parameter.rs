@@ -25,7 +25,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                     Err(Error::Message("Identifier not found".into()))
                 }
             }
-            // TODO: Implement conversion for syn::Receiver. <- What does it mean?
+            // TODO: Implement translation for syn::Receiver. `Self` should be the fully qualified Type path.
             syn::FnArg::Receiver(syn::Receiver {
                                 attrs,
                                 reference,
@@ -51,8 +51,7 @@ impl Parser<proc_macro::TokenStream> for ParameterParser {
     type Output = Parameter;
 
     fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(token_stream);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 
@@ -60,9 +59,9 @@ impl Parser<proc_macro2::TokenStream> for ParameterParser {
     type Output = Parameter;
 
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let arg = syn::parse2::<syn::FnArg>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))?;
-        self.parse(arg)
+        syn::parse2::<syn::FnArg>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
+            .and_then(|parameter| self.parse(parameter))
     }
 }
 

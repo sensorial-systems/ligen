@@ -28,15 +28,16 @@ impl Parser<syn::Ident> for PathParser {
 impl Parser<proc_macro::TokenStream> for PathParser {
     type Output = Path;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for PathParser {
     type Output = Path;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        self.parse(syn::parse2::<syn::Path>(input).expect("Failed to parse Path."))
+        syn::parse2::<syn::Path>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
+            .and_then(|path| self.parse(path))
     }
 }
 

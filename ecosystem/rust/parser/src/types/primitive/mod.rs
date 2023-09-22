@@ -48,8 +48,7 @@ impl Parser<syn::Path> for PrimitiveParser {
 impl Parser<proc_macro::TokenStream> for PrimitiveParser {
     type Output = Primitive;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 

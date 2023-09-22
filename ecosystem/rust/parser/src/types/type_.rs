@@ -56,8 +56,7 @@ impl Parser<syn::Type> for TypeParser {
 impl Parser<proc_macro::TokenStream> for TypeParser {
     type Output = Type;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 

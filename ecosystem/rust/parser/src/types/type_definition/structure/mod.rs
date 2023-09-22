@@ -13,17 +13,16 @@ pub struct StructureParser;
 impl Parser<proc_macro::TokenStream> for StructureParser {
     type Output = Structure;
     fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(token_stream);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for StructureParser {
     type Output = Structure;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let input = syn::parse2::<syn::ItemStruct>(tokenstream.into())
-            .map_err(|_| "Failed to parse to Structure.".to_string())?;
-        self.parse(input)
+        syn::parse2::<syn::ItemStruct>(tokenstream.into())
+            .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
+            .and_then(|structure| self.parse(structure))
     }
 }
 

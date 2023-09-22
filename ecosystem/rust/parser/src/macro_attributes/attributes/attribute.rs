@@ -68,6 +68,9 @@ impl Parser<syn::NestedMeta> for AttributeParser {
 impl Parser<syn::Attribute> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, attribute: syn::Attribute) -> Result<Self::Output> {
-        self.parse(attribute.parse_meta().map_err(|e| Error::Generic(Box::new(e)))?)
+        attribute
+            .parse_meta()
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?}", e)))
+            .and_then(|attribute| self.parse(attribute))
     }
 }

@@ -21,15 +21,16 @@ impl Parser<Vec<syn::Attribute>> for AttributesParser {
 impl Parser<proc_macro2::TokenStream> for AttributesParser {
     type Output = Attributes;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        Ok(syn::parse2::<LigenAttributes>(tokenstream.clone()).map_err(|e| format!("Failed to parse Attributes: {:?}, input: {}", e, tokenstream.to_string()))?.0)
+        syn::parse2::<LigenAttributes>(tokenstream)
+            .map_err(|e| Error::Message(format!("Failed to parse attributes: {:?}", e)))
+            .map(|attributes| attributes.0)
     }
 }
 
 impl Parser<proc_macro::TokenStream> for AttributesParser {
     type Output = Attributes;
-    fn parse(&self, tokenstream: proc_macro::TokenStream) -> Result<Self::Output> {
-        let tokenstream: TokenStream = tokenstream.into();
-        self.parse(tokenstream)
+    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 

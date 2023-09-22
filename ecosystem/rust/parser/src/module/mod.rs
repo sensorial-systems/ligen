@@ -153,8 +153,9 @@ pub fn extract_object_implementations(project: &mut Project, ignored: bool, item
 impl<'a> Parser<proc_macro2::TokenStream> for ModuleParser<'a> {
     type Output = Module;
     fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let module = syn::parse2::<syn::ItemMod>(token_stream).map_err(|_e| "Failed to parse syn::ItemMod")?;
-        self.parse(module)
+        syn::parse2::<syn::ItemMod>(token_stream)
+            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
+            .and_then(|module| self.parse(module))
     }
 }
 

@@ -99,16 +99,16 @@ impl Parser<syn::ImplItemMethod> for FunctionParser {
 impl Parser<proc_macro::TokenStream> for FunctionParser {
     type Output = Function;
     fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
-        let item_fn = proc_macro2::TokenStream::from(token_stream);
-        self.parse(item_fn)
+        self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for FunctionParser {
     type Output = Function;
     fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let item_fn = syn::parse2::<syn::ItemFn>(token_stream).expect("Failed to parse ItemFn");
-        self.parse(item_fn)
+        syn::parse2::<syn::ItemFn>(token_stream)
+            .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
+            .and_then(|function| self.parse(function))
     }
 }
 

@@ -7,9 +7,8 @@ pub struct IdentifierParser;
 
 impl Parser<proc_macro::TokenStream> for IdentifierParser {
     type Output = Identifier;
-    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 

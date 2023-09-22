@@ -30,16 +30,16 @@ impl Parser<syn::Ident> for LiteralParser {
 impl Parser<proc_macro::TokenStream> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let lit: syn::Lit = syn::parse2(input).expect("Failed to parse literal");
-        self.parse(lit)
+        syn::parse2::<syn::Lit>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+            .and_then(|literal| self.parse(literal))
     }
 }
 

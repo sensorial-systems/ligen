@@ -23,16 +23,16 @@ impl Parser<syn::ItemEnum> for EnumerationParser {
 impl Parser<proc_macro::TokenStream> for EnumerationParser {
     type Output = Enumeration;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for EnumerationParser {
     type Output = Enumeration;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let enumeration = syn::parse2::<syn::ItemEnum>(input).expect("Failed to parse enumeration");
-        self.parse(enumeration)
+        syn::parse2::<syn::ItemEnum>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse enumeration: {:?}", e)))
+            .and_then(|enumeration| self.parse(enumeration))
     }
 }
 

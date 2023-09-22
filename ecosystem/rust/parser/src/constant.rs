@@ -40,16 +40,16 @@ impl Parser<syn::ItemConst> for ConstantParser {
 impl Parser<proc_macro::TokenStream> for ConstantParser {
     type Output = Constant;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for ConstantParser {
     type Output = Constant;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let constant = syn::parse2::<syn::ItemConst>(input).expect("Failed to parse constant.");
-        self.parse(constant)
+        syn::parse2::<syn::ItemConst>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse constant: {:?}", e)))
+            .and_then(|constant| self.parse(constant))
     }
 }
 

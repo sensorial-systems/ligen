@@ -43,16 +43,16 @@ impl Parser<syn::ItemUse> for ImportsParser {
 impl Parser<proc_macro::TokenStream> for ImportsParser {
     type Output = Imports;
     fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        let token_stream = proc_macro2::TokenStream::from(input);
-        self.parse(token_stream)
+        self.parse(proc_macro2::TokenStream::from(input))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for ImportsParser {
     type Output = Imports;
     fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
-        let import = syn::parse2::<syn::ItemUse>(input).expect("Failed to parse import.");
-        self.parse(import)
+        syn::parse2::<syn::ItemUse>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse imports: {:?}", e)))
+            .and_then(|imports| self.parse(imports))
     }
 }
 
