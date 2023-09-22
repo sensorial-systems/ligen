@@ -1,6 +1,4 @@
-// TODO: Move to ligen_ir::function::mock?
-
-use ligen_ir::*;
+use crate::*;
 
 pub fn function() -> Function {
     Function {

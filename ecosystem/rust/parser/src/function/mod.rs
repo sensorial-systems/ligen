@@ -120,7 +120,7 @@ mod test {
     use crate::function::FunctionParser;
     use crate::prelude::*;
 
-    use ligen_parsing::test;
+    use ligen_ir::function::mock;
 
     pub fn assert_eq(expected: Function, actual: TokenStream) -> Result<()> {
         assert_eq!(expected, FunctionParser.parse(actual)?);
@@ -128,42 +128,42 @@ mod test {
     }
     #[test]
     fn function() -> Result<()> {
-        assert_eq(test::function(), quote! {
+        assert_eq(mock::function(), quote! {
             fn test() {}
         })
     }
 
     #[test]
     fn function_pub() -> Result<()> {
-        assert_eq(test::function_pub(), quote! {
+        assert_eq(mock::function_pub(), quote! {
             pub fn test() {}
         })
     }
 
     #[test]
     fn function_input() -> Result<()> {
-        assert_eq(test::function_input(), quote! {
+        assert_eq(mock::function_input(), quote! {
             fn test(a: String, b: String) {}
         })
     }
 
     #[test]
     fn function_output() -> Result<()> {
-        assert_eq(test::function_output(), quote! {
+        assert_eq(mock::function_output(), quote! {
             fn test() -> String {}
         })
     }
 
     #[test]
     fn function_input_output() -> Result<()> {
-        assert_eq(test::function_input_output(), quote! {
+        assert_eq(mock::function_input_output(), quote! {
             fn test(a: String, b: &String, c: &mut String) -> &String {}
         })
     }
 
     #[test]
     fn function_attribute() -> Result<()> {
-        assert_eq(test::function_attribute(), quote! {
+        assert_eq(mock::function_attribute(), quote! {
             #[test(a = "b")]
             fn test() {}
         })
@@ -171,13 +171,13 @@ mod test {
 
     #[test]
     fn function_async() -> Result<()> {
-        assert_eq(test::function_async(), quote! {
+        assert_eq(mock::function_async(), quote! {
             async fn test() {}
         })    }
 
     #[test]
     fn function_complete() -> Result<()> {
-        assert_eq(test::function_complete(), quote! {
+        assert_eq(mock::function_complete(), quote! {
             #[test(a = "b")]
             async fn test(a: String, b: &String, c: &mut String) -> &String {}
         })

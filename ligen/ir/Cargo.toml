@@ -8,6 +8,9 @@ license.workspace       = true
 documentation.workspace = true
 readme.workspace        = true
 
+[features]
+mocks = []
+
 [dependencies]
 ligen-common.workspace = true
 serde.workspace        = true

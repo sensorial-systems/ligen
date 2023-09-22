@@ -26,3 +26,6 @@ pub struct Function {
     /// Output field.
     pub output: Option<Type>,
 }
+
+#[cfg(feature = "mocks")]
+pub mod mock;
