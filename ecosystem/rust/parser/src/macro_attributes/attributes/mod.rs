@@ -130,30 +130,8 @@ mod test {
     use ligen_ir::{Attribute, Attributes, Identifier, Literal};
     use quote::quote;
     use ligen_parsing::Parser;
-    use crate::macro_attributes::attributes::{AttributeParser, AttributesParser};
-    use crate::prelude::*;
+    use super::*;
 
-    #[test]
-    fn attribute_literal() -> Result<()> {
-        let args: syn::NestedMeta = syn::parse_quote!("C");
-        let attr: Attribute = AttributeParser.parse(args)?;
-        assert_eq!(attr, Attribute::Literal(Literal::String(String::from("C"))));
-        Ok(())
-    }
-
-    #[test]
-    fn attribute_named() -> Result<()> {
-        let args: syn::NestedMeta = syn::parse_quote!(int = "sized");
-        let attr: Attribute = AttributeParser.parse(args)?;
-        assert_eq!(
-            attr,
-            Attribute::Named(
-                Identifier::new("int"),
-                Literal::String(String::from("sized"))
-            )
-        );
-        Ok(())
-    }
 
     #[test]
     fn get_literal() -> Result<()> {
@@ -171,25 +149,6 @@ mod test {
         assert_eq!(attributes.get_literal_from_path(vec!["c", "int"]), Some(&Literal::String("sized".into())));
         assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "name"]), Some(&Literal::String("hello".into())));
         assert_eq!(attributes.get_literal_from_path(vec!["c", "marshal_as", "uuid"]), Some(&Literal::Integer(5)));
-        Ok(())
-    }
-
-    #[test]
-    fn attribute_group() -> Result<()> {
-        let args: syn::NestedMeta = syn::parse_quote!(C(int = "sized"));
-        let attr: Attribute = AttributeParser.parse(args)?;
-        assert_eq!(
-            attr,
-            Attribute::Group(
-                Identifier::new("C"),
-                Attributes {
-                    attributes: vec![Attribute::Named(
-                        Identifier::new("int"),
-                        Literal::String(String::from("sized"))
-                    )]
-                }
-            )
-        );
         Ok(())
     }
 

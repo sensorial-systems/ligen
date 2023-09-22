@@ -11,6 +11,3 @@ readme.workspace        = true
 [dependencies]
 ligen-ir.workspace     = true
 ligen-common.workspace = true
-
-[dev-dependencies]
-ligen-ir = { workspace = true, features = ["mocks"]}

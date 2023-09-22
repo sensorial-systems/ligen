@@ -3,7 +3,7 @@
 pub use source::*;
 pub use module::*;
 pub use constant::*;
-pub use function::*;
+pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::*;
 pub use literal::*;
 pub use path::*;

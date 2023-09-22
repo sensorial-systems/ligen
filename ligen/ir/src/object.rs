@@ -1,7 +1,7 @@
 //! `Object` can be defined as a `Structure` and an `Enumeration`.
 
 use crate::prelude::*;
-use crate::{Constant, Function, TypeDefinition, method::Method, Attributes, Visibility, Path};
+use crate::{Constant, Function, TypeDefinition, Method, Attributes, Visibility, Path};
 
 /// Object representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]

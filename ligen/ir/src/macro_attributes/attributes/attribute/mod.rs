@@ -1,5 +1,8 @@
 //! Attribute enumeration.
 
+#[cfg(feature = "mocks")]
+pub mod mock;
+
 use std::fmt::{Display, Formatter};
 use crate::prelude::*;
 use crate::{Literal, Identifier, Attributes};
