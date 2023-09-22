@@ -27,5 +27,5 @@ pub struct Function {
     pub output: Option<Type>,
 }
 
-#[cfg(feature = "mocks")]
+#[cfg(any(test, feature = "mocks"))]
 pub mod mock;

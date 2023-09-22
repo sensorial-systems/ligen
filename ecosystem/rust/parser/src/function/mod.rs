@@ -168,7 +168,8 @@ mod test {
     fn function_async() -> Result<()> {
         assert_eq(FunctionParser, mock::function_async(), quote! {
             async fn test() {}
-        })    }
+        })
+    }
 
     #[test]
     fn function_complete() -> Result<()> {

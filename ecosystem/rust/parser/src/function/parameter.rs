@@ -75,158 +75,73 @@ impl ToTokens for Parameter {
 
 #[cfg(test)]
 mod test {
-    use super::Parameter;
-    use ligen_ir::{Identifier, Primitive, Integer, Reference, Type, Attribute, Mutability};
-    use ligen_parsing::Parser;
     use crate::function::parameter::ParameterParser;
     use crate::prelude::*;
 
+    use ligen_ir::function::parameter::mock;
+    use ligen_parsing::assert::assert_eq;
+
     #[test]
-    fn parameter_primitive() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! { #[attribute] integer: i32 })?,
-            Parameter {
-                attributes: Attribute::Group("attribute".into(), Default::default()).into(),
-                identifier: Identifier::new("integer"),
-                type_: Type::Primitive(Primitive::Integer(Integer::I32))
-            }
-        );
-        Ok(())
+    fn primitive_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::primitive_parameter(), quote! {
+            #[attribute]
+            integer: i32
+        })
     }
 
     #[test]
-    fn parameter_composite() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {name: String})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("name"),
-                type_: Type::Composite(Identifier::new("String").into(), Default::default())
-            }
-        );
-        Ok(())
+    fn composite_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::composite_parameter(), quote! {
+            name: String
+        })
     }
 
     #[test]
-    fn parameter_borrow_constant() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {name: &String})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("name"),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Constant,
-                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                    }
-                )
-            }
-        );
-        Ok(())
+    fn constant_reference_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::constant_reference_parameter(), quote! {
+            name: &String
+        })
     }
 
     #[test]
-    fn parameter_borrow_mutable() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {name: &mut String})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("name"),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                    }
-                )
-
-            }
-        );
-        Ok(())
+    fn mutable_reference_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::mutable_reference_parameter(), quote! {
+            name: &mut String
+        })
     }
 
     #[test]
-    fn parameter_pointer_constant() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {name: *const String})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("name"),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Constant,
-                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                    }
-                )
-
-            }
-        );
-        Ok(())
+    fn constant_pointer_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::constant_reference_parameter(), quote! {
+            name: *const String
+        })
     }
 
     #[test]
-    fn parameter_pointer_mutable() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {name: *mut String})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("name"),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
-                    }
-                )
-            }
-        );
-        Ok(())
+    fn mutable_pointer_parameter() -> Result<()> {
+        assert_eq(ParameterParser, mock::mutable_reference_parameter(), quote! {
+            name: *mut String
+        })
     }
 
     #[test]
     fn receiver_parameter() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {self})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("self").into(),
-                type_: Type::Composite(Identifier::new("Self").into(), Default::default())
-            }
-        );
-        Ok(())
+        assert_eq(ParameterParser, mock::receiver_parameter(), quote! {
+            self
+        })
     }
 
     #[test]
     fn reference_receiver_parameter() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {&self})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("self").into(),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Constant,
-                        type_: Box::new(Type::Composite(Identifier::new("Self").into(), Default::default()))
-                    }
-                )
-            }
-        );
-        Ok(())
+        assert_eq(ParameterParser, mock::reference_receiver_parameter(), quote! {
+            &self
+        })
     }
 
     #[test]
     fn mutable_receiver_parameter() -> Result<()> {
-        assert_eq!(
-            ParameterParser.parse(quote! {&mut self})?,
-            Parameter {
-                attributes: Default::default(),
-                identifier: Identifier::new("self").into(),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Mutable,
-                        type_: Box::new(Type::Composite(Identifier::new("Self").into(), Default::default()))
-                    }
-                )
-            }
-        );
-        Ok(())
+        assert_eq(ParameterParser, mock::mutable_receiver_parameter(), quote! {
+            &mut self
+        })
     }
 }

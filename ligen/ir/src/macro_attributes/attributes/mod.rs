@@ -1,6 +1,6 @@
 pub mod attribute;
 
-#[cfg(feature = "mocks")]
+#[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
 use std::fmt::{Display, Formatter};

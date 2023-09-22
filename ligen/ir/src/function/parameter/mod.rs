@@ -1,5 +1,8 @@
 //! Function parameter.
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 use std::fmt::{Display, Formatter};
 use crate::prelude::*;
 use crate::{Identifier, Type, Attributes, Mutability};
