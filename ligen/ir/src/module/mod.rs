@@ -1,6 +1,10 @@
 //! Module representation.
 
 pub mod import;
+
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 pub use import::*;
 
 use crate::prelude::*;

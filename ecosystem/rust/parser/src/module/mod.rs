@@ -187,8 +187,8 @@ impl Parser<syn::ItemMod> for ModuleParser {
         let imports = ImportsParser.parse(items.as_slice())?.0;
         let functions = Self::extract_functions(items.as_slice())?;
         let objects = Self::extract_object_definitions(false, items.as_slice())?;
-        let constants = self.extract_constants( false, items.as_slice())?;
-        let modules = self.extract_modules( false, items)?;
+        let constants = self.extract_constants(false, items.as_slice())?;
+        let modules = self.extract_modules(false, items)?;
         Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
     }
 }
@@ -197,74 +197,34 @@ impl Parser<syn::ItemMod> for ModuleParser {
 mod tests {
     use super::*;
     use quote::quote;
-    use pretty_assertions::assert_eq;
-    use ligen_ir::Visibility;
+    use ligen_ir::module::mock;
+    use ligen_parsing::assert::*;
 
     #[test]
     fn module_file() -> Result<()> {
-        let parser = ModuleParser;
-        let module = quote! { mod module; };
-        let result = parser.parse(module);
-        assert!(result.is_err()); // Module file isn't loaded.
-        Ok(())
+        assert_failure(ModuleParser, quote! { mod module; })
     }
 
     #[test]
-    fn module_path() -> Result<()> {
-        let module = quote! {
-            mod root {
-                mod branch {
-                    mod leaf {}
+    fn sub_modules() -> Result<()> {
+        assert_eq(ModuleParser, mock::sub_modules(), quote! {
+            pub mod root {
+                pub mod branch {
+                    pub mod leaf {}
                 }
             }
-        };
-        let parser = ModuleParser;
-        let module = parser.parse(module)?;
-        let expected_module = Module {
-            identifier: "root".into(),
-            modules: vec![
-                Module {
-                    identifier: "branch".into(),
-                    modules: vec![
-                        Module {
-                            identifier: "leaf".into(),
-                            visibility: Visibility::Private,
-                            ..Default::default()
-                        }
-                    ],
-                    visibility: Visibility::Private,
-                    ..Default::default()
-                }
-            ],
-            visibility: Visibility::Private,
-            ..Default::default()
-        };
-        assert_eq!(module, expected_module);
-        Ok(())
+        })
     }
 
     #[test]
     fn module_objects() -> Result<()> {
-        let module = quote! {
-            pub mod types {
-                pub struct Type;
+        assert_eq(ModuleParser, mock::module_objects(), quote! {
+            pub mod objects {
+                pub struct Structure;
+                pub enum Enumeration {}
+                pub const CONSTANT: bool = false;
+                pub fn function() {}
             }
-        };
-        let parser = ModuleParser;
-        let module = parser.parse(module)?;
-        let expected_module = Module {
-            identifier: "types".into(),
-            visibility: Visibility::Public,
-            objects: vec![
-                Object {
-                    visibility: Visibility::Public,
-                    identifier: "Type".into(),
-                    .. Default::default()
-                }
-            ],
-            ..Default::default()
-        };
-        assert_eq!(module, expected_module);
-        Ok(())
+        })
     }
 }

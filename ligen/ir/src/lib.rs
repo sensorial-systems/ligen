@@ -1,7 +1,7 @@
 //! Ligen intermediate representation.
 
 pub use source::*;
-pub use module::*;
+pub use module::{Module, Import, Imports};
 pub use constant::*;
 pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::*;
