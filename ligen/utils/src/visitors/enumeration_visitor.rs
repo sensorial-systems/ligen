@@ -7,7 +7,7 @@ pub type EnumerationVisitor = Visitor<ObjectVisitor, Enumeration>;
 impl EnumerationVisitor {
     /// Returns the enumeration path.
     pub fn path(&self) -> Path {
-        self.parent.path.clone()
+        self.parent_module().path().join(self.parent.identifier.clone())
     }
 
     /// Get the parent module.

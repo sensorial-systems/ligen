@@ -70,7 +70,10 @@ impl Type {
 
     /// Check if the `Type` is `String`.
     pub fn is_string(&self) -> bool {
-        todo!("Implement it.")
+        match self {
+            Self::Composite(path, _) => path == &Path::from("String"),
+            _ => false
+        }
     }
 
     /// Gets the path of the type without the reference.

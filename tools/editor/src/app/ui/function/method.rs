@@ -1,4 +1,4 @@
-use crate::app::ui::{Attributes, OptionalField, Path, Visibility, Type, EditableList, Synchrony, Parameter};
+use crate::app::ui::{Attributes, OptionalField, Visibility, Type, EditableList, Synchrony, Parameter, Identifier};
 
 pub struct Method {
 
@@ -14,7 +14,7 @@ impl Method {
             Type::new().set_enabled(false).show(ui, &mut method.owner);
             Visibility::new().show(ui, &mut method.visibility);
             Synchrony::new().show(ui, &mut method.synchrony);
-            Path::new().show(ui, &mut method.path);
+            Identifier::new().show(ui, &mut method.identifier);
             EditableList::new("Inputs", "Add input").show(ui, &mut method.inputs, |ui, parameter| {
                 Parameter::new().show(ui, parameter);
             });

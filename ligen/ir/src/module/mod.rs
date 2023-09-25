@@ -4,7 +4,7 @@ pub mod import;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Object, Path, Visibility, Attributes, Function, Literal, Constant};
+use crate::{Object, Path, Visibility, Attributes, Function, Literal, Constant, Identifier};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,8 +13,8 @@ pub struct Module {
     pub attributes: Attributes,
     /// Visibility.
     pub visibility: Visibility,
-    /// Module path
-    pub path: Path,
+    /// Module identifier
+    pub identifier: Identifier,
     /// Imports.
     pub imports: Vec<Import>,
     /// Constants.
@@ -70,35 +70,45 @@ impl Module {
 
     /// Find mutable Object.
     pub fn find_object_mut(&mut self, path: &Path) -> Option<&mut Object> {
-        let object = self
-            .objects
-            .iter_mut()
-            .find(|object| object.path == *path);
-        if let Some(object) = object {
-            Some(object)
-        } else {
-            self
-                .modules
+        let mut path = path.clone();
+        if let Some(identifier) = path.pop_back() {
+            let object = self
+                .objects
                 .iter_mut()
-                .filter_map(|module| module.find_object_mut(path))
-                .next()
+                .find(|object| object.identifier == identifier);
+            if let Some(object) = object {
+                Some(object)
+            } else {
+                self
+                    .modules
+                    .iter_mut()
+                    .filter_map(|module| module.find_object_mut(&path))
+                    .next()
+            }
+        } else {
+            None
         }
     }
 
     /// Find Object.
     pub fn find_object(&self, path: &Path) -> Option<&Object> {
-        let object = self
-            .objects
-            .iter()
-            .find(|object| object.path == *path);
-        if let Some(object) = object {
-            Some(object)
-        } else {
-            self
-                .modules
+        let mut path = path.clone();
+        if let Some(identifier) = path.pop_back() {
+            let object = self
+                .objects
                 .iter()
-                .filter_map(|module| module.find_object(path))
-                .next()
+                .find(|object| object.identifier == identifier);
+            if let Some(object) = object {
+                Some(object)
+            } else {
+                self
+                    .modules
+                    .iter()
+                    .find(|module| module.identifier == identifier)
+                    .and_then(|module| module.find_object(&path))
+            }
+        } else {
+            None
         }
     }
 }
@@ -106,14 +116,19 @@ impl Module {
 impl Module {
     /// Find the module with the specified path.
     pub fn find_module(&self, path: &Path) -> Option<&Module> {
-        if self.path == *path {
-            Some(self)
+        let mut path = path.clone();
+        if let Some(identifier) = path.pop_back() {
+            if path.segments.is_empty() && self.identifier == identifier {
+                Some(self)
+            } else {
+                self
+                    .modules
+                    .iter()
+                    .filter_map(|module| module.find_module(&path))
+                    .next()
+            }
         } else {
-            self
-                .modules
-                .iter()
-                .filter_map(|module| module.find_module(path))
-                .next()
+            None
         }
     }
 
@@ -145,7 +160,7 @@ impl Module {
                             attributes: import.attributes.clone(),
                             visibility: import.visibility.clone(),
                             renaming: import.renaming.clone(),
-                            path: object.path.clone()
+                            path: object.identifier.clone().into() // FIXME: This is a temporary workaround. Identifier should be a Path.
                         })
                     }
                 }
@@ -168,27 +183,6 @@ impl Module {
         }
         self.imports = imports;
     }
-
-    // FIXME: Move this function to a module containing IR processing functions.
-    pub fn guarantee_absolute_paths(&mut self) {
-        self.guarantee_absolute_paths_with_parent(Default::default())
-    }
-
-    fn guarantee_absolute_paths_with_parent(&mut self, parent: Path) {
-        self.path = parent.clone().join(self.path.clone());
-        for import in &mut self.imports {
-            import.path = self.path.clone().join(import.path.clone());
-        }
-        for function in &mut self.functions {
-            function.path = self.path.clone().join(function.path.clone());
-        }
-        for module in &mut self.modules {
-            module.guarantee_absolute_paths_with_parent(self.path.clone());
-        }
-        for object in &mut self.objects {
-            object.path = self.path.clone().join(object.path.clone());
-        }
-    }
 }
 
 #[cfg(test)]
@@ -199,12 +193,12 @@ mod test {
     #[test]
     fn object_finder() -> Result<()> {
         let module = Module {
-            path: "types".into(),
+            identifier: "types".into(),
             visibility: Visibility::Public,
             objects: vec![
                 Object {
                     visibility: Visibility::Public,
-                    path: "Type".into(),
+                    identifier: "Type".into(),
                     .. Default::default()
                 }
             ],
@@ -213,7 +207,7 @@ mod test {
         let object = module.find_object(&"Type".into());
         let expected_object = Some(Object {
             visibility: Visibility::Public,
-            path: "Type".into(),
+            identifier: "Type".into(),
             definition: Structure::default().into(),
             .. Default::default()
         });

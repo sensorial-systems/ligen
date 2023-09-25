@@ -1,5 +1,5 @@
 use egui::CollapsingHeader;
-use crate::app::ui::{EditableList, Attributes, Import, Path, Visibility, Constant, Function, Object};
+use crate::app::ui::{EditableList, Attributes, Import, Visibility, Constant, Function, Object, Identifier};
 
 pub struct Module {}
 
@@ -9,13 +9,12 @@ impl Module {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
-        let module_name = module.path.to_string(".");
-        CollapsingHeader::new(module_name)
+        CollapsingHeader::new(module.identifier.to_string())
             .id_source("module")
             .show(ui, |ui| {
                 ui.horizontal_top(|ui| {
                     Visibility::new().show(ui, &mut module.visibility);
-                    Path::new().show(ui, &mut module.path);
+                    Identifier::new().show(ui, &mut module.identifier);
                 });
                 EditableList::new("Imports", "Add import").show(ui, &mut module.imports, |ui, import| {
                     Import::new().show(ui, import);

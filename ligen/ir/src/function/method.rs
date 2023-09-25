@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{Synchrony, Attributes, Mutability, Parameter, Path, Type, Visibility};
+use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Identifier};
 
 /// Method structure.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
@@ -14,8 +14,8 @@ pub struct Method {
     pub visibility: Visibility,
     /// Synchrony field.
     pub synchrony: Synchrony,
-    /// Function's absolute path.
-    pub path: Path,
+    /// Method's identifier.
+    pub identifier: Identifier,
     /// Inputs field.
     pub inputs: Vec<Parameter>,
     /// Output field.

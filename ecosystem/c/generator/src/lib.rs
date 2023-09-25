@@ -88,9 +88,10 @@ impl TemplateBasedGenerator for CGenerator {
         PathBuf::from("c".to_string())
     }
 
-    fn module_generation_path(&self, _project: &Project, module: &Module) -> PathBuf {
+    fn module_generation_path(&self, _project: &Project, _module: &Module) -> PathBuf {
         let mut path = PathBuf::from_str("include").unwrap();
-        path = path.join(PathBuf::from(module.path.clone()));
+        // FIXME: This is not working.
+        // path = path.join(PathBuf::from(module.path.clone()));
         path = path.with_extension("h");
         path
     }

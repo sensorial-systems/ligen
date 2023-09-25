@@ -5,7 +5,7 @@ pub fn function() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Private,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![],
         output: None
     }
@@ -16,7 +16,7 @@ pub fn function_input() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Private,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![
             Parameter {
                 attributes: Default::default(),
@@ -38,7 +38,7 @@ pub fn function_output() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Private,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![],
         output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
     }
@@ -49,7 +49,7 @@ pub fn function_input_output() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Private,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![
             Parameter {
                 attributes: Default::default(),
@@ -95,7 +95,7 @@ pub fn function_attribute() -> Function {
         },
         visibility: Visibility::Private,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![],
         output: None
     }
@@ -106,7 +106,7 @@ pub fn function_async() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Private,
         synchrony: Synchrony::Asynchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![],
         output: None
     }
@@ -127,7 +127,7 @@ pub fn function_complete() -> Function {
         },
         visibility: Visibility::Private,
         synchrony: Synchrony::Asynchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![
             Parameter {
                 attributes: Default::default(),
@@ -163,7 +163,7 @@ pub fn function_pub() -> Function {
         attributes: Attributes { attributes: vec![] },
         visibility: Visibility::Public,
         synchrony: Synchrony::Synchronous,
-        path: Identifier::new("test").into(),
+        identifier: "test".into(),
         inputs: vec![],
         output: None
     }

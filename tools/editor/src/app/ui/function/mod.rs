@@ -6,7 +6,7 @@ pub use method::*;
 pub use synchrony::*;
 pub use parameter::*;
 
-use crate::app::ui::{Attributes, OptionalField, Path, Visibility, Type, EditableList};
+use crate::app::ui::{Attributes, OptionalField, Visibility, Type, EditableList, Identifier};
 
 pub struct Function {
 
@@ -21,7 +21,7 @@ impl Function {
         ui.horizontal_top(|ui| {
             Visibility::new().show(ui, &mut function.visibility);
             Synchrony::new().show(ui, &mut function.synchrony);
-            Path::new().show(ui, &mut function.path);
+            Identifier::new().show(ui, &mut function.identifier);
             EditableList::new("Inputs", "Add input").show(ui, &mut function.inputs, |ui, parameter| {
                 Parameter::new().show(ui, parameter);
             });

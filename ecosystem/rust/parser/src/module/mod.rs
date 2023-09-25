@@ -69,12 +69,12 @@ impl ModuleParser {
                 match item {
                     syn::Item::Enum(enumeration) => {
                         let attributes = AttributesParser.parse(enumeration.attrs.clone())?;
-                        let path = IdentifierParser.parse(enumeration.ident.clone())?.into();
+                        let identifier = IdentifierParser.parse(enumeration.ident.clone())?;
                         let visibility = VisibilityParser.parse(enumeration.vis.clone())?;
                         let enumeration = EnumerationParser.parse(enumeration.clone())?;
                         objects.push(Object {
                             attributes,
-                            path,
+                            identifier,
                             visibility,
                             definition: enumeration.into(),
                             .. Default::default()
@@ -82,12 +82,12 @@ impl ModuleParser {
                     },
                     syn::Item::Struct(structure) => {
                         let attributes = AttributesParser.parse(structure.attrs.clone())?;
-                        let path = IdentifierParser.parse(structure.ident.clone())?.into();
+                        let identifier = IdentifierParser.parse(structure.ident.clone())?;
                         let visibility = VisibilityParser.parse(structure.vis.clone())?;
                         let structure = StructureParser.parse(structure.clone())?;
                         objects.push(Object {
                             attributes,
-                            path,
+                            identifier,
                             visibility,
                             definition: structure.into(),
                             .. Default::default()
@@ -183,13 +183,13 @@ impl Parser<syn::ItemMod> for ModuleParser {
             .ok_or("Module file isn't loaded.")?;
         let attributes = AttributesParser.parse(module.attrs)?;
         let visibility = VisibilityParser.parse(module.vis)?;
-        let path = IdentifierParser.parse(module.ident)?.into();
+        let identifier = IdentifierParser.parse(module.ident)?;
         let imports = ImportsParser.parse(items.as_slice())?.0;
         let functions = Self::extract_functions(items.as_slice())?;
         let objects = Self::extract_object_definitions(false, items.as_slice())?;
         let constants = self.extract_constants( false, items.as_slice())?;
         let modules = self.extract_modules( false, items)?;
-        Ok(Self::Output { attributes, visibility, path, imports, functions, objects, constants, modules })
+        Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
     }
 }
 
@@ -219,16 +219,15 @@ mod tests {
             }
         };
         let parser = ModuleParser;
-        let mut module = parser.parse(module)?;
-        module.guarantee_absolute_paths();
+        let module = parser.parse(module)?;
         let expected_module = Module {
-            path: "root".into(),
+            identifier: "root".into(),
             modules: vec![
                 Module {
-                    path: "root::branch".into(),
+                    identifier: "branch".into(),
                     modules: vec![
                         Module {
-                            path: "root::branch::leaf".into(),
+                            identifier: "leaf".into(),
                             visibility: Visibility::Private,
                             ..Default::default()
                         }
@@ -254,12 +253,12 @@ mod tests {
         let parser = ModuleParser;
         let module = parser.parse(module)?;
         let expected_module = Module {
-            path: "types".into(),
+            identifier: "types".into(),
             visibility: Visibility::Public,
             objects: vec![
                 Object {
                     visibility: Visibility::Public,
-                    path: "Type".into(),
+                    identifier: "Type".into(),
                     .. Default::default()
                 }
             ],

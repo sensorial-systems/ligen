@@ -43,7 +43,7 @@ impl Transform<ImportVisitor, Import> for ReplaceCrateAlias {
         let mut import = data.current.clone();
         let first = import.path.first_mut();
         if *first == "crate".into() {
-            *first = data.parent_project().root_module.path.first().clone();
+            *first = data.parent_project().root_module.identifier.clone();
         }
         import
     }

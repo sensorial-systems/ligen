@@ -13,6 +13,14 @@ pub enum ModuleParent {
 pub type ModuleVisitor = Visitor<ModuleParent, Module>;
 
 impl ModuleVisitor {
+    /// Get the module path.
+    pub fn path(&self) -> Path {
+        match &self.parent {
+            ModuleParent::Project(visitor) => visitor.current.root_module.identifier.clone().into(),
+            ModuleParent::Module(module) => module.path().clone().join(self.identifier.clone())
+        }
+    }
+
     /// Returns the parent project.
     pub fn parent_project(&self) -> &Project {
          match &self.parent {
@@ -31,12 +39,13 @@ impl ModuleVisitor {
 }
 
 impl ModuleVisitor {
+    // TODO: We need to review this process.
     pub fn find_absolute_path(&self, relative_path: &Path) -> Option<Path> {
         let mut consumed_relative_path = relative_path.clone();
         // path is not empty
         if let Some(identifier) = consumed_relative_path.pop_front() {
             let project = self.parent_project();
-            let root_module_name = &project.root_module.path.last();
+            let root_module_name = &project.root_module.identifier;
             // the first segment can be either: crate, self, super, a module or the definition itself.
             // self module
             if identifier == "self".into() {
@@ -58,7 +67,7 @@ impl ModuleVisitor {
                     .current
                     .modules
                     .iter()
-                    .filter(|module| module.path.last() == identifier)
+                    .filter(|module| module.identifier == identifier)
                     .next()
                     .map(|module| ModuleVisitor::from(&self.child(module.clone())));
                 // sub module
@@ -85,11 +94,13 @@ impl ModuleVisitor {
                     // import
                     .and_then(|import| self.find_absolute_path(&import.path.clone()))
                     // type definition
-                    .or(Some(self.current.path.clone().join(identifier)))
+                    // .or(Some(self.current.path.clone().join(identifier))) // FIXME: This is not correct.
+                    .or(None)
             }
             // path is empty
         } else {
-            Some(self.current.path.clone())
+            // Some(self.current.path.clone()) // FIXME: This is not correct.
+            None
         }
     }
 }

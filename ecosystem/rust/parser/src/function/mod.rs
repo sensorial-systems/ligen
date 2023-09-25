@@ -50,7 +50,7 @@ impl Parser<syn::ItemFn> for FunctionParser {
             },
             visibility: VisibilityParser.parse(item_fn.vis)?,
             synchrony: SynchronyParser.parse(asyncness)?,
-            path: IdentifierParser.parse(ident)?.into(),
+            identifier: IdentifierParser.parse(ident)?,
             inputs,
             output,
         })
@@ -90,7 +90,7 @@ impl Parser<syn::ImplItemMethod> for FunctionParser {
             },
             visibility: VisibilityParser.parse(method.vis)?,
             synchrony: SynchronyParser.parse(asyncness)?,
-            path: IdentifierParser.parse(ident)?.into(),
+            identifier: IdentifierParser.parse(ident)?,
             inputs,
             output,
         })

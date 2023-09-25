@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use crate::{Attributes, Path, Type, Visibility};
+use crate::{Attributes, Identifier, Type, Visibility};
 
 pub mod parameter;
 pub mod method;
@@ -19,8 +19,8 @@ pub struct Function {
     pub visibility: Visibility,
     /// Synchrony field.
     pub synchrony: Synchrony,
-    /// Function's absolute path.
-    pub path: Path,
+    /// Function's identifier.
+    pub identifier: Identifier,
     /// Inputs field.
     pub inputs: Vec<Parameter>,
     /// Output field.

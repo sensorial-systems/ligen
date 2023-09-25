@@ -12,7 +12,7 @@ impl Parser<syn::ImplItemConst> for ConstantParser {
     fn parse(&self, item_const: syn::ImplItemConst) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             Ok(Self::Output {
-                path: IdentifierParser.parse(item_const.ident.clone())?.into(),
+                identifier: IdentifierParser.parse(item_const.ident.clone())?,
                 type_: TypeParser.parse(item_const.ty)?,
                 literal: LiteralParser.parse(lit)?,
             })
@@ -27,7 +27,7 @@ impl Parser<syn::ItemConst> for ConstantParser {
     fn parse(&self, item_const: syn::ItemConst) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Ok(Self::Output {
-                path: IdentifierParser.parse(item_const.ident.clone())?.into(),
+                identifier: IdentifierParser.parse(item_const.ident.clone())?,
                 type_: TypeParser.parse(*item_const.ty)?,
                 literal: LiteralParser.parse(lit)?,
             })
@@ -65,7 +65,7 @@ mod test {
         assert_eq!(
             ConstantParser.parse(quote! {const a: &str = "test";})?,
             Constant {
-                path: "a".into(),
+                identifier: "a".into(),
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,
@@ -83,7 +83,7 @@ mod test {
         assert_eq!(
             ConstantParser.parse(quote! {const a: &str = "test";})?,
             Constant {
-                path: "a".into(),
+                identifier: "a".into(),
                 type_: Type::Reference(
                     Reference {
                         mutability: Mutability::Constant,

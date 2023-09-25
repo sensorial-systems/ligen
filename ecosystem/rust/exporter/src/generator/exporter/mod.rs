@@ -101,12 +101,13 @@ impl TemplateBasedGenerator for RustGenerator {
         PathBuf::from("rust".to_string())
     }
 
-    fn module_generation_path(&self, project: &Project, module: &Module) -> PathBuf {
-        let is_root_module = project.root_module.path == module.path;
-        let name = if is_root_module { "lib.rs" } else { "string_editable_field" };
-        let mut path = PathBuf::from_str("src").unwrap();
-        path = path.join(PathBuf::from(module.path.clone().without_first()));
-        path = path.join(name);
+    fn module_generation_path(&self, _project: &Project, _module: &Module) -> PathBuf {
+        // let is_root_module = project.root_module == *module;
+        // let name = if is_root_module { "lib.rs" } else { "mod.rs" };
+        let path = PathBuf::from_str("src").unwrap();
+        // path = path.join(PathBuf::from(module.path.clone().without_first()));
+        // path = path.join(name);
+        // FIXME: This is not working.
         path
     }
 }

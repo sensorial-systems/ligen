@@ -6,8 +6,9 @@ pub struct RelativePathToAbsolutePath;
 
 impl Transform<Project, Project> for RelativePathToAbsolutePath {
     fn transform(&self, data: &Project) -> Project {
-        let mut data = data.clone();
-        data.root_module.guarantee_absolute_paths();
+        let data = data.clone();
+        // TODO: We need to review this process.
+        // data.root_module.guarantee_absolute_paths();
         let visitor = ProjectVisitor::from(data);
         <Self as Transform<ProjectVisitor, Project>>::transform(self, &visitor)
     }
