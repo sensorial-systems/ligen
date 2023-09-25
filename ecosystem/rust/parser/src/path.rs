@@ -54,31 +54,23 @@ impl ToTokens for Path {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::{Path, Identifier};
-    use ligen_parsing::Parser;
     use crate::path::PathParser;
     use crate::prelude::*;
 
+    use ligen_parsing::assert::*;
+    use ligen_ir::path::mock;
+
     #[test]
     fn identifier_as_path() -> Result<()> {
-        let path: Path = PathParser.parse(quote! { u8 })?;
-        assert_eq!(path.segments.first(), Some(&Identifier::new("u8")));
-        Ok(())
+        assert_eq(PathParser, mock::identifier_as_path(), quote! {
+            u8
+        })
     }
 
     #[test]
     fn path() -> Result<()> {
-        let path: Path = PathParser.parse(quote! { std::convert::TryFrom })?;
-        let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
-        assert_eq!(path.segments, segments);
-        Ok(())
+        assert_eq(PathParser, mock::path(), quote! {
+            std::convert::TryFrom
+        })
     }
-
-    #[test]
-    fn path_from_string() {
-        let path: Path = "std::convert::TryFrom".into();
-        let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
-        assert_eq!(path.segments, segments);
-    }
-
 }

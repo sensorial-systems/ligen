@@ -6,7 +6,7 @@ pub use constant::Constant;
 pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::*;
 pub use literal::*;
-pub use path::*;
+pub use path::Path;
 pub use macro_attributes::*;
 pub use types::*;
 pub use visibility::*;

@@ -2,6 +2,9 @@ use crate::Identifier;
 use crate::prelude::*;
 use std::path::PathBuf;
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 /// A fully qualified path.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Path {
@@ -140,5 +143,16 @@ impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let segments: Vec<_> = self.segments.iter().map(|identifier| identifier.to_string()).collect();
         f.write_str(&segments.join("::"))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn path_from_string() {
+        let path: Path = "std::convert::TryFrom".into();
+        let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
+        assert_eq!(path.segments, segments);
     }
 }
