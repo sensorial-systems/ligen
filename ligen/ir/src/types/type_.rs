@@ -71,7 +71,7 @@ impl Type {
     /// Check if the `Type` is `String`.
     pub fn is_string(&self) -> bool {
         match self {
-            Self::Composite(path, _) => path == &Path::from("String"),
+            Self::Composite(path, _) => path == &Path::from("String"), // TODO: Create a String type.
             _ => false
         }
     }
