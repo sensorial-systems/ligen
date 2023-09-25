@@ -41,14 +41,15 @@ impl ToTokens for Identifier {
 
 #[cfg(test)]
 mod test {
-    use ligen_parsing::Parser;
     use crate::identifier::IdentifierParser;
     use crate::prelude::*;
+    use ligen_parsing::assert::*;
+    use ligen_ir::identifier::mock;
 
     #[test]
     fn identifier() -> Result<()> {
-        let identifier = IdentifierParser.parse(quote! { id })?;
-        assert_eq!(identifier.name, "id");
-        Ok(())
+        assert_eq(IdentifierParser, mock::identifier(), quote! {
+            identifier
+        })
     }
 }

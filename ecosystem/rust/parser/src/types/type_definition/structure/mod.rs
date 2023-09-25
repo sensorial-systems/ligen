@@ -39,31 +39,18 @@ impl Parser<syn::ItemStruct> for StructureParser {
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{Field, Type, Primitive, Integer, Visibility, Structure};
-    use ligen_parsing::Parser;
     use crate::types::structure::StructureParser;
     use crate::prelude::*;
 
+    use ligen_parsing::assert::*;
+    use ligen_ir::structure::mock;
+
     #[test]
     fn structure() -> Result<()> {
-        let structure = quote! {
+        assert_eq(StructureParser, mock::structure(), quote! {
             struct Structure {
                 integer: i32
             }
-        };
-        assert_eq!(
-            StructureParser.parse(structure)?,
-            Structure {
-                fields: vec! [
-                    Field {
-                        attributes: Default::default(),
-                        visibility: Visibility::Private,
-                        identifier: Some("integer".into()),
-                        type_: Type::Primitive(Primitive::Integer(Integer::I32))
-                    }
-                ]
-            }
-        );
-        Ok(())
+        })
     }
 }

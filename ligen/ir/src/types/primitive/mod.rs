@@ -1,5 +1,8 @@
 use crate::prelude::*;
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 pub mod integer;
 pub mod float;
 

@@ -119,7 +119,7 @@ impl Display for Attributes {
 
 #[cfg(test)]
 mod test {
-    use crate::attributes::mock;
+    use crate::macro_attributes::attributes::mock;
     use crate::*;
 
     #[test]

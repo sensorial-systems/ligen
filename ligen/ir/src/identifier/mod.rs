@@ -1,3 +1,6 @@
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 use crate::prelude::*;
 
 use crate::conventions::naming::SnakeCase;

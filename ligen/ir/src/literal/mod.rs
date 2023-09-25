@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use crate::Type;
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 /// Literal Enum
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Literal {

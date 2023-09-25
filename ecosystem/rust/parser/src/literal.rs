@@ -76,65 +76,62 @@ impl ToTokens for Literal {
 
 #[cfg(test)]
 mod test {
-    use super::Literal;
-    use ligen_parsing::Parser;
     use crate::literal::LiteralParser;
     use crate::prelude::*;
+    use ligen_ir::literal::mock;
+    use ligen_parsing::assert::*;
 
     #[test]
     fn literal_verbatim() -> Result<()> {
-        let lit = syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim"));
-        let literal = LiteralParser.parse(lit)?;
-        assert_eq!(literal, Literal::String("\"verbatim\"".into()));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_verbatim(), syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim")))
     }
 
     #[test]
     fn literal_string() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { "value" })?;
-        assert_eq!(literal, Literal::String("value".into()));
-        Ok(())
-    }
-
-    #[test]
-    fn literal_byte() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { b'A' })?;
-        assert_eq!(literal, Literal::UnsignedInteger(b'A' as u64));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_string(), quote!{
+            "string"
+        })
     }
 
     #[test]
     fn literal_byte_str() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { b"bytestr" })?;
-        assert_eq!(literal, Literal::String("bytestr".into()));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_string(), quote!{
+            b"string"
+        })
+    }
+
+    #[test]
+    fn literal_byte() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_byte(), quote!{
+            b'A'
+        })
     }
 
     #[test]
     fn literal_bool() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { true })?;
-        assert_eq!(literal, Literal::Boolean(true));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_bool(), quote!{
+            false
+        })
     }
 
     #[test]
-    fn literal_char() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { 'a' })?;
-        assert_eq!(literal, Literal::Character('a'));
-        Ok(())
+    fn literal_character() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_character(), quote!{
+            'A'
+        })
     }
 
     #[test]
     fn literal_integer() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { -2 })?;
-        assert_eq!(literal, Literal::Integer(-2));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_integer(), quote!{
+            -2
+        })
     }
 
     #[test]
     fn literal_float() -> Result<()> {
-        let literal = LiteralParser.parse(quote! { 3.5 })?;
-        assert_eq!(literal, Literal::Float(3.5));
-        Ok(())
+        assert_eq(LiteralParser, mock::literal_float(), quote!{
+            3.5
+        })
     }
 }

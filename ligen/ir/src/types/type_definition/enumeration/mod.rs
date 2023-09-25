@@ -1,5 +1,8 @@
 //! Enumeration representation.
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 pub mod variant;
 pub use variant::*;
 

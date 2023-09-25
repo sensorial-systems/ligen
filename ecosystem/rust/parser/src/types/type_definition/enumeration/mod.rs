@@ -38,39 +38,18 @@ impl Parser<proc_macro2::TokenStream> for EnumerationParser {
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{Enumeration, Variant};
-    use ligen_parsing::Parser;
-    use crate::prelude::*;
-    use crate::types::type_definition::enumeration::EnumerationParser;
+    use super::*;
+    use ligen_ir::enumeration::mock;
+    use ligen_parsing::assert::*;
 
     #[test]
     fn enumeration() -> Result<()> {
-        let enumeration = quote! {
+        assert_eq(EnumerationParser, mock::enumeration(), quote !{
             enum Enumeration {
                 Integer,
                 Float,
                 Boolean
             }
-        };
-        assert_eq!(
-            EnumerationParser.parse(enumeration)?,
-            Enumeration {
-                variants: vec! [
-                    Variant {
-                        attributes: Default::default(),
-                        identifier: "Integer".into(),
-                    },
-                    Variant {
-                        attributes: Default::default(),
-                        identifier: "Float".into(),
-                    },
-                    Variant {
-                        attributes: Default::default(),
-                        identifier: "Boolean".into()
-                    }
-                ]
-            }
-        );
-        Ok(())
+        })
     }
 }

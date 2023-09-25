@@ -4,8 +4,8 @@ pub mod structure;
 pub mod enumeration;
 
 use crate::prelude::*;
-pub use structure::*;
-pub use enumeration::*;
+pub use structure::{Structure, Field};
+pub use enumeration::{Enumeration, Variant};
 
 /// All the possible ways to define a type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

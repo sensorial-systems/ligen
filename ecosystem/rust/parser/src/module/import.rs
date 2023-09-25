@@ -110,69 +110,36 @@ impl TryFrom<ImportsBuilder> for Imports {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ligen_ir::Attribute;
-
-    fn attributes() -> Attributes {
-        Attribute::Group("custom".into(), Attribute::Group("attribute".into(), Default::default()).into()).into()
-    }
+    use ligen_parsing::assert::*;
+    use ligen_ir::module::import::mock;
 
     #[test]
     fn import() -> Result<()> {
-        let import = quote! {
+        assert_eq(ImportsParser, mock::import(), quote! {
             #[custom(attribute)]
             pub use std::collections::HashMap;
-        };
-        let imports = ImportsParser.parse(import)?;
-        assert_eq!(imports, Imports(vec![
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::collections::HashMap"),
-                renaming: None
-            }
-        ]));
-        Ok(())
+        })
     }
 
     #[test]
     fn glob_import() -> Result<()> {
-        let import = quote! {
+        assert_eq(ImportsParser, mock::glob_import(), quote! {
             #[custom(attribute)]
             pub use std::collections::*;
-        };
-        let imports = ImportsParser.parse(import)?;
-        assert_eq!(imports, Imports(vec![
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::collections::*"),
-                renaming: None
-            }
-        ]));
-        Ok(())
+        })
     }
 
     #[test]
     fn renamed_import() -> Result<()> {
-        let import = quote! {
+        assert_eq(ImportsParser, mock::renamed_import(), quote !{
             #[custom(attribute)]
             pub use std::collections::HashMap as Map;
-        };
-        let imports = ImportsParser.parse(import)?;
-        assert_eq!(imports, Imports(vec![
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::collections::HashMap"),
-                renaming: Some("Map".into())
-            }
-        ]));
-        Ok(())
+        })
     }
 
     #[test]
     fn group_import() -> Result<()> {
-        let import = quote! {
+        assert_eq(ImportsParser, mock::group_import(), quote! {
             #[custom(attribute)]
             pub use std::{
                 collections::{
@@ -181,28 +148,6 @@ mod tests {
                 },
                 rc::Rc
             };
-        };
-        let imports = ImportsParser.parse(import)?;
-        assert_eq!(imports, Imports(vec![
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::collections::BinaryHeap"),
-                renaming: Some("Heap".into())
-            },
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::collections::HashMap"),
-                renaming: None
-            },
-            Import {
-                attributes: attributes(),
-                visibility: Visibility::Public,
-                path: Path::from("std::rc::Rc"),
-                renaming: None
-            },
-        ]));
-        Ok(())
+        })
     }
 }

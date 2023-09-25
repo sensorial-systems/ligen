@@ -1,5 +1,8 @@
 //! Structure representation.
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 pub mod field;
 pub use field::*;
 

@@ -74,14 +74,14 @@ impl ToTokens for Primitive {
 
 #[cfg(test)]
 mod test {
-    use super::{Primitive, Float, Integer};
-    use ligen_parsing::Parser;
-    use crate::types::primitive::PrimitiveParser;
-    use crate::prelude::*;
+    use super::*;
+
+    use ligen_ir::primitive::mock;
+    use ligen_parsing::assert::*;
 
     #[test]
     fn primitive_integer() -> Result<()> {
-        let vec: Vec<Primitive> = vec![
+        let vec: Vec<Result<Primitive>> = vec![
             quote! { u8 },
             quote! { u16 },
             quote! { u32 },
@@ -96,7 +96,7 @@ mod test {
             quote! { isize },
         ]
             .into_iter()
-            .map(|x| PrimitiveParser.parse(x).expect("Failed to parse"))
+            .map(|x| PrimitiveParser.parse(x))
             .collect();
         let expected: Vec<Integer> = vec![
             Integer::U8,
@@ -115,45 +115,41 @@ mod test {
             .into_iter()
             .collect();
 
-        let mut iter = vec.iter().zip(expected.iter());
-
-        while let Some((Primitive::Integer(value), expected_value)) = iter.next() {
-            assert_eq!(value, expected_value);
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn primitive_float() -> Result<()> {
-        let vec: Vec<Primitive> = vec![quote! { f32 }, quote! { f64 }]
+        let iter = vec
             .into_iter()
-            .map(|x| PrimitiveParser.parse(x).expect("Failed to parse"))
-            .collect();
-        let expected: Vec<Float> = vec![Float::F32, Float::F64].into_iter().collect();
+            .zip(expected.into_iter());
 
-        let mut iter = vec.iter().zip(expected.iter());
-
-        while let Some((Primitive::Float(value), expected_value)) = iter.next() {
-            assert_eq!(value, expected_value);
+        for (result, expected) in iter {
+            core::assert_eq!(result?, Primitive::Integer(expected));
         }
         Ok(())
     }
 
     #[test]
-    fn primitive_boolean() -> Result<()> {
-        assert_eq!(
-            Primitive::Boolean,
-            PrimitiveParser.parse(quote! {bool})?
-        );
-        Ok(())
+    fn float32() -> Result<()> {
+        assert_eq(PrimitiveParser, mock::float32(), quote! {
+            f32
+        })
     }
 
     #[test]
-    fn primitive_character() -> Result<()> {
-        assert_eq!(
-            Primitive::Character,
-            PrimitiveParser.parse(quote! {char})?
-        );
-        Ok(())
+    fn float64() -> Result<()> {
+        assert_eq(PrimitiveParser, mock::float64(), quote! {
+            f64
+        })
+    }
+
+    #[test]
+    fn boolean() -> Result<()> {
+        assert_eq(PrimitiveParser, mock::boolean(), quote! {
+            bool
+        })
+    }
+
+    #[test]
+    fn character() -> Result<()> {
+        assert_eq(PrimitiveParser, mock::character(), quote! {
+            char
+        })
     }
 }

@@ -1,5 +1,8 @@
 //! Import representation.
 
+#[cfg(any(test, feature = "mocks"))]
+pub mod mock;
+
 use crate::prelude::*;
 use crate::{Path, Attributes, Visibility, Identifier};
 
