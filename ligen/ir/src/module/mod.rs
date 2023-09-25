@@ -190,3 +190,34 @@ impl Module {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::*;
+
+    #[test]
+    fn object_finder() -> Result<()> {
+        let module = Module {
+            path: "types".into(),
+            visibility: Visibility::Public,
+            objects: vec![
+                Object {
+                    visibility: Visibility::Public,
+                    path: "Type".into(),
+                    .. Default::default()
+                }
+            ],
+            ..Default::default()
+        };
+        let object = module.find_object(&"Type".into());
+        let expected_object = Some(Object {
+            visibility: Visibility::Public,
+            path: "Type".into(),
+            definition: Structure::default().into(),
+            .. Default::default()
+        });
+        assert_eq!(object, expected_object.as_ref());
+        Ok(())
+    }
+}
