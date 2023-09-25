@@ -55,44 +55,17 @@ impl Parser<proc_macro2::TokenStream> for ConstantParser {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::{Literal, Mutability, Reference, Constant, Identifier, Type};
     use quote::quote;
     use crate::constant::ConstantParser;
     use crate::prelude::*;
-
+    
+    use ligen_parsing::assert::assert_eq;
+    use ligen_ir::constant::mock;
+    
     #[test]
-    fn impl_const_impl() -> Result<()> {
-        assert_eq!(
-            ConstantParser.parse(quote! {const a: &str = "test";})?,
-            Constant {
-                identifier: "a".into(),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Constant,
-                        type_: Box::new(Type::Composite(Identifier::new("str").into(), Default::default()))
-                    }
-                ),
-                literal: Literal::String(String::from("test"))
-            }
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn impl_const() -> Result<()> {
-        assert_eq!(
-            ConstantParser.parse(quote! {const a: &str = "test";})?,
-            Constant {
-                identifier: "a".into(),
-                type_: Type::Reference(
-                    Reference {
-                        mutability: Mutability::Constant,
-                        type_: Box::new(Type::Composite(Identifier::new("str").into(), Default::default()))
-                    }
-                ),
-                literal: Literal::String(String::from("test"))
-            }
-        );
-        Ok(())
+    fn constant() -> Result<()> {
+        assert_eq(ConstantParser, mock::constant(), quote! {
+            const CONSTANT: bool = false;
+        })
     }
 }

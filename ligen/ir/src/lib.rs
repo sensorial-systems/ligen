@@ -2,7 +2,7 @@
 
 pub use source::*;
 pub use module::{Module, Import, Imports};
-pub use constant::*;
+pub use constant::Constant;
 pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::*;
 pub use literal::*;
