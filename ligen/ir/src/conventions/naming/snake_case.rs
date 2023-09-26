@@ -8,10 +8,11 @@ use super::{NamingConvention, KebabCase};
 #[display(fmt = "{}", _0)]
 pub struct SnakeCase(String);
 
-impl From<NamingConvention> for SnakeCase {
-    fn from(name: NamingConvention) -> Self {
+impl TryFrom<NamingConvention> for SnakeCase {
+    type Error = Error;
+    fn try_from(name: NamingConvention) -> Result<Self> {
         match name {
-            NamingConvention::KebabCase(name) => name.into(),
+            NamingConvention::KebabCase(name) => Ok(name.into()),
             _ => todo!("Implement other naming conventions.")
         }
     }
@@ -35,9 +36,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn from_kebab_case() {
+    fn from_kebab_case() -> Result<()> {
         let kebab_case = KebabCase::try_from("naming-convention").expect("Not in snake case.");
         let snake_case = SnakeCase::from(kebab_case);
         assert_eq!(snake_case.to_string(), "naming_convention");
+        Ok(())
     }
 }

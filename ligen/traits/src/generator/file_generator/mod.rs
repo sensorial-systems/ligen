@@ -36,7 +36,7 @@ pub trait FileGenerator {
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
-        let project_dir = target_ligen_dir.join(&SnakeCase::from(project.name().clone()).to_string());
+        let project_dir = target_ligen_dir.join(&SnakeCase::try_from(project.name().clone())?.to_string());
         for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);
             write_file(&file_path, &file.content)?;

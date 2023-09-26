@@ -45,10 +45,6 @@ shrinkwraprs        = "0.3"
 derive_more         = "0.99"
 lazy_static         = "1.4.0"
 pretty_assertions   = "1.4.0"
-# FIXME: Rusty. Move to the Rust crates.
-cargo_toml          = "0.15.3" # FIXME: This is Rusty.
-proc-macro2         = "1.0.26"
-syn                 = { version = "2.0.29", features = ["full"]}
 
 [patch.crates-io]
 # If you want to use the bleeding edge version of egui and eframe:

@@ -8,18 +8,15 @@ license.workspace = true
 documentation.workspace = true
 readme.workspace = true
 
-# TODO: Review dependencies
 [dependencies]
 ligen-ir.workspace      = true
 ligen-traits.workspace  = true
 ligen-utils.workspace   = true
 ligen-common.workspace  = true
 ligen-parsing.workspace = true
-serde_json.workspace    = true
-proc-macro2.workspace   = true
-syn                     = { version = "1.0.73", features = [ "full" ] } # FIXME: This is also used somwehere else. DRY.
+syn                     = { version = "1.0.73", features = [ "full" ] }
+proc-macro2             = "1"
 quote                   = "1.0.9"
-
 
 [dev-dependencies]
 pretty_assertions.workspace = true

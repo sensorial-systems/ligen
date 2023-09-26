@@ -1,5 +1,6 @@
 //! kebab-case.
 
+use crate::conventions::naming::NamingConvention;
 use crate::prelude::*;
 use super::SnakeCase;
 
@@ -18,6 +19,18 @@ impl TryFrom<&str> for KebabCase {
     type Error = Error;
     fn try_from(naming: &str) -> Result<Self> {
         Ok(Self(naming.to_string()))
+    }
+}
+
+impl TryFrom<NamingConvention> for KebabCase {
+    type Error = Error;
+    fn try_from(value: NamingConvention) -> Result<Self> {
+        match value {
+            NamingConvention::KebabCase(kebab_case) => Ok(kebab_case),
+            NamingConvention::SnakeCase(snake_case) => Ok(Self::from(snake_case)),
+            NamingConvention::PascalCase(_pascal_case) => todo!("PascalCase to KebabCase"),
+            NamingConvention::CamelCase(_camel_case) => todo!("CamelCase to KebabCase")
+        }
     }
 }
 

@@ -11,4 +11,4 @@ ligen-traits.workspace      = true
 ligen-utils.workspace       = true
 ligen-parsing.workspace     = true
 ligen-rust-parser.workspace = true
-cargo_toml.workspace        = true
+cargo_toml = "0.16.0"

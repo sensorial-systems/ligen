@@ -48,7 +48,7 @@ impl BuildSystem for CargoBuilder {
             build_command = build_command.arg("--release");
         }
 
-        let project_name = SnakeCase::from(project.name.clone()).to_string();
+        let project_name = SnakeCase::try_from(project.name.clone())?.to_string();
         let ligen_path = Self::target_dir()
             .unwrap()
             .join("ligen");

@@ -1,4 +1,4 @@
-use ligen_ir::conventions::naming::NamingConvention;
+use ligen_ir::conventions::naming::{SnakeCase, NamingConvention};
 use ligen_ir::prelude::*;
 use ligen_ir::Project;
 use ligen_parsing::Parser;
@@ -23,7 +23,8 @@ impl Parser<&std::path::Path> for ProjectParser {
         let library_path = directory.join(library.path.unwrap_or("src/lib.rs".into()));
 
         let name = NamingConvention::try_from(package.name.as_str())?;
-        let root_module = ModuleParser.parse(library_path.as_path())?;
+        let mut root_module = ModuleParser.parse(library_path.as_path())?;
+        root_module.identifier = SnakeCase::try_from(name.clone())?.to_string().into();
         Ok(Self::Output { directory, name, root_module })
     }
 }
