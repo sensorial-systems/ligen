@@ -2,6 +2,7 @@
 
 mod import;
 
+use syn::spanned::Spanned;
 use ligen_ir::{Constant, Object, Project};
 use ligen_parsing::Parser;
 use crate::prelude::*;
@@ -18,6 +19,50 @@ use crate::visibility::VisibilityParser;
 
 pub struct ModuleParser;
 
+impl Parser<proc_macro2::TokenStream> for ModuleParser {
+    type Output = Module;
+    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
+        syn::parse2::<syn::ItemMod>(token_stream)
+            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
+            .and_then(|module| self.parse(module))
+    }
+}
+
+impl Parser<syn::ItemMod> for ModuleParser {
+    type Output = Module;
+    fn parse(&self, module: syn::ItemMod) -> Result<Self::Output> {
+        let items = module
+            .content
+            .map(|(_, items)| items)
+            .ok_or("Module file isn't loaded.")?;
+        let attributes = AttributesParser.parse(module.attrs)?;
+        let visibility = VisibilityParser.parse(module.vis)?;
+        let identifier = IdentifierParser.parse(module.ident)?;
+        let imports = ImportsParser.parse(items.as_slice())?.0;
+        let functions = Self::extract_functions(items.as_slice())?;
+        let objects = Self::extract_object_definitions(false, items.as_slice())?;
+        let constants = self.extract_constants(false, items.as_slice())?;
+        let modules = self.extract_modules(false, items)?;
+        Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
+    }
+}
+
+impl Parser<&std::path::Path> for ModuleParser {
+    type Output = Module;
+    fn parse(&self, path: &std::path::Path) -> Result<Self::Output> {
+        let module = syn2::file_parser::parse_file_recursive(path)?;
+        let ident = syn::Ident::new(path.file_stem().unwrap_or_default().to_str().unwrap_or_default(), module.span()); // FIXME: This is hardcoded.
+        let attrs = module.attrs;
+        let pub_token = Default::default();
+        let semi = Default::default();
+        let mod_token = Default::default();
+        let content = Some((Default::default(), module.items));
+        let vis = syn::Visibility::Public(syn::VisPublic { pub_token });
+        let module = syn::ItemMod { attrs, vis, mod_token, ident, semi, content };
+        self.parse(module)
+    }
+}
+
 impl ModuleParser {
     fn extract_functions(items: &[syn::Item]) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
@@ -32,9 +77,17 @@ impl ModuleParser {
     fn extract_modules(&self, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         if !ignored {
-            let items = items.into_iter().filter_map(|item| if let syn::Item::Mod(module) = item { Some(module) } else { None });
-            for item in items {
-                let module = self.parse(item)?;
+            let items = items
+                .into_iter()
+                .filter_map(|item| {
+                    if let syn::Item::Mod(module) = item {
+                        Some(module)
+                    } else {
+                        None
+                    }
+                });
+            for module in items {
+                let module = self.parse(module)?;
                 if !module.ignored() {
                     modules.push(module)
                 }
@@ -165,33 +218,6 @@ impl ModuleParser {
 
 }
 
-impl Parser<proc_macro2::TokenStream> for ModuleParser {
-    type Output = Module;
-    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        syn::parse2::<syn::ItemMod>(token_stream)
-            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
-            .and_then(|module| self.parse(module))
-    }
-}
-
-impl Parser<syn::ItemMod> for ModuleParser {
-    type Output = Module;
-    fn parse(&self, module: syn::ItemMod) -> Result<Self::Output> {
-        let items = module
-            .content
-            .map(|(_, items)| items)
-            .ok_or("Module file isn't loaded.")?;
-        let attributes = AttributesParser.parse(module.attrs)?;
-        let visibility = VisibilityParser.parse(module.vis)?;
-        let identifier = IdentifierParser.parse(module.ident)?;
-        let imports = ImportsParser.parse(items.as_slice())?.0;
-        let functions = Self::extract_functions(items.as_slice())?;
-        let objects = Self::extract_object_definitions(false, items.as_slice())?;
-        let constants = self.extract_constants(false, items.as_slice())?;
-        let modules = self.extract_modules(false, items)?;
-        Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
-    }
-}
 
 #[cfg(test)]
 mod tests {

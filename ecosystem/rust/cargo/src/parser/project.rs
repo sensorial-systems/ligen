@@ -1,7 +1,8 @@
 use ligen_ir::conventions::naming::NamingConvention;
 use ligen_ir::prelude::*;
-use ligen_ir::{Module, Project};
+use ligen_ir::Project;
 use ligen_parsing::Parser;
+use ligen_rust_parser::module::ModuleParser;
 
 pub struct ProjectParser;
 
@@ -14,13 +15,15 @@ impl Parser<&std::path::Path> for ProjectParser {
             input.to_path_buf()
         };
         let directory = cargo_path.parent().ok_or("Failed to get directory.")?.to_path_buf();
+
         let cargo_toml = cargo_toml::Manifest::from_path(cargo_path.as_path())
             .map_err(|e| Error::Message(format!("Failed to read Cargo.toml: {}", e)))?;
         let package = cargo_toml.package.ok_or_else(|| Error::Message("Package not found in Cargo.toml.".into()))?;
-        Ok(Self::Output {
-            directory,
-            name: NamingConvention::try_from(package.name.as_str())?,
-            root_module: Module::default(),
-        })
+        let library = cargo_toml.lib.ok_or_else(|| Error::Message("Library not found in Cargo.toml.".into()))?;
+        let library_path = directory.join(library.path.unwrap_or("src/lib.rs".into()));
+
+        let name = NamingConvention::try_from(package.name.as_str())?;
+        let root_module = ModuleParser.parse(library_path.as_path())?;
+        Ok(Self::Output { directory, name, root_module })
     }
 }

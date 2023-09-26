@@ -24,3 +24,4 @@ quote                   = "1.0.9"
 [dev-dependencies]
 pretty_assertions.workspace = true
 ligen-ir = { workspace = true, features = ["mocks"]}
+project-root = "0.2.2"

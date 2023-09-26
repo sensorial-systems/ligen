@@ -75,7 +75,7 @@
 //     }
 //
 //     fn get_path(&self, module: &syn::ItemMod) -> Path {
-//         Identifier::from(SynIdent(module.ident.clone())).into()
+//         Identifier::from(module.ident.clone()).into()
 //     }
 //
 //     fn get_children<'b>(&'b self, module: &'b syn::ItemMod) -> Vec<&'b Self::Visitor> {
