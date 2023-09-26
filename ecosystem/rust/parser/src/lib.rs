@@ -9,6 +9,5 @@ pub mod literal;
 pub mod identifier;
 pub mod module;
 pub mod constant;
-pub mod project;
 
 extern crate proc_macro;
