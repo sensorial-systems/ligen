@@ -18,6 +18,7 @@ impl EditableList {
     where T: Default
     {
         CollapsingHeader::new(&self.name)
+            .default_open(!list.is_empty())
             .id_source(&self.id_source)
             .show(ui, |ui| {
                 let mut remove_list = Vec::new();
