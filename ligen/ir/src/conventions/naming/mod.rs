@@ -12,6 +12,9 @@ pub use camel_case::*;
 
 use crate::prelude::*;
 
+// TODO: Rework NamingConvention as `Name` and with methods identifying the convention.
+//  Thinkg more about using `Name` with `Identifier`.
+
 /// Enumerated naming conventions.
 #[derive(Debug, Clone, Serialize, Deserialize, Display, PartialEq, Eq)]
 pub enum NamingConvention {
