@@ -32,6 +32,12 @@ pub enum NamingConvention {
     CamelCase(CamelCase)
 }
 
+impl Default for NamingConvention {
+    fn default() -> Self {
+        Self::KebabCase(Default::default())
+    }
+}
+
 impl TryFrom<&str> for NamingConvention {
     type Error = Error;
     fn try_from(naming: &str) -> Result<Self> {

@@ -6,7 +6,7 @@ use crate::conventions::naming::NamingConvention;
 
 /// Project representation.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Project {
     pub directory: std::path::PathBuf,
     pub name: NamingConvention,
