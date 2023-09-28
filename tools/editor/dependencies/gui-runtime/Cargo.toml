@@ -1,5 +1,5 @@
 [package]
-name = "gui-runtime"
+name = "ligen-gui-runtime"
 version.workspace     = true
 authors.workspace     = true
 edition.workspace     = true

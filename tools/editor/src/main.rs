@@ -4,4 +4,4 @@
 mod prelude;
 mod ligen_editor;
 
-gui_runtime::entrypoint!("Ligen Editor", ligen_editor::LigenEditor, "the_canvas_id");
+ligen_gui_runtime::entrypoint!("Ligen Editor", ligen_editor::LigenEditor, "the_canvas_id");

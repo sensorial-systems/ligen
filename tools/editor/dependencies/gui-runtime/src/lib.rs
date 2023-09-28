@@ -1,5 +1,24 @@
 #![warn(clippy::all, rust_2018_idioms)]
 
+
+pub use egui;
+pub use eframe;
+pub use log;
+pub use reexports::*;
+
+
+#[cfg(not(target_arch = "wasm32"))]
+mod reexports {
+    pub use env_logger;
+    pub use rfd;
+}
+
+#[cfg(target_arch = "wasm32")]
+mod reexports {
+    pub use wasm_bindgen_futures;
+}
+
+
 #[macro_export]
 macro_rules! entrypoint {
     ($title:expr, $eframe_app:ty, $canvas_id:expr) => {
@@ -20,7 +39,7 @@ macro_rules! entrypoint {
         #[cfg(target_arch = "wasm32")]
         fn main() {
             // Redirect `log` message to `console.log` and friends:
-            $crate::eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+            $crate::eframe::WebLogger::init($crate::log::LevelFilter::Debug).ok();
 
             let web_options = $crate::eframe::WebOptions::default();
 
@@ -37,18 +56,3 @@ macro_rules! entrypoint {
         }
     };
 }
-
-pub use egui;
-#[cfg(not(target_arch = "wasm32"))]
-mod reexports {
-    pub use env_logger;
-    pub use rfd;
-}
-
-#[cfg(target_arch = "wasm32")]
-mod reexports {
-    pub use wasm_bindgen_futures;
-}
-
-pub use reexports::*;
-pub use eframe;
