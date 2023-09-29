@@ -39,7 +39,7 @@ mod path_handling {
     use super::*;
     pub fn find_module_path(path: &Path, module_name: &str) -> Result<std::path::PathBuf> {
         let file_rs = path.join(&module_name).with_extension("rs");
-        let mod_rs = path.join(&module_name).join("gui");
+        let mod_rs = path.join(&module_name).join("mod.rs");
         match (file_rs.exists(), mod_rs.exists()) {
             (true, true) => Err(Error::Message(format!("Ambiguous module {:?}.", module_name))),
             (true, false) => Ok(file_rs),
@@ -49,7 +49,7 @@ mod path_handling {
     }
 
     pub fn find_base_path(path: &Path) -> Result<std::path::PathBuf> {
-        if path.ends_with("gui") || path.ends_with("lib.rs") {
+        if path.ends_with("mod.rs") || path.ends_with("lib.rs") {
             Ok(path
                 .parent()
                 .ok_or("Failed to get parent directory.")?

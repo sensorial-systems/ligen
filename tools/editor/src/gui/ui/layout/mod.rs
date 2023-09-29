@@ -16,22 +16,10 @@ pub struct Layout {
     panes: Panes
 }
 
-
-pub trait MenuButton {
-    fn menu_title(&self) -> String;
-    fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes);
-
-    fn menu_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
-        ui.menu_button(self.menu_title(), |ui| {
-            self.show_button(ui, panes)
-        });
-    }
-}
-
 impl Default for Layout {
     fn default() -> Self {
-        let panes = Panes::new();
         let menu = Menu::new();
+        let panes = Panes::new();
         Self { menu, panes }
     }
 }

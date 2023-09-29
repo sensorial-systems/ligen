@@ -12,4 +12,6 @@ readme.workspace = true
 ligen-gui-runtime.workspace = true
 ligen-ir.workspace    = true
 serde.workspace       = true
+ligen-parsing.workspace = true
+ligen-cargo.workspace = true
 egui_tiles = "0.2.0"

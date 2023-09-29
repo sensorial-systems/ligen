@@ -1,5 +1,17 @@
-use crate::gui::ui::{EditorMenuButton, MenuButton, Panes};
+use crate::gui::ui::{EditorMenuButton, Panes};
 use crate::prelude::*;
+
+pub trait MenuButton {
+    fn menu_title(&self) -> String;
+    fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes);
+
+    fn menu_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
+        ui.menu_button(self.menu_title(), |ui| {
+            self.show_button(ui, panes)
+        });
+    }
+}
+
 pub struct Menu {
     buttons: Vec<Box<dyn MenuButton>>
 }

@@ -5,6 +5,7 @@ fn main() {
         use ligen::parsing::Parser;
         use ligen_cargo::parser::project::ProjectParser;
 
+        // FIXME: Hardcoded absolute path.
         let project = ProjectParser
             .parse(std::path::Path::new("D:\\dev\\sensorial\\systems\\ligen\\ecosystem\\rust\\example\\Cargo.toml"))
             .expect("Failed to parse project.");

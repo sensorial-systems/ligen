@@ -40,11 +40,11 @@ impl StringEditable for PathBuf {
 
 impl StringEditable for Path {
     fn as_string(&self) -> String {
-        self.to_string(".")
+        self.to_string("::")
     }
 
     fn update(&mut self, string: impl AsRef<str>) -> bool {
-        *self = Path::from_string(string.as_ref(), ".");
+        *self = Path::from_string(string.as_ref(), "::");
         true
     }
 }

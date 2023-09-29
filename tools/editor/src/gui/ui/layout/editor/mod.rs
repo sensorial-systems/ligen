@@ -56,6 +56,23 @@ impl MenuButton for EditorMenuButton {
             }
             ui.close_menu();
         }
+        if ui.button("Parse Rust/Cargo").clicked() {
+            use ligen_parsing::Parser;
+            use ligen_cargo::parser::project::ProjectParser;
+
+            let file = rfd::FileDialog::new()
+                .add_filter("Cargo project", &["toml"])
+                .pick_file();
+
+            if let Some(file) = file {
+                let project = ProjectParser
+                    .parse(file.as_path())
+                    .expect("Failed to parse project.");
+                panes.new_pane(Box::new(Editor::new(project)));
+            }
+
+            ui.close_menu();
+        }
     }
 }
 
