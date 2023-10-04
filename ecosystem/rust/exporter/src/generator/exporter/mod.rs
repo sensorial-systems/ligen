@@ -103,7 +103,7 @@ impl TemplateBasedGenerator for RustGenerator {
 
     fn module_generation_path(&self, _project: &Project, _module: &Module) -> PathBuf {
         // let is_root_module = project.root_module == *module;
-        // let name = if is_root_module { "lib.rs" } else { "gui" };
+        // let name = if is_root_module { "lib.rs" } else { "mod.rs" };
         let path = PathBuf::from_str("src").unwrap();
         // path = path.join(PathBuf::from(module.path.clone().without_first()));
         // path = path.join(name);
