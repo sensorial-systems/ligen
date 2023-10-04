@@ -2,8 +2,8 @@
 
 use proc_macro::TokenStream;
 use crate::prelude::*;
-use ligen_ir::Attribute;
-use ligen_parsing::Parser;
+use ligen::ir::Attribute;
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -96,10 +96,10 @@ impl Parser<proc_macro2::TokenStream> for AttributeParser {
 #[cfg(test)]
 mod test {
     use quote::quote;
-    use ligen_parsing::assert::assert_eq;
+    use ligen::parsing::assert::assert_eq;
     use super::*;
 
-    use ligen_ir::attribute::mock;
+    use ligen::ir::attribute::mock;
 
     #[test]
     fn attribute_literal() -> Result<()> {

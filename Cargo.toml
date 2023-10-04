@@ -6,6 +6,7 @@ members = [
     "ligen/parsing",
     "ligen/utils",
     "ligen/traits",
+    "ecosystem/python/parser",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
     "ecosystem/rust/exporter",
@@ -37,6 +38,7 @@ ligen-traits        = { path = "ligen/traits" }
 ligen-utils         = { path = "ligen/utils" }
 ligen-c             = { path = "ecosystem/c/generator" }
 ligen-cmake         = { path = "ecosystem/c/cmake" }
+ligen-python-parser = { path = "ecosystem/python/parser" }
 ligen-rust-exporter = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser   = { path = "ecosystem/rust/parser" }
 ligen-cargo         = { path = "ecosystem/rust/cargo" }

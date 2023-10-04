@@ -3,16 +3,15 @@
 mod import;
 
 use syn::spanned::Spanned;
-use ligen_ir::{Constant, Object, Project};
-use ligen_parsing::Parser;
+use ligen::ir::{Constant, Object};
+use ligen::parsing::Parser;
 use crate::prelude::*;
-use ligen_ir::{Function, Module};
+use ligen::ir::{Function, Module, Import};
 use crate::constant::ConstantParser;
-use crate::function::{FunctionParser, MethodParser};
+use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::module::import::ImportsParser;
-use crate::path::PathParser;
 use crate::types::enumeration::EnumerationParser;
 use crate::types::structure::StructureParser;
 use crate::visibility::VisibilityParser;
@@ -38,9 +37,10 @@ impl Parser<syn::ItemMod> for ModuleParser {
         let attributes = AttributesParser.parse(module.attrs)?;
         let visibility = VisibilityParser.parse(module.vis)?;
         let identifier = IdentifierParser.parse(module.ident)?;
-        let imports = ImportsParser.parse(items.as_slice())?.0;
-        let functions = Self::extract_functions(items.as_slice())?;
-        let objects = Self::extract_object_definitions(false, items.as_slice())?;
+
+        let imports = self.extract_imports(items.as_slice())?;
+        let functions = self.extract_functions(items.as_slice())?;
+        let objects = self.extract_object_definitions(false, items.as_slice())?;
         let constants = self.extract_constants(false, items.as_slice())?;
         let modules = self.extract_modules(false, items)?;
         Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
@@ -64,7 +64,16 @@ impl Parser<&std::path::Path> for ModuleParser {
 }
 
 impl ModuleParser {
-    fn extract_functions(items: &[syn::Item]) -> Result<Vec<Function>> {
+    fn extract_imports(&self, items: &[syn::Item]) -> Result<Vec<Import>> {
+        let mut imports: Vec<Import> = Default::default();
+        for item in items {
+            if let syn::Item::Use(import) = item {
+                imports.append(&mut ImportsParser.parse(import.clone())?);
+            }
+        }
+        Ok(imports)
+    }
+    fn extract_functions(&self, items: &[syn::Item]) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
         for item in items {
             if let syn::Item::Fn(function) = item {
@@ -115,7 +124,7 @@ impl ModuleParser {
 //     Ok(attributes)
 // }
 
-    fn extract_object_definitions(ignored: bool, items: &[syn::Item]) -> Result<Vec<Object>> {
+    fn extract_object_definitions(&self, ignored: bool, items: &[syn::Item]) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
         if !ignored {
             for item in items {
@@ -159,52 +168,52 @@ impl ModuleParser {
         Ok(objects)
     }
 
-    // FIXME: Make it private.
-    pub fn extract_object_implementations(project: &mut Project, ignored: bool, items: &[syn::Item]) -> Result<()> {
-        if !ignored {
-            for item in items {
-                match item {
-                    syn::Item::Mod(module) => if let Some((_, items)) = &module.content {
-                        // FIXME: Hardcoded ignored.
-                        Self::extract_object_implementations(project, false, items.as_slice())?;
-                    },
-                    syn::Item::Impl(implementation) => {
-                        // TODO: Consider `impl Trait for Object`?
-                        if implementation.trait_.is_none() {
-                            if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
-                                // FIXME: Transform relative path to absolute path.
-                                let path = PathParser.parse(path.clone())?;
-                                if let Some(object) = project.root_module.find_object_mut(&path) {
-                                    // TODO: Parse attributes and merge them with individual items.
-                                    // let attributes = implementation.attrs;
-                                    for item in &implementation.items {
-                                        match item {
-                                            syn::ImplItem::Const(constant) => {
-                                                let constant = ConstantParser.parse(constant.clone())?;
-                                                object.constants.push(constant)
-                                            },
-                                            syn::ImplItem::Method(method) => {
-                                                if method.sig.receiver().is_some() {
-                                                    let method = MethodParser.parse(method.clone())?;
-                                                    object.methods.push(method)
-                                                } else {
-                                                    let function = FunctionParser.parse(method.clone())?;
-                                                    object.functions.push(function)
-                                                }
-                                            }
-                                            _ => ()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    _ => ()
-                }
-            }
-        }
-        Ok(())
-    }
+    // FIXME: Implement it.
+    // fn extract_object_implementations(project: &mut Project, ignored: bool, items: &[syn::Item]) -> Result<()> {
+    //     if !ignored {
+    //         for item in items {
+    //             match item {
+    //                 syn::Item::Mod(module) => if let Some((_, items)) = &module.content {
+    //                     // FIXME: Hardcoded ignored.
+    //                     Self::extract_object_implementations(project, false, items.as_slice())?;
+    //                 },
+    //                 syn::Item::Impl(implementation) => {
+    //                     // TODO: Consider `impl Trait for Object`?
+    //                     if implementation.trait_.is_none() {
+    //                         if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
+    //                             // FIXME: Transform relative path to absolute path.
+    //                             let path = PathParser.parse(path.clone())?;
+    //                             if let Some(object) = project.root_module.find_object_mut(&path) {
+    //                                 // TODO: Parse attributes and merge them with individual items.
+    //                                 // let attributes = implementation.attrs;
+    //                                 for item in &implementation.items {
+    //                                     match item {
+    //                                         syn::ImplItem::Const(constant) => {
+    //                                             let constant = ConstantParser.parse(constant.clone())?;
+    //                                             object.constants.push(constant)
+    //                                         },
+    //                                         syn::ImplItem::Method(method) => {
+    //                                             if method.sig.receiver().is_some() {
+    //                                                 let method = MethodParser.parse(method.clone())?;
+    //                                                 object.methods.push(method)
+    //                                             } else {
+    //                                                 let function = FunctionParser.parse(method.clone())?;
+    //                                                 object.functions.push(function)
+    //                                             }
+    //                                         }
+    //                                         _ => ()
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //                 _ => ()
+    //             }
+    //         }
+    //     }
+    //     Ok(())
+    // }
 
     fn extract_constants(&self, _: bool, items: &[syn::Item]) -> Result<Vec<Constant>> {
         let mut constants = Vec::new();
@@ -223,8 +232,8 @@ impl ModuleParser {
 mod tests {
     use super::*;
     use quote::quote;
-    use ligen_ir::module::mock;
-    use ligen_parsing::assert::*;
+    use ligen::ir::module::mock;
+    use ligen::parsing::assert::*;
 
     #[test]
     fn module_file() -> Result<()> {

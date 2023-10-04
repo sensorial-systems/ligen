@@ -1,5 +1,5 @@
-use ligen_ir::Synchrony;
-use ligen_parsing::Parser;
+use ligen::ir::Synchrony;
+use ligen::parsing::Parser;
 use crate::prelude::*;
 
 pub struct SynchronyParser;

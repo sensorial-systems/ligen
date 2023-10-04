@@ -1,8 +1,8 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use ligen_ir::{Identifier, Reference, Type, Mutability, Parameter};
-use ligen_parsing::Parser;
+use ligen::ir::{Identifier, Reference, Type, Mutability, Parameter};
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -78,8 +78,8 @@ mod test {
     use crate::function::parameter::ParameterParser;
     use crate::prelude::*;
 
-    use ligen_ir::function::parameter::mock;
-    use ligen_parsing::assert::assert_eq;
+    use ligen::ir::function::parameter::mock;
+    use ligen::parsing::assert::assert_eq;
 
     #[test]
     fn primitive_parameter() -> Result<()> {

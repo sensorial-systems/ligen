@@ -9,11 +9,7 @@ documentation.workspace = true
 readme.workspace = true
 
 [dependencies]
-ligen-ir.workspace      = true
-ligen-traits.workspace  = true
-ligen-utils.workspace   = true
-ligen-common.workspace  = true
-ligen-parsing.workspace = true
+ligen.workspace = true
 syn                     = { version = "1.0.73", features = [ "full" ] }
 proc-macro2             = "1"
 quote                   = "1.0.9"

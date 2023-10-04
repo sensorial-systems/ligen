@@ -1,6 +1,6 @@
-use ligen_ir::{Primitive, Reference, Mutability, Type};
+use ligen::ir::{Primitive, Reference, Mutability, Type};
 use crate::prelude::*;
-use ligen_parsing::Parser;
+use ligen::parsing::Parser;
 use crate::path::PathParser;
 use crate::types::GenericsParser;
 use crate::types::primitive::PrimitiveParser;
@@ -84,8 +84,8 @@ impl ToTokens for Type {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::{Float, Integer, Mutability};
-    use ligen_parsing::Parser;
+    use ligen::ir::{Float, Integer, Mutability};
+    use ligen::parsing::Parser;
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
     use super::*;

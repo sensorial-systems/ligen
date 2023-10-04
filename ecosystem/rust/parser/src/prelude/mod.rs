@@ -1,7 +1,7 @@
-pub use ligen_common::*;
-pub use ligen_utils::prelude::*;
+pub use ligen::common::*;
+pub use ligen::utils::prelude::*;
 pub use quote::{quote, TokenStreamExt};
-pub(crate) use ligen_parsing::Parser;
+pub(crate) use ligen::parsing::Parser;
 
 pub mod syn2;
 

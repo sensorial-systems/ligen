@@ -1,5 +1,5 @@
-use ligen_ir::Path;
-use ligen_parsing::Parser;
+use ligen::ir::Path;
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
@@ -57,8 +57,8 @@ mod test {
     use crate::path::PathParser;
     use crate::prelude::*;
 
-    use ligen_parsing::assert::*;
-    use ligen_ir::path::mock;
+    use ligen::parsing::assert::*;
+    use ligen::ir::path::mock;
 
     #[test]
     fn identifier_as_path() -> Result<()> {

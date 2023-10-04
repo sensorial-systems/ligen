@@ -3,8 +3,8 @@
 pub mod variant;
 
 use crate::prelude::*;
-use ligen_ir::Enumeration;
-use ligen_parsing::Parser;
+use ligen::ir::Enumeration;
+use ligen::parsing::Parser;
 use crate::types::type_definition::enumeration::variant::VariantParser;
 
 pub struct EnumerationParser;
@@ -39,8 +39,8 @@ impl Parser<proc_macro2::TokenStream> for EnumerationParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ligen_ir::enumeration::mock;
-    use ligen_parsing::assert::*;
+    use ligen::ir::enumeration::mock;
+    use ligen::parsing::assert::*;
 
     #[test]
     fn enumeration() -> Result<()> {

@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-use ligen_ir::{Attributes, Function, Parameter, Type};
-use ligen_parsing::Parser;
+use ligen::ir::{Attributes, Function, Parameter, Type};
+use ligen::parsing::Parser;
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributeParser;
@@ -115,11 +115,11 @@ impl Parser<proc_macro2::TokenStream> for FunctionParser {
 
 #[cfg(test)]
 mod test {
-    use ligen_parsing::assert::assert_eq;
+    use ligen::parsing::assert::assert_eq;
     use crate::function::FunctionParser;
     use crate::prelude::*;
 
-    use ligen_ir::function::mock;
+    use ligen::ir::function::mock;
 
     #[test]
     fn function() -> Result<()> {

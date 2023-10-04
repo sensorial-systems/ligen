@@ -14,3 +14,4 @@ ligen-ir.workspace      = true
 ligen-utils.workspace   = true
 ligen-traits.workspace  = true
 ligen-parsing.workspace = true
+ligen-common.workspace  = true

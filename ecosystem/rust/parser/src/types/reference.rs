@@ -1,4 +1,4 @@
-use ligen_ir::{Mutability, Reference};
+use ligen::ir::{Mutability, Reference};
 use crate::prelude::*;
 
 impl ToTokens for Reference {

@@ -1,5 +1,5 @@
-use ligen_ir::Generics;
-use ligen_parsing::Parser;
+use ligen::ir::Generics;
+use ligen::parsing::Parser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 

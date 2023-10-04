@@ -18,7 +18,3 @@ pub struct Import {
     /// Optional renaming.
     pub renaming: Option<Identifier>
 }
-
-/// Multiple imports.
-#[derive(Default, Debug, Clone, PartialEq)]
-pub struct Imports(pub Vec<Import>);

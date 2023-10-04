@@ -1,0 +1,13 @@
+[package]
+name = "ligen-python-parser"
+version = "0.1.0"
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+documentation.workspace = true
+readme.workspace = true
+
+[dependencies]
+ligen.workspace = true
+rustpython-parser = "0.3.0"

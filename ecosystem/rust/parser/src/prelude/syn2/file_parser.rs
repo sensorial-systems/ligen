@@ -1,5 +1,5 @@
 use std::path::Path;
-use ligen_common::*;
+use ligen::common::*;
 
 pub fn parse_file_recursive(path: &Path) -> Result<syn::File> {
     let mut file = load_file(path)?;

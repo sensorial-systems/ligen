@@ -5,8 +5,8 @@ pub mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use ligen_ir::Structure;
-use ligen_parsing::Parser;
+use ligen::ir::Structure;
+use ligen::parsing::Parser;
 
 pub struct StructureParser;
 
@@ -42,8 +42,8 @@ mod tests {
     use crate::types::structure::StructureParser;
     use crate::prelude::*;
 
-    use ligen_parsing::assert::*;
-    use ligen_ir::structure::mock;
+    use ligen::parsing::assert::*;
+    use ligen::ir::structure::mock;
 
     #[test]
     fn structure() -> Result<()> {

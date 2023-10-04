@@ -3,8 +3,8 @@ mod attribute;
 pub use attribute::*;
 
 use crate::prelude::*;
-use ligen_ir::{Attribute, Attributes, Identifier};
-use ligen_parsing::Parser;
+use ligen::ir::{Attribute, Attributes, Identifier};
+use ligen::parsing::Parser;
 
 pub struct AttributesParser;
 
@@ -123,8 +123,8 @@ impl ToTokens for Attribute {
 mod test {
     use quote::quote;
     use super::*;
-    use ligen_ir::attributes::mock;
-    use ligen_parsing::assert::assert_eq;
+    use ligen::ir::attributes::mock;
+    use ligen::parsing::assert::assert_eq;
 
     #[test]
     fn parse_literals() -> Result<()> {

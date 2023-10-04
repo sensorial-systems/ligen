@@ -1,8 +1,8 @@
 //! Enumeration variant representation.
 
 use crate::prelude::*;
-use ligen_ir::Variant;
-use ligen_parsing::Parser;
+use ligen::ir::Variant;
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
@@ -21,8 +21,8 @@ impl Parser<syn::Variant> for VariantParser {
 mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
-    use ligen_ir::Variant;
-    use ligen_parsing::Parser;
+    use ligen::ir::Variant;
+    use ligen::parsing::Parser;
     use crate::types::type_definition::enumeration::variant::VariantParser;
 
     #[test]

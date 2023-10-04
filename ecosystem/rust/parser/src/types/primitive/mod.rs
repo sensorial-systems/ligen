@@ -6,8 +6,8 @@ pub mod float;
 
 pub use integer::*;
 pub use float::*;
-use ligen_ir::{Primitive, Float, Integer};
-use ligen_parsing::Parser;
+use ligen::ir::{Primitive, Float, Integer};
+use ligen::parsing::Parser;
 
 pub struct PrimitiveParser;
 
@@ -76,8 +76,8 @@ impl ToTokens for Primitive {
 mod test {
     use super::*;
 
-    use ligen_ir::primitive::mock;
-    use ligen_parsing::assert::*;
+    use ligen::ir::primitive::mock;
+    use ligen::parsing::assert::*;
 
     #[test]
     fn primitive_integer() -> Result<()> {

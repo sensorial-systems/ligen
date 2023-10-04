@@ -1,8 +1,8 @@
 //! Structure field representation.
 
 use crate::prelude::*;
-use ligen_ir::Field;
-use ligen_parsing::Parser;
+use ligen::ir::Field;
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -24,7 +24,7 @@ impl Parser<syn::Field> for FieldParser {
 #[cfg(test)]
 mod tests {
     use syn::parse_quote::parse;
-    use ligen_ir::{Field, Visibility, Path};
+    use ligen::ir::{Field, Visibility, Path};
     use crate::types::structure::FieldParser;
     use crate::prelude::*;
 

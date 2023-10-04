@@ -1,5 +1,5 @@
-use ligen_ir::Literal;
-use ligen_parsing::Parser;
+use ligen::ir::Literal;
+use ligen::parsing::Parser;
 use crate::prelude::*;
 
 pub struct LiteralParser;
@@ -78,8 +78,8 @@ impl ToTokens for Literal {
 mod test {
     use crate::literal::LiteralParser;
     use crate::prelude::*;
-    use ligen_ir::literal::mock;
-    use ligen_parsing::assert::*;
+    use ligen::ir::literal::mock;
+    use ligen::parsing::assert::*;
 
     #[test]
     fn literal_verbatim() -> Result<()> {

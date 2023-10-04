@@ -2,8 +2,8 @@ pub mod child;
 
 #[test]
 pub fn module_file() {
-    use ligen_ir::*;
-    use ligen_parsing::assert::assert_eq;
+    use ligen::ir::*;
+    use ligen::parsing::assert::assert_eq;
     use ligen_rust_parser::module::ModuleParser;
 
     let module = Module {

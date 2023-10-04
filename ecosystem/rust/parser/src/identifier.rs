@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-use ligen_ir::Identifier;
-use ligen_parsing::Parser;
+use ligen::ir::Identifier;
+use ligen::parsing::Parser;
 
 pub struct IdentifierParser;
 
@@ -43,8 +43,8 @@ impl ToTokens for Identifier {
 mod test {
     use crate::identifier::IdentifierParser;
     use crate::prelude::*;
-    use ligen_parsing::assert::*;
-    use ligen_ir::identifier::mock;
+    use ligen::parsing::assert::*;
+    use ligen::ir::identifier::mock;
 
     #[test]
     fn identifier() -> Result<()> {

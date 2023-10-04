@@ -1,5 +1,5 @@
-use ligen_ir::Constant;
-use ligen_parsing::Parser;
+use ligen::ir::Constant;
+use ligen::parsing::Parser;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::prelude::*;
@@ -59,8 +59,8 @@ mod test {
     use crate::constant::ConstantParser;
     use crate::prelude::*;
     
-    use ligen_parsing::assert::assert_eq;
-    use ligen_ir::constant::mock;
+    use ligen::parsing::assert::assert_eq;
+    use ligen::ir::constant::mock;
     
     #[test]
     fn constant() -> Result<()> {
