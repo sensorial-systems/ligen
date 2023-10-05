@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::{Path, Attributes, Visibility, Import};
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;

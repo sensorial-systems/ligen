@@ -13,6 +13,8 @@ use crate::{Identifier, Path};
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 /// Primitive Enum
 pub enum Primitive {
+    /// Opaque variant
+    Opaque,
     /// Integer variant
     Integer(Integer),
     /// Float variant
@@ -91,8 +93,9 @@ impl From<Float> for Primitive {
 impl From<Primitive> for Identifier {
     fn from(primitive: Primitive) -> Self {
         match primitive {
-            Primitive::Boolean => "bool".into(),
-            Primitive::Character => "char".into(),
+            Primitive::Opaque => "Opaque".into(),
+            Primitive::Boolean => "Boolean".into(),
+            Primitive::Character => "Character".into(),
             Primitive::Float(float) => float.into(),
             Primitive::Integer(integer) => integer.into(),
         }
@@ -109,10 +112,11 @@ impl From<Primitive> for Path {
 impl std::fmt::Display for Primitive {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
+            Primitive::Opaque           => "Opaque".into(),
             Primitive::Integer(integer) => format!("{}", integer),
             Primitive::Float(float)     => format!("{}", float),
-            Primitive::Boolean          => "bool".into(),
-            Primitive::Character        => "char".into(),
+            Primitive::Boolean          => "Boolean".into(),
+            Primitive::Character        => "Character".into(),
         };
         f.write_str(&display)
     }

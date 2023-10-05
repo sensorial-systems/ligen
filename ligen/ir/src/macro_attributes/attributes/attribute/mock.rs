@@ -14,6 +14,13 @@ pub fn attribute_group() -> Attribute {
     )
 }
 
+pub fn attribute_empty_group() -> Attribute {
+    Attribute::Group(
+        Identifier::new("c"),
+        Attributes::default()
+    )
+}
+
 pub fn attribute_named() -> Attribute {
     Attribute::Named(
         Identifier::new("int"),

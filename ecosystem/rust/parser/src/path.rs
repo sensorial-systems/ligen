@@ -1,5 +1,5 @@
 use ligen::ir::Path;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 

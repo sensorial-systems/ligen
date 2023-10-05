@@ -1,5 +1,5 @@
 use ligen::ir::Constant;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::prelude::*;

@@ -2,7 +2,7 @@
 fn main() {
     #[cfg(feature = "bindings")]
     {
-        use ligen::parsing::Parser;
+        use ligen::parsing::parser::Parser;
         use ligen_cargo::parser::project::ProjectParser;
 
         // FIXME: Hardcoded absolute path.

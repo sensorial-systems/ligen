@@ -26,5 +26,3 @@ ligen               = { workspace = true, optional = true }
 ligen-cargo         = { workspace = true, optional = true }
 ligen-rust-parser   = { workspace = true, optional = true }
 ligen-rust-exporter = { workspace = true, optional = true }
-ligen-cmake         = { workspace = true, optional = true }
-ligen-c             = { workspace = true, optional = true }

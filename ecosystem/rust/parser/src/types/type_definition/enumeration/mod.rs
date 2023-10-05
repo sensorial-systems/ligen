@@ -4,7 +4,7 @@ pub mod variant;
 
 use crate::prelude::*;
 use ligen::ir::Enumeration;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::types::type_definition::enumeration::variant::VariantParser;
 
 pub struct EnumerationParser;

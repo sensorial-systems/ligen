@@ -7,7 +7,7 @@ pub mod float;
 pub use integer::*;
 pub use float::*;
 use ligen::ir::{Primitive, Float, Integer};
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 
 pub struct PrimitiveParser;
 
@@ -61,9 +61,11 @@ impl Parser<proc_macro2::TokenStream> for PrimitiveParser {
     }
 }
 
+// TODO: This should be moved to exporter.
 impl ToTokens for Primitive {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match &self {
+            Primitive::Opaque => tokens.append_all(quote! {()}),
             Primitive::Integer(integer) => integer.to_tokens(tokens),
             Primitive::Float(float) => float.to_tokens(tokens),
             Primitive::Boolean => tokens.append_all(quote! {bool}),

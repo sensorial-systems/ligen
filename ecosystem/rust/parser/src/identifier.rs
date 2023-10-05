@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use ligen::ir::Identifier;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 
 pub struct IdentifierParser;
 

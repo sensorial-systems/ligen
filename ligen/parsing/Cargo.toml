@@ -12,3 +12,7 @@ readme.workspace        = true
 ligen-ir.workspace     = true
 ligen-common.workspace = true
 pretty_assertions.workspace = true
+syn.workspace = true
+
+[dev-dependencies]
+ligen-ir = { workspace = true, features = ["mocks"] }

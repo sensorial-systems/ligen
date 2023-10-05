@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::{Identifier, Reference, Type, Mutability, Parameter};
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -65,6 +65,16 @@ impl Parser<proc_macro2::TokenStream> for ParameterParser {
     }
 }
 
+impl Parser<&str> for ParameterParser {
+    type Output = Parameter;
+
+    fn parse(&self, input: &str) -> Result<Self::Output> {
+        syn::parse_str::<syn::FnArg>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
+            .and_then(|parameter| self.parse(parameter))
+    }
+}
+
 impl ToTokens for Parameter {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let ident = self.identifier.to_token_stream();
@@ -83,65 +93,51 @@ mod test {
 
     #[test]
     fn primitive_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::primitive_parameter(), quote! {
-            #[attribute]
-            integer: i32
-        })
+        assert_eq(ParameterParser, mock::primitive_parameter(), "integer: i32")
+    }
+
+    #[test]
+    fn parameter_attribute() -> Result<()> {
+        assert_eq(ParameterParser, mock::parameter_attribute(), "#[attribute] integer: i32")
     }
 
     #[test]
     fn composite_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::composite_parameter(), quote! {
-            name: String
-        })
+        assert_eq(ParameterParser, mock::composite_parameter(), "name: String")
     }
 
     #[test]
     fn constant_reference_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::constant_reference_parameter(), quote! {
-            name: &String
-        })
+        assert_eq(ParameterParser, mock::constant_reference_parameter(), "name: &String")
     }
 
     #[test]
     fn mutable_reference_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::mutable_reference_parameter(), quote! {
-            name: &mut String
-        })
+        assert_eq(ParameterParser, mock::mutable_reference_parameter(), "name: &mut String")
     }
 
     #[test]
     fn constant_pointer_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::constant_reference_parameter(), quote! {
-            name: *const String
-        })
+        assert_eq(ParameterParser, mock::constant_reference_parameter(), "name: *const String")
     }
 
     #[test]
     fn mutable_pointer_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::mutable_reference_parameter(), quote! {
-            name: *mut String
-        })
+        assert_eq(ParameterParser, mock::mutable_reference_parameter(), "name: *mut String")
     }
 
     #[test]
     fn receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::receiver_parameter(), quote! {
-            self
-        })
+        assert_eq(ParameterParser, mock::receiver_parameter(), "self")
     }
 
     #[test]
     fn reference_receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::reference_receiver_parameter(), quote! {
-            &self
-        })
+        assert_eq(ParameterParser, mock::reference_receiver_parameter(), "&self")
     }
 
     #[test]
     fn mutable_receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser, mock::mutable_receiver_parameter(), quote! {
-            &mut self
-        })
+        assert_eq(ParameterParser, mock::mutable_receiver_parameter(), "&mut self")
     }
 }

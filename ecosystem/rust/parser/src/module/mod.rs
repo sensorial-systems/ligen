@@ -4,7 +4,7 @@ mod import;
 
 use syn::spanned::Spanned;
 use ligen::ir::{Constant, Object};
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::prelude::*;
 use ligen::ir::{Function, Module, Import};
 use crate::constant::ConstantParser;

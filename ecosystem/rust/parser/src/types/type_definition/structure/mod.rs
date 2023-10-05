@@ -6,7 +6,7 @@ pub use field::*;
 
 use crate::prelude::*;
 use ligen::ir::Structure;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 
 pub struct StructureParser;
 

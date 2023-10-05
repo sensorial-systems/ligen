@@ -4,7 +4,7 @@ pub use attribute::*;
 
 use crate::prelude::*;
 use ligen::ir::{Attribute, Attributes, Identifier};
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 
 pub struct AttributesParser;
 

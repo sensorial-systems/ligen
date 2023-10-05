@@ -9,11 +9,11 @@ members = [
     "ecosystem/python/parser",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
-    "ecosystem/rust/exporter",
-    "ecosystem/rust/runtime",
+#    "ecosystem/rust/exporter",
+#    "ecosystem/rust/runtime",
     "ecosystem/rust/parser",
-    "ecosystem/c/cmake",
-    "ecosystem/c/generator",
+#    "ecosystem/c/cmake",
+#    "ecosystem/c/generator",
     "tools/editor/dependencies/gui-runtime",
     "tools/editor"
 ]
@@ -36,10 +36,10 @@ ligen-macro         = { path = "ligen/macro" }
 ligen-parsing       = { path = "ligen/parsing" }
 ligen-traits        = { path = "ligen/traits" }
 ligen-utils         = { path = "ligen/utils" }
-ligen-c             = { path = "ecosystem/c/generator" }
-ligen-cmake         = { path = "ecosystem/c/cmake" }
+#ligen-c             = { path = "ecosystem/c/generator" }
+#ligen-cmake         = { path = "ecosystem/c/cmake" }
 ligen-python-parser = { path = "ecosystem/python/parser" }
-ligen-rust-exporter = { path = "ecosystem/rust/exporter" }
+#ligen-rust-exporter = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser   = { path = "ecosystem/rust/parser" }
 ligen-cargo         = { path = "ecosystem/rust/cargo" }
 ligen-gui-runtime   = { path = "tools/editor/dependencies/gui-runtime" }
@@ -49,6 +49,7 @@ shrinkwraprs        = "0.3"
 derive_more         = "0.99"
 lazy_static         = "1.4.0"
 pretty_assertions   = "1.4.0"
+syn                 = { version = "1.0.73", features = [ "full" ] }
 
 [patch.crates-io]
 # If you want to use the bleeding edge version of egui and eframe:

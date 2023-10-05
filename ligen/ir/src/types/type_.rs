@@ -15,7 +15,7 @@ pub enum Type {
 
 impl Default for Type {
     fn default() -> Self {
-        Self::Primitive(Primitive::Boolean)
+        Self::Primitive(Primitive::Opaque)
     }
 }
 
@@ -73,15 +73,6 @@ impl Type {
         match self {
             Self::Composite(path, _) => path == &Path::from("String"), // TODO: Create a String type.
             _ => false
-        }
-    }
-
-    /// Gets the path of the type without the reference.
-    pub fn path(&self) -> Path {
-        match self {
-            Self::Reference(reference) => reference.type_.path(),
-            Self::Composite(path, _) => path.clone(),
-            Self::Primitive(primitive) => primitive.clone().into()
         }
     }
 

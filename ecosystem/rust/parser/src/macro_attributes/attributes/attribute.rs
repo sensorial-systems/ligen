@@ -3,7 +3,7 @@
 use proc_macro::TokenStream;
 use crate::prelude::*;
 use ligen::ir::Attribute;
-use ligen::parsing::Parser;
+use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -13,15 +13,30 @@ pub struct AttributeParser;
 impl Parser<syn::ItemMacro> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, call: syn::ItemMacro) -> Result<Self::Output> {
-        Ok(Self::Output::Group(IdentifierParser.parse(call.mac.path.segments.last().expect("Failed to get identifier from syn::ItemMacro").ident.clone())?, AttributesParser.parse(call.mac.tokens)?))
+        let identifier = call
+            .mac
+            .path
+            .segments
+            .last()
+            .ok_or(Error::Message("Failed to get identifier from syn::ItemMacro".to_string()))?
+            .ident
+            .clone();
+        Ok(Self::Output::Group(IdentifierParser.parse(identifier)?, AttributesParser.parse(call.mac.tokens)?))
     }
 }
 
 impl Parser<syn::MetaList> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, meta_list: syn::MetaList) -> Result<Self::Output> {
+        let identifier = meta_list
+            .path
+            .segments
+            .first()
+            .ok_or(Error::Message("Failed to get identifier from syn::MetaList".to_string()))?
+            .ident
+            .clone();
         Ok(Self::Output::Group(
-            IdentifierParser.parse(meta_list.path.segments.first().unwrap().ident.clone())?,
+            IdentifierParser.parse(identifier)?,
             AttributesParser.parse(meta_list)?,
         ))
     }
@@ -30,7 +45,13 @@ impl Parser<syn::MetaList> for AttributeParser {
 impl Parser<syn::Path> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, path: syn::Path) -> Result<Self::Output> {
-        Ok(Self::Output::Group(IdentifierParser.parse(path.segments.first().unwrap().ident.clone())?, Default::default()))
+        let identifier = path
+            .segments
+            .last()
+            .ok_or(Error::Message("Failed to get identifier from syn::Path".to_string()))?
+            .ident
+            .clone();
+        Ok(Self::Output::Group(IdentifierParser.parse(identifier)?, Default::default()))
     }
 }
 
@@ -38,10 +59,14 @@ impl Parser<syn::Path> for AttributeParser {
 impl Parser<syn::MetaNameValue> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, meta_name_value: syn::MetaNameValue) -> Result<Self::Output> {
-        Ok(Self::Output::Named(
-            IdentifierParser.parse(meta_name_value.path.segments.first().unwrap().ident.clone())?,
-            LiteralParser.parse(meta_name_value.lit)?,
-        ))
+        let identifier = meta_name_value
+            .path
+            .segments
+            .first()
+            .ok_or(Error::Message("Failed to get identifier from syn::MetaNameValue".to_string()))?
+            .ident
+            .clone();
+        Ok(Self::Output::Named(IdentifierParser.parse(identifier)?, LiteralParser.parse(meta_name_value.lit)?))
     }
 }
 
@@ -76,6 +101,15 @@ impl Parser<syn::Attribute> for AttributeParser {
     }
 }
 
+impl Parser<&str> for AttributeParser {
+    type Output = Attribute;
+    fn parse(&self, input: &str) -> Result<Self::Output> {
+        syn::parse_str::<syn::NestedMeta>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?}", e)))
+            .and_then(|attribute| self.parse(attribute))
+    }
+}
+
 impl Parser<proc_macro::TokenStream> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, token_stream: TokenStream) -> Result<Self::Output> {
@@ -95,7 +129,6 @@ impl Parser<proc_macro2::TokenStream> for AttributeParser {
 
 #[cfg(test)]
 mod test {
-    use quote::quote;
     use ligen::parsing::assert::assert_eq;
     use super::*;
 
@@ -103,22 +136,22 @@ mod test {
 
     #[test]
     fn attribute_literal() -> Result<()> {
-        assert_eq(AttributeParser, mock::attribute_literal(), quote!{
-            "c"
-        })
+        assert_eq(AttributeParser, mock::attribute_literal(), "\"c\"")
     }
 
     #[test]
     fn attribute_named() -> Result<()> {
-        assert_eq(AttributeParser, mock::attribute_named(), quote! {
-            int = "sized"
-        })
+        assert_eq(AttributeParser, mock::attribute_named(), "int = \"sized\"")
     }
 
     #[test]
     fn attribute_group() -> Result<()> {
-        assert_eq(AttributeParser, mock::attribute_group(), quote! {
-            c(int = "sized")
-        })
+        assert_eq(AttributeParser, mock::attribute_group(), "c(int = \"sized\")")
+    }
+
+    #[test]
+    fn attribute_empty_group() -> Result<()> {
+        assert_eq(AttributeParser, mock::attribute_empty_group(), "c()")?;
+        assert_eq(AttributeParser, mock::attribute_empty_group(), "c")
     }
 }

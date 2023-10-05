@@ -1,7 +1,7 @@
 use ligen_ir::conventions::naming::{SnakeCase, NamingConvention};
 use ligen_ir::prelude::*;
 use ligen_ir::Project;
-use ligen_parsing::Parser;
+use ligen_parsing::parser::Parser;
 use ligen_rust_parser::module::ModuleParser;
 
 pub struct ProjectParser;
