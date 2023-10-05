@@ -114,6 +114,13 @@ impl<T: LiteralParser> Parser<syn::Attribute> for AttributeParser<T> {
 impl<T: LiteralParser> Parser<String> for AttributeParser<T> {
     type Output = Attribute;
     fn parse(&self, input: String) -> Result<Self::Output> {
+        self.parse(input.as_str())
+    }
+}
+
+impl<T: LiteralParser> Parser<&str> for AttributeParser<T> {
+    type Output = Attribute;
+    fn parse(&self, input: &str) -> Result<Self::Output> {
         syn::parse_str::<syn::NestedMeta>(&input)
             .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?}", e)))
             .and_then(|attribute| self.parse(attribute))

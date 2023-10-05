@@ -2,7 +2,10 @@ use ligen::ir::Literal;
 use ligen::parsing::parser::Parser;
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct LiteralParser;
+
+impl ligen::parsing::parser::universal::attributes::attribute::LiteralParser for LiteralParser {}
 
 impl Parser<syn::Lit> for LiteralParser {
     type Output = Literal;
@@ -42,6 +45,23 @@ impl Parser<proc_macro2::TokenStream> for LiteralParser {
             .and_then(|literal| self.parse(literal))
     }
 }
+
+impl Parser<String> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: String) -> Result<Self::Output> {
+        self.parse(input.as_str())
+    }
+}
+
+impl Parser<&str> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: &str) -> Result<Self::Output> {
+        syn::parse_str::<syn::Lit>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+            .and_then(|literal| self.parse(literal))
+    }
+}
+
 
 impl ToTokens for Literal {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {

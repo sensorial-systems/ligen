@@ -6,6 +6,7 @@ use crate::prelude::*;
 use ligen::ir::{Attribute, Attributes, Identifier};
 use ligen::parsing::parser::Parser;
 
+#[derive(Default)]
 pub struct AttributesParser;
 
 impl Parser<Vec<syn::Attribute>> for AttributesParser {
