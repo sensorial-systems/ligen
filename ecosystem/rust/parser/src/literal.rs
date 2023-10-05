@@ -5,7 +5,7 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct LiteralParser;
 
-impl ligen::parsing::parser::universal::attributes::attribute::LiteralParser for LiteralParser {}
+impl ligen::parsing::parser::universal::literal::LiteralParser for LiteralParser {}
 
 impl Parser<syn::Lit> for LiteralParser {
     type Output = Literal;
@@ -108,50 +108,36 @@ mod test {
 
     #[test]
     fn literal_string() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_string(), quote!{
-            "string"
-        })
+        assert_eq(LiteralParser, mock::literal_string(), "\"string\"")
     }
 
     #[test]
     fn literal_byte_str() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_string(), quote!{
-            b"string"
-        })
+        assert_eq(LiteralParser, mock::literal_string(), "b\"string\"")
     }
 
     #[test]
     fn literal_byte() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_byte(), quote!{
-            b'A'
-        })
+        assert_eq(LiteralParser, mock::literal_byte(), "b'A'")
     }
 
     #[test]
     fn literal_bool() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_bool(), quote!{
-            false
-        })
+        assert_eq(LiteralParser, mock::literal_bool(), "false")
     }
 
     #[test]
     fn literal_character() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_character(), quote!{
-            'A'
-        })
+        assert_eq(LiteralParser, mock::literal_character(), "'A'")
     }
 
     #[test]
     fn literal_integer() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_integer(), quote!{
-            -2
-        })
+        assert_eq(LiteralParser, mock::literal_integer(), "-2")
     }
 
     #[test]
     fn literal_float() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_float(), quote!{
-            3.5
-        })
+        assert_eq(LiteralParser, mock::literal_float(), "3.5")
     }
 }

@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::parser::Parser;
 use ligen_ir::Attributes;
 use attribute::AttributeParser;
-use crate::parser::universal::attributes::attribute::LiteralParser;
+use crate::parser::universal::literal::LiteralParser;
 
 #[derive(Default)]
 pub struct AttributesParser<L: LiteralParser> {
@@ -14,6 +14,13 @@ pub struct AttributesParser<L: LiteralParser> {
 impl<L: LiteralParser> AttributesParser<L> {
     pub fn new(attribute_parser: AttributeParser<L>) -> Self {
         Self { attribute_parser }
+    }
+}
+
+impl<L: LiteralParser> Parser<String> for AttributesParser<L> {
+    type Output = Attributes;
+    fn parse(&self, input: String) -> Result<Self::Output> {
+        self.parse(input.as_str())
     }
 }
 

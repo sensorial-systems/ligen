@@ -34,7 +34,7 @@ impl Parser<syn::ItemMod> for ModuleParser {
             .content
             .map(|(_, items)| items)
             .ok_or("Module file isn't loaded.")?;
-        let attributes = AttributesParser.parse(module.attrs)?;
+        let attributes = AttributesParser::default().parse(module.attrs)?;
         let visibility = VisibilityParser.parse(module.vis)?;
         let identifier = IdentifierParser.parse(module.ident)?;
 
@@ -130,7 +130,7 @@ impl ModuleParser {
             for item in items {
                 match item {
                     syn::Item::Enum(enumeration) => {
-                        let attributes = AttributesParser.parse(enumeration.attrs.clone())?;
+                        let attributes = AttributesParser::default().parse(enumeration.attrs.clone())?;
                         let identifier = IdentifierParser.parse(enumeration.ident.clone())?;
                         let visibility = VisibilityParser.parse(enumeration.vis.clone())?;
                         let enumeration = EnumerationParser.parse(enumeration.clone())?;
@@ -143,7 +143,7 @@ impl ModuleParser {
                         });
                     },
                     syn::Item::Struct(structure) => {
-                        let attributes = AttributesParser.parse(structure.attrs.clone())?;
+                        let attributes = AttributesParser::default().parse(structure.attrs.clone())?;
                         let identifier = IdentifierParser.parse(structure.ident.clone())?;
                         let visibility = VisibilityParser.parse(structure.vis.clone())?;
                         let structure = StructureParser.parse(structure.clone())?;

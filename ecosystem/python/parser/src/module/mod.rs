@@ -54,7 +54,7 @@ impl ModuleParser {
         Ok(functions)
     }
 
-    fn extract_objects(&self, input: &WithSource<ModModule>) -> Result<Vec<Object>> {
+    fn extract_objects(&self, _input: &WithSource<ModModule>) -> Result<Vec<Object>> {
         Ok(Default::default())
     }
 

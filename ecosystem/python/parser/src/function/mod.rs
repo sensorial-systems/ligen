@@ -1,8 +1,8 @@
 pub mod parameter;
 
 use crate::prelude::*;
-use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
-use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
+use rustpython_parser::ast::{Arguments, Expr, Ranged, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
+use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type, Attributes};
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -28,7 +28,7 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     fn parse(&self, input: WithSource<StmtFunctionDef>) -> Result<Self::Output> {
         let source = input.source;
         let input = input.ast;
-        let attributes = AttributesParser.parse(WithSource::new(&source, input.decorator_list.clone()))?;
+        let attributes = self.parse_attributes(WithSource::new(&source, input.decorator_list.clone()))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Synchronous;
         let identifier = IdentifierParser.parse(input.name.clone())?;
@@ -44,7 +44,7 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
     fn parse(&self, input: WithSource<StmtAsyncFunctionDef>) -> Result<Self::Output> {
         let source = input.source;
         let input = input.ast;
-        let attributes = AttributesParser.parse(WithSource::new(&source, input.decorator_list.clone()))?;
+        let attributes = self.parse_attributes(WithSource::new(&source, input.decorator_list))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Asynchronous;
         let identifier = IdentifierParser.parse(input.name.clone())?;
@@ -55,6 +55,14 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
 }
 
 impl FunctionParser {
+    fn parse_attributes(&self, attributes: WithSource<Vec<Expr>>) -> Result<Attributes> {
+        let source = if attributes.ast.is_empty() {
+            Default::default()
+        } else {
+            attributes.source[attributes.ast.first().unwrap().start().to_usize()..attributes.ast.last().unwrap().end().to_usize()].to_string()
+        };
+        AttributesParser::default().parse(source)
+    }
     fn parse_inputs(&self, args: Arguments) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args.args {
@@ -101,6 +109,7 @@ mod test {
 
     #[test]
     fn function_attribute() -> Result<()> {
+        assert_eq(FunctionParser, mock::function_attribute(), "@test(a = 'b')\ndef test(): pass")?;
         assert_eq(FunctionParser, mock::function_attribute(), "@test(a = \"b\")\ndef test(): pass")
     }
 }

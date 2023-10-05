@@ -20,7 +20,7 @@ pub struct ImportsParser;
 impl Parser<syn::ItemUse> for ImportsParser {
     type Output = Vec<Import>;
     fn parse(&self, import: syn::ItemUse) -> Result<Self::Output> {
-        let attributes = AttributesParser.parse(import.attrs)?;
+        let attributes = AttributesParser::default().parse(import.attrs)?;
         let visibility = VisibilityParser.parse(import.vis)?;
         let path = Path::default();
         let tree = import.tree;

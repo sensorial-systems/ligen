@@ -11,7 +11,7 @@ pub struct VariantParser;
 impl Parser<syn::Variant> for VariantParser {
     type Output = Variant;
     fn parse(&self, variant: syn::Variant) -> Result<Self::Output> {
-        let attributes = AttributesParser.parse(variant.attrs)?;
+        let attributes = AttributesParser::default().parse(variant.attrs)?;
         let identifier = IdentifierParser.parse(variant.ident)?;
         Ok(Self::Output { attributes, identifier })
     }

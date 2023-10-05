@@ -22,7 +22,7 @@ pub struct FunctionParser;
 impl Parser<syn::ItemFn> for FunctionParser {
     type Output = Function;
     fn parse(&self, item_fn: syn::ItemFn) -> Result<Self::Output> {
-        let attributes = AttributesParser.parse(item_fn.attrs)?;
+        let attributes = AttributesParser::default().parse(item_fn.attrs)?;
         let visibility = VisibilityParser.parse(item_fn.vis)?;
         let synchrony = SynchronyParser.parse(item_fn.sig.asyncness)?;
         let identifier = IdentifierParser.parse(item_fn.sig.ident)?;
@@ -35,7 +35,7 @@ impl Parser<syn::ItemFn> for FunctionParser {
 impl Parser<syn::ImplItemMethod> for FunctionParser {
     type Output = Function;
     fn parse(&self, method: syn::ImplItemMethod) -> Result<Self::Output> {
-        let attributes = AttributesParser.parse(method.attrs)?;
+        let attributes = AttributesParser::default().parse(method.attrs)?;
         let visibility = VisibilityParser.parse(method.vis)?;
         let synchrony = SynchronyParser.parse(method.sig.asyncness)?;
         let identifier = IdentifierParser.parse(method.sig.ident)?;

@@ -2,22 +2,15 @@
 
 use syn::__private::ToTokens;
 use crate::prelude::*;
-use ligen_ir::{Attribute, Literal};
+use ligen_ir::Attribute;
 use crate::parser::Parser;
 use crate::parser::universal::identifier::IdentifierParser;
 use crate::parser::universal::attributes::AttributesParser;
-
-pub trait LiteralParser: Parser<String, Output = Literal> + Default {}
+use crate::parser::universal::literal::LiteralParser;
 
 #[derive(Default)]
 pub struct AttributeParser<T: LiteralParser> {
     literal_parser: T
-}
-
-impl<T: LiteralParser> AttributeParser<T> {
-    pub fn new(literal_parser: T) -> Self {
-        Self { literal_parser }
-    }
 }
 
 impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {

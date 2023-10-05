@@ -50,7 +50,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
                 attributes: method
                     .attrs
                     .into_iter()
-                    .map(|attribute| AttributeParser.parse(attribute).expect("Failed to parse meta."))
+                    .map(|attribute| AttributeParser::default().parse(attribute).expect("Failed to parse meta."))
                     .collect(),
             },
             visibility: VisibilityParser.parse(method.vis)?,
