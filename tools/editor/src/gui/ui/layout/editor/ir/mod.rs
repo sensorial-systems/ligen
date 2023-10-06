@@ -11,6 +11,7 @@ mod identifier;
 mod type_;
 mod function;
 mod object;
+mod menu_button;
 
 use egui_tiles::UiResponse;
 pub use object::*;
@@ -26,8 +27,9 @@ pub use attributes::*;
 pub use project::*;
 pub use module::*;
 pub use literal::*;
-use crate::gui::ui::menu::MenuButton;
-use crate::gui::ui::panes::{Pane, Panes};
+pub use menu_button::*;
+
+use crate::gui::ui::panes::Pane;
 
 #[derive(Default)]
 pub struct Editor {
@@ -37,43 +39,6 @@ pub struct Editor {
 impl Editor {
     pub fn new(project: ligen_ir::Project) -> Self {
         Self { project }
-    }
-}
-
-pub struct EditorMenuButton;
-impl MenuButton for EditorMenuButton {
-    fn menu_title(&self) -> String {
-        "Project".to_string()
-    }
-    fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
-        if ui.button("Open").clicked() {
-            let file = rfd::FileDialog::new()
-                .add_filter("ligen-ir", &["lir"])
-                .pick_file();
-            if let Some(file) = file {
-                if let Ok(project) = ligen_ir::Project::load(file) {
-                    panes.new_pane(Box::new(Editor::new(project)));
-                }
-            }
-            ui.close_menu();
-        }
-        if ui.button("Parse Rust/Cargo").clicked() {
-            use ligen_parsing::parser::Parser;
-            use ligen_cargo::parser::project::ProjectParser;
-
-            let file = rfd::FileDialog::new()
-                .add_filter("Cargo project", &["toml"])
-                .pick_file();
-
-            if let Some(file) = file {
-                let project = ProjectParser
-                    .parse(file.as_path())
-                    .expect("Failed to parse project.");
-                panes.new_pane(Box::new(Editor::new(project)));
-            }
-
-            ui.close_menu();
-        }
     }
 }
 

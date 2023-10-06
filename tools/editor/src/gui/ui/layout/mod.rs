@@ -3,7 +3,7 @@ pub mod menu;
 pub mod panes;
 
 use serde::{Deserialize, Serialize};
-use crate::gui::ui::editor::ir;
+use crate::gui::ui::editor::symbols;
 use crate::gui::ui::menu::Menu;
 use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
@@ -21,7 +21,7 @@ impl Default for Layout {
     fn default() -> Self {
         let menu = Menu::new();
         let mut panes = Panes::new();
-        panes.new_pane(Box::new(ir::Editor::default()));
+        panes.new_pane(Box::<symbols::Editor>::default());
         Self { menu, panes }
     }
 }

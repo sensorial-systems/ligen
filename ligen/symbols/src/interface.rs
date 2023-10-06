@@ -1,5 +1,6 @@
 use crate::identifier::Identifier;
 
+#[derive(Default)]
 pub struct Interface {
     pub identifier: Identifier,
     pub constants: Vec<Identifier>,
