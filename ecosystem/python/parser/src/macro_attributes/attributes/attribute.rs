@@ -14,7 +14,7 @@ pub type AttributeParser = ligen::parsing::parser::universal::attributes::attrib
 //     fn parse(&self, input: WithSource<ExprAttribute>) -> Result<Self::Output> {
 //         let source = input.source;
 //         let input = input.ast;
-//         let identifier = IdentifierParser.parse(input.attr)?;
+//         let identifier = IdentifierParser::default().parse(input.attr)?;
 //         let attributes = AttributesParser::default().parse(WithSource::new(&source, input.value))?;
 //         Ok(Attribute::Group(identifier, attributes))
 //     }

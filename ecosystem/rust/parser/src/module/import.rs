@@ -51,12 +51,12 @@ impl Parser<ImportsBuilder> for ImportsParser {
         let mut builder = builder;
         match builder.tree {
             syn::UseTree::Path(use_path) => {
-                builder.path = builder.path.join(IdentifierParser.parse(use_path.ident)?);
+                builder.path = builder.path.join(IdentifierParser::default().parse(use_path.ident)?);
                 builder.tree = (*use_path.tree).clone();
                 self.parse(builder)
             },
             syn::UseTree::Name(name) => {
-                builder.path = builder.path.join(IdentifierParser.parse(name.ident)?);
+                builder.path = builder.path.join(IdentifierParser::default().parse(name.ident)?);
                 Ok(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
@@ -65,12 +65,12 @@ impl Parser<ImportsBuilder> for ImportsParser {
                 }])
             },
             syn::UseTree::Rename(rename) => {
-                builder.path = builder.path.join(IdentifierParser.parse(rename.ident)?);
+                builder.path = builder.path.join(IdentifierParser::default().parse(rename.ident)?);
                 Ok(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
                     path: builder.path,
-                    renaming: Some(IdentifierParser.parse(rename.rename)?)
+                    renaming: Some(IdentifierParser::default().parse(rename.rename)?)
                 }])
             },
             syn::UseTree::Glob(_) => {

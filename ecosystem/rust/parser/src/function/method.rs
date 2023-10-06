@@ -55,7 +55,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
             },
             visibility: VisibilityParser.parse(method.vis)?,
             synchrony: SynchronyParser.parse(asyncness)?,
-            identifier: IdentifierParser.parse(ident)?,
+            identifier: IdentifierParser::default().parse(ident)?,
             inputs,
             output,
         })

@@ -1,11 +1,6 @@
 use proc_macro2::Ident;
 use crate::prelude::*;
 
-pub mod integer;
-pub mod float;
-
-pub use integer::*;
-pub use float::*;
 use ligen::ir::{Primitive, Float, Integer};
 use ligen::parsing::parser::Parser;
 
@@ -58,19 +53,6 @@ impl Parser<proc_macro2::TokenStream> for PrimitiveParser {
         syn::parse2::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse primitive: {}", e)))
             .and_then(|path| self.parse(path))
-    }
-}
-
-// TODO: This should be moved to exporter.
-impl ToTokens for Primitive {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match &self {
-            Primitive::Opaque => tokens.append_all(quote! {()}),
-            Primitive::Integer(integer) => integer.to_tokens(tokens),
-            Primitive::Float(float) => float.to_tokens(tokens),
-            Primitive::Boolean => tokens.append_all(quote! {bool}),
-            Primitive::Character => tokens.append_all(quote! {char})
-        }
     }
 }
 

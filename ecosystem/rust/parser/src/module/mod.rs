@@ -36,7 +36,7 @@ impl Parser<syn::ItemMod> for ModuleParser {
             .ok_or("Module file isn't loaded.")?;
         let attributes = AttributesParser::default().parse(module.attrs)?;
         let visibility = VisibilityParser.parse(module.vis)?;
-        let identifier = IdentifierParser.parse(module.ident)?;
+        let identifier = IdentifierParser::default().parse(module.ident)?;
 
         let imports = self.extract_imports(items.as_slice())?;
         let functions = self.extract_functions(items.as_slice())?;
@@ -131,7 +131,7 @@ impl ModuleParser {
                 match item {
                     syn::Item::Enum(enumeration) => {
                         let attributes = AttributesParser::default().parse(enumeration.attrs.clone())?;
-                        let identifier = IdentifierParser.parse(enumeration.ident.clone())?;
+                        let identifier = IdentifierParser::default().parse(enumeration.ident.clone())?;
                         let visibility = VisibilityParser.parse(enumeration.vis.clone())?;
                         let enumeration = EnumerationParser.parse(enumeration.clone())?;
                         objects.push(Object {
@@ -144,7 +144,7 @@ impl ModuleParser {
                     },
                     syn::Item::Struct(structure) => {
                         let attributes = AttributesParser::default().parse(structure.attrs.clone())?;
-                        let identifier = IdentifierParser.parse(structure.ident.clone())?;
+                        let identifier = IdentifierParser::default().parse(structure.ident.clone())?;
                         let visibility = VisibilityParser.parse(structure.vis.clone())?;
                         let structure = StructureParser.parse(structure.clone())?;
                         objects.push(Object {

@@ -18,7 +18,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self::Output {
                         attributes: AttributesParser::default().parse(attrs)?,
-                        identifier: IdentifierParser.parse(ident)?,
+                        identifier: IdentifierParser::default().parse(ident)?,
                         type_: TypeParser.parse(*ty)?,
                     })
                 } else {
@@ -72,14 +72,6 @@ impl Parser<&str> for ParameterParser {
         syn::parse_str::<syn::FnArg>(input)
             .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
             .and_then(|parameter| self.parse(parameter))
-    }
-}
-
-impl ToTokens for Parameter {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let ident = self.identifier.to_token_stream();
-        let typ = self.type_.to_token_stream();
-        tokens.append_all(quote! {#ident: #typ})
     }
 }
 

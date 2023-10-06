@@ -24,7 +24,7 @@ impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::ItemMacro".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Group(IdentifierParser.parse(identifier)?, AttributesParser::<T>::default().parse(call.mac.tokens.to_string().as_str())?))
+        Ok(Self::Output::Group(IdentifierParser::default().parse(identifier)?, AttributesParser::<T>::default().parse(call.mac.tokens.to_string().as_str())?))
     }
 }
 
@@ -39,7 +39,7 @@ impl<T: LiteralParser> Parser<syn::MetaList> for AttributeParser<T> {
             .ident
             .clone();
         Ok(Self::Output::Group(
-            IdentifierParser.parse(identifier)?,
+            IdentifierParser::default().parse(identifier)?,
             AttributesParser::<T>::default().parse(meta_list)?,
         ))
     }
@@ -54,7 +54,7 @@ impl<T: LiteralParser> Parser<syn::Path> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::Path".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Group(IdentifierParser.parse(identifier)?, Default::default()))
+        Ok(Self::Output::Group(IdentifierParser::default().parse(identifier)?, Default::default()))
     }
 }
 
@@ -69,7 +69,7 @@ impl<T: LiteralParser> Parser<syn::MetaNameValue> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::MetaNameValue".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Named(IdentifierParser.parse(identifier)?, self.literal_parser.parse(meta_name_value.lit.to_token_stream().to_string())?))
+        Ok(Self::Output::Named(IdentifierParser::default().parse(identifier)?, self.literal_parser.parse(meta_name_value.lit.to_token_stream().to_string())?))
     }
 }
 

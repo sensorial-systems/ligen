@@ -69,19 +69,6 @@ impl Parser<proc_macro2::TokenStream> for TypeParser {
     }
 }
 
-impl ToTokens for Type {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match &self {
-            Type::Primitive(primitive) => tokens.append_all(primitive.to_token_stream()),
-            Type::Composite(composite, generics) => {
-                tokens.append_all(composite.to_token_stream());
-                tokens.append_all(generics.to_token_stream());
-            },
-            Type::Reference(reference) => tokens.append_all(reference.to_token_stream()),
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use ligen::ir::{Float, Integer, Mutability};

@@ -3,7 +3,15 @@ use crate::prelude::*;
 use ligen_ir::Identifier;
 use crate::parser::Parser;
 
+#[derive(Default)]
 pub struct IdentifierParser;
+
+impl Parser<String> for IdentifierParser {
+    type Output = Identifier;
+    fn parse(&self, input: String) -> Result<Self::Output> {
+        self.parse(input.as_str())
+    }
+}
 
 impl Parser<&str> for IdentifierParser {
     type Output = Identifier;

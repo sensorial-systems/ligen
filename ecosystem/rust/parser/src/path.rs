@@ -11,7 +11,7 @@ impl Parser<syn::Path> for PathParser {
         let segments = path
             .segments
             .iter()
-            .map(|segment| IdentifierParser.parse(segment.ident.clone()).expect("Failed to parse segment."))
+            .map(|segment| IdentifierParser::default().parse(segment.ident.clone()).expect("Failed to parse segment."))
             .collect();
         Ok(Self::Output { segments })
     }
@@ -20,7 +20,7 @@ impl Parser<syn::Path> for PathParser {
 impl Parser<syn::Ident> for PathParser {
     type Output = Path;
     fn parse(&self, identifier: syn::Ident) -> Result<Self::Output> {
-        let segments = vec![IdentifierParser.parse(identifier)?];
+        let segments = vec![IdentifierParser::default().parse(identifier)?];
         Ok(Self::Output { segments })
     }
 }
@@ -38,17 +38,6 @@ impl Parser<proc_macro2::TokenStream> for PathParser {
         syn::parse2::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
             .and_then(|path| self.parse(path))
-    }
-}
-
-impl ToTokens for Path {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        let mut segments = self.segments.iter();
-        tokens.append_all(segments.next().unwrap().to_token_stream());
-        for segment in segments {
-            let segment = segment.to_token_stream();
-            tokens.append_all(quote! { ::#segment })
-        }
     }
 }
 

@@ -62,38 +62,6 @@ impl Parser<&str> for LiteralParser {
     }
 }
 
-
-impl ToTokens for Literal {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match self.clone() {
-            Literal::String(x) => {
-                let y = proc_macro2::Literal::string(&x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Boolean(x) => {
-                let y = proc_macro2::Ident::new(&x.to_string(), proc_macro2::Span::call_site());
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Character(x) => {
-                let y = proc_macro2::Literal::character(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Integer(x) => {
-                let y = proc_macro2::Literal::i64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::UnsignedInteger(x) => {
-                let y = proc_macro2::Literal::u64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-            Literal::Float(x) => {
-                let y = proc_macro2::Literal::f64_unsuffixed(x);
-                tokens.append_all(quote! {#y})
-            }
-        };
-    }
-}
-
 #[cfg(test)]
 mod test {
     use crate::literal::LiteralParser;
