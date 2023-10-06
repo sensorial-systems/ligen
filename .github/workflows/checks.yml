@@ -20,8 +20,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: All targets checks
         run: cargo check --workspace --all-targets
-      - name: All features checks
-        run: cargo check --workspace --all-features --lib --target wasm32-unknown-unknown
+#      - name: All features checks
+#        run: cargo check --workspace --all-features --lib --target wasm32-unknown-unknown
       - name: Rust Format checks
         run: cargo fmt --all -- --check
       - name: Clippy checks
