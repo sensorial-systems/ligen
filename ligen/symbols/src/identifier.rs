@@ -1,0 +1,1 @@
+pub type Identifier = ligen_ir::Identifier;

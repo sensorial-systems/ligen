@@ -3,6 +3,7 @@ members = [
     "ligen",
     "ligen/common",
     "ligen/ir",
+    "ligen/symbols",
     "ligen/parsing",
     "ligen/utils",
     "ligen/traits",
@@ -36,6 +37,7 @@ ligen-macro         = { path = "ligen/macro" }
 ligen-parsing       = { path = "ligen/parsing" }
 ligen-traits        = { path = "ligen/traits" }
 ligen-utils         = { path = "ligen/utils" }
+ligen-symbols       = { path = "ligen/symbols" }
 #ligen-c             = { path = "ecosystem/c/generator" }
 #ligen-cmake         = { path = "ecosystem/c/cmake" }
 ligen-python-parser = { path = "ecosystem/python/parser" }
