@@ -67,8 +67,7 @@ impl ModuleVisitor {
                     .current
                     .modules
                     .iter()
-                    .filter(|module| module.identifier == identifier)
-                    .next()
+                    .find(|module| module.identifier == identifier)
                     .map(|module| ModuleVisitor::from(&self.child(module.clone())));
                 // sub module
                 if let Some(sub_module) = sub_module {

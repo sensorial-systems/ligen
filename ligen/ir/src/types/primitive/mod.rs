@@ -36,26 +36,17 @@ impl Primitive {
 
     /// Checks if the `Primitive` is `Float`.
     pub fn is_float(&self) -> bool {
-        match self {
-            Self::Float(_) => true,
-            _ => false
-        }
+        matches!(self, Self::Float(_))
     }
 
     /// Checks if the `Primitive` is `Boolean`.
     pub fn is_boolean(&self) -> bool {
-        match self {
-            Self::Boolean => true,
-            _ => false
-        }
+        matches!(self, Self::Boolean)
     }
 
     /// Checks if the `Primitive` is `Character`.
     pub fn is_character(&self) -> bool {
-        match self {
-            Self::Character => true,
-            _ => false
-        }
+        matches!(self, Self::Character)
     }
 
     /// Checks if the `Primitive` is `UnsignedInteger`.

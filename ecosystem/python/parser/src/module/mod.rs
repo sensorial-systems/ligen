@@ -46,8 +46,8 @@ impl ModuleParser {
         let mut functions = Vec::new();
         for statement in &input.body {
             match statement {
-                Stmt::FunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(&source, function.clone()))?),
-                Stmt::AsyncFunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(&source, function.clone()))?),
+                Stmt::FunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(source, function.clone()))?),
+                Stmt::AsyncFunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(source, function.clone()))?),
                 _ => ()
             }
         }

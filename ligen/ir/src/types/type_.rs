@@ -22,10 +22,7 @@ impl Default for Type {
 impl Type {
     /// Check if the `Type` is `Primitive`.
     pub fn is_primitive(&self) -> bool {
-        match self {
-            Self::Primitive(_) => true,
-            _ => false
-        }
+        matches!(self, Self::Primitive(_))
     }
 
     /// Check if the `Type` is `Boolean`.

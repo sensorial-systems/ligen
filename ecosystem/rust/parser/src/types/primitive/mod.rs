@@ -101,7 +101,7 @@ mod test {
 
         let iter = vec
             .into_iter()
-            .zip(expected.into_iter());
+            .zip(expected);
 
         for (result, expected) in iter {
             core::assert_eq!(result?, Primitive::Integer(expected));

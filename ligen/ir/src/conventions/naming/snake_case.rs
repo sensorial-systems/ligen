@@ -20,7 +20,7 @@ impl TryFrom<NamingConvention> for SnakeCase {
 
 impl From<KebabCase> for SnakeCase {
     fn from(name: KebabCase) -> Self {
-        Self(name.to_string().replace("-" ,"_"))
+        Self(name.to_string().replace('-' ,"_"))
     }
 }
 

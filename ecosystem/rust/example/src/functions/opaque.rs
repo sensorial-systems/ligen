@@ -18,9 +18,10 @@ pub fn data_sum(data: &Data) -> i32 {
     data
         .data
         .iter()
-        .fold(0, |acc, n| acc + n)
+        .sum::<i32>()
 }
 
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn data_destroy(data: *mut Data) {
     unsafe {
         if !data.is_null() {

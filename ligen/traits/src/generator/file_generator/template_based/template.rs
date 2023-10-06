@@ -32,7 +32,7 @@ impl From<&Helper<'_, '_>> for Inputs {
             .params()
             .iter()
             .map(|param| param.value())
-            .map(|param| param.clone())
+            .cloned()
             .collect::<Vec<_>>();
         Self { params }
     }

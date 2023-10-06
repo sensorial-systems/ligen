@@ -116,9 +116,7 @@ mod test {
             .map(|x| Type::Primitive(Primitive::Integer(x)))
             .collect();
 
-        let mut iter = vec.iter().zip(expected.iter());
-
-        while let Some((value, expected_value)) = iter.next() {
+        for (value, expected_value) in vec.iter().zip(expected.iter()) {
             assert_eq!(value, expected_value);
         }
     }
@@ -136,9 +134,7 @@ mod test {
             .map(|x| Type::Primitive(Primitive::Float(x)))
             .collect();
 
-        let mut iter = vec.iter().zip(expected.iter());
-
-        while let Some((value, expected_value)) = iter.next() {
+        for (value, expected_value) in vec.iter().zip(expected.iter()) {
             assert_eq!(value, expected_value);
         }
     }

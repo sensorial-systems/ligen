@@ -61,7 +61,7 @@ impl TryFrom<&str> for NamingConvention {
 impl TryFrom<String> for NamingConvention {
     type Error = Error;
     fn try_from(naming: String) -> Result<Self> {
-        Ok(naming.as_str().try_into()?)
+        naming.as_str().try_into()
     }
 }
 

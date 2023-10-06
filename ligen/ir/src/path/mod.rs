@@ -31,7 +31,7 @@ impl Path {
             .into_iter()
             .map(|identifier| identifier.name)
             .collect::<Vec<_>>()
-            .join(&separator)
+            .join(separator)
     }
 
     /// Get the first segment's reference.
@@ -70,7 +70,7 @@ impl Path {
 
     /// Removes the first element and returns it, or None if the Path is empty.
     pub fn pop_front(&mut self) -> Option<Identifier> {
-        if self.segments.len() > 0 {
+        if !self.segments.is_empty() {
             Some(self.segments.remove(0))
         } else {
             None
@@ -97,8 +97,7 @@ impl From<&str> for Path {
         } else {
             string
                 .split("::")
-                .into_iter()
-                .map(|segment| Identifier::new(segment))
+                .map(Identifier::new)
                 .collect()
         };
         Self { segments }

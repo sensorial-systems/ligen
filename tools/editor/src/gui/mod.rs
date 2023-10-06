@@ -6,11 +6,11 @@ pub mod ui;
 /// We derive Deserialize/Serialize so we can persist gui state on shutdown.
 #[derive(Default, serde::Deserialize, serde::Serialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
-pub struct GUI {
+pub struct Gui {
     layout: ui::Layout,
 }
 
-impl GUI {
+impl Gui {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
@@ -29,7 +29,7 @@ impl GUI {
     }
 }
 
-impl eframe::App for GUI {
+impl eframe::App for Gui {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {

@@ -70,8 +70,7 @@ impl BuildSystem for CargoBuilder {
                 BuildProfile::Debug => "debug"
             };
             let directory = std::fs::read_dir(target_dir.join(profile))?
-                .filter_map(|entry| entry.ok())
-                .map(|entry| entry);
+                .filter_map(|entry| entry.ok());
             let libraries_dir = ligen_path
                 .join("libraries")
                 .join(&project_name);

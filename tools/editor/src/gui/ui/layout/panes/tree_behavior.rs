@@ -7,8 +7,10 @@ pub struct TreeBehavior {
 
 impl TreeBehavior {
     pub fn new() -> Self {
-        let mut simplification_options = egui_tiles::SimplificationOptions::default();
-        simplification_options.all_panes_must_have_tabs = true;
+        let simplification_options = egui_tiles::SimplificationOptions {
+            all_panes_must_have_tabs: true,
+            .. Default::default()
+        };
         Self { simplification_options }
     }
 }

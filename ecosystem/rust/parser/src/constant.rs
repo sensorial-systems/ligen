@@ -12,7 +12,7 @@ impl Parser<syn::ImplItemConst> for ConstantParser {
     fn parse(&self, item_const: syn::ImplItemConst) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             Ok(Self::Output {
-                identifier: IdentifierParser::default().parse(item_const.ident.clone())?,
+                identifier: IdentifierParser::new().parse(item_const.ident.clone())?,
                 type_: TypeParser.parse(item_const.ty)?,
                 literal: LiteralParser.parse(lit)?,
             })
@@ -27,7 +27,7 @@ impl Parser<syn::ItemConst> for ConstantParser {
     fn parse(&self, item_const: syn::ItemConst) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             Ok(Self::Output {
-                identifier: IdentifierParser::default().parse(item_const.ident.clone())?,
+                identifier: IdentifierParser::new().parse(item_const.ident.clone())?,
                 type_: TypeParser.parse(*item_const.ty)?,
                 literal: LiteralParser.parse(lit)?,
             })

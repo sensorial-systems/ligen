@@ -12,7 +12,7 @@ impl Parser<syn::Variant> for VariantParser {
     type Output = Variant;
     fn parse(&self, variant: syn::Variant) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(variant.attrs)?;
-        let identifier = IdentifierParser::default().parse(variant.ident)?;
+        let identifier = IdentifierParser::new().parse(variant.ident)?;
         Ok(Self::Output { attributes, identifier })
     }
 }

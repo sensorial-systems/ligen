@@ -6,6 +6,12 @@ use crate::parser::Parser;
 #[derive(Default)]
 pub struct IdentifierParser;
 
+impl IdentifierParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
 impl Parser<String> for IdentifierParser {
     type Output = Identifier;
     fn parse(&self, input: String) -> Result<Self::Output> {

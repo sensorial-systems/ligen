@@ -11,7 +11,7 @@ impl Parser<syn::Path> for PathParser {
         let segments = path
             .segments
             .iter()
-            .map(|segment| IdentifierParser::default().parse(segment.ident.clone()).expect("Failed to parse segment."))
+            .map(|segment| IdentifierParser::new().parse(segment.ident.clone()).expect("Failed to parse segment."))
             .collect();
         Ok(Self::Output { segments })
     }
@@ -20,7 +20,7 @@ impl Parser<syn::Path> for PathParser {
 impl Parser<syn::Ident> for PathParser {
     type Output = Path;
     fn parse(&self, identifier: syn::Ident) -> Result<Self::Output> {
-        let segments = vec![IdentifierParser::default().parse(identifier)?];
+        let segments = vec![IdentifierParser::new().parse(identifier)?];
         Ok(Self::Output { segments })
     }
 }

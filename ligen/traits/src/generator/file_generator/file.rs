@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen_utils::fs::write_file;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 
 /// Structure representing a file path and its content.
@@ -55,7 +55,7 @@ impl FileSet {
     }
 
     /// Returns an existing File assigned to an entry or creates a new one if it isn't present.
-    pub fn entry(&mut self, path: &PathBuf) -> &mut File {
-        self.files.entry(path.to_path_buf()).or_insert(File::new(path.clone(), Default::default()))
+    pub fn entry(&mut self, path: &Path) -> &mut File {
+        self.files.entry(path.to_path_buf()).or_insert(File::new(path.to_path_buf(), Default::default()))
     }
 }

@@ -28,10 +28,10 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     fn parse(&self, input: WithSource<StmtFunctionDef>) -> Result<Self::Output> {
         let source = input.source;
         let input = input.ast;
-        let attributes = self.parse_attributes(WithSource::new(&source, input.decorator_list.clone()))?;
+        let attributes = self.parse_attributes(WithSource::new(source, input.decorator_list.clone()))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Synchronous;
-        let identifier = IdentifierParser::default().parse(input.name.as_str())?;
+        let identifier = IdentifierParser::new().parse(input.name.as_str())?;
         let inputs = self.parse_inputs(*input.args)?;
         let output = self.parse_output(input.returns)?;
 
@@ -44,10 +44,10 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
     fn parse(&self, input: WithSource<StmtAsyncFunctionDef>) -> Result<Self::Output> {
         let source = input.source;
         let input = input.ast;
-        let attributes = self.parse_attributes(WithSource::new(&source, input.decorator_list))?;
+        let attributes = self.parse_attributes(WithSource::new(source, input.decorator_list))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Asynchronous;
-        let identifier = IdentifierParser::default().parse(input.name.as_str())?;
+        let identifier = IdentifierParser::new().parse(input.name.as_str())?;
         let inputs = self.parse_inputs(*input.args)?;
         let output = self.parse_output(input.returns)?;
         Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })

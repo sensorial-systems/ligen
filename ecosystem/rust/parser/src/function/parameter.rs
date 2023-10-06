@@ -18,7 +18,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self::Output {
                         attributes: AttributesParser::default().parse(attrs)?,
-                        identifier: IdentifierParser::default().parse(ident)?,
+                        identifier: IdentifierParser::new().parse(ident)?,
                         type_: TypeParser.parse(*ty)?,
                     })
                 } else {
@@ -33,7 +33,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                                 ..
                             }) => {
                 let attributes = AttributesParser::default().parse(attrs)?;
-                let identifier = Identifier::new("self").into();
+                let identifier = Identifier::new("self");
                 let type_ = reference
                     .map(|_| {
                         let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };

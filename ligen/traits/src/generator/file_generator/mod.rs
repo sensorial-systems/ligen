@@ -29,14 +29,13 @@ pub trait FileGenerator {
             .map(PathBuf::from)
             .and_then(|path| path
                 .ancestors()
-                .skip(4)
-                .next()
+                .nth(4)
                 .map(Path::to_path_buf))
             .unwrap_or(std::env::current_dir()?);
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
-        let project_dir = target_ligen_dir.join(&SnakeCase::try_from(project.name().clone())?.to_string());
+        let project_dir = target_ligen_dir.join(SnakeCase::try_from(project.name().clone())?.to_string());
         for (_path, file) in file_set.files {
             let file_path = project_dir.join(file.path);
             write_file(&file_path, &file.content)?;
@@ -48,8 +47,8 @@ pub trait FileGenerator {
 impl <T: FileGenerator> Generator for T {
     fn generate(&self, project: &Project) -> Result<()> {
         let mut file_set = FileSet::default();
-        self.generate_files(&project, &mut file_set)?;
-        self.save_file_set(&project, file_set)?;
+        self.generate_files(project, &mut file_set)?;
+        self.save_file_set(project, file_set)?;
         Ok(())
     }
 }

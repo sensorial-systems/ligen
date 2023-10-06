@@ -27,20 +27,19 @@ impl From<NamingConvention> for PascalCase {
 
 fn from_case_with_separator(case: String, separator: char) -> String {
     let name = case;
-    let mut characters = name.chars();
+    let characters = name.chars();
     let mut first_letter = true;
     let mut pascal_case = String::new();
     // FIXME: How can we clean up this code? :|
-    while let Some(character) = characters.next() {
+    //  This is duplicated. See camel_case.rs.
+    for character in characters {
         if first_letter {
             pascal_case.push(character.to_ascii_uppercase());
             first_letter = false;
+        } else if character == separator {
+            first_letter = true;
         } else {
-            if character == separator {
-                first_letter = true;
-            } else {
-                pascal_case.push(character);
-            }
+            pascal_case.push(character);
         }
     }
     pascal_case

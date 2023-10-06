@@ -55,10 +55,9 @@ impl Transform<ImportVisitor, Import> for RelativePathToAbsolutePath {
 impl Transform<FunctionVisitor, Function> for RelativePathToAbsolutePath {
     fn transform(&self, data: &FunctionVisitor) -> Function {
         let mut function = data.current.clone();
-        function
-            .output
-            .as_mut()
-            .map(|output| type_to_absolute_path(&data.parent, output));
+        if let Some(output) = function.output.as_mut() {
+            type_to_absolute_path(&data.parent, output);
+        }
         for input in &mut function.inputs {
             type_to_absolute_path(&data.parent, &mut input.type_);
         }

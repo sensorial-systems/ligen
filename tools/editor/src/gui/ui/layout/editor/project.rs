@@ -16,7 +16,7 @@ impl Project {
         egui::ScrollArea::both()
             .auto_shrink([false, true])
             .show(ui, |ui| {
-            CollapsingHeader::new(&project.name.to_string())
+            CollapsingHeader::new(project.name.to_string())
                 .id_source("project")
                 .show(ui, |ui| {
                     StringEditableField::new().show(ui, &mut project.name);

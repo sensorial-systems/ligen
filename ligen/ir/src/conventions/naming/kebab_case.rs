@@ -11,7 +11,7 @@ pub struct KebabCase(String);
 
 impl From<SnakeCase> for KebabCase {
     fn from(name: SnakeCase) -> Self {
-        Self(name.to_string().replace("_" ,"-"))
+        Self(name.to_string().replace('_' ,"-"))
     }
 }
 

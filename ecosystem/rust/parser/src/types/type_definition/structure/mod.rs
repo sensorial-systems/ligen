@@ -20,7 +20,7 @@ impl Parser<proc_macro::TokenStream> for StructureParser {
 impl Parser<proc_macro2::TokenStream> for StructureParser {
     type Output = Structure;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
-        syn::parse2::<syn::ItemStruct>(tokenstream.into())
+        syn::parse2::<syn::ItemStruct>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
             .and_then(|structure| self.parse(structure))
     }

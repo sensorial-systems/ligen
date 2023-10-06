@@ -31,7 +31,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
         let inputs: Vec<Parameter> = inputs
             .clone()
             .into_iter()
-            .filter(|input| if let syn::FnArg::Receiver(_) = input { false } else { true })
+            .filter(|input| matches!(input, syn::FnArg::Receiver(_)))
             .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {
@@ -55,7 +55,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
             },
             visibility: VisibilityParser.parse(method.vis)?,
             synchrony: SynchronyParser.parse(asyncness)?,
-            identifier: IdentifierParser::default().parse(ident)?,
+            identifier: IdentifierParser::new().parse(ident)?,
             inputs,
             output,
         })

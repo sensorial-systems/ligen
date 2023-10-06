@@ -8,7 +8,7 @@ pub mod mock;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Object, Path, Visibility, Attributes, Function, Literal, Constant, Identifier};
+use crate::{Object, Path, Visibility, Attributes, Function, Constant, Identifier};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -32,46 +32,6 @@ pub struct Module {
 }
 
 impl Module {
-    pub fn resolve_paths(&mut self, root: &Self) {
-        for import in &mut self.imports {
-            println!("{}", import.path);
-        }
-        for module in &mut self.modules {
-            module.resolve_paths(root);
-        }
-    }
-
-    /// FIXME: This is a temporary workaround.
-    pub fn get_attributes_from_path<P: Into<Path>>(&self, path: P) -> Option<&Attributes> {
-        let path = path.into();
-        if let Some(attributes) = self.attributes.get_subgroup(path.clone()) {
-            Some(attributes)
-        } else {
-            self
-                .modules
-                .iter()
-                .find_map(|module| module.get_attributes_from_path(path.clone()))
-        }
-    }
-
-    /// FIXME: This is a temporary workaround.
-    pub fn get_literal_from_path<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
-        let path = path.into();
-        if let Some(literal) = self.attributes.get_literal_from_path(path.clone()) {
-            Some(literal)
-        } else {
-            self
-                .modules
-                .iter()
-                .find_map(|module| module.get_literal_from_path(path.clone()))
-        }
-    }
-
-    /// Tells if ligen is ignoring this module.
-    pub fn ignored(&self) -> bool {
-        self.attributes.has_ignore_attribute()
-    }
-
     /// Find mutable Object.
     pub fn find_object_mut(&mut self, path: &Path) -> Option<&mut Object> {
         let mut path = path.clone();
@@ -162,7 +122,7 @@ impl Module {
                     if let Visibility::Public = object.visibility {
                         imports.push(Import {
                             attributes: import.attributes.clone(),
-                            visibility: import.visibility.clone(),
+                            visibility: import.visibility,
                             renaming: import.renaming.clone(),
                             path: object.identifier.clone().into() // FIXME: This is a temporary workaround. Identifier should be a Path.
                         })
@@ -177,7 +137,7 @@ impl Module {
                         };
                         imports.push(Import {
                             attributes: import.attributes.clone(),
-                            visibility: import.visibility.clone(),
+                            visibility: import.visibility,
                             renaming: import.renaming.clone(),
                             path: module_path.clone().join(identifier)
                         })

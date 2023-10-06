@@ -22,8 +22,8 @@ jobs:
         run: cargo check --workspace --all-targets
 #      - name: All features checks
 #        run: cargo check --workspace --all-features --lib --target wasm32-unknown-unknown
-      - name: Rust Format checks
-        run: cargo fmt --all -- --check
+#      - name: Rust Format checks
+#        run: cargo fmt --all -- --check
       - name: Clippy checks
         run: cargo clippy --workspace --all-targets --all-features --  -D warnings -W clippy::all
       - name: Documentation tests

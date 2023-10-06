@@ -88,8 +88,7 @@ impl Attributes {
         self
             .attributes
             .iter()
-            .find(|inner_attribute| **inner_attribute == *attribute)
-            .is_some()
+            .any(|inner_attribute| *inner_attribute == *attribute)
     }
 
     /// Check if the attributes list has an ignore attribute.

@@ -4,4 +4,4 @@
 mod prelude;
 mod gui;
 
-ligen_gui_runtime::entrypoint!("Ligen Graphical User Interface", gui::GUI, "the_canvas_id");
+ligen_gui_runtime::entrypoint!("Ligen Graphical User Interface", gui::Gui, "the_canvas_id");

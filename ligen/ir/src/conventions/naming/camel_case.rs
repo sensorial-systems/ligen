@@ -27,20 +27,18 @@ impl From<NamingConvention> for CamelCase {
 impl From<KebabCase> for CamelCase {
     fn from(name: KebabCase) -> Self {
         let name = name.to_string();
-        let mut characters = name.chars();
+        let characters = name.chars();
         let mut first_letter = false;
         let mut camel_name = String::new();
         // FIXME: How can we clean up this code? :|
-        while let Some(character) = characters.next() {
+        for character in characters {
             if first_letter {
                 camel_name.push(character.to_ascii_uppercase());
                 first_letter = false;
+            } else if character == '-' {
+                first_letter = true;
             } else {
-                if character == '-' {
-                    first_letter = true;
-                } else {
-                    camel_name.push(character);
-                }
+                camel_name.push(character);
             }
         }
         Self(camel_name)

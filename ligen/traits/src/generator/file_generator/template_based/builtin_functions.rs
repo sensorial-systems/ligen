@@ -19,7 +19,7 @@ pub fn join_path(inputs: &Inputs) -> String {
     if let (Some(separator), Some(path)) = (separator, path) {
         path.to_string(&separator)
     } else {
-        format!("<ligen:join_path error>")
+        "<ligen:join_path error>".to_string()
     }
 }
 
@@ -31,6 +31,6 @@ pub fn name_from_path(inputs: &Inputs) -> String {
         let content = path.last();
         content.name
     } else {
-        format!("<ligen:name_from_path error>")
+        "<ligen:name_from_path error>".to_string()
     }
 }

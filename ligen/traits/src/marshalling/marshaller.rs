@@ -27,7 +27,7 @@ impl<T> MarshalFrom<T> for T {
 }
 
 /// Marshaller.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Marshaller {
     map_input: HashMap<Type, Type>,
     map_output: HashMap<Type, Type>
@@ -36,9 +36,7 @@ pub struct Marshaller {
 impl Marshaller {
     /// Creates a new instance of the Marshaller.
     pub fn new() -> Self {
-        let map_into = HashMap::default();
-        let map_from = HashMap::default();
-        Self { map_input: map_into, map_output: map_from }
+        Default::default()
     }
 
     /// Register marshallers in project.
@@ -55,9 +53,8 @@ impl Marshaller {
         }
         for object in &module.current.objects {
             let object = module.child(object.clone());
-            match &object.current.definition {
-                TypeDefinition::Structure(structure) => self.register_structure(&object.child(structure.clone())),
-                _ => ()
+            if let TypeDefinition::Structure(structure) = &object.current.definition {
+                self.register_structure(&object.child(structure.clone()));
             }
         }
     }
