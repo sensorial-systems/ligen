@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{Identifier, Literal, Type};
+use crate::gui::ui::editor::ir::{Identifier, Literal, Type};
 
 pub struct Constant {}
 

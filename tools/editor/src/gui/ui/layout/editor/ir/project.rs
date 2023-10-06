@@ -1,7 +1,8 @@
 pub use crate::prelude::*;
 
 use egui::CollapsingHeader;
-use crate::gui::ui::{StringEditableField, Module, Directory};
+use crate::gui::ui::editor::ir::{Module, Directory};
+use crate::gui::ui::StringEditableField;
 
 pub struct Project {
 

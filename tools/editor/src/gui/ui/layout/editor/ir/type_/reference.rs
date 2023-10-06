@@ -1,6 +1,7 @@
+use crate::gui::ui::editor::ir::Type;
 pub use crate::prelude::*;
 
-use crate::gui::ui::{EnumEditableField, Type};
+use crate::gui::ui::EnumEditableField;
 
 pub struct Reference {
 

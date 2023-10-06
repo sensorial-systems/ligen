@@ -1,7 +1,8 @@
 pub use crate::prelude::*;
 
 use egui::CollapsingHeader;
-use crate::gui::ui::{EditableList, Attributes, Import, Visibility, Constant, Function, Object, Identifier};
+use crate::gui::ui::EditableList;
+use crate::gui::ui::editor::ir::{Attributes, Import, Visibility, Constant, Function, Object, Identifier};
 
 pub struct Module {}
 

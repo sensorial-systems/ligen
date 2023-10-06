@@ -1,6 +1,7 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{EditableList, Type};
+use crate::gui::ui::EditableList;
+use crate::gui::ui::editor::ir::Type;
 
 pub struct Generics {
 }

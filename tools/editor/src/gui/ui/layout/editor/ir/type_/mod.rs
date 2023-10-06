@@ -10,7 +10,7 @@ pub use primitive::*;
 pub use reference::*;
 pub use generics::*;
 
-use crate::gui::ui::Path;
+use crate::gui::ui::editor::ir::Path;
 
 pub struct Type {
     enabled: bool

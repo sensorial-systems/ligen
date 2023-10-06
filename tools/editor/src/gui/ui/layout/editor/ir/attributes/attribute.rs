@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{Attributes, Identifier, Literal};
+use crate::gui::ui::editor::ir::{Attributes, Identifier, Literal};
 
 pub struct Attribute {
 

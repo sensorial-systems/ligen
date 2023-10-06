@@ -1,6 +1,6 @@
+use crate::gui::ui::EditableList;
+use crate::gui::ui::editor::ir::{Attributes, Constant, Function, Identifier, Method, TypeDefinition, Visibility};
 pub use crate::prelude::*;
-
-use crate::gui::ui::{Attributes, Constant, EditableList, Function, Identifier, Method, TypeDefinition, Visibility};
 
 pub struct Object {
 

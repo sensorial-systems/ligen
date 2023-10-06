@@ -1,11 +1,12 @@
-mod editor;
-mod menu;
-mod panes;
+pub mod editor;
+pub mod menu;
+pub mod panes;
 
 use serde::{Deserialize, Serialize};
-pub use editor::*;
-pub use menu::*;
-pub use panes::*;
+use crate::gui::ui::editor::ir;
+use crate::gui::ui::menu::Menu;
+use crate::gui::ui::panes::Panes;
+use crate::prelude::*;
 
 #[derive(Serialize, Deserialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
@@ -19,7 +20,8 @@ pub struct Layout {
 impl Default for Layout {
     fn default() -> Self {
         let menu = Menu::new();
-        let panes = Panes::new();
+        let mut panes = Panes::new();
+        panes.new_pane(Box::new(ir::Editor::default()));
         Self { menu, panes }
     }
 }

@@ -1,6 +1,7 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{Attributes, Identifier, OptionalField, Path, Visibility};
+use crate::gui::ui::editor::ir::{Attributes, Identifier, Path, Visibility};
+use crate::gui::ui::OptionalField;
 
 pub struct Import {}
 

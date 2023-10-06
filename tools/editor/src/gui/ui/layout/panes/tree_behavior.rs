@@ -1,5 +1,5 @@
+use crate::gui::ui::panes::Pane;
 use crate::prelude::*;
-use crate::gui::ui::Pane;
 
 pub struct TreeBehavior {
     simplification_options: egui_tiles::SimplificationOptions

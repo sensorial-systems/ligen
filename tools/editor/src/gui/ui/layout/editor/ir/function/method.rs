@@ -1,6 +1,6 @@
+use crate::gui::ui::{EditableList, OptionalField};
+use crate::gui::ui::editor::ir::{Attributes, Identifier, Parameter, Synchrony, Type, Visibility};
 pub use crate::prelude::*;
-
-use crate::gui::ui::{Attributes, OptionalField, Visibility, Type, EditableList, Synchrony, Parameter, Identifier};
 
 pub struct Method {
 

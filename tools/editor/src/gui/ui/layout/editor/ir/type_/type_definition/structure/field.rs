@@ -1,6 +1,7 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{Attributes, Identifier, OptionalField, Type};
+use crate::gui::ui::editor::ir::{Attributes, Identifier, Type};
+use crate::gui::ui::OptionalField;
 
 pub struct Field {}
 

@@ -1,4 +1,5 @@
-use crate::gui::ui::{EditorMenuButton, Panes};
+use crate::gui::ui::editor::ir::EditorMenuButton;
+use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
 
 pub trait MenuButton {

@@ -8,7 +8,8 @@ pub use method::*;
 pub use synchrony::*;
 pub use parameter::*;
 
-use crate::gui::ui::{Attributes, OptionalField, Visibility, Type, EditableList, Identifier};
+use crate::gui::ui::{OptionalField, EditableList};
+use crate::gui::ui::editor::ir::{Attributes, Identifier, Type, Visibility};
 
 pub struct Function {
 
