@@ -4,6 +4,7 @@ use ligen::symbols::interface::Interface;
 use ligen::symbols::module::Module;
 use crate::prelude::*;
 use crate::symbols::interface::InterfaceParser;
+use crate::symbols::scope::ScopeParser;
 
 pub struct ModuleParser;
 
@@ -27,11 +28,11 @@ impl Parser<&str> for ModuleParser {
 impl Parser<ModModule> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: ModModule) -> Result<Self::Output> {
-        let interface_parser = InterfaceParser::new();
+        let scope_parser = ScopeParser::new();
         let identifier = Default::default();
-        let constants = interface_parser.parse_constants(&input.body)?;
-        let types = interface_parser.parse_types(&input.body)?;
-        let functions = interface_parser.parse_functions(&input.body)?;
+        let constants = scope_parser.parse_constants(&input.body)?;
+        let types = scope_parser.parse_types(&input.body)?;
+        let functions = scope_parser.parse_functions(&input.body)?;
         let interfaces = self.parse_interfaces(&input.body)?;
         let modules = Default::default();
         Ok(Module { identifier, constants, types, functions, interfaces, modules })
