@@ -1,6 +1,8 @@
 pub mod module;
 pub mod interface;
 
+pub mod menu_button;
+
 use egui_tiles::UiResponse;
 use crate::gui::ui::editor::symbols::module::Module;
 use crate::prelude::*;
@@ -12,10 +14,9 @@ pub struct Editor {
 }
 
 impl Editor {
-    // TODO: Use this in the MenuButton
-    // pub fn new(module: ligen_symbols::module::Module) -> Self {
-    //     Self { module }
-    // }
+    pub fn new(module: ligen_symbols::module::Module) -> Self {
+        Self { module }
+    }
 }
 
 impl Pane for Editor {

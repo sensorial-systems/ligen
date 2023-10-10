@@ -9,10 +9,11 @@ documentation.workspace = true
 readme.workspace = true
 
 [dependencies]
-ligen-gui-runtime.workspace = true
-ligen-ir.workspace          = true
-ligen-symbols.workspace      = true
-serde.workspace             = true
-ligen-parsing.workspace     = true
-ligen-cargo.workspace       = true
+ligen-gui-runtime.workspace   = true
+ligen-ir.workspace            = true
+ligen-symbols.workspace       = true
+serde.workspace               = true
+ligen-parsing.workspace       = true
+ligen-cargo.workspace         = true
+ligen-python-parser.workspace = true
 egui_tiles = "0.2.0"

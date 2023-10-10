@@ -1,4 +1,4 @@
-use crate::gui::ui::editor::ir::EditorMenuButton;
+use crate::gui::ui::editor::{ir, symbols};
 use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
 
@@ -20,7 +20,8 @@ pub struct Menu {
 impl Menu {
     pub fn new() -> Self {
         let buttons: Vec<Box<dyn MenuButton>> = vec![
-            Box::new(EditorMenuButton)
+            Box::new(ir::EditorMenuButton),
+            Box::new(symbols::menu_button::EditorMenuButton)
         ];
         Self { buttons }
     }
