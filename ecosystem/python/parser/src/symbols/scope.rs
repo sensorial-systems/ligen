@@ -5,19 +5,16 @@ use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::interface::InterfaceParser;
 
+mod scope;
+
+pub use scope::*;
+
 pub struct ScopeParser;
 
 impl ScopeParser {
     pub fn new() -> Self {
         Self
     }
-}
-
-pub struct Scope {
-    pub constants: Vec<Identifier>,
-    pub types: Vec<Identifier>,
-    pub functions: Vec<Identifier>,
-    pub interfaces: Vec<Interface>
 }
 
 impl<T> Parser<&[Stmt<T>]> for ScopeParser {
@@ -27,11 +24,35 @@ impl<T> Parser<&[Stmt<T>]> for ScopeParser {
         let types = self.parse_types(input)?;
         let functions = self.parse_functions(input)?;
         let interfaces = self.parse_interfaces(input)?;
-        Ok(Scope { constants, types, functions, interfaces })
+        let methods = self.parse_methods(input)?;
+        let mut scope = Scope { constants, types, functions, methods, interfaces };
+        let sub_scopes = self.parse_sub_scopes(input)?;
+        for sub_scope in sub_scopes {
+            scope.join(sub_scope);
+        }
+        Ok(scope)
     }
 }
 
 impl ScopeParser {
+    fn parse_sub_scopes<T>(&self, statements: &[Stmt<T>]) -> Result<Vec<Scope>> {
+        let mut sub_scopes = Vec::new();
+        for statement in statements {
+            match statement {
+                Stmt::If(ast) => {
+                    sub_scopes.push(self.parse(&ast.body)?);
+                    sub_scopes.push(self.parse(&ast.orelse)?);
+                },
+                Stmt::Try(ast) => {
+                    sub_scopes.push(self.parse(&ast.body)?);
+                    sub_scopes.push(self.parse(&ast.orelse)?);
+                    sub_scopes.push(self.parse(&ast.finalbody)?);
+                },
+                _ => ()
+            }
+        }
+        Ok(sub_scopes)
+    }
 
     pub fn has_static_decorator<T>(&self, decorator_list: &[Expr<T>]) -> bool {
         decorator_list

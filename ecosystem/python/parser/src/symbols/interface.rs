@@ -15,11 +15,11 @@ impl InterfaceParser {
 impl<T> Parser<&StmtClassDef<T>> for InterfaceParser {
     type Output = Interface;
     fn parse(&self, input: &StmtClassDef<T>) -> Result<Self::Output> {
-        let scope_parser = ScopeParser::new();
+        let scope = ScopeParser::new().parse(&input.body)?;
         let identifier = IdentifierParser::new().parse(input.name.as_str())?;
-        let constants = scope_parser.parse_constants(&input.body)?;
-        let functions = scope_parser.parse_functions(&input.body)?;
-        let methods   = scope_parser.parse_methods(&input.body)?;
+        let constants = scope.constants;
+        let functions = scope.functions;
+        let methods = scope.methods;
         Ok(Interface { identifier, constants, functions, methods })
     }
 }

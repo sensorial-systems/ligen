@@ -11,16 +11,13 @@ impl MenuButton for EditorMenuButton {
         "Symbols".to_string()
     }
     fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
-        if ui.button("Parse Python").clicked() {
-            let file = rfd::FileDialog::new()
-                .add_filter("Python File", &["py"])
-                .pick_file();
+        if ui.button("Parse Python folder").clicked() {
+            let entry = rfd::FileDialog::new()
+                // .add_filter("Python File", &["py"])
+                .pick_folder();
 
-            if let Some(file) = file {
-                let content = std::fs::read_to_string(file).unwrap();
-                let module = ModuleParser
-                    .parse(content.as_str())
-                    .expect("Failed to parse project.");
+            if let Some(entry) = entry {
+                let module = ModuleParser.parse(entry.as_path()).unwrap();
                 panes.new_pane(Box::new(Editor::new(module)));
             }
 
