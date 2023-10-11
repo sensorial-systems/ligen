@@ -77,12 +77,26 @@ impl Parser<Directory<'_>> for ModuleParser {
     fn parse(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
         let identifier = self.parse_identifier(input)?;
         let mut module = Module { identifier, .. Default::default() };
-        let mut modules = Vec::new();
+        let mut modules: Vec<Module> = Vec::new();
         for entry in input.read_dir()? {
             let entry = entry?;
             let path = entry.path();
-            let module = self.parse(path.as_path())?;
-            modules.push(module);
+            let extension = path
+                .extension()
+                .and_then(|extension| extension.to_str())
+                .map(String::from)
+                .unwrap_or_default();
+            if extension == "py" || path.is_dir() {
+                let module = self.parse(path.as_path())?;
+                if let Some(existing) = modules
+                    .iter_mut()
+                    .find(|existing| existing.identifier == module.identifier)
+                {
+                    existing.join(module)
+                } else {
+                    modules.push(module);
+                }
+            }
         }
         if let Some((index, _)) = modules
             .iter()
@@ -104,7 +118,7 @@ impl Parser<&std::path::Path> for ModuleParser {
         if input.is_dir() {
             self.parse(Directory(input))
         } else {
-            self.parse(File(input))
+            self.parse(File(input)).map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
         }
     }
 }

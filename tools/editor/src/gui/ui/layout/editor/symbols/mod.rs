@@ -1,10 +1,11 @@
 pub mod module;
 pub mod interface;
+pub mod project;
 
 pub mod menu_button;
 
 use egui_tiles::UiResponse;
-use crate::gui::ui::editor::symbols::module::Module;
+use crate::gui::ui::editor::symbols::project::Project;
 use crate::prelude::*;
 use crate::gui::ui::panes::Pane;
 
@@ -25,7 +26,7 @@ impl Pane for Editor {
     }
 
     fn show(&mut self, ui: &mut egui::Ui) -> UiResponse {
-        Module::new().show(ui, &mut self.module);
+        Project::new().show(ui, &mut self.module);
         UiResponse::None
     }
 }
