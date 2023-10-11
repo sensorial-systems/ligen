@@ -9,3 +9,11 @@ pub struct Interface {
     // TODO: Use this for inheritance, traits and alike:
     // pub interfaces: Vec<Path>
 }
+
+impl Interface {
+    pub fn count_symbols(&self) -> usize {
+        self.constants.len()
+        + self.functions.len()
+        + self.methods.len()
+    }
+}
