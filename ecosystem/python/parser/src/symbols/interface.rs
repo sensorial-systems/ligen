@@ -4,19 +4,20 @@ use ligen::symbols::interface::Interface;
 use crate::identifier::IdentifierParser;
 use crate::symbols::scope::ScopeParser;
 
+#[derive(Default)]
 pub struct InterfaceParser;
 
 impl InterfaceParser {
     pub fn new() -> Self {
-        Self
+        Default::default()
     }
 }
 
-impl<T> Parser<&StmtClassDef<T>> for InterfaceParser {
+impl Parser<WithSource<&StmtClassDef>> for InterfaceParser {
     type Output = Interface;
-    fn parse(&self, input: &StmtClassDef<T>) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse(&input.body)?;
-        let identifier = IdentifierParser::new().parse(input.name.as_str())?;
+    fn parse(&self, input: WithSource<&StmtClassDef>) -> Result<Self::Output> {
+        let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
+        let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;
         let constants = scope.constants;
         let functions = scope.functions;
         let methods = scope.methods;

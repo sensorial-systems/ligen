@@ -26,14 +26,12 @@ impl Parser<&str> for FunctionParser {
 impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     type Output = Function;
     fn parse(&self, input: WithSource<StmtFunctionDef>) -> Result<Self::Output> {
-        let source = input.source;
-        let input = input.ast;
-        let attributes = self.parse_attributes(WithSource::new(source, input.decorator_list.clone()))?;
+        let attributes = self.parse_attributes(input.sub(input.ast.decorator_list.clone()))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Synchronous;
-        let identifier = IdentifierParser::new().parse(input.name.as_str())?;
-        let inputs = self.parse_inputs(*input.args)?;
-        let output = self.parse_output(input.returns)?;
+        let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;
+        let inputs = self.parse_inputs(*input.ast.args)?;
+        let output = self.parse_output(input.ast.returns)?;
 
         Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })
     }

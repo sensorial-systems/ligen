@@ -6,11 +6,12 @@ use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::scope::ScopeParser;
 
+#[derive(Default)]
 pub struct ModuleParser;
 
 impl ModuleParser {
     pub fn new() -> Self {
-        Self
+        Default::default()
     }
 }
 
@@ -21,14 +22,14 @@ impl Parser<&str> for ModuleParser {
             .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
             .module()
             .ok_or(Error::Message("No module found".into()))?;
-        self.parse(module)
+        self.parse(WithSource::new(input, module))
     }
 }
 
-impl Parser<ModModule> for ModuleParser {
+impl Parser<WithSource<ModModule>> for ModuleParser {
     type Output = Module;
-    fn parse(&self, input: ModModule) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse(&input.body)?;
+    fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
+        let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
         let identifier = Default::default();
         let modules = Default::default();
         let constants = scope.constants;
@@ -40,7 +41,6 @@ impl Parser<ModModule> for ModuleParser {
 }
 
 struct Directory<'a>(pub &'a std::path::Path);
-struct EntryFile<'a>(pub &'a std::path::Path);
 struct File<'a>(pub &'a std::path::Path);
 
 impl Parser<File<'_>> for ModuleParser {
@@ -50,25 +50,6 @@ impl Parser<File<'_>> for ModuleParser {
         let mut module = self.parse(content.as_str())?;
         module.identifier = self.parse_identifier(input)?;
         Ok(module)
-    }
-}
-
-impl Parser<EntryFile<'_>> for ModuleParser {
-    type Output = Module;
-    fn parse(&self, EntryFile(_input): EntryFile<'_>) -> Result<Self::Output> {
-        // let parent = input
-        //     .parent()
-        //     .ok_or(Error::Message(format!("Failed to get parent: {}", input.display())))?;
-        // let mut modules = self.parse(Directory(parent))?;
-        // let identifier = self.parse_identifier(input)?;
-        // let (index, _) = modules
-        //     .iter()
-        //     .enumerate()
-        //     .find(|(index, module)| module.identifier == identifier)
-        //     .ok_or(Error::Message(format!("Failed to find module with identifier: {}", identifier)))?;
-        // let module = modules.remove(index);
-        // Ok(module)
-        todo!()
     }
 }
 

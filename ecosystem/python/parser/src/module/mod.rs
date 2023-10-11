@@ -41,13 +41,11 @@ impl ModuleParser {
     }
 
     fn extract_functions(&self, input: &WithSource<ModModule>) -> Result<Vec<Function>> {
-        let source = &input.source;
-        let input = &input.ast;
         let mut functions = Vec::new();
-        for statement in &input.body {
+        for statement in &input.ast.body {
             match statement {
-                Stmt::FunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(source, function.clone()))?),
-                Stmt::AsyncFunctionDef(function) => functions.push(FunctionParser.parse(WithSource::new(source, function.clone()))?),
+                Stmt::FunctionDef(function) => functions.push(FunctionParser.parse(input.sub(function.clone()))?),
+                Stmt::AsyncFunctionDef(function) => functions.push(FunctionParser.parse(input.sub(function.clone()))?),
                 _ => ()
             }
         }

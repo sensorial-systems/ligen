@@ -8,4 +8,8 @@ impl<T> WithSource<T> {
         let source = source.as_ref().to_string();
         Self { source, ast }
     }
+
+    pub fn sub<U>(&self, ast: U) -> WithSource<U> {
+        WithSource::new(&self.source, ast)
+    }
 }
