@@ -40,10 +40,9 @@ impl Parser<syn::ItemMod> for ModuleParser {
 
         let imports = self.extract_imports(items.as_slice())?;
         let functions = self.extract_functions(items.as_slice())?;
-        let objects = self.extract_object_definitions(false, items.as_slice())?;
         let constants = self.extract_constants(false, items.as_slice())?;
         let modules = self.extract_modules(false, items)?;
-        Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, constants, modules })
+        Ok(Self::Output { attributes, visibility, identifier, imports, functions, constants, modules })
     }
 }
 

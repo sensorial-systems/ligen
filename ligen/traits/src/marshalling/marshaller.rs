@@ -51,12 +51,13 @@ impl Marshaller {
             let module = ModuleVisitor::from(&module.child(child_module.clone()));
             self.register_module(&module);
         }
-        for object in &module.current.objects {
-            let object = module.child(object.clone());
-            if let TypeDefinition::Structure(structure) = &object.current.definition {
-                self.register_structure(&object.child(structure.clone()));
-            }
-        }
+        // TODO: Review this. It was removed because objects no longer exist.
+        // for object in &module.current.objects {
+        //     let object = module.child(object.clone());
+        //     if let TypeDefinition::Structure(structure) = &object.current.definition {
+        //         self.register_structure(&object.child(structure.clone()));
+        //     }
+        // }
     }
 
     /// Register masrhallers in definition.

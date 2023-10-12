@@ -24,6 +24,7 @@ pub mod visibility;
 pub mod identifier;
 pub mod literal;
 pub mod types;
+pub mod interface;
 pub mod path;
 pub mod object;
 pub mod mutability;
