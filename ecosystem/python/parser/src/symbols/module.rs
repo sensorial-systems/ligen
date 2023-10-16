@@ -68,14 +68,15 @@ impl Parser<Directory<'_>> for ModuleParser {
                 .map(String::from)
                 .unwrap_or_default();
             if extension == "py" || path.is_dir() {
-                let module = self.parse(path.as_path())?;
-                if let Some(existing) = modules
-                    .iter_mut()
-                    .find(|existing| existing.identifier == module.identifier)
-                {
-                    existing.join(module)
-                } else {
-                    modules.push(module);
+                if let Ok(module) = self.parse(path.as_path()) {
+                    if let Some(existing) = modules
+                        .iter_mut()
+                        .find(|existing| existing.identifier == module.identifier)
+                    {
+                        existing.join(module)
+                    } else {
+                        modules.push(module);
+                    }
                 }
             }
         }
