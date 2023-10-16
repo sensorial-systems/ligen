@@ -19,33 +19,18 @@ pub fn sub_modules() -> Module {
     }
 }
 
-pub fn module_objects() -> Module {
+pub fn module_types() -> Module {
     Module {
-        identifier: "objects".into(),
-        objects: vec![
-            Object {
+        identifier: "types".into(),
+        types: vec![
+            Structure {
                 identifier: "Structure".into(),
-                definition: TypeDefinition::Structure(Default::default()),
-                .. Default::default()
-            },
-            Object {
+                ..Default::default()
+            }.into(),
+            Enumeration {
                 identifier: "Enumeration".into(),
-                definition: TypeDefinition::Enumeration(Default::default()),
-                .. Default::default()
-            }
-        ],
-        constants: vec![
-            Constant {
-                identifier: "CONSTANT".into(),
-                type_: Primitive::Boolean.into(),
-                literal: Literal::Boolean(false)
-            }
-        ],
-        functions: vec![
-            Function {
-                identifier: "function".into(),
-                .. Default::default()
-            }
+                ..Default::default()
+            }.into()
         ],
         ..Default::default()
     }

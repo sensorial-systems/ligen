@@ -3,10 +3,10 @@
 mod import;
 
 use syn::spanned::Spanned;
-use ligen::ir::{Constant, Object};
+use ligen::ir::Constant;
 use ligen::parsing::parser::Parser;
 use crate::prelude::*;
-use ligen::ir::{Function, Module, Import};
+use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
 use crate::constant::ConstantParser;
 use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
@@ -40,9 +40,11 @@ impl Parser<syn::ItemMod> for ModuleParser {
 
         let imports = self.extract_imports(items.as_slice())?;
         let functions = self.extract_functions(items.as_slice())?;
-        let constants = self.extract_constants(false, items.as_slice())?;
-        let modules = self.extract_modules(false, items)?;
-        Ok(Self::Output { attributes, visibility, identifier, imports, functions, constants, modules })
+        let constants = self.extract_constants(items.as_slice())?;
+        let types = self.extract_types(items.as_slice())?;
+        let interfaces = self.extract_interfaces(items.as_slice())?;
+        let modules = self.extract_modules(items)?;
+        Ok(Self::Output { attributes, visibility, identifier, imports, functions, constants, types, interfaces, modules })
     }
 }
 
@@ -63,6 +65,29 @@ impl Parser<&std::path::Path> for ModuleParser {
 }
 
 impl ModuleParser {
+    fn extract_interfaces(&self, _items: &[syn::Item]) -> Result<Vec<Interface>> {
+        Ok(Default::default())
+    }
+    fn extract_types(&self, items: &[syn::Item]) -> Result<Vec<TypeDefinition>> {
+        let mut types = Vec::new();
+        for item in items {
+            match item {
+                syn::Item::Enum(enumeration) =>
+                    types.push(EnumerationParser::new().parse(enumeration.clone())?.into()),
+                syn::Item::Struct(structure) =>
+                    types.push(StructureParser::new().parse(structure.clone())?.into()),
+                syn::Item::Type(_type) => {
+                    todo!("Type object isn't implemented yet.")
+                },
+                syn::Item::Union(_union) => {
+                    todo!("Union object isn't implemented yet.")
+                },
+                _ => ()
+            }
+        }
+        Ok(types)
+    }
+
     fn extract_imports(&self, items: &[syn::Item]) -> Result<Vec<Import>> {
         let mut imports: Vec<Import> = Default::default();
         for item in items {
@@ -82,136 +107,24 @@ impl ModuleParser {
         Ok(functions)
     }
 
-    fn extract_modules(&self, ignored: bool, items: Vec<syn::Item>) -> Result<Vec<Module>> {
+    fn extract_modules(&self, items: Vec<syn::Item>) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
-        if !ignored {
-            let items = items
-                .into_iter()
-                .filter_map(|item| {
-                    if let syn::Item::Mod(module) = item {
-                        Some(module)
-                    } else {
-                        None
-                    }
-                });
-            for module in items {
-                modules.push(self.parse(module)?)
-            }
+        let items = items
+            .into_iter()
+            .filter_map(|item| {
+                if let syn::Item::Mod(module) = item {
+                    Some(module)
+                } else {
+                    None
+                }
+            });
+        for module in items {
+            modules.push(self.parse(module)?)
         }
         Ok(modules)
     }
 
-// TODO: Is it still useful?
-// fn parse_ligen_attributes(attributes: &Attributes, items: &[syn::Item]) -> Result<Attributes> {
-//     let mut attributes = attributes.clone();
-//     for item in items {
-//         match item {
-//             syn::Item::Macro(call) => {
-//                 let attribute = Attribute::try_from(SynItemMacro(call.clone()))?;
-//                 if let Attribute::Group(identifier, grouped_attributes) = &attribute {
-//                     if *identifier == Identifier::from("inner_ligen") {
-//                         attributes.attributes.push(Attribute::Group("ligen".into(), grouped_attributes.clone()));
-//                     }
-//                 }
-//             },
-//             _ => ()
-//         }
-//     }
-//     Ok(attributes)
-// }
-
-    fn extract_object_definitions(&self, ignored: bool, items: &[syn::Item]) -> Result<Vec<Object>> {
-        let mut objects = Vec::new();
-        if !ignored {
-            for item in items {
-                match item {
-                    syn::Item::Enum(enumeration) => {
-                        let attributes = AttributesParser::default().parse(enumeration.attrs.clone())?;
-                        let identifier = IdentifierParser::new().parse(enumeration.ident.clone())?;
-                        let visibility = VisibilityParser.parse(enumeration.vis.clone())?;
-                        let enumeration = EnumerationParser.parse(enumeration.clone())?;
-                        objects.push(Object {
-                            attributes,
-                            identifier,
-                            visibility,
-                            definition: enumeration.into(),
-                            .. Default::default()
-                        });
-                    },
-                    syn::Item::Struct(structure) => {
-                        let attributes = AttributesParser::default().parse(structure.attrs.clone())?;
-                        let identifier = IdentifierParser::new().parse(structure.ident.clone())?;
-                        let visibility = VisibilityParser.parse(structure.vis.clone())?;
-                        let structure = StructureParser.parse(structure.clone())?;
-                        objects.push(Object {
-                            attributes,
-                            identifier,
-                            visibility,
-                            definition: structure.into(),
-                            .. Default::default()
-                        });
-                    },
-                    syn::Item::Type(_type) => {
-                        todo!("Type object isn't implemented yet.")
-                    },
-                    syn::Item::Union(_union) => {
-                        todo!("Union object isn't implemented yet.")
-                    },
-                    _ => ()
-                }
-            }
-        }
-        Ok(objects)
-    }
-
-    // FIXME: Implement it.
-    // fn extract_object_implementations(project: &mut Project, ignored: bool, items: &[syn::Item]) -> Result<()> {
-    //     if !ignored {
-    //         for item in items {
-    //             match item {
-    //                 syn::Item::Mod(module) => if let Some((_, items)) = &module.content {
-    //                     // FIXME: Hardcoded ignored.
-    //                     Self::extract_object_implementations(project, false, items.as_slice())?;
-    //                 },
-    //                 syn::Item::Impl(implementation) => {
-    //                     // TODO: Consider `impl Trait for Object`?
-    //                     if implementation.trait_.is_none() {
-    //                         if let syn::Type::Path(syn::TypePath { path, .. }) = &*implementation.self_ty {
-    //                             // FIXME: Transform relative path to absolute path.
-    //                             let path = PathParser.parse(path.clone())?;
-    //                             if let Some(object) = project.root_module.find_object_mut(&path) {
-    //                                 // TODO: Parse attributes and merge them with individual items.
-    //                                 // let attributes = implementation.attrs;
-    //                                 for item in &implementation.items {
-    //                                     match item {
-    //                                         syn::ImplItem::Const(constant) => {
-    //                                             let constant = ConstantParser.parse(constant.clone())?;
-    //                                             object.constants.push(constant)
-    //                                         },
-    //                                         syn::ImplItem::Method(method) => {
-    //                                             if method.sig.receiver().is_some() {
-    //                                                 let method = MethodParser.parse(method.clone())?;
-    //                                                 object.methods.push(method)
-    //                                             } else {
-    //                                                 let function = FunctionParser.parse(method.clone())?;
-    //                                                 object.functions.push(function)
-    //                                             }
-    //                                         }
-    //                                         _ => ()
-    //                                     }
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //                 _ => ()
-    //             }
-    //         }
-    //     }
-    //     Ok(())
-    // }
-
-    fn extract_constants(&self, _: bool, items: &[syn::Item]) -> Result<Vec<Constant>> {
+    fn extract_constants(&self, items: &[syn::Item]) -> Result<Vec<Constant>> {
         let mut constants = Vec::new();
         for item in items {
             if let syn::Item::Const(constant) = item {
@@ -248,14 +161,33 @@ mod tests {
     }
 
     #[test]
-    fn module_objects() -> Result<()> {
-        assert_eq(ModuleParser, mock::module_objects(), quote! {
-            pub mod objects {
+    fn module_types() -> Result<()> {
+        assert_eq(ModuleParser, mock::module_types(), quote! {
+            pub mod types {
                 pub struct Structure;
                 pub enum Enumeration {}
-                pub const CONSTANT: bool = false;
-                pub fn function() {}
             }
         })
     }
+
+    // TODO: Implement these:
+    // #[test]
+    // fn module_functions() -> Result<()> {
+    //     // pub fn function() {}
+    //
+    //     todo!()
+    // }
+    //
+    // #[test]
+    // fn module_constants() -> Result<()> {
+    //     // pub const CONSTANT: bool = false;
+    //     todo!()
+    // }
+    //
+    // #[test]
+    // fn module_interfaces() -> Result<()> {
+    //     // pub trait Interface {
+    //     // }
+    //     todo!()
+    // }
 }

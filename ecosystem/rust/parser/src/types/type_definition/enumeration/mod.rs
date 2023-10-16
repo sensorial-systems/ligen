@@ -5,18 +5,32 @@ pub mod variant;
 use crate::prelude::*;
 use ligen::ir::Enumeration;
 use ligen::parsing::parser::Parser;
+use crate::identifier::IdentifierParser;
+use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::type_definition::enumeration::variant::VariantParser;
+use crate::visibility::VisibilityParser;
 
+#[derive(Default)]
 pub struct EnumerationParser;
+
+impl EnumerationParser {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Parser<syn::ItemEnum> for EnumerationParser {
     type Output = Enumeration;
     fn parse(&self, enumeration: syn::ItemEnum) -> Result<Self::Output> {
+        let attributes = AttributesParser::default().parse(enumeration.attrs)?;
+        let identifier = IdentifierParser::new().parse(enumeration.ident)?;
+        let visibility = VisibilityParser::new().parse(enumeration.vis)?;
+        let interfaces = Default::default();
         let mut variants = Vec::new();
         for variant in enumeration.variants {
             variants.push(VariantParser.parse(variant)?);
         }
-        Ok(Self::Output { variants })
+        Ok(Enumeration { attributes, visibility, identifier, variants, interfaces })
     }
 }
 
@@ -45,7 +59,7 @@ mod tests {
     #[test]
     fn enumeration() -> Result<()> {
         assert_eq(EnumerationParser, mock::enumeration(), quote !{
-            enum Enumeration {
+            pub enum Enumeration {
                 Integer,
                 Float,
                 Boolean

@@ -2,7 +2,7 @@ pub use crate::prelude::*;
 
 use egui::CollapsingHeader;
 use crate::gui::ui::EditableList;
-use crate::gui::ui::editor::ir::{Attributes, Import, Visibility, Constant, Function, Object, Identifier};
+use crate::gui::ui::editor::ir::{Attributes, Import, Visibility, Constant, Function, Identifier};
 
 pub struct Module {}
 
@@ -30,9 +30,6 @@ impl Module {
                 });
                 EditableList::new("Modules", "Add module").show(ui, &mut module.modules, |ui, module| {
                     Module::new().show(ui, module);
-                });
-                EditableList::new("Objects", "Add object").show(ui, &mut module.objects, |ui, object| {
-                    Object::new().show(ui, object);
                 });
                 Attributes::new().show(ui, &mut module.attributes);
             });

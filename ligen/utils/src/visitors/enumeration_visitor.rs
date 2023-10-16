@@ -1,8 +1,8 @@
-use super::{Visitor, ObjectVisitor, ModuleVisitor};
+use super::{Visitor, ModuleVisitor};
 use ligen_ir::{Enumeration, Path};
 
 /// Enumeration visitor.
-pub type EnumerationVisitor = Visitor<ObjectVisitor, Enumeration>;
+pub type EnumerationVisitor = Visitor<ModuleVisitor, Enumeration>;
 
 impl EnumerationVisitor {
     /// Returns the enumeration path.
@@ -12,6 +12,6 @@ impl EnumerationVisitor {
 
     /// Get the parent module.
     pub fn parent_module(&self) -> &ModuleVisitor {
-        self.parent.parent_module()
+        &self.parent
     }
 }

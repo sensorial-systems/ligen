@@ -10,9 +10,9 @@ pub use path::Path;
 pub use macro_attributes::{Attributes, Attribute, MacroAttributes, attributes, attribute};
 pub use types::*;
 pub use visibility::*;
-pub use object::*;
 pub use project::*;
 pub use mutability::*;
+pub use interface::*;
 
 pub mod prelude;
 
@@ -26,7 +26,6 @@ pub mod literal;
 pub mod types;
 pub mod interface;
 pub mod path;
-pub mod object;
 pub mod mutability;
 pub mod source;
 pub mod project;

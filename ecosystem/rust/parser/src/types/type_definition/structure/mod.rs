@@ -7,8 +7,18 @@ pub use field::*;
 use crate::prelude::*;
 use ligen::ir::Structure;
 use ligen::parsing::parser::Parser;
+use crate::identifier::IdentifierParser;
+use crate::macro_attributes::attributes::AttributesParser;
+use crate::visibility::VisibilityParser;
 
+#[derive(Default)]
 pub struct StructureParser;
+
+impl StructureParser {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 impl Parser<proc_macro::TokenStream> for StructureParser {
     type Output = Structure;
@@ -29,11 +39,15 @@ impl Parser<proc_macro2::TokenStream> for StructureParser {
 impl Parser<syn::ItemStruct> for StructureParser {
     type Output = Structure;
     fn parse(&self, structure: syn::ItemStruct) -> Result<Self::Output> {
+        let attributes = AttributesParser::default().parse(structure.attrs)?;
+        let identifier = IdentifierParser::new().parse(structure.ident)?;
+        let visibility = VisibilityParser::new().parse(structure.vis)?;
+        let interfaces = Default::default();
         let mut fields = Vec::new();
         for field in structure.fields {
             fields.push(FieldParser.parse(field)?);
         }
-        Ok(Self::Output { fields })
+        Ok(Self::Output { attributes, visibility, identifier, fields, interfaces })
     }
 }
 
@@ -48,7 +62,7 @@ mod tests {
     #[test]
     fn structure() -> Result<()> {
         assert_eq(StructureParser, mock::structure(), quote! {
-            struct Structure {
+            pub struct Structure {
                 integer: i32
             }
         })

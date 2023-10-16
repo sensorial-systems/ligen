@@ -1,4 +1,4 @@
-use ligen_ir::{Type, TypeDefinition, Attribute, Reference, Mutability};
+use ligen_ir::{Type, Attribute, Reference, Mutability};
 use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor, StructureVisitor};
 use std::collections::HashMap;
 

@@ -2,6 +2,7 @@ use crate::*;
 
 pub fn enumeration() -> Enumeration {
     Enumeration {
+        identifier: "Enumeration".into(),
         variants: vec! [
             Variant {
                 attributes: Default::default(),
@@ -15,6 +16,7 @@ pub fn enumeration() -> Enumeration {
                 attributes: Default::default(),
                 identifier: "Boolean".into()
             }
-        ]
+        ],
+        .. Default::default()
     }
 }

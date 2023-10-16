@@ -11,3 +11,4 @@ pub mod module;
 pub mod constant;
 
 extern crate proc_macro;
+extern crate core;

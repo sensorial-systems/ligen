@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::ir::{Constant, Function, Import, Module, Object};
+use ligen::ir::{Constant, Function, Import, Module, TypeDefinition, Interface};
 use rustpython_parser::ast::{ModModule, Stmt};
 use crate::function::FunctionParser;
 
@@ -26,8 +26,9 @@ impl Parser<WithSource<ModModule>> for ModuleParser {
         let imports = self.extract_imports(&input)?;
         let constants = self.extract_constants(&input)?;
         let functions = self.extract_functions(&input)?;
-        let objects = self.extract_objects(&input)?;
-        Ok(Module { attributes, visibility, identifier, modules, imports, constants, functions, objects })
+        let types = self.extract_types(&input)?;
+        let interfaces = self.extract_interfaces(&input)?;
+        Ok(Module { attributes, visibility, identifier, modules, imports, constants, functions, types, interfaces })
     }
 }
 
@@ -52,10 +53,13 @@ impl ModuleParser {
         Ok(functions)
     }
 
-    fn extract_objects(&self, _input: &WithSource<ModModule>) -> Result<Vec<Object>> {
+    fn extract_types(&self, _input: &WithSource<ModModule>) -> Result<Vec<TypeDefinition>> {
         Ok(Default::default())
     }
 
+    fn extract_interfaces(&self, _input: &WithSource<ModModule>) -> Result<Vec<Interface>> {
+        Ok(Default::default())
+    }
 }
 
 #[cfg(test)]
