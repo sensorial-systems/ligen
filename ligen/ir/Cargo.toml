@@ -1,0 +1,18 @@
+[package]
+name = "ligen-ir"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
+
+[features]
+mocks = []
+
+[dependencies]
+ligen-common.workspace = true
+serde.workspace        = true
+serde_json.workspace   = true
+strum                  = { version = "0.25.0", features = ["derive"] }

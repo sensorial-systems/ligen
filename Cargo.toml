@@ -1,14 +1,66 @@
 [workspace]
 members = [
     "ligen",
-    "ligen-c",
-    "ligen-cmake",
-#    "ligen-cpp/crates/core",
-#    "ligen-cpp/crates/macro",
-#    "ligen-cpp/crates/main",
-#    "ligen-cpp/examples/cpp-counter",
-#    "ligen-csharp/crates/core",
-#    "ligen-csharp/crates/macro",
-#    "ligen-csharp/crates/main",
-#    "ligen-csharp/examples/csharp-counter",
+    "ligen/common",
+    "ligen/ir",
+    "ligen/symbols",
+    "ligen/parsing",
+    "ligen/utils",
+    "ligen/traits",
+    "ecosystem/python/parser",
+    "ecosystem/rust/cargo",
+    "ecosystem/rust/example",
+#    "ecosystem/rust/exporter",
+#    "ecosystem/rust/runtime",
+    "ecosystem/rust/parser",
+#    "ecosystem/c/cmake",
+#    "ecosystem/c/generator",
+    "tools/editor/dependencies/gui-runtime",
+    "tools/editor"
 ]
+resolver = "2"
+
+[workspace.package]
+version       = "0.1.17"
+edition       = "2021"
+description   = "Ligen (Language Interface Generator) is an extensible automatic binding generator ecosystem."
+authors       = ["Danilo Guanabara <danilo@sensorial.systems>"]
+license       = "Apache-2.0"
+documentation = "https://docs.rs/ligen"
+readme        = "README.md"
+
+[workspace.dependencies]
+ligen               = { path = "ligen" }
+ligen-common        = { path = "ligen/common" }
+ligen-ir            = { path = "ligen/ir" }
+ligen-macro         = { path = "ligen/macro" }
+ligen-parsing       = { path = "ligen/parsing" }
+ligen-traits        = { path = "ligen/traits" }
+ligen-utils         = { path = "ligen/utils" }
+ligen-symbols       = { path = "ligen/symbols" }
+#ligen-c             = { path = "ecosystem/c/generator" }
+#ligen-cmake         = { path = "ecosystem/c/cmake" }
+ligen-python-parser = { path = "ecosystem/python/parser" }
+#ligen-rust-exporter = { path = "ecosystem/rust/exporter" }
+ligen-rust-parser   = { path = "ecosystem/rust/parser" }
+ligen-cargo         = { path = "ecosystem/rust/cargo" }
+ligen-gui-runtime   = { path = "tools/editor/dependencies/gui-runtime" }
+serde               = { version = "1", features = ["derive"] }
+serde_json          = "1"
+shrinkwraprs        = "0.3"
+derive_more         = "0.99"
+lazy_static         = "1.4.0"
+pretty_assertions   = "1.4.0"
+syn                 = { version = "1.0.73", features = [ "full" ] }
+
+[patch.crates-io]
+# If you want to use the bleeding edge version of egui and eframe:
+# egui = { git = "https://github.com/emilk/egui", branch = "master" }
+# eframe = { git = "https://github.com/emilk/egui", branch = "master" }
+
+# If you fork https://github.com/emilk/egui you can test with:
+# egui = { path = "../egui/crates/egui" }
+# eframe = { path = "../egui/crates/eframe" }
+
+[profile.release]
+opt-level = 2 # fast and small wasm

@@ -1,0 +1,13 @@
+[package]
+name = "ligen-utils"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
+
+[dependencies]
+ligen-ir.workspace     = true
+ligen-common.workspace = true

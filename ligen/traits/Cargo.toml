@@ -1,0 +1,17 @@
+[package]
+name = "ligen-traits"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
+
+[dependencies]
+ligen-ir.workspace     = true
+ligen-utils.workspace  = true
+ligen-common.workspace = true
+serde.workspace        = true
+serde_json.workspace   = true
+handlebars             = "4.1.6"

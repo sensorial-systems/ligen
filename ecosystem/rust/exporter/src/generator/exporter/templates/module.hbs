@@ -1,0 +1,11 @@
+{{#each modules }}
+pub mod {{ name_from_path this.path }};
+{{/each }}
+
+{{#each functions}}
+{{>function this }}
+{{/each}}
+
+{{#each objects }}
+{{>object this }}
+{{/each}}

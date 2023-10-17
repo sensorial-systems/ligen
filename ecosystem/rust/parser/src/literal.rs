@@ -1,0 +1,111 @@
+use ligen::ir::Literal;
+use ligen::parsing::parser::Parser;
+use crate::prelude::*;
+
+#[derive(Default)]
+pub struct LiteralParser;
+
+impl ligen::parsing::parser::universal::literal::LiteralParser for LiteralParser {}
+
+impl Parser<syn::Lit> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, lit: syn::Lit) -> Result<Self::Output> {
+        Ok(match lit {
+            syn::Lit::Str(litstr) => Self::Output::String(litstr.value()),
+            syn::Lit::Verbatim(litverb) => Self::Output::String(litverb.to_string()),
+            syn::Lit::ByteStr(litbytestr) => Self::Output::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
+            syn::Lit::Byte(litbyte) => Self::Output::UnsignedInteger(litbyte.value() as u64),
+            syn::Lit::Char(litchar) => Self::Output::Character(litchar.value()),
+            syn::Lit::Int(litint) => Self::Output::Integer(litint.base10_parse().unwrap()),
+            syn::Lit::Float(litfloat) => Self::Output::Float(litfloat.base10_parse().unwrap()),
+            syn::Lit::Bool(litbool) => Self::Output::Boolean(litbool.value),
+        })
+    }
+}
+
+impl Parser<syn::Ident> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: syn::Ident) -> Result<Self::Output> {
+        Ok(Self::Output::String(input.to_string()))
+    }
+}
+
+impl Parser<proc_macro::TokenStream> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(input))
+    }
+}
+
+impl Parser<proc_macro2::TokenStream> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+        syn::parse2::<syn::Lit>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+            .and_then(|literal| self.parse(literal))
+    }
+}
+
+impl Parser<String> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: String) -> Result<Self::Output> {
+        self.parse(input.as_str())
+    }
+}
+
+impl Parser<&str> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: &str) -> Result<Self::Output> {
+        syn::parse_str::<syn::Lit>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+            .and_then(|literal| self.parse(literal))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::literal::LiteralParser;
+    use crate::prelude::*;
+    use ligen::ir::literal::mock;
+    use ligen::parsing::assert::*;
+
+    #[test]
+    fn literal_verbatim() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_verbatim(), syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim")))
+    }
+
+    #[test]
+    fn literal_string() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_string(), "\"string\"")
+    }
+
+    #[test]
+    fn literal_byte_str() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_string(), "b\"string\"")
+    }
+
+    #[test]
+    fn literal_byte() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_byte(), "b'A'")
+    }
+
+    #[test]
+    fn literal_bool() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_bool(), "false")
+    }
+
+    #[test]
+    fn literal_character() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_character(), "'A'")
+    }
+
+    #[test]
+    fn literal_integer() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_integer(), "-2")
+    }
+
+    #[test]
+    fn literal_float() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_float(), "3.5")
+    }
+}

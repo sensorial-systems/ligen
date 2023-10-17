@@ -1,0 +1,28 @@
+[package]
+name              = "ligen-rust-runtime"
+version           = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+bindings = [
+    "ligen",
+    "ligen-cargo",
+    "ligen-rust-exporter",
+    "ligen-rust-parser",
+    "ligen-c",
+    "ligen-cmake"
+]
+
+[lib]
+crate-type = ["lib", "staticlib"]
+
+[dependencies]
+ligen-macro.workspace = true
+
+[build-dependencies]
+ligen               = { workspace = true, optional = true }
+ligen-cargo         = { workspace = true, optional = true }
+ligen-rust-parser   = { workspace = true, optional = true }
+ligen-rust-exporter = { workspace = true, optional = true }

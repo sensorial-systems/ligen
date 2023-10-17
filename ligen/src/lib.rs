@@ -1,3 +1,5 @@
+// TODO: Update this documentation.
+
 //! # Ligen
 //! Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
 //! generator.
@@ -10,7 +12,7 @@
 //!
 //! ### How to use
 //!
-//! Here is an example on how to use the C generator and the CMake project generator in your crate:
+//! Here is an project on how to use the C generator and the CMake project generator in your crate:
 //! `Cargo.toml`
 //! ```toml
 //! [dev-dependencies]
@@ -44,7 +46,7 @@
 //!
 //! Here are a few links to get started:
 //! * [List of officially supported languages](https://github.com/search?q=org%3Asensorial-systems+ligen).
-//! * [Usage example](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
+//! * [Usage project](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
 
 #![warn(missing_copy_implementations)]
 #![warn(missing_debug_implementations)]
@@ -55,10 +57,12 @@
 #![warn(unused_import_braces)]
 #![warn(unused_qualifications)]
 
-extern crate proc_macro;
+pub use ligen_macro::*;
 
 pub mod prelude;
-pub mod ir;
-pub mod utils;
-pub mod generator;
-pub mod error;
+pub use ligen_ir as ir;
+pub use ligen_utils as utils;
+pub use ligen_traits as traits;
+pub use ligen_parsing as parsing;
+pub use ligen_common as common;
+pub use ligen_symbols as symbols;

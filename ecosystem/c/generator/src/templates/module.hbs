@@ -1,0 +1,15 @@
+#pragma once
+
+#include <stdint.h>
+
+{{#each modules}}
+#include <{{join_path "/" this.path}}.h>
+{{/each}}
+
+{{#each objects}}
+{{>object this }}
+{{/each}}
+
+{{#each functions}}
+{{>function this }}
+{{/each}}

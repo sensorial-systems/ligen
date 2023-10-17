@@ -1,0 +1,15 @@
+[package]
+name              = "ligen-c"
+version           = "0.1.3-alpha.0"
+description       = "C binding generator"
+documentation     = "https://docs.rs/ligen-c"
+readme            = "README.md"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ligen-ir.workspace     = true
+ligen-traits.workspace = true
+ligen-utils.workspace  = true
+serde_json.workspace   = true

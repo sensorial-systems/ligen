@@ -1,0 +1,14 @@
+[package]
+name = "ligen-cargo"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ligen-ir.workspace          = true
+ligen-traits.workspace      = true
+ligen-utils.workspace       = true
+ligen-parsing.workspace     = true
+ligen-rust-parser.workspace = true
+cargo_toml = "0.16.0"

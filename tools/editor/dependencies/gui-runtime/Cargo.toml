@@ -1,0 +1,29 @@
+[package]
+name = "ligen-gui-runtime"
+version.workspace     = true
+authors.workspace     = true
+edition.workspace     = true
+description.workspace = true
+license.workspace     = true
+readme.workspace      = true
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace      = true
+egui                 = "0.22.0"
+eframe = { version = "0.22.0", default-features = false, features = [
+    "accesskit",     # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
+    "default_fonts", # Embed the default egui fonts.
+    "glow",          # Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring gui state when restarting the gui.
+] }
+log = "0.4"
+rfd = "0.11.4"
+
+# native:
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+env_logger = "0.10"
+
+# web:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen-futures = "0.4"

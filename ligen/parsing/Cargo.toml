@@ -1,0 +1,18 @@
+[package]
+name = "ligen-parsing"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
+
+[dependencies]
+ligen-ir.workspace     = true
+ligen-common.workspace = true
+pretty_assertions.workspace = true
+syn.workspace = true
+
+[dev-dependencies]
+ligen-ir = { workspace = true, features = ["mocks"] }

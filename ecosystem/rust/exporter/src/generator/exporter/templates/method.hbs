@@ -1,0 +1,4 @@
+#[no_mangle]
+pub extern "cdecl" fn {{ ../../../../definition.Structure.identifier.name }}_{{ identifier.name }}({{>parameters inputs}}) -> {{mapped_type output}} {
+    {{ ../../../../definition.Structure.identifier.name }}::{{ identifier.name }}({{>arguments inputs}})
+}

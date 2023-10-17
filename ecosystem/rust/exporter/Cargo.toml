@@ -1,0 +1,17 @@
+[package]
+name              = "ligen-rust-exporter"
+version           = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ligen-ir.workspace      = true
+ligen-traits.workspace  = true
+ligen-utils.workspace   = true
+ligen-common.workspace  = true
+ligen-parsing.workspace = true
+serde_json.workspace    = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true

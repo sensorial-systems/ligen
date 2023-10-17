@@ -1,0 +1,15 @@
+[package]
+name = "ligen-common"
+version.workspace       = true
+authors.workspace       = true
+edition.workspace       = true
+description.workspace   = true
+license.workspace       = true
+documentation.workspace = true
+readme.workspace        = true
+
+[dependencies]
+derive_more.workspace  = true
+serde_json.workspace   = true
+serde.workspace        = true
+shrinkwraprs.workspace = true
