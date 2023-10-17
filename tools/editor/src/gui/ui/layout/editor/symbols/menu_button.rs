@@ -13,7 +13,6 @@ impl MenuButton for EditorMenuButton {
     fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
         if ui.button("Parse Python folder").clicked() {
             let entry = rfd::FileDialog::new()
-                // .add_filter("Python File", &["py"])
                 .pick_folder();
 
             if let Some(entry) = entry {
