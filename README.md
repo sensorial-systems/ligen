@@ -1,3 +1,5 @@
+[![](https://dcbadge.vercel.app/api/server/rzaesS82MT)](https://discord.gg/rzaesS82MT)
+
 # Important note
 
 This project is in early and active development stage. Proper README files and documentation are planned to be delivered
