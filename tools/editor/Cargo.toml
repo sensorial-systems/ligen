@@ -17,3 +17,4 @@ ligen-parsing.workspace       = true
 ligen-cargo.workspace         = true
 ligen-python-parser.workspace = true
 egui_tiles = "0.2.0"
+stacker = "0.1.15"

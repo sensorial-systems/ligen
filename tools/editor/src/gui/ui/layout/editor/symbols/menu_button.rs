@@ -17,8 +17,10 @@ impl MenuButton for EditorMenuButton {
                 .pick_folder();
 
             if let Some(entry) = entry {
-                let module = ModuleParser.parse(entry.as_path()).unwrap();
-                panes.new_pane(Box::new(Editor::new(module)));
+                stacker::grow(1024 * 1024 * 10, || {
+                    let module = ModuleParser.parse(entry.as_path()).unwrap();
+                    panes.new_pane(Box::new(Editor::new(module)));
+                });
             }
 
             ui.close_menu();
