@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use rustpython_parser::ast::StmtClassDef;
-use ligen::symbols::interface::Interface;
+use ligen::symbols::Interface;
 use crate::identifier::IdentifierParser;
 use crate::symbols::scope::ScopeParser;
 

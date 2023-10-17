@@ -9,7 +9,7 @@ impl Interface {
         Self
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui, interface: &mut ligen_symbols::interface::Interface) {
+    pub fn show(&mut self, ui: &mut egui::Ui, interface: &mut ligen_symbols::Interface) {
         ui.vertical(|ui| {
             Identifier::new().show(ui, &mut interface.identifier);
             EditableList::new("Constants", "Add constant").show(ui, &mut interface.constants, |ui, constant| {

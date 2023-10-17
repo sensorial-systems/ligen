@@ -1,5 +1,5 @@
-use ligen::symbols::interface::Interface;
-use ligen::symbols::identifier::Identifier;
+use ligen::symbols::Interface;
+use ligen::symbols::Identifier;
 
 pub struct Scope {
     pub constants: Vec<Identifier>,

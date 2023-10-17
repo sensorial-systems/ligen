@@ -1,7 +1,7 @@
 use rustpython_parser::ast::ModModule;
 use rustpython_parser::parse;
-use ligen::symbols::identifier::Identifier;
-use ligen::symbols::module::Module;
+use ligen::symbols::Identifier;
+use ligen::symbols::Module;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::scope::ScopeParser;

@@ -11,7 +11,7 @@ impl Module {
         Self
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_symbols::module::Module) {
+    pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_symbols::Module) {
         CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
             .id_source("module")
             .show(ui, |ui| {

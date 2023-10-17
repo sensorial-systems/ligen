@@ -1,6 +1,6 @@
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::symbols::identifier::Identifier;
-use ligen::symbols::interface::Interface;
+use ligen::symbols::Identifier;
+use ligen::symbols::Interface;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::interface::InterfaceParser;

@@ -9,7 +9,7 @@ impl Project {
         Self
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_symbols::module::Module) {
+    pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_symbols::Module) {
         egui::ScrollArea::both()
             .auto_shrink([false, true])
             .show(ui, |ui| {
