@@ -1,3 +1,8 @@
+# Important note
+
+This project is in early and active development stage. Proper README files and documentation are planned to be delivered
+by the end of `October 2023`.
+
 # Ligen
 Ligen (Language Interface Generator) is an extensible multi-language binding
 generator.
