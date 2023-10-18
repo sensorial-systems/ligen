@@ -18,6 +18,9 @@ impl ModuleParser {
 impl Parser<&str> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: &str) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, input: &str) -> Result<Self::Output> {
         let module = parse(input, Mode::Module, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
             .module()
@@ -29,6 +32,9 @@ impl Parser<&str> for ModuleParser {
 impl Parser<WithSource<ModModule>> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
         let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
         let identifier = Default::default();
         let modules = Default::default();
@@ -45,7 +51,11 @@ struct File<'a>(pub &'a std::path::Path);
 
 impl Parser<File<'_>> for ModuleParser {
     type Output = Module;
-    fn parse(&self, File(input): File<'_>) -> Result<Self::Output> {
+    fn parse(&self, input: File<'_>) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+
+    fn parse_symbols(&self, File(input): File<'_>) -> Result<Self::Output> {
         let content = std::fs::read_to_string(input)?;
         let mut module = self.parse(content.as_str())?;
         module.identifier = self.parse_identifier(input)?;
@@ -55,7 +65,10 @@ impl Parser<File<'_>> for ModuleParser {
 
 impl Parser<Directory<'_>> for ModuleParser {
     type Output = Module;
-    fn parse(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
+    fn parse(&self, input: Directory<'_>) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
         let identifier = self.parse_identifier(input)?;
         let mut module = Module { identifier, .. Default::default() };
         let mut modules: Vec<Module> = Vec::new();
@@ -97,6 +110,9 @@ impl Parser<Directory<'_>> for ModuleParser {
 impl Parser<&std::path::Path> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, input: &std::path::Path) -> Result<Self::Output> {
         if input.is_dir() {
             self.parse(Directory(input))
         } else {

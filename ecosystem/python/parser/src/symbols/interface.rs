@@ -16,6 +16,9 @@ impl InterfaceParser {
 impl Parser<WithSource<&StmtClassDef>> for InterfaceParser {
     type Output = Interface;
     fn parse(&self, input: WithSource<&StmtClassDef>) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, input: WithSource<&StmtClassDef>) -> Result<Self::Output> {
         let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;
         let constants = scope.constants;

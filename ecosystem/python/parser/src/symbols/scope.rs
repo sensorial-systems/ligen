@@ -20,6 +20,9 @@ impl ScopeParser {
 impl Parser<WithSource<&[Stmt]>> for ScopeParser {
     type Output = Scope;
     fn parse(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
+        self.parse_symbols(input)
+    }
+    fn parse_symbols(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
         let constants = self.parse_constants(&input)?;
         let types = self.parse_types(&input)?;
         let functions = self.parse_functions(&input)?;
