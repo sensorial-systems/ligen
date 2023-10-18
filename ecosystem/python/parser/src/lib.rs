@@ -5,4 +5,5 @@ pub mod identifier;
 pub mod macro_attributes;
 pub mod types;
 pub mod literal;
-pub mod symbols;
+pub mod scope;
+pub mod interface;

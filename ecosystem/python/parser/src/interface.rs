@@ -2,7 +2,7 @@ use crate::prelude::*;
 use rustpython_parser::ast::StmtClassDef;
 use ligen::ir::Interface;
 use crate::identifier::IdentifierParser;
-use crate::symbols::scope::ScopeParser;
+use crate::scope::ScopeParser;
 
 #[derive(Default)]
 pub struct InterfaceParser;

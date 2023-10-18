@@ -1,5 +1,5 @@
-use ligen_python_parser::symbols::module::ModuleParser;
 use ligen_parsing::parser::Parser;
+use ligen_python_parser::module::ModuleParser;
 use crate::prelude::*;
 use crate::gui::ui::editor::symbols::Editor;
 use crate::gui::ui::menu::MenuButton;
@@ -17,7 +17,7 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let module = ModuleParser.parse(entry.as_path()).unwrap();
+                    let module = ModuleParser::new().parse_symbols(entry.as_path()).unwrap();
                     panes.new_pane(Box::new(Editor::new(module)));
                 });
             }

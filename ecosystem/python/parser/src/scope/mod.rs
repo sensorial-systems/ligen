@@ -2,7 +2,7 @@ use rustpython_parser::ast::{Arguments, Expr, Stmt};
 use ligen::ir::{Identifier, Interface, Constant, Function, Method, TypeDefinition, Structure};
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
-use crate::symbols::interface::InterfaceParser;
+use crate::interface::InterfaceParser;
 
 mod scope_type;
 
