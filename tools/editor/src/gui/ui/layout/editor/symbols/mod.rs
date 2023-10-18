@@ -11,11 +11,11 @@ use crate::gui::ui::panes::Pane;
 
 #[derive(Default)]
 pub struct Editor {
-    module: ligen_symbols::Module
+    module: ligen_ir::Module
 }
 
 impl Editor {
-    pub fn new(module: ligen_symbols::Module) -> Self {
+    pub fn new(module: ligen_ir::Module) -> Self {
         Self { module }
     }
 }

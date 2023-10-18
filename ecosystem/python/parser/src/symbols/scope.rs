@@ -1,6 +1,5 @@
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::symbols::Identifier;
-use ligen::symbols::Interface;
+use ligen::ir::{Identifier, Interface, Constant, Function, Method, TypeDefinition, Structure};
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::interface::InterfaceParser;
@@ -87,19 +86,19 @@ impl ScopeParser {
         }
     }
 
-    fn parse_functions(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Identifier>> {
+    fn parse_functions(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
         for statement in statements.ast {
             if self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
                         if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            functions.push(identifier)
+                            functions.push(Function { identifier, ..Default::default() })
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
                         if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            functions.push(identifier)
+                            functions.push(Function { identifier, ..Default::default() })
                         }
 
                     },
@@ -110,19 +109,19 @@ impl ScopeParser {
         Ok(functions)
     }
 
-    fn parse_methods(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Identifier>> {
+    fn parse_methods(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Method>> {
         let mut methods = Vec::new();
         for statement in statements.ast {
             if !self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
                         if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            methods.push(identifier)
+                            methods.push(Method { identifier, ..Default::default() })
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
                         if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            methods.push(identifier)
+                            methods.push(Method { identifier, ..Default::default() })
                         }
                     },
                     _ => (),
@@ -132,16 +131,16 @@ impl ScopeParser {
         Ok(methods)
     }
 
-    fn parse_types(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Identifier>> {
-        let mut interfaces = Vec::new();
+    fn parse_types(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<TypeDefinition>> {
+        let mut types = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
                 if let Ok(identifier) = IdentifierParser::new().parse(class.name.as_str()) {
-                    interfaces.push(identifier)
+                    types.push(Structure { identifier, .. Default::default() }.into())
                 }
             }
         }
-        Ok(interfaces)
+        Ok(types)
     }
 
     fn parse_interfaces(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Interface>> {
@@ -160,7 +159,7 @@ impl ScopeParser {
         identifier.name.to_uppercase() == identifier.name
     }
 
-    fn parse_constants(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Identifier>> {
+    fn parse_constants(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Constant>> {
         let mut constants = Vec::new();
         for statement in statements.ast {
             match statement {
@@ -168,7 +167,7 @@ impl ScopeParser {
                     for target in &assign.targets {
                         if let Ok(identifier) = self.parse_expr(target) {
                             if self.is_constant(&identifier) {
-                                constants.push(identifier)
+                                constants.push(Constant { identifier, .. Default::default() })
                             }
                         }
                     }
@@ -176,14 +175,14 @@ impl ScopeParser {
                 Stmt::AnnAssign(assign) => {
                     if let Ok(identifier) = self.parse_expr(&assign.target) {
                         if self.is_constant(&identifier) {
-                            constants.push(identifier)
+                            constants.push(Constant { identifier, .. Default::default() })
                         }
                     }
                 },
                 Stmt::AugAssign(assign) => {
                     if let Ok(identifier) = self.parse_expr(&assign.target) {
                         if self.is_constant(&identifier) {
-                            constants.push(identifier)
+                            constants.push(Constant { identifier, .. Default::default() })
                         }
                     }
                 },

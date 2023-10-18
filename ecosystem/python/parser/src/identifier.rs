@@ -1,4 +1,4 @@
-use ligen::symbols::Identifier;
+use ligen::ir::Identifier;
 use ligen::parsing::parser::Parser;
 use ligen::parsing::parser::universal::identifier::IdentifierParser as InternalParser;
 use crate::prelude::*;

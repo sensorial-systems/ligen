@@ -11,7 +11,6 @@ readme.workspace        = true
 [dependencies]
 ligen-macro.workspace   = true
 ligen-ir.workspace      = true
-ligen-symbols.workspace = true
 ligen-utils.workspace   = true
 ligen-traits.workspace  = true
 ligen-parsing.workspace = true

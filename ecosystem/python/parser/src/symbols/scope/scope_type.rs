@@ -1,11 +1,10 @@
-use ligen::symbols::Interface;
-use ligen::symbols::Identifier;
+use ligen::ir::{Interface, Constant, Function, Method, TypeDefinition};
 
 pub struct Scope {
-    pub constants: Vec<Identifier>,
-    pub types: Vec<Identifier>,
-    pub functions: Vec<Identifier>,
-    pub methods: Vec<Identifier>,
+    pub constants: Vec<Constant>,
+    pub types: Vec<TypeDefinition>,
+    pub functions: Vec<Function>,
+    pub methods: Vec<Method>,
     pub interfaces: Vec<Interface>,
 }
 

@@ -1,7 +1,7 @@
 use rustpython_parser::ast::ModModule;
 use rustpython_parser::parse;
-use ligen::symbols::Identifier;
-use ligen::symbols::Module;
+use ligen::ir::Identifier;
+use ligen::ir::Module;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::symbols::scope::ScopeParser;
@@ -36,7 +36,7 @@ impl Parser<WithSource<ModModule>> for ModuleParser {
         let types = scope.types;
         let functions = scope.functions;
         let interfaces = scope.interfaces;
-        Ok(Module { identifier, constants, types, functions, interfaces, modules })
+        Ok(Module { identifier, constants, types, functions, interfaces, modules, .. Default::default() })
     }
 }
 

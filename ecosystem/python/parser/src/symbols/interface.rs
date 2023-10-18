@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use rustpython_parser::ast::StmtClassDef;
-use ligen::symbols::Interface;
+use ligen::ir::Interface;
 use crate::identifier::IdentifierParser;
 use crate::symbols::scope::ScopeParser;
 
@@ -21,6 +21,6 @@ impl Parser<WithSource<&StmtClassDef>> for InterfaceParser {
         let constants = scope.constants;
         let functions = scope.functions;
         let methods = scope.methods;
-        Ok(Interface { identifier, constants, functions, methods })
+        Ok(Interface { identifier, constants, functions, methods, .. Default::default() })
     }
 }
