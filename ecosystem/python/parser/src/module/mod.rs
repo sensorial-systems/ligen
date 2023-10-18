@@ -1,7 +1,6 @@
 use crate::prelude::*;
-use ligen::ir::{Constant, Function, Import, Module, TypeDefinition, Interface, Identifier};
-use rustpython_parser::ast::{ModModule, Stmt};
-use crate::function::FunctionParser;
+use ligen::ir::{Module, Identifier};
+use rustpython_parser::ast::ModModule;
 use crate::identifier::IdentifierParser;
 use crate::scope::ScopeParser;
 
@@ -17,7 +16,11 @@ impl ModuleParser {
 impl Parser<&str> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: &str) -> Result<Self::Output> {
-        self.parse_symbols(input)
+        let module = parse(input, Mode::Module, "<embedded>")
+            .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
+            .module()
+            .ok_or(Error::Message("No module found".into()))?;
+        self.parse(WithSource::new(input, module))
     }
     fn parse_symbols(&self, input: &str) -> Result<Self::Output> {
         let module = parse(input, Mode::Module, "<embedded>")
@@ -31,27 +34,21 @@ impl Parser<&str> for ModuleParser {
 impl Parser<WithSource<ModModule>> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
-        let attributes = Default::default();
-        let visibility = Default::default();
-        let identifier = Default::default();
-        let modules = Default::default();
-        let imports = self.extract_imports(&input)?;
-        let constants = self.extract_constants(&input)?;
-        let functions = self.extract_functions(&input)?;
-        let types = self.extract_types(&input)?;
-        let interfaces = self.extract_interfaces(&input)?;
-        Ok(Module { attributes, visibility, identifier, modules, imports, constants, functions, types, interfaces })
-    }
-
-    fn parse_symbols(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse_symbols(input.sub(&input.ast.body))?;
-        let identifier = Default::default();
-        let modules = Default::default();
+        let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
         let constants = scope.constants;
         let types = scope.types;
         let functions = scope.functions;
         let interfaces = scope.interfaces;
-        Ok(Module { identifier, constants, types, functions, interfaces, modules, .. Default::default() })
+        Ok(Module { constants, functions, types, interfaces, ..Default::default() })
+    }
+
+    fn parse_symbols(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
+        let scope = ScopeParser::new().parse_symbols(input.sub(&input.ast.body))?;
+        let constants = scope.constants;
+        let types = scope.types;
+        let functions = scope.functions;
+        let interfaces = scope.interfaces;
+        Ok(Module { constants, types, functions, interfaces, ..Default::default() })
     }
 }
 
@@ -60,8 +57,11 @@ struct File<'a>(pub &'a std::path::Path);
 
 impl Parser<File<'_>> for ModuleParser {
     type Output = Module;
-    fn parse(&self, input: File<'_>) -> Result<Self::Output> {
-        self.parse_symbols(input)
+    fn parse(&self, File(input): File<'_>) -> Result<Self::Output> {
+        let content = std::fs::read_to_string(input)?;
+        let mut module = self.parse(content.as_str())?;
+        module.identifier = self.parse_identifier(input)?;
+        Ok(module)
     }
 
     fn parse_symbols(&self, File(input): File<'_>) -> Result<Self::Output> {
@@ -138,35 +138,5 @@ impl ModuleParser {
             .to_str()
             .ok_or(Error::Message(format!("Failed to parse file stem to string: {}", input.display())))?;
         IdentifierParser::new().parse(identifier)
-    }
-}
-
-impl ModuleParser {
-    fn extract_imports(&self, _input: &WithSource<ModModule>) -> Result<Vec<Import>> {
-        Ok(Default::default())
-    }
-
-    fn extract_constants(&self, _input: &WithSource<ModModule>) -> Result<Vec<Constant>> {
-        Ok(Default::default())
-    }
-
-    fn extract_functions(&self, input: &WithSource<ModModule>) -> Result<Vec<Function>> {
-        let mut functions = Vec::new();
-        for statement in &input.ast.body {
-            match statement {
-                Stmt::FunctionDef(function) => functions.push(FunctionParser.parse(input.sub(function.clone()))?),
-                Stmt::AsyncFunctionDef(function) => functions.push(FunctionParser.parse(input.sub(function.clone()))?),
-                _ => ()
-            }
-        }
-        Ok(functions)
-    }
-
-    fn extract_types(&self, _input: &WithSource<ModModule>) -> Result<Vec<TypeDefinition>> {
-        Ok(Default::default())
-    }
-
-    fn extract_interfaces(&self, _input: &WithSource<ModModule>) -> Result<Vec<Interface>> {
-        Ok(Default::default())
     }
 }
