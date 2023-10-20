@@ -5,11 +5,19 @@ use crate::identifier::IdentifierParser;
 use crate::scope::ScopeParser;
 
 #[derive(Default)]
-pub struct ModuleParser;
+pub struct ModuleParser {
+    scope_parser: ScopeParser,
+}
 
 impl ModuleParser {
     pub fn new() -> Self {
-        Default::default()
+        let scope_parser = ScopeParser::new();
+        Self { scope_parser }
+    }
+
+    pub fn symbols() -> Self {
+        let scope_parser = ScopeParser::symbols();
+        Self { scope_parser }
     }
 }
 
@@ -22,33 +30,17 @@ impl Parser<&str> for ModuleParser {
             .ok_or(Error::Message("No module found".into()))?;
         self.parse(WithSource::new(input, module))
     }
-    fn parse_symbols(&self, input: &str) -> Result<Self::Output> {
-        let module = parse(input, Mode::Module, "<embedded>")
-            .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
-            .module()
-            .ok_or(Error::Message("No module found".into()))?;
-        self.parse_symbols(WithSource::new(input, module))
-    }
 }
 
 impl Parser<WithSource<ModModule>> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
+        let scope = self.scope_parser.parse(input.sub(&input.ast.body))?;
         let constants = scope.constants;
         let types = scope.types;
         let functions = scope.functions;
         let interfaces = scope.interfaces;
         Ok(Module { constants, functions, types, interfaces, ..Default::default() })
-    }
-
-    fn parse_symbols(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse_symbols(input.sub(&input.ast.body))?;
-        let constants = scope.constants;
-        let types = scope.types;
-        let functions = scope.functions;
-        let interfaces = scope.interfaces;
-        Ok(Module { constants, types, functions, interfaces, ..Default::default() })
     }
 }
 
@@ -63,21 +55,11 @@ impl Parser<File<'_>> for ModuleParser {
         module.identifier = self.parse_identifier(input)?;
         Ok(module)
     }
-
-    fn parse_symbols(&self, File(input): File<'_>) -> Result<Self::Output> {
-        let content = std::fs::read_to_string(input)?;
-        let mut module = self.parse_symbols(content.as_str())?;
-        module.identifier = self.parse_identifier(input)?;
-        Ok(module)
-    }
 }
 
 impl Parser<Directory<'_>> for ModuleParser {
     type Output = Module;
-    fn parse(&self, input: Directory<'_>) -> Result<Self::Output> {
-        self.parse_symbols(input)
-    }
-    fn parse_symbols(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
+    fn parse(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
         let identifier = self.parse_identifier(input)?;
         let mut module = Module { identifier, .. Default::default() };
         let mut modules: Vec<Module> = Vec::new();
@@ -90,7 +72,7 @@ impl Parser<Directory<'_>> for ModuleParser {
                 .map(String::from)
                 .unwrap_or_default();
             if extension == "py" || path.is_dir() {
-                if let Ok(module) = self.parse_symbols(path.as_path()) {
+                if let Ok(module) = self.parse(path.as_path()) {
                     if let Some(existing) = modules
                         .iter_mut()
                         .find(|existing| existing.identifier == module.identifier)
@@ -119,13 +101,10 @@ impl Parser<Directory<'_>> for ModuleParser {
 impl Parser<&std::path::Path> for ModuleParser {
     type Output = Module;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
-        self.parse_symbols(input)
-    }
-    fn parse_symbols(&self, input: &std::path::Path) -> Result<Self::Output> {
         if input.is_dir() {
-            self.parse_symbols(Directory(input))
+            self.parse(Directory(input))
         } else {
-            self.parse_symbols(File(input)).map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
+            self.parse(File(input)).map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
         }
     }
 }

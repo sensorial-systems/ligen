@@ -1,11 +1,13 @@
 pub mod universal;
 
-use ligen_common::{Error, Result};
+use ligen_common::Result;
 
 pub trait Parser<Input> {
     type Output;
     fn parse(&self, input: Input) -> Result<Self::Output>;
-    fn parse_symbols(&self, _input: Input) -> Result<Self::Output> {
-        Err(Error::Message("Not implemented".to_string()))
-    }
+}
+
+pub trait DynamicParser<Input> {
+    type Output;
+    fn get_parser(&self) -> &dyn Parser<Input, Output = Self::Output>;
 }

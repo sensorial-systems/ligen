@@ -17,7 +17,7 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let module = ModuleParser::new().parse_symbols(entry.as_path()).unwrap();
+                    let module = ModuleParser::symbols().parse(entry.as_path()).unwrap();
                     panes.new_pane(Box::new(Editor::new(module)));
                 });
             }

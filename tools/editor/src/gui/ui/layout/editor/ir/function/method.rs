@@ -13,7 +13,6 @@ impl Method {
 
     pub fn show(&mut self, ui: &mut egui::Ui, method: &mut ligen_ir::Method) {
         ui.horizontal_top(|ui| {
-            Type::new().set_enabled(false).show(ui, &mut method.owner);
             Visibility::new().show(ui, &mut method.visibility);
             Synchrony::new().show(ui, &mut method.synchrony);
             Identifier::new().show(ui, &mut method.identifier);

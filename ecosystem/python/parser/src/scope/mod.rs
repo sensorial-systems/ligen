@@ -1,28 +1,43 @@
+mod scope_type;
+
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::ir::{Identifier, Interface, Constant, Function, Method, TypeDefinition, Structure};
-use crate::identifier::IdentifierParser;
+use ligen::ir::{Interface, Constant, Function, Method, TypeDefinition};
 use crate::prelude::*;
 use crate::interface::InterfaceParser;
 
-mod scope_type;
-
 pub use scope_type::*;
+use crate::constant::ConstantParser;
+use crate::function::FunctionParser;
+use crate::function::method::MethodParser;
+use crate::types::type_definition::TypeDefinitionParser;
 
 #[derive(Default)]
-pub struct ScopeParser;
+pub struct ScopeParser {
+    function_parser: FunctionParser,
+    method_parser: MethodParser,
+    interface_parser: InterfaceParser,
+    type_definition_parser: TypeDefinitionParser,
+    constant_parser: ConstantParser
+}
 
 impl ScopeParser {
     pub fn new() -> Self {
         Default::default()
+    }
+
+    pub fn symbols() -> Self {
+        let function_parser = FunctionParser::symbols();
+        let method_parser = MethodParser::symbols();
+        let interface_parser = InterfaceParser::symbols();
+        let type_definition_parser = TypeDefinitionParser::symbols();
+        let constant_parser = ConstantParser::symbols();
+        Self { function_parser, method_parser, interface_parser, type_definition_parser, constant_parser }
     }
 }
 
 impl Parser<WithSource<&[Stmt]>> for ScopeParser {
     type Output = Scope;
     fn parse(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
-        self.parse_symbols(input)
-    }
-    fn parse_symbols(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
         let constants = self.parse_constants(&input)?;
         let types = self.parse_types(&input)?;
         let functions = self.parse_functions(&input)?;
@@ -95,15 +110,14 @@ impl ScopeParser {
             if self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
-                        if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            functions.push(Function { identifier, ..Default::default() })
+                        if let Ok(function) = self.function_parser.parse(statements.sub(function.clone())) {
+                            functions.push(function)
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
-                        if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            functions.push(Function { identifier, ..Default::default() })
+                        if let Ok(function) = self.function_parser.parse(statements.sub(function.clone())) {
+                            functions.push(function)
                         }
-
                     },
                     _ => (),
                 }
@@ -118,13 +132,13 @@ impl ScopeParser {
             if !self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
-                        if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            methods.push(Method { identifier, ..Default::default() })
+                        if let Ok(function) = self.method_parser.parse(statements.sub(function.clone())) {
+                            methods.push(function)
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
-                        if let Ok(identifier) = IdentifierParser::new().parse(function.name.as_str()) {
-                            methods.push(Method { identifier, ..Default::default() })
+                        if let Ok(function) = self.method_parser.parse(statements.sub(function.clone())) {
+                            methods.push(function)
                         }
                     },
                     _ => (),
@@ -138,8 +152,8 @@ impl ScopeParser {
         let mut types = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                if let Ok(identifier) = IdentifierParser::new().parse(class.name.as_str()) {
-                    types.push(Structure { identifier, .. Default::default() }.into())
+                if let Ok(type_definition) = self.type_definition_parser.parse(statements.sub(class.clone())) {
+                    types.push(type_definition)
                 }
             }
         }
@@ -150,7 +164,7 @@ impl ScopeParser {
         let mut interfaces = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                if let Ok(interface) = InterfaceParser::new().parse(WithSource::new(&statements.source, class)) {
+                if let Ok(interface) = self.interface_parser.parse(WithSource::new(&statements.source, class)) {
                     interfaces.push(interface)
                 }
             }
@@ -158,50 +172,28 @@ impl ScopeParser {
         Ok(interfaces)
     }
 
-    fn is_constant(&self, identifier: &Identifier) -> bool {
-        identifier.name.to_uppercase() == identifier.name
-    }
-
     fn parse_constants(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Constant>> {
         let mut constants = Vec::new();
         for statement in statements.ast {
             match statement {
                 Stmt::Assign(assign) => {
-                    for target in &assign.targets {
-                        if let Ok(identifier) = self.parse_expr(target) {
-                            if self.is_constant(&identifier) {
-                                constants.push(Constant { identifier, .. Default::default() })
-                            }
-                        }
+                    if let Ok(more_constants) = self.constant_parser.parse(assign) {
+                        constants.extend(more_constants)
                     }
                 },
                 Stmt::AnnAssign(assign) => {
-                    if let Ok(identifier) = self.parse_expr(&assign.target) {
-                        if self.is_constant(&identifier) {
-                            constants.push(Constant { identifier, .. Default::default() })
-                        }
+                    if let Ok(constant) = self.constant_parser.parse(assign) {
+                        constants.push(constant)
                     }
                 },
                 Stmt::AugAssign(assign) => {
-                    if let Ok(identifier) = self.parse_expr(&assign.target) {
-                        if self.is_constant(&identifier) {
-                            constants.push(Constant { identifier, .. Default::default() })
-                        }
+                    if let Ok(constant) = self.constant_parser.parse(assign) {
+                        constants.push(constant)
                     }
                 },
                 _ => ()
             }
         }
         Ok(constants)
-    }
-
-    fn parse_expr(&self, expr: &Expr) -> Result<Identifier> {
-        let identifier = expr
-            .as_name_expr()
-            .ok_or(Error::Message("Expected identifier".into()))?
-            .id
-            .as_str();
-        let identifier = IdentifierParser::new().parse(identifier)?;
-        Ok(identifier)
     }
 }

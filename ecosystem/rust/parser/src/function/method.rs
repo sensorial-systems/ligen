@@ -1,4 +1,4 @@
-use ligen::ir::{Mutability, Path};
+use ligen::ir::Mutability;
 use crate::prelude::*;
 
 use ligen::ir::{Attributes, Method, Parameter, Type};
@@ -40,11 +40,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
                 Some(TypeParser.parse(*y)?)
             }
         };
-        // FIXME: Hardcoded.
-        let path = Path::default();
-        let owner = Type::Composite(path, Default::default());
         Ok(Self::Output {
-            owner,
             mutability,
             attributes: Attributes {
                 attributes: method

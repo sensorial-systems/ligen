@@ -1,4 +1,5 @@
 pub mod parameter;
+pub mod method;
 
 use crate::prelude::*;
 use rustpython_parser::ast::{Arguments, Expr, Ranged, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
@@ -8,7 +9,18 @@ use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::type_::TypeParser;
 
+#[derive(Default)]
 pub struct FunctionParser;
+
+impl FunctionParser {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn symbols() -> Self {
+        Self::default()
+    }
+}
 
 impl Parser<&str> for FunctionParser {
     type Output = Function;

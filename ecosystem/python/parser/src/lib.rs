@@ -7,3 +7,4 @@ pub mod types;
 pub mod literal;
 pub mod scope;
 pub mod interface;
+pub mod constant;
