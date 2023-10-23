@@ -1,7 +1,11 @@
+use ligen_ir::Project;
+use ligen_python_parser::parser::PythonParser;
+
 use crate::prelude::*;
 use crate::gui::ui::editor::ir::Editor;
 use crate::gui::ui::menu::MenuButton;
 use crate::gui::ui::panes::Panes;
+use ligen_parsing::parser::Parser;
 
 pub struct EditorMenuButton;
 impl MenuButton for EditorMenuButton {
@@ -20,8 +24,21 @@ impl MenuButton for EditorMenuButton {
             }
             ui.close_menu();
         }
+        if ui.button("Parse Python").clicked() {
+            let entry = rfd::FileDialog::new()
+                .pick_folder();
+
+            if let Some(entry) = entry {
+                stacker::grow(1024 * 1024 * 10, || {
+                    let root_module = PythonParser::full().parse(entry.as_path()).unwrap();
+                    let project = Project { root_module, ..Default::default() };
+                    panes.new_pane(Box::new(Editor::new(project)));
+                });
+            }
+
+            ui.close_menu();
+        }
         if ui.button("Parse Rust/Cargo").clicked() {
-            use ligen_parsing::parser::Parser;
             use ligen_cargo::parser::project::ProjectParser;
 
             let file = rfd::FileDialog::new()
