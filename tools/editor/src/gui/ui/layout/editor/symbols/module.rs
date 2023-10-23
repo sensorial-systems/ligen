@@ -12,7 +12,9 @@ impl Module {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
-        CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
+        let count_symbols = module.count_symbols();
+        if count_symbols != 0 {
+            CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
             .id_source("module")
             .show(ui, |ui| {
                 EditableList::new(format!("Constants - Symbols: {}", module.constants.len()), "Add constant").show(ui, &mut module.constants, |ui, constant| {
@@ -31,5 +33,6 @@ impl Module {
                     Module::new().show(ui, module);
                 });
             });
+        }
     }
 }
