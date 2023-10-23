@@ -15,7 +15,8 @@ dynamic_parser!{
     symbol_parser::SymbolParser,
     Function,
     WithSource<StmtFunctionDef>,
-    WithSource<StmtAsyncFunctionDef>
+    WithSource<StmtAsyncFunctionDef>,
+    &str => &'a str
 }
 
 #[cfg(test)]

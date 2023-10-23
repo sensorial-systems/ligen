@@ -1,16 +1,53 @@
 #[macro_export]
+macro_rules! as_constraint {
+    ($typ:ty) => {
+        $typ
+    };
+    ($typ:ty => $constraint:ty) => {
+        $constraint
+    };
+}
+
+#[macro_export]
+macro_rules! trait_definition {
+    ($output:ty, $first:ty $(=> $first_constraint:ty)? $(, $rest:ty $(=> $rest_constraint:ty)?)+) => {
+        trait DynamicParser<'a>:
+        Parser<$crate::as_constraint!($first $(=> $first_constraint)?), Output = $output>
+        $(+ Parser<$crate::as_constraint!($rest $(=> $rest_constraint)?), Output = $output>)+
+        {}
+    }
+}
+
+#[macro_export]
+macro_rules! trait_implementation {
+    ($name:ident, $output:ty, $first:ty $(=> $first_constraint:ty)? $(, $rest:ty $(=> $rest_constraint:ty)?)+) => {
+        impl Parser<$first> for $name {
+            type Output = $output;
+            fn parse(&self, input: $first) -> Result<Self::Output> {
+                self.parser.parse(input)
+            }
+        }
+
+        $(
+            impl Parser<$rest> for $name {
+                type Output = $output;
+                fn parse(&self, input: $rest) -> Result<Self::Output> {
+                    self.parser.parse(input)
+                }
+            }                    
+        )+
+    
+    };
+}
+
+#[macro_export]
 macro_rules! dynamic_parser {
-    ($name:ident, $full_parser:path, $symbol_parser:path, $output:ty, $($first:ty, $($rest:ty),*)?) => {
+    ($name:ident, $full_parser:path, $symbol_parser:path, $output:ty, $($input:tt)*) => {
         use $crate::prelude::*;
         use $crate::parser::Parser;
 
-        trait DynamicParser<'a>:
-        $(
-            Parser<$first, Output = $output>
-            $(+ Parser<$rest, Output = $output>)*
-            + Parser<&'a str, Output = $output>
-        )?
-        {}
+        $crate::trait_definition!($output, $($input)*);
+        $crate::trait_implementation!($name, $output, $($input)*);
 
         pub struct $name {
             parser: Box<dyn for<'a> DynamicParser<'a>>
@@ -33,31 +70,6 @@ macro_rules! dynamic_parser {
                 Self::full()
             }
         }
-
-        impl Parser<&str> for $name {
-            type Output = $output;
-            fn parse(&self, input: &str) -> Result<Self::Output> {
-                self.parser.parse(input)
-            }
-        }
-
-        $(
-            impl Parser<$first> for $name {
-                type Output = $output;
-                fn parse(&self, input: $first) -> Result<Self::Output> {
-                    self.parser.parse(input)
-                }
-            }
-
-            $(
-                impl Parser<$rest> for $name {
-                    type Output = $output;
-                    fn parse(&self, input: $rest) -> Result<Self::Output> {
-                        self.parser.parse(input)
-                    }
-                }                    
-            )+
-        )?
     };
 }
 
