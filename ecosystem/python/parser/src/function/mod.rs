@@ -6,8 +6,8 @@ use crate::prelude::*;
 pub mod parameter;
 pub mod method;
 
-mod symbol_parser;
 mod full_parser;
+mod symbol_parser;
 
 dynamic_parser!{
     FunctionParser,
@@ -16,7 +16,7 @@ dynamic_parser!{
     Function,
     WithSource<StmtFunctionDef>,
     WithSource<StmtAsyncFunctionDef>,
-    &str => &'a str
+    &str | &'a str
 }
 
 #[cfg(test)]
