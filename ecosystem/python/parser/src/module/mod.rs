@@ -36,7 +36,7 @@ impl Parser<File<'_>> for PythonParser {
     type Output = Module;
     fn parse(&self, File(input): File<'_>) -> Result<Self::Output> {
         let content = std::fs::read_to_string(input)?;
-        let module = ModuleParser::default().parse(content.as_str())?;
+        let module = ModuleParser.parse(content.as_str())?;
         let mut module = self.parse(module)?;
         module.identifier = self.identifier_parser.parse(input)?;
         Ok(module)
