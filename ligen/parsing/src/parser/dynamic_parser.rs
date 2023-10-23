@@ -20,17 +20,17 @@ macro_rules! pick_output {
 
 #[macro_export]
 macro_rules! trait_definition {
-    ($output:ty, $first:ty $(| $first_constraint:ty)? $(=> $first_output:ty)? $(, $rest:ty $(| $rest_constraint:ty)? $(=> $rest_output:ty)?)+) => {
+    ($output:ty, $first:ty $(| $first_constraint:ty)? $(=> $first_output:ty)? $(, $rest:ty $(| $rest_constraint:ty)? $(=> $rest_output:ty)?)*) => {
         trait DynamicParser<'a>:
         Parser<$crate::as_constraint!($first $(| $first_constraint)?), Output = $crate::pick_output!($output $(, $first_output)?)>
-        $(+ Parser<$crate::as_constraint!($rest $(| $rest_constraint)?), Output = $crate::pick_output!($output $(, $rest_output)?)>)+
+        $(+ Parser<$crate::as_constraint!($rest $(| $rest_constraint)?), Output = $crate::pick_output!($output $(, $rest_output)?)>)*
         {}
     }
 }
 
 #[macro_export]
 macro_rules! trait_implementation {
-    ($name:ident, $output:ty, $first:ty $(| $first_constraint:ty)? $(=> $first_output:ty)? $(, $rest:ty $(| $rest_constraint:ty)? $(=> $rest_output:ty)?)+) => {
+    ($name:ident, $output:ty, $first:ty $(| $first_constraint:ty)? $(=> $first_output:ty)? $(, $rest:ty $(| $rest_constraint:ty)? $(=> $rest_output:ty)?)*) => {
         impl Parser<$first> for $name {
             type Output = $crate::pick_output!($output $(, $first_output)?);
             fn parse(&self, input: $first) -> Result<Self::Output> {
@@ -45,7 +45,7 @@ macro_rules! trait_implementation {
                     self.parser.parse(input)
                 }
             }                    
-        )+
+        )*
     
     };
 }

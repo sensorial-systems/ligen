@@ -1,22 +1,15 @@
+use crate::{prelude::*, identifier::IdentifierParser};
+use ligen::ir::{Structure, TypeDefinition};
 use rustpython_parser::ast::StmtClassDef;
-use ligen::ir::{TypeDefinition, Structure};
-use crate::identifier::IdentifierParser;
-use crate::prelude::*;
+
+use super::DynamicParser;
 
 #[derive(Default)]
-pub struct TypeDefinitionParser;
+pub struct SymbolParser;
 
-impl TypeDefinitionParser {
-    pub fn full() -> Self {
-        Default::default()
-    }
+impl<'a> DynamicParser<'a> for SymbolParser {}
 
-    pub fn symbol() -> Self {
-        Self
-    }
-}
-
-impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
+impl Parser<WithSource<StmtClassDef>> for SymbolParser {
     type Output = TypeDefinition;
     fn parse(&self, input: WithSource<StmtClassDef>) -> Result<Self::Output> {
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;

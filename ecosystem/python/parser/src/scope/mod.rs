@@ -104,12 +104,12 @@ impl PythonParser {
             if !self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
-                        if let Ok(function) = self.method_parser.parse(statements.sub(function.clone())) {
+                        if let Ok(function) = self.parse(statements.sub(function.clone())) {
                             methods.push(function)
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
-                        if let Ok(function) = self.method_parser.parse(statements.sub(function.clone())) {
+                        if let Ok(function) = self.parse(statements.sub(function.clone())) {
                             methods.push(function)
                         }
                     },
