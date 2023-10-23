@@ -34,10 +34,8 @@ impl EditableList {
                     let mut remove_list = Vec::new();
                     for (index, item) in list.iter_mut().enumerate() {
                         ui.horizontal_top(|ui| {
-                            if self.editable {
-                                if ui.button("x").clicked() {
-                                    remove_list.push(index);
-                                }
+                            if self.editable && ui.button("x").clicked() {
+                                remove_list.push(index);
                             }
                             ui.push_id(index, |ui| {
                                 show_item(ui, item);
@@ -47,11 +45,9 @@ impl EditableList {
                     for index in remove_list.into_iter().rev() {
                         list.remove(index);
                     }
-                    if self.editable {
-                        if ui.button(&self.add_button_name).clicked() {
-                            list.push(T::default());
-                        }    
-                    }
+                    if self.editable && ui.button(&self.add_button_name).clicked() {
+                        list.push(T::default());
+                    }    
                 });
         }
     }
