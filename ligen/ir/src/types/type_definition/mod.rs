@@ -6,6 +6,7 @@ pub mod enumeration;
 use crate::prelude::*;
 pub use structure::{Structure, Field};
 pub use enumeration::{Enumeration, Variant};
+use crate::Identifier;
 
 /// All the possible ways to define a type.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -13,6 +14,15 @@ pub use enumeration::{Enumeration, Variant};
 pub enum TypeDefinition {
     Structure(Structure),
     Enumeration(Enumeration)
+}
+
+impl TypeDefinition {
+    pub fn identifier_mut(&mut self) -> &mut Identifier {
+        match self {
+            Self::Structure(structure) => &mut structure.identifier,
+            Self::Enumeration(enumeration) => &mut enumeration.identifier
+        }
+    }
 }
 
 impl Default for TypeDefinition {

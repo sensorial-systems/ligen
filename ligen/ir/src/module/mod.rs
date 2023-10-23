@@ -52,4 +52,36 @@ impl Module {
             None
         }
     }
+
+    pub fn join(&mut self, other: Self) {
+        self.interfaces.extend(other.interfaces);
+        self.functions.extend(other.functions);
+        self.types.extend(other.types);
+        self.constants.extend(other.constants);
+        self.modules.extend(other.modules);
+        self.imports.extend(other.imports);
+    }
+
+    pub fn count_symbols_in_interfaces(&self) -> usize {
+        self.interfaces.iter().fold(0, |acc, interface| acc + interface.count_symbols())
+    }
+
+    pub fn count_symbols_in_modules(&self) -> usize {
+        self.modules.iter().fold(0, |acc, module| acc + module.count_symbols())
+    }
+    pub fn count_symbols(&self) -> usize {
+        self.constants.len()
+            + self.functions.len()
+            + self.types.len()
+            + self.count_symbols_in_interfaces()
+            + self.count_symbols_in_modules()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.constants.is_empty()
+            && self.functions.is_empty()
+            && self.interfaces.is_empty()
+            && self.types.is_empty()
+            && self.modules.is_empty()
+    }
 }

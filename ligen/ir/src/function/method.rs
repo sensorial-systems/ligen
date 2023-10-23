@@ -6,8 +6,6 @@ use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Iden
 pub struct Method {
     /// Attributes field.
     pub attributes: Attributes,
-    /// The owner of the method.
-    pub owner: Type,
     /// The owner mutability.
     pub mutability: Mutability,
     /// Visibility field.

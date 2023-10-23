@@ -1,3 +1,4 @@
+pub mod dynamic_parser;
 pub mod universal;
 
 use ligen_common::Result;
