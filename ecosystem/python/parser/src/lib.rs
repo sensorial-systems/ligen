@@ -8,3 +8,4 @@ pub mod literal;
 pub mod scope;
 pub mod interface;
 pub mod constant;
+pub mod parser;

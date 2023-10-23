@@ -1,41 +1,26 @@
 use crate::prelude::*;
-use ligen::ir::{Module, Identifier};
+use ligen::ir::Module;
 use rustpython_parser::ast::ModModule;
-use crate::identifier::IdentifierParser;
-use crate::scope::ScopeParser;
+use crate::parser::PythonParser;
 
 #[derive(Default)]
-pub struct ModuleParser {
-    scope_parser: ScopeParser,
-}
-
-impl ModuleParser {
-    pub fn new() -> Self {
-        let scope_parser = ScopeParser::full();
-        Self { scope_parser }
-    }
-
-    pub fn symbols() -> Self {
-        let scope_parser = ScopeParser::symbol();
-        Self { scope_parser }
-    }
-}
+pub struct ModuleParser;
 
 impl Parser<&str> for ModuleParser {
-    type Output = Module;
+    type Output = WithSource<ModModule>;
     fn parse(&self, input: &str) -> Result<Self::Output> {
         let module = parse(input, Mode::Module, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
             .module()
             .ok_or(Error::Message("No module found".into()))?;
-        self.parse(WithSource::new(input, module))
+        Ok(WithSource::new(input, module))
     }
 }
 
-impl Parser<WithSource<ModModule>> for ModuleParser {
+impl Parser<WithSource<ModModule>> for PythonParser {
     type Output = Module;
     fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
-        let scope = self.scope_parser.parse(input.sub(&input.ast.body))?;
+        let scope = self.parse(input.sub(input.ast.body.as_slice()))?;
         let constants = scope.constants;
         let types = scope.types;
         let functions = scope.functions;
@@ -47,20 +32,21 @@ impl Parser<WithSource<ModModule>> for ModuleParser {
 struct Directory<'a>(pub &'a std::path::Path);
 struct File<'a>(pub &'a std::path::Path);
 
-impl Parser<File<'_>> for ModuleParser {
+impl Parser<File<'_>> for PythonParser {
     type Output = Module;
     fn parse(&self, File(input): File<'_>) -> Result<Self::Output> {
         let content = std::fs::read_to_string(input)?;
-        let mut module = self.parse(content.as_str())?;
-        module.identifier = self.parse_identifier(input)?;
+        let module = ModuleParser::default().parse(content.as_str())?;
+        let mut module = self.parse(module)?;
+        module.identifier = self.identifier_parser.parse(input)?;
         Ok(module)
     }
 }
 
-impl Parser<Directory<'_>> for ModuleParser {
+impl Parser<Directory<'_>> for PythonParser {
     type Output = Module;
     fn parse(&self, Directory(input): Directory<'_>) -> Result<Self::Output> {
-        let identifier = self.parse_identifier(input)?;
+        let identifier = self.identifier_parser.parse(input)?;
         let mut module = Module { identifier, .. Default::default() };
         let mut modules: Vec<Module> = Vec::new();
         for entry in input.read_dir()? {
@@ -98,7 +84,7 @@ impl Parser<Directory<'_>> for ModuleParser {
     }
 }
 
-impl Parser<&std::path::Path> for ModuleParser {
+impl Parser<&std::path::Path> for PythonParser {
     type Output = Module;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
         if input.is_dir() {
@@ -106,16 +92,5 @@ impl Parser<&std::path::Path> for ModuleParser {
         } else {
             self.parse(File(input)).map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
         }
-    }
-}
-
-impl ModuleParser {
-    fn parse_identifier(&self, input: &std::path::Path) -> Result<Identifier> {
-        let identifier = input
-            .file_stem()
-            .ok_or(Error::Message(format!("Failed to parse file stem from path: {}", input.display())))?
-            .to_str()
-            .ok_or(Error::Message(format!("Failed to parse file stem to string: {}", input.display())))?;
-        IdentifierParser::new().parse(identifier)
     }
 }

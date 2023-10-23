@@ -3,44 +3,11 @@ mod scope_type;
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
 use ligen::ir::{Interface, Constant, Function, Method, TypeDefinition};
 use crate::prelude::*;
-use crate::interface::InterfaceParser;
 
 pub use scope_type::*;
-use crate::constant::ConstantParser;
-use crate::function::FunctionParser;
-use crate::function::method::MethodParser;
-use crate::types::type_definition::TypeDefinitionParser;
+use crate::parser::PythonParser;
 
-#[derive(Default)]
-pub struct ScopeParser {
-    function_parser: FunctionParser,
-    method_parser: MethodParser,
-    interface_parser: InterfaceParser,
-    type_definition_parser: TypeDefinitionParser,
-    constant_parser: ConstantParser
-}
-
-impl ScopeParser {
-    pub fn full() -> Self {
-        let function_parser = FunctionParser::full();
-        let method_parser = MethodParser::full();
-        let type_definition_parser = TypeDefinitionParser::full();
-        let constant_parser = ConstantParser::full();
-        let interface_parser = InterfaceParser::full();
-        Self { function_parser, method_parser, interface_parser, type_definition_parser, constant_parser }
-    }
-
-    pub fn symbol() -> Self {
-        let function_parser = FunctionParser::symbol();
-        let method_parser = MethodParser::symbol();
-        let interface_parser = InterfaceParser::symbol();
-        let type_definition_parser = TypeDefinitionParser::symbol();
-        let constant_parser = ConstantParser::symbol();
-        Self { function_parser, method_parser, interface_parser, type_definition_parser, constant_parser }
-    }
-}
-
-impl Parser<WithSource<&[Stmt]>> for ScopeParser {
+impl Parser<WithSource<&[Stmt]>> for PythonParser {
     type Output = Scope;
     fn parse(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
         let constants = self.parse_constants(&input)?;
@@ -57,19 +24,19 @@ impl Parser<WithSource<&[Stmt]>> for ScopeParser {
     }
 }
 
-impl ScopeParser {
+impl PythonParser {
     fn parse_sub_scopes(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Scope>> {
         let mut sub_scopes = Vec::new();
         for statement in statements.ast {
             match statement {
                 Stmt::If(ast) => {
-                    sub_scopes.push(self.parse(statements.sub( &ast.body))?);
-                    sub_scopes.push(self.parse(statements.sub(&ast.orelse))?);
+                    sub_scopes.push(self.parse(statements.sub( ast.body.as_slice()))?);
+                    sub_scopes.push(self.parse(statements.sub(ast.orelse.as_slice()))?);
                 },
                 Stmt::Try(ast) => {
-                    sub_scopes.push(self.parse(statements.sub(&ast.body))?);
-                    sub_scopes.push(self.parse(statements.sub(&ast.orelse))?);
-                    sub_scopes.push(self.parse(statements.sub(&ast.finalbody))?);
+                    sub_scopes.push(self.parse(statements.sub(ast.body.as_slice()))?);
+                    sub_scopes.push(self.parse(statements.sub(ast.orelse.as_slice()))?);
+                    sub_scopes.push(self.parse(statements.sub(ast.finalbody.as_slice()))?);
                 },
                 _ => ()
             }
@@ -169,7 +136,7 @@ impl ScopeParser {
         let mut interfaces = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                if let Ok(interface) = self.interface_parser.parse(WithSource::new(&statements.source, class)) {
+                if let Ok(interface) = self.parse(WithSource::new(&statements.source, class)) {
                     interfaces.push(interface)
                 }
             }
