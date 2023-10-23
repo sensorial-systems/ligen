@@ -50,6 +50,19 @@ macro_rules! trait_implementation {
     };
 }
 
+/// Example:
+/// 
+/// dynamic_parser!{
+///      ConstantParser,
+///      full_parser::FullParser,
+///      symbol_parser::SymbolParser,
+///      Constant,
+///      &StmtAnnAssign | &'a StmtAnnAssign,
+///      &StmtAugAssign | &'a StmtAugAssign,
+///      &Expr | &'a Expr // impl Parser<&Expr> for ConstantParser { ... }
+///      &StmtAssign | &'a StmtAssign => Vec<Constant> // Changes the default output to Vec<Constant>
+/// }
+/// 
 #[macro_export]
 macro_rules! dynamic_parser {
     ($name:ident, $full_parser:path, $symbol_parser:path, $output:ty, $($input:tt)*) => {
