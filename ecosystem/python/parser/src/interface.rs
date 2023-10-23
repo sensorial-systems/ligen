@@ -5,14 +5,18 @@ use crate::identifier::IdentifierParser;
 use crate::scope::ScopeParser;
 
 #[derive(Default)]
-pub struct InterfaceParser;
+pub struct InterfaceParser {
+    // scope_parser: Box<ScopeParser>
+}
 
 impl InterfaceParser {
-    pub fn new() -> Self {
+    pub fn full() -> Self {
         Default::default()
     }
 
-    pub fn symbols() -> Self {
+    pub fn symbol() -> Self {
+        // let scope_parser = Box::new(ScopeParser::symbol());
+        // Self { scope_parser }
         Default::default()
     }
 }
@@ -20,7 +24,7 @@ impl InterfaceParser {
 impl Parser<WithSource<&StmtClassDef>> for InterfaceParser {
     type Output = Interface;
     fn parse(&self, input: WithSource<&StmtClassDef>) -> Result<Self::Output> {
-        let scope = ScopeParser::new().parse(input.sub(&input.ast.body))?;
+        let scope = ScopeParser::symbol().parse(input.sub(&input.ast.body))?;
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;
         let constants = scope.constants;
         let functions = scope.functions;

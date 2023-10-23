@@ -9,12 +9,12 @@ pub struct MethodParser {
 }
 
 impl MethodParser {
-    pub fn new() -> Self {
+    pub fn full() -> Self {
         Default::default()
     }
 
-    pub fn symbols() -> Self {
-        let function_parser = FunctionParser::symbols();
+    pub fn symbol() -> Self {
+        let function_parser = FunctionParser::symbol();
         Self { function_parser }
     }
 }

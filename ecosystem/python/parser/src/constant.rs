@@ -7,11 +7,11 @@ use crate::prelude::*;
 pub struct ConstantParser;
 
 impl ConstantParser {
-    pub fn new() -> Self {
+    pub fn full() -> Self {
         Self::default()
     }
 
-    pub fn symbols() -> Self {
+    pub fn symbol() -> Self {
         Self
     }
 }

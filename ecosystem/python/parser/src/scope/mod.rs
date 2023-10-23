@@ -21,16 +21,21 @@ pub struct ScopeParser {
 }
 
 impl ScopeParser {
-    pub fn new() -> Self {
-        Default::default()
+    pub fn full() -> Self {
+        let function_parser = FunctionParser::full();
+        let method_parser = MethodParser::full();
+        let type_definition_parser = TypeDefinitionParser::full();
+        let constant_parser = ConstantParser::full();
+        let interface_parser = InterfaceParser::full();
+        Self { function_parser, method_parser, interface_parser, type_definition_parser, constant_parser }
     }
 
-    pub fn symbols() -> Self {
-        let function_parser = FunctionParser::symbols();
-        let method_parser = MethodParser::symbols();
-        let interface_parser = InterfaceParser::symbols();
-        let type_definition_parser = TypeDefinitionParser::symbols();
-        let constant_parser = ConstantParser::symbols();
+    pub fn symbol() -> Self {
+        let function_parser = FunctionParser::symbol();
+        let method_parser = MethodParser::symbol();
+        let interface_parser = InterfaceParser::symbol();
+        let type_definition_parser = TypeDefinitionParser::symbol();
+        let constant_parser = ConstantParser::symbol();
         Self { function_parser, method_parser, interface_parser, type_definition_parser, constant_parser }
     }
 }

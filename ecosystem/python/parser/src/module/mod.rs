@@ -11,12 +11,12 @@ pub struct ModuleParser {
 
 impl ModuleParser {
     pub fn new() -> Self {
-        let scope_parser = ScopeParser::new();
+        let scope_parser = ScopeParser::full();
         Self { scope_parser }
     }
 
     pub fn symbols() -> Self {
-        let scope_parser = ScopeParser::symbols();
+        let scope_parser = ScopeParser::symbol();
         Self { scope_parser }
     }
 }

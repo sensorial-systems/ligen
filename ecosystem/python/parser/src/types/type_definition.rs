@@ -7,11 +7,11 @@ use crate::prelude::*;
 pub struct TypeDefinitionParser;
 
 impl TypeDefinitionParser {
-    pub fn new() -> Self {
+    pub fn full() -> Self {
         Default::default()
     }
 
-    pub fn symbols() -> Self {
+    pub fn symbol() -> Self {
         Self
     }
 }
