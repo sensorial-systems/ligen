@@ -37,6 +37,7 @@ impl Parser<&Expr> for FullParser {
         let identifier = IdentifierParser::new().parse(identifier)?;
         let mutability = self.get_mutability(&identifier);
         Ok(Object { identifier, mutability, ..Default::default() })
+    }
 }
 
 impl Parser<&StmtAssign> for FullParser {
