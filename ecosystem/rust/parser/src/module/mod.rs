@@ -3,11 +3,11 @@
 mod import;
 
 use syn::spanned::Spanned;
-use ligen::ir::Constant;
+use ligen::ir::Object;
 use ligen::parsing::parser::Parser;
 use crate::prelude::*;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
-use crate::constant::ConstantParser;
+use crate::object::ObjectParser;
 use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -40,11 +40,11 @@ impl Parser<syn::ItemMod> for ModuleParser {
 
         let imports = self.extract_imports(items.as_slice())?;
         let functions = self.extract_functions(items.as_slice())?;
-        let constants = self.extract_constants(items.as_slice())?;
+        let objects = self.extract_objects(items.as_slice())?;
         let types = self.extract_types(items.as_slice())?;
         let interfaces = self.extract_interfaces(items.as_slice())?;
         let modules = self.extract_modules(items)?;
-        Ok(Self::Output { attributes, visibility, identifier, imports, functions, constants, types, interfaces, modules })
+        Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, types, interfaces, modules })
     }
 }
 
@@ -124,14 +124,14 @@ impl ModuleParser {
         Ok(modules)
     }
 
-    fn extract_constants(&self, items: &[syn::Item]) -> Result<Vec<Constant>> {
-        let mut constants = Vec::new();
+    fn extract_objects(&self, items: &[syn::Item]) -> Result<Vec<Object>> {
+        let mut objects = Vec::new();
         for item in items {
             if let syn::Item::Const(constant) = item {
-                constants.push(ConstantParser.parse(constant.clone())?);
+                objects.push(ObjectParser.parse(constant.clone())?);
             }
         }
-        Ok(constants)
+        Ok(objects)
     }
 
 }

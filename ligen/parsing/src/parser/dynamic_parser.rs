@@ -53,14 +53,14 @@ macro_rules! trait_implementation {
 /// Example:
 /// 
 /// dynamic_parser!{
-///      ConstantParser,
+///      ObjectParser,
 ///      full_parser::FullParser,
 ///      symbol_parser::SymbolParser,
-///      Constant,
+///      Object,
 ///      &StmtAnnAssign | &'a StmtAnnAssign,
 ///      &StmtAugAssign | &'a StmtAugAssign,
-///      &Expr | &'a Expr // impl Parser<&Expr> for ConstantParser { ... }
-///      &StmtAssign | &'a StmtAssign => Vec<Constant> // Changes the default output to Vec<Constant>
+///      &Expr | &'a Expr // impl Parser<&Expr> for ObjectParser { ... }
+///      &StmtAssign | &'a StmtAssign => Vec<Object> // Changes the default output to Vec<Object>
 /// }
 /// 
 #[macro_export]

@@ -1,7 +1,7 @@
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::ir::{Interface, Constant, Function, Method, TypeDefinition};
+use ligen::ir::{Interface, Object, Function, Method, TypeDefinition};
 use crate::prelude::*;
 
 pub use scope_type::*;
@@ -10,12 +10,12 @@ use crate::parser::PythonParser;
 impl Parser<WithSource<&[Stmt]>> for PythonParser {
     type Output = Scope;
     fn parse(&self, input: WithSource<&[Stmt]>) -> Result<Self::Output> {
-        let constants = self.parse_constants(&input)?;
+        let objects = self.parse_objects(&input)?;
         let types = self.parse_types(&input)?;
         let functions = self.parse_functions(&input)?;
         let interfaces = self.parse_interfaces(&input)?;
         let methods = self.parse_methods(&input)?;
-        let mut scope = Scope { constants, types, functions, methods, interfaces };
+        let mut scope = Scope { objects, types, functions, methods, interfaces };
         let sub_scopes = self.parse_sub_scopes(&input)?;
         for sub_scope in sub_scopes {
             scope.join(sub_scope);
@@ -144,28 +144,28 @@ impl PythonParser {
         Ok(interfaces)
     }
 
-    fn parse_constants(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Constant>> {
-        let mut constants = Vec::new();
+    fn parse_objects(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Object>> {
+        let mut objects = Vec::new();
         for statement in statements.ast {
             match statement {
                 Stmt::Assign(assign) => {
-                    if let Ok(more_constants) = self.constant_parser.parse(assign) {
-                        constants.extend(more_constants)
+                    if let Ok(more_objects) = self.object_parser.parse(assign) {
+                        objects.extend(more_objects)
                     }
                 },
                 Stmt::AnnAssign(assign) => {
-                    if let Ok(constant) = self.constant_parser.parse(assign) {
-                        constants.push(constant)
+                    if let Ok(object) = self.object_parser.parse(assign) {
+                        objects.push(object)
                     }
                 },
                 Stmt::AugAssign(assign) => {
-                    if let Ok(constant) = self.constant_parser.parse(assign) {
-                        constants.push(constant)
+                    if let Ok(object) = self.object_parser.parse(assign) {
+                        objects.push(object)
                     }
                 },
                 _ => ()
             }
         }
-        Ok(constants)
+        Ok(objects)
     }
 }

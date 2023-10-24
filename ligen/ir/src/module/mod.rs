@@ -8,7 +8,7 @@ pub mod mock;
 pub use import::*;
 
 use crate::prelude::*;
-use crate::{Path, Visibility, Attributes, Function, Constant, Identifier, TypeDefinition};
+use crate::{Path, Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
 use crate::interface::Interface;
 
 /// Module representation.
@@ -22,8 +22,8 @@ pub struct Module {
     pub identifier: Identifier,
     /// Imports.
     pub imports: Vec<Import>,
-    /// Constants.
-    pub constants: Vec<Constant>,
+    /// Objects.
+    pub objects: Vec<Object>,
     /// Functions.
     pub functions: Vec<Function>,
     /// Types.
@@ -57,7 +57,7 @@ impl Module {
         self.interfaces.extend(other.interfaces);
         self.functions.extend(other.functions);
         self.types.extend(other.types);
-        self.constants.extend(other.constants);
+        self.objects.extend(other.objects);
         self.modules.extend(other.modules);
         self.imports.extend(other.imports);
     }
@@ -70,7 +70,7 @@ impl Module {
         self.modules.iter().fold(0, |acc, module| acc + module.count_symbols())
     }
     pub fn count_symbols(&self) -> usize {
-        self.constants.len()
+        self.objects.len()
             + self.functions.len()
             + self.types.len()
             + self.count_symbols_in_interfaces()
@@ -78,7 +78,7 @@ impl Module {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.constants.is_empty()
+        self.objects.is_empty()
             && self.functions.is_empty()
             && self.interfaces.is_empty()
             && self.types.is_empty()

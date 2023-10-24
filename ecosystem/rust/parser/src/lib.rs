@@ -8,7 +8,7 @@ pub mod path;
 pub mod literal;
 pub mod identifier;
 pub mod module;
-pub mod constant;
+pub mod object;
 
 extern crate proc_macro;
 extern crate core;

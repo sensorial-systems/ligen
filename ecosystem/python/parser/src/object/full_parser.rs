@@ -1,5 +1,7 @@
+// FIXME: Duplicated from symbol_parser.
+
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
-use ligen::ir::{Constant, Identifier};
+use ligen::ir::{Object, Identifier, Mutability};
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
@@ -11,21 +13,21 @@ impl<'a> DynamicParser<'a> for FullParser {}
 pub struct FullParser;
 
 impl Parser<&StmtAnnAssign> for FullParser {
-    type Output = Constant;
+    type Output = Object;
     fn parse(&self, input: &StmtAnnAssign) -> Result<Self::Output> {
         self.parse(input.target.as_ref())
     }
 }
 
 impl Parser<&StmtAugAssign> for FullParser {
-    type Output = Constant;
+    type Output = Object;
     fn parse(&self, input: &StmtAugAssign) -> Result<Self::Output> {
         self.parse(input.target.as_ref())
     }
 }
 
 impl Parser<&Expr> for FullParser {
-    type Output = Constant;
+    type Output = Object;
     fn parse(&self, expr: &Expr) -> Result<Self::Output> {
         let identifier = expr
             .as_name_expr()
@@ -33,29 +35,29 @@ impl Parser<&Expr> for FullParser {
             .id
             .as_str();
         let identifier = IdentifierParser::new().parse(identifier)?;
-        if self.is_constant(&identifier) {
-            Ok(Constant { identifier, ..Default::default() })
-        } else {
-            Err(Error::Message("Expected constant".into()))
-        }
-    }
+        let mutability = self.get_mutability(&identifier);
+        Ok(Object { identifier, mutability, ..Default::default() })
 }
 
 impl Parser<&StmtAssign> for FullParser {
-    type Output = Vec<Constant>;
+    type Output = Vec<Object>;
     fn parse(&self, input: &StmtAssign) -> Result<Self::Output> {
-        let mut constants = Vec::new();
+        let mut objects = Vec::new();
         for target in &input.targets {
-            if let Ok(constant) = self.parse(target) {
-                constants.push(constant);
+            if let Ok(object) = self.parse(target) {
+                objects.push(object);
             }
         }
-        Ok(constants)
+        Ok(objects)
     }
 }
 
 impl FullParser {
-    fn is_constant(&self, identifier: &Identifier) -> bool {
-        identifier.name.to_uppercase() == identifier.name
+    fn get_mutability(&self, identifier: &Identifier) -> Mutability {
+        if identifier.name.to_uppercase() == identifier.name {
+            Mutability::Constant
+        } else {
+            Mutability::Mutable
+        }
     }
 }

@@ -2,7 +2,7 @@ pub use crate::prelude::*;
 
 use egui::CollapsingHeader;
 use crate::gui::ui::EditableList;
-use crate::gui::ui::editor::ir::{Attributes, Import, Visibility, Constant, Function, Identifier};
+use crate::gui::ui::editor::ir::{Attributes, Import, Visibility, Object, Function, Identifier};
 
 pub struct Module {}
 
@@ -22,8 +22,8 @@ impl Module {
                 EditableList::new("Imports", "Add import").show(ui, &mut module.imports, |ui, import| {
                     Import::new().show(ui, import);
                 });
-                EditableList::new("Constants", "Add constant").show(ui, &mut module.constants, |ui, constant| {
-                    Constant::new().show(ui, constant);
+                EditableList::new("Objects", "Add object").show(ui, &mut module.objects, |ui, object| {
+                    Object::new().show(ui, object);
                 });
                 EditableList::new("Functions", "Add function").show(ui, &mut module.functions, |ui, function| {
                     Function::new().show(ui, function);

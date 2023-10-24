@@ -1,4 +1,4 @@
-use crate::{Attributes, Constant, Function, Identifier, Method, Path, Visibility};
+use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility};
 use crate::prelude::*;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -9,8 +9,8 @@ pub struct Interface {
     pub visibility: Visibility,
     /// Interface identifier.
     pub identifier: Identifier,
-    /// Public constants.
-    pub constants: Vec<Constant>,
+    /// Interface objects.
+    pub objects: Vec<Object>,
     /// Public functions.
     pub functions: Vec<Function>,
     /// Interface methods.
@@ -22,7 +22,7 @@ pub struct Interface {
 impl Interface {
     /// Count the number of symbols in this interface.
     pub fn count_symbols(&self) -> usize {
-        self.constants.len()
+        self.objects.len()
         + self.functions.len()
         + self.methods.len()
     }

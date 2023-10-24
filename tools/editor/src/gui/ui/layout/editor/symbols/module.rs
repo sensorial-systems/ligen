@@ -17,8 +17,8 @@ impl Module {
             CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
             .id_source("module")
             .show(ui, |ui| {
-                EditableList::new(format!("Constants - Symbols: {}", module.constants.len()), "Add constant").show(ui, &mut module.constants, |ui, constant| {
-                    Identifier::new().show(ui, &mut constant.identifier);
+                EditableList::new(format!("Objects - Symbols: {}", module.objects.len()), "Add object").show(ui, &mut module.objects, |ui, object| {
+                    Identifier::new().show(ui, &mut object.identifier);
                 });
                 EditableList::new(format!("Functions - Symbols: {}", module.functions.len()), "Add function").show(ui, &mut module.functions, |ui, function| {
                     Identifier::new().show(ui, &mut function.identifier);

@@ -12,8 +12,8 @@ impl Interface {
     pub fn show(&mut self, ui: &mut egui::Ui, interface: &mut ligen_ir::Interface) {
         ui.vertical(|ui| {
             Identifier::new().show(ui, &mut interface.identifier);
-            EditableList::new("Constants", "Add constant").show(ui, &mut interface.constants, |ui, constant| {
-                Identifier::new().show(ui, &mut constant.identifier);
+            EditableList::new("Objects", "Add object").show(ui, &mut interface.objects, |ui, object| {
+                Identifier::new().show(ui, &mut object.identifier);
             });
             EditableList::new("Functions", "Add function").show(ui, &mut interface.functions, |ui, function| {
                 Identifier::new().show(ui, &mut function.identifier);

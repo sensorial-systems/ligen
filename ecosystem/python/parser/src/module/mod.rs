@@ -21,11 +21,11 @@ impl Parser<WithSource<ModModule>> for PythonParser {
     type Output = Module;
     fn parse(&self, input: WithSource<ModModule>) -> Result<Self::Output> {
         let scope = self.parse(input.sub(input.ast.body.as_slice()))?;
-        let constants = scope.constants;
+        let objects = scope.objects;
         let types = scope.types;
         let functions = scope.functions;
         let interfaces = scope.interfaces;
-        Ok(Module { constants, functions, types, interfaces, ..Default::default() })
+        Ok(Module { objects, functions, types, interfaces, ..Default::default() })
     }
 }
 

@@ -2,7 +2,7 @@
 
 pub use source::*;
 pub use module::{Module, Import};
-pub use constant::Constant;
+pub use object::Object;
 pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::Identifier;
 pub use literal::Literal;
@@ -18,7 +18,7 @@ pub mod prelude;
 
 pub mod module;
 pub mod macro_attributes;
-pub mod constant;
+pub mod object;
 pub mod function;
 pub mod visibility;
 pub mod identifier;

@@ -7,5 +7,5 @@ pub mod types;
 pub mod literal;
 pub mod scope;
 pub mod interface;
-pub mod constant;
+pub mod object;
 pub mod parser;

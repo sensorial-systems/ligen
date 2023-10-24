@@ -1,7 +1,6 @@
 mod project;
 mod module;
 mod import;
-mod constant;
 mod path;
 mod literal;
 mod attributes;
@@ -14,14 +13,13 @@ mod object;
 mod menu_button;
 
 use egui_tiles::UiResponse;
-pub use object::*;
 pub use function::*;
 pub use type_::*;
 pub use identifier::*;
 pub use visibility::*;
 pub use directory::*;
 pub use path::*;
-pub use constant::*;
+pub use object::*;
 pub use import::*;
 pub use attributes::*;
 pub use project::*;
