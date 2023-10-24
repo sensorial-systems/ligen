@@ -15,16 +15,32 @@ impl Parser<WithSource<&[Stmt]>> for PythonParser {
         let functions = self.parse_functions(&input)?;
         let interfaces = self.parse_interfaces(&input)?;
         let methods = self.parse_methods(&input)?;
-        let mut scope = Scope { objects, types, functions, methods, interfaces };
+        let scope = Scope { objects, types, functions, methods, interfaces };
         let sub_scopes = self.parse_sub_scopes(&input)?;
-        for sub_scope in sub_scopes {
-            scope.join(sub_scope);
-        }
+        let scope = self.join_scopes(scope, sub_scopes);
         Ok(scope)
     }
 }
 
 impl PythonParser {
+    fn join_scopes(&self, mut scope: Scope, sub_scopes: Vec<Scope>) -> Scope {
+        for sub_scope in sub_scopes {
+            scope.join(sub_scope)
+        }
+        scope.objects = self.deduplicate_objects(scope.objects);
+        scope
+    }
+
+    fn deduplicate_objects(&self, objects: Vec<Object>) -> Vec<Object> {
+        let mut deduplicated_objects: Vec<Object> = Vec::new();
+        for object in objects.into_iter().rev() {
+            if !deduplicated_objects.iter().any(|deduplicated_object| deduplicated_object.identifier == object.identifier) {
+                deduplicated_objects.push(object)
+            }
+        }
+        deduplicated_objects
+    }
+
     fn parse_sub_scopes(&self, statements: &WithSource<&[Stmt]>) -> Result<Vec<Scope>> {
         let mut sub_scopes = Vec::new();
         for statement in statements.ast {
