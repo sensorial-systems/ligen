@@ -4,8 +4,6 @@ use egui::containers::CollapsingHeader;
 
 use super::List;
 
-// TODO: Implement this with List.
-
 pub struct EditableList {
     list: List,
     editable: bool,
