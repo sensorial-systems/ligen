@@ -8,16 +8,11 @@ use crate::conventions::naming::NamingConvention;
 #[allow(missing_docs)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Project {
-    pub directory: std::path::PathBuf,
     pub name: NamingConvention,
     pub root_module: Module,
 }
 
 impl Project {
-    /// Project directory path.
-    pub fn directory(&self) -> &std::path::Path {
-        self.directory.as_path()
-    }
     /// Get the project name.
     pub fn name(&self) -> &NamingConvention {
         &self.name

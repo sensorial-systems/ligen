@@ -25,6 +25,6 @@ impl Parser<&std::path::Path> for ProjectParser {
         let name = NamingConvention::try_from(package.name.as_str())?;
         let mut root_module = ModuleParser.parse(library_path.as_path())?;
         root_module.identifier = SnakeCase::try_from(name.clone())?.to_string().into();
-        Ok(Self::Output { directory, name, root_module })
+        Ok(Self::Output { name, root_module })
     }
 }

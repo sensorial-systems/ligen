@@ -21,7 +21,6 @@ impl Project {
                 .id_source("project")
                 .show(ui, |ui| {
                     StringEditableField::new().show(ui, &mut project.name);
-                    Directory::new().show(ui, &mut project.directory);
                     Module::new().show(ui, &mut project.root_module);
                 });
         });

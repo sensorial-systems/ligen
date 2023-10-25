@@ -50,14 +50,8 @@ impl Pane for Editor {
         egui::menu::bar(ui, |ui| {
             ui.menu_button("File", |ui| {
                 if ui.button("Save").clicked() {
-                    let directory = self
-                        .project
-                        .directory
-                        .display()
-                        .to_string();
                     let file = rfd::FileDialog::new()
                         .add_filter("ligen-ir", &["lir"])
-                        .set_directory(directory)
                         .save_file();
                     if let Some(file) = file {
                         self
