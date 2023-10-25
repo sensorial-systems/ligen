@@ -18,8 +18,7 @@ impl List {
         Self { name, id_source }
     }
 
-    pub fn show<'a, T: 'a>(&mut self, ui: &mut egui::Ui, list: impl IntoIterator<Item = &'a mut T>, mut show_item: impl FnMut(&mut egui::Ui, &mut T))
-    where T: Default
+    pub fn show<T>(&mut self, ui: &mut egui::Ui, list: impl IntoIterator<Item = T>, mut show_item: impl FnMut(&mut egui::Ui, T))
     {
         let list = list.into_iter();
         CollapsingHeader::new(&self.name)

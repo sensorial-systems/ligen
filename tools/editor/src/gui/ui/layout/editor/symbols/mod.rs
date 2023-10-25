@@ -33,7 +33,11 @@ impl Pane for Editor {
 
     fn show(&mut self, ui: &mut egui::Ui) -> UiResponse {
         Project::new().show(ui, &mut self.project.root_module);
-        ui.text_edit_singleline(&mut self.filter);
+        ui.separator();
+        ui.horizontal(|ui| {
+            ui.label("Filter");
+            ui.text_edit_singleline(&mut self.filter);
+        });
         List::new("Symbols").show(ui, &mut self.symbols.symbols.iter_mut().filter(|symbol| symbol.to_string().contains(self.filter.as_str())), |ui, symbol| {
             ui.label(symbol.to_string());
         });
