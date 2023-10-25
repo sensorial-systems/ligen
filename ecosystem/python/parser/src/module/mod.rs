@@ -57,7 +57,7 @@ impl Parser<Directory<'_>> for PythonParser {
                 .and_then(|extension| extension.to_str())
                 .map(String::from)
                 .unwrap_or_default();
-            if extension == "py" || path.is_dir() {
+            if extension == "py" || extension == "pyi" || path.is_dir() {
                 if let Ok(module) = self.parse(path.as_path()) {
                     if let Some(existing) = modules
                         .iter_mut()

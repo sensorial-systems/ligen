@@ -19,11 +19,6 @@ impl IdentifierParser {
         self
             .parser
             .parse(input)
-            .and_then(|identifier| if !self.is_private(&identifier) {
-                Ok(identifier)
-            } else {
-                Err(Error::Message(format!("Identifier {} is private", identifier.name)))
-            })
     }
 
     pub fn is_private(&self, identifier: &Identifier) -> bool {
