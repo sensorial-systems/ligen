@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::StringEditableField;
+use crate::gui::ui::StringField;
 
 pub struct Path {}
 
@@ -10,6 +10,6 @@ impl Path {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, path: &mut ligen_ir::Path) {
-        StringEditableField::new().show(ui, path)
+        StringField::new().show(ui, path)
     }
 }

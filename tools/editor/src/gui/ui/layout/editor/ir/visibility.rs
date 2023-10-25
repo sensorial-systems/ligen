@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::EnumEditableField;
+use crate::gui::ui::EnumField;
 
 pub struct Visibility {
 }
@@ -11,6 +11,6 @@ impl Visibility {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, visibility: &mut ligen_ir::Visibility) {
-        EnumEditableField::new().id_source("visibility").show(ui, visibility);
+        EnumField::new().id_source("visibility").show(ui, visibility);
     }
 }

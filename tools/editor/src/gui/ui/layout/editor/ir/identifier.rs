@@ -1,11 +1,11 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::StringEditableField;
+use crate::gui::ui::StringField;
 
 
 #[derive(Default)]
 pub struct Identifier {
-    editable: bool
+    string_field: StringField
 }
 
 impl Identifier {
@@ -13,11 +13,12 @@ impl Identifier {
         Default::default()
     }
 
+    pub fn editable(&mut self, editable: bool) -> &mut Self {
+        self.string_field.editable(editable);
+        self
+    }
+
     pub fn show(&mut self, ui: &mut egui::Ui, identifier: &mut ligen_ir::Identifier) {
-        if self.editable {
-            StringEditableField::new().show(ui, identifier)
-        } else {
-            ui.label(identifier.to_string());
-        }
+        self.string_field.show(ui, identifier)
     }
 }

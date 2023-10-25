@@ -13,7 +13,7 @@ pub struct EditableList {
 impl EditableList {
     pub fn new(name: impl AsRef<str>, add_button_name: impl AsRef<str>) -> Self {
         let list = List::new(name);
-        let editable = false;
+        let editable = Default::default();
         let add_button_name = add_button_name.as_ref().into();
         Self { list, editable, add_button_name }
     }

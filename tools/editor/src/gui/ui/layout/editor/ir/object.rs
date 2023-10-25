@@ -17,7 +17,7 @@ impl Object {
                 object.literal = ligen_ir::Literal::default_for_type(&object.type_);
             }
             ui.label("=");
-            Literal::new().switchable(false).show(ui, &mut object.literal);
+            Literal::new().editable(false).show(ui, &mut object.literal);
         });
     }
 }

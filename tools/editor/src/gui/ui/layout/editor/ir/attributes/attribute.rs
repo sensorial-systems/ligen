@@ -2,13 +2,14 @@ pub use crate::prelude::*;
 
 use crate::gui::ui::editor::ir::{Attributes, Identifier, Literal};
 
+#[derive(Default)]
 pub struct Attribute {
-
+    editable: bool
 }
 
 impl Attribute {
     pub fn new() -> Self {
-        Self {}
+        Default::default()
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, mut attribute: &mut ligen_ir::Attribute) {
