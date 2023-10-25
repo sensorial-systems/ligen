@@ -1,7 +1,10 @@
+use crate::{prelude::*, module::SubPath};
 use crate::object::ObjectParser;
 use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::types::type_definition::TypeDefinitionParser;
+
+use ligen::ir::Project;
 
 #[derive(Default)]
 pub struct PythonParser {
@@ -22,5 +25,15 @@ impl PythonParser {
         let type_definition_parser = TypeDefinitionParser::symbol();
         let object_parser = ObjectParser::symbol();
         Self { identifier_parser, function_parser, type_definition_parser, object_parser }
+    }
+}
+
+impl Parser<&std::path::Path> for PythonParser {
+    type Output = Project;
+    fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
+        let name = self.identifier_parser.parse(input)?;
+        let name = name.name.as_str().try_into()?;
+        let root_module = self.parse(SubPath(input))?;
+        Ok(Project { name, root_module })
     }
 }

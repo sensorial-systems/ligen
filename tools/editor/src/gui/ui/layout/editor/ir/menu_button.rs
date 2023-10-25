@@ -30,8 +30,7 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let root_module = PythonParser::full().parse(entry.as_path()).unwrap();
-                    let project = Project { root_module, ..Default::default() };
+                    let project = PythonParser::full().parse(entry.as_path()).unwrap();
                     panes.new_pane(Box::new(Editor::new(project)));
                 });
             }

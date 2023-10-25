@@ -29,8 +29,9 @@ impl Parser<WithSource<ModModule>> for PythonParser {
     }
 }
 
-struct Directory<'a>(pub &'a std::path::Path);
-struct File<'a>(pub &'a std::path::Path);
+pub(crate) struct Directory<'a>(pub &'a std::path::Path);
+pub(crate) struct File<'a>(pub &'a std::path::Path);
+pub(crate) struct SubPath<'a>(pub &'a std::path::Path);
 
 impl Parser<File<'_>> for PythonParser {
     type Output = Module;
@@ -58,7 +59,7 @@ impl Parser<Directory<'_>> for PythonParser {
                 .map(String::from)
                 .unwrap_or_default();
             if extension == "py" || extension == "pyi" || path.is_dir() {
-                if let Ok(module) = self.parse(path.as_path()) {
+                if let Ok(module) = self.parse(SubPath(path.as_path())) {
                     if let Some(existing) = modules
                         .iter_mut()
                         .find(|existing| existing.identifier == module.identifier)
@@ -84,13 +85,13 @@ impl Parser<Directory<'_>> for PythonParser {
     }
 }
 
-impl Parser<&std::path::Path> for PythonParser {
+impl Parser<SubPath<'_>> for PythonParser {
     type Output = Module;
-    fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
+    fn parse(&self, SubPath(input): SubPath<'_>) -> Result<Self::Output> {
         if input.is_dir() {
             self.parse(Directory(input))
         } else {
             self.parse(File(input)).map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
-        }
+        }        
     }
 }
