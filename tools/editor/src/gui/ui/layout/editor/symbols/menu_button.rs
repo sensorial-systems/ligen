@@ -1,3 +1,4 @@
+use ligen_ir::Project;
 use ligen_parsing::parser::Parser;
 use ligen_python_parser::module::ModuleParser;
 use ligen_python_parser::parser::PythonParser;
@@ -18,8 +19,9 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let module = PythonParser::symbol().parse(entry.as_path()).unwrap();
-                    panes.new_pane(Box::new(Editor::new(module)));
+                    let root_module = PythonParser::symbol().parse(entry.as_path()).unwrap();
+                    let project = Project { root_module, ..Default::default() };
+                    panes.new_pane(Box::new(Editor::new(project)));
                 });
             }
 

@@ -30,3 +30,5 @@ pub mod mutability;
 pub mod source;
 pub mod project;
 pub mod conventions;
+
+pub mod symbols;

@@ -2,6 +2,9 @@
 .idea
 .gradle
 
+# Space for testing things
+workbench
+
 # Rust files
 /target
 **/*.rs.bk

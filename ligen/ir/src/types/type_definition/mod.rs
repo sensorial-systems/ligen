@@ -17,6 +17,13 @@ pub enum TypeDefinition {
 }
 
 impl TypeDefinition {
+    pub fn identifier(&self) -> &Identifier {
+        match self {
+            Self::Structure(structure) => &structure.identifier,
+            Self::Enumeration(enumeration) => &enumeration.identifier
+        }
+    }
+
     pub fn identifier_mut(&mut self) -> &mut Identifier {
         match self {
             Self::Structure(structure) => &mut structure.identifier,

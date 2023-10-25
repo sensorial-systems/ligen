@@ -2,6 +2,8 @@ pub use crate::prelude::*;
 
 use egui::containers::CollapsingHeader;
 
+// TODO: Implement this with List.
+
 pub struct EditableList {
     editable: bool,
     name: String,
