@@ -3,21 +3,23 @@ pub use crate::prelude::*;
 mod attribute;
 
 pub use attribute::*;
-use crate::gui::ui::EditableList;
+use crate::gui::ui::{EditableList, editor::{widget::Widget, settings::Settings}};
 
-pub struct Attributes {
-}
+#[derive(Default)]
+pub struct Attributes;
 
 impl Attributes {
     pub fn new() -> Self {
-        Self {}
+        Default::default()
     }
+}
 
-    pub fn show(&mut self, ui: &mut egui::Ui, attributes: &mut ligen_ir::Attributes) {
+impl Widget for Attributes {
+    type Input = ligen_ir::Attributes;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, attributes: &mut ligen_ir::Attributes) {
         EditableList::new("Attributes", "Add attribute")
-            .show(ui, &mut attributes.attributes,|ui, attribute| {
-                Attribute::new().show(ui, attribute);
+            .show(settings, ui, &mut attributes.attributes,|ui, attribute| {
+                Attribute::new().show(settings, ui, attribute);
             });
-
     }
 }

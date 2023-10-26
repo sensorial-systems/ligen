@@ -1,18 +1,19 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::editor::ir::{Attributes, Identifier, Literal};
+use crate::gui::ui::editor::{ir::{Attributes, Identifier, Literal}, widget::Widget, settings::Settings};
 
 #[derive(Default)]
-pub struct Attribute {
-    editable: bool
-}
+pub struct Attribute;
 
 impl Attribute {
     pub fn new() -> Self {
         Default::default()
     }
+}
 
-    pub fn show(&mut self, ui: &mut egui::Ui, mut attribute: &mut ligen_ir::Attribute) {
+impl Widget for Attribute {
+    type Input = ligen_ir::Attribute;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, mut attribute: &mut ligen_ir::Attribute) {
         let variant_name = match attribute {
             ligen_ir::Attribute::Literal(_) => "Literal",
             ligen_ir::Attribute::Group(_, _) => "Group",
@@ -30,14 +31,14 @@ impl Attribute {
 
         ui.horizontal_top(|ui| {
             match &mut attribute {
-                ligen_ir::Attribute::Literal(literal) => Literal::new().show(ui, literal),
+                ligen_ir::Attribute::Literal(literal) => Literal::new().show(settings, ui, literal),
                 ligen_ir::Attribute::Group(identifier, attributes) => {
-                    Identifier::new().show(ui, identifier);
-                    Attributes::new().show(ui, attributes);
+                    Identifier::new().show(settings, ui, identifier);
+                    Attributes::new().show(settings, ui, attributes);
                 },
                 ligen_ir::Attribute::Named(identifier, literal) => {
-                    Identifier::new().show(ui, identifier);
-                    Literal::new().show(ui, literal);
+                    Identifier::new().show(settings, ui, identifier);
+                    Literal::new().show(settings, ui, literal);
                 }
             }
         });

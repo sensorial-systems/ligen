@@ -1,24 +1,21 @@
+use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 pub use crate::prelude::*;
 
 use egui::ComboBox;
 
 #[derive(Default)]
-pub struct Literal {
-    editable: bool
-}
+pub struct Literal;
 
 impl Literal {
     pub fn new() -> Self {
         Default::default()
     }
+}
 
-    pub fn editable(&mut self, editable: bool) -> &mut Self {
-        self.editable = editable;
-        self
-    }
-
-    pub fn show(&mut self, ui: &mut egui::Ui, mut literal: &mut ligen_ir::Literal) {
-        if self.editable {
+impl Widget for Literal {
+    type Input = ligen_ir::Literal;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, mut literal: &mut ligen_ir::Literal) {
+        if settings.editor.editable_fields {
             let variant_name = match literal {
                 ligen_ir::Literal::String(_) => "String",
                 ligen_ir::Literal::Boolean(_) => "Bool",

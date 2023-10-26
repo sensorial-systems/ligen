@@ -1,3 +1,4 @@
+use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 pub use crate::prelude::*;
 
 mod structure;
@@ -8,26 +9,22 @@ pub use structure::*;
 pub use enumeration::*;
 
 #[derive(Default)]
-pub struct TypeDefinition {
-    editable: bool,
-}
+pub struct TypeDefinition;
 
 impl TypeDefinition {
     pub fn new() -> Self {
         Default::default()
     }
+}
 
-    pub fn editable(&mut self, editable: bool) -> &mut Self {
-        self.editable = editable;
-        self
-    }
-
-    pub fn show(&mut self, ui: &mut egui::Ui, definition: &mut ligen_ir::TypeDefinition) {
+impl Widget for TypeDefinition {
+    type Input = ligen_ir::TypeDefinition;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_ir::TypeDefinition) {
         let variant_name = match definition {
             ligen_ir::TypeDefinition::Structure(_) => "Structure",
             ligen_ir::TypeDefinition::Enumeration(_) => "Enumeration"
         };
-        if self.editable {
+        if settings.editor.editable_fields {
             ComboBox::new("TypeDefinition", "")
                 .selected_text(variant_name)
                 .show_ui(ui, |ui| {
@@ -38,8 +35,8 @@ impl TypeDefinition {
             ui.label(variant_name);
         }
         match definition {
-            ligen_ir::TypeDefinition::Structure(structure) => Structure::new().show(ui, structure),
-            ligen_ir::TypeDefinition::Enumeration(enumeration) => Enumeration::new().show(ui, enumeration)
+            ligen_ir::TypeDefinition::Structure(structure) => Structure::new().show(settings, ui, structure),
+            ligen_ir::TypeDefinition::Enumeration(enumeration) => Enumeration::new().show(settings, ui, enumeration)
         }
     }
 }

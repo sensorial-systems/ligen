@@ -1,26 +1,20 @@
+use crate::gui::ui::editor::settings::Settings;
 pub use crate::prelude::*;
 
 use egui::Button;
 
 pub struct OptionalField {
-    text: String,
-    editable: bool
+    text: String
 }
 
 impl OptionalField {
     pub fn new(text: impl AsRef<str>) -> Self {
         let text = text.as_ref().into();
-        let editable = Default::default();
-        Self { text, editable }
+        Self { text }
     }
 
-    pub fn editable(&mut self, editable: bool) -> &mut Self {
-        self.editable = editable;
-        self
-    }
-
-    pub fn show<T: Default>(&mut self, ui: &mut egui::Ui, mut optional: &mut Option<T>, mut show: impl FnMut(&mut egui::Ui, &mut T)) {
-        if self.editable && ui.add(Button::new(&self.text)).clicked() {
+    pub fn show<T: Default>(&mut self, settings: &Settings, ui: &mut egui::Ui, mut optional: &mut Option<T>, mut show: impl FnMut(&mut egui::Ui, &mut T)) {
+        if settings.editor.editable_fields && ui.add(Button::new(&self.text)).clicked() {
             *optional = if optional.is_some() {
                 None
             } else {

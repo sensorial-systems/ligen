@@ -1,15 +1,19 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::StringField;
+use crate::gui::ui::{StringField, editor::{widget::Widget, settings::Settings}};
 
-pub struct Path {}
+#[derive(Default)]
+pub struct Path;
 
 impl Path {
     pub fn new() -> Self {
-        Self {}
+        Default::default()
     }
+}
 
-    pub fn show(&mut self, ui: &mut egui::Ui, path: &mut ligen_ir::Path) {
-        StringField::new().show(ui, path)
+impl Widget for Path {
+    type Input = ligen_ir::Path;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, path: &mut ligen_ir::Path) {
+        StringField::new().show(settings, ui, path)
     }
 }

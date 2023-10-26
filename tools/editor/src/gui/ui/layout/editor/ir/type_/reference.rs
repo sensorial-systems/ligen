@@ -1,21 +1,23 @@
-use crate::gui::ui::editor::ir::Type;
+use crate::gui::ui::editor::{ir::Type, widget::Widget, settings::Settings};
 pub use crate::prelude::*;
 
 use crate::gui::ui::EnumField;
 
-pub struct Reference {
-
-}
+#[derive(Default)]
+pub struct Reference;
 
 impl Reference {
     pub fn new() -> Self {
-        Self {}
+        Default::default()
     }
+}
 
-    pub fn show(&mut self, ui: &mut egui::Ui, type_: &mut ligen_ir::Reference) {
+impl Widget for Reference {
+    type Input = ligen_ir::Reference;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, type_: &mut ligen_ir::Reference) {
         ui.horizontal_top(|ui| {
-            EnumField::new().show(ui, &mut type_.mutability);
-            Type::new().show(ui, &mut type_.type_);
+            EnumField::new().show(settings, ui, &mut type_.mutability);
+            Type::new().show(settings, ui, &mut type_.type_);
         });
     }
 }

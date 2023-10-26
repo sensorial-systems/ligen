@@ -33,10 +33,14 @@ use crate::gui::ui::List;
 
 use crate::gui::ui::panes::Pane;
 
+use super::settings::Settings;
+use super::widget::Widget;
+
 #[derive(Default)]
 pub struct Editor {
     project: ligen_ir::Project,
     filter: String,
+    display_settings: Settings,
     symbols: Symbols
 }
 
@@ -44,7 +48,8 @@ impl Editor {
     pub fn new(project: ligen_ir::Project) -> Self {
         let filter = Default::default();
         let symbols = Symbols::new(&project);
-        Self { project, symbols, filter }
+        let display_settings = Default::default();
+        Self { project, symbols, filter, display_settings }
     }
 }
 
@@ -72,7 +77,9 @@ impl Pane for Editor {
             });
         });
         ui.separator();
-        Project::new().show(ui, &mut self.project);
+        self.display_settings.show(ui);
+        ui.separator();
+        Project::new().show(&self.display_settings, ui, &mut self.project);
         ui.separator();
         ui.horizontal(|ui| {
             ui.label("Filter");

@@ -1,28 +1,32 @@
+use crate::gui::ui::editor::settings::Settings;
+use crate::gui::ui::editor::widget::Widget;
 use crate::gui::ui::{EditableList, OptionalField};
 use crate::gui::ui::editor::ir::{Attributes, Identifier, Parameter, Synchrony, Type, Visibility};
 pub use crate::prelude::*;
 
-pub struct Method {
-
-}
+#[derive(Default)]
+pub struct Method;
 
 impl Method {
     pub fn new() -> Self {
-        Self {}
+        Default::default()
     }
+}
 
-    pub fn show(&mut self, ui: &mut egui::Ui, method: &mut ligen_ir::Method) {
+impl Widget for Method {
+    type Input = ligen_ir::Method;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, method: &mut ligen_ir::Method) {
         ui.horizontal_top(|ui| {
-            Visibility::new().show(ui, &mut method.visibility);
-            Synchrony::new().show(ui, &mut method.synchrony);
-            Identifier::new().show(ui, &mut method.identifier);
-            EditableList::new("Inputs", "Add input").show(ui, &mut method.inputs, |ui, parameter| {
-                Parameter::new().show(ui, parameter);
+            Visibility::new().show(settings, ui, &mut method.visibility);
+            Synchrony::new().show(settings, ui, &mut method.synchrony);
+            Identifier::new().show(settings, ui, &mut method.identifier);
+            EditableList::new("Inputs", "Add input").show(settings, ui, &mut method.inputs, |ui, parameter| {
+                Parameter::new().show(settings, ui, parameter);
             });
-            OptionalField::new("Output").show(ui, &mut method.output, |ui, output| {
-                Type::new().show(ui, output);
+            OptionalField::new("Output").show(settings, ui, &mut method.output, |ui, output| {
+                Type::new().show(settings, ui, output);
             });
-            Attributes::new().show(ui, &mut method.attributes);
+            Attributes::new().show(settings, ui, &mut method.attributes);
         });
     }
 }

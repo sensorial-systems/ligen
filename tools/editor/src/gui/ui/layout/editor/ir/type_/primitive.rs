@@ -1,25 +1,22 @@
+use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 pub use crate::prelude::*;
 
 use egui::ComboBox;
 use ligen_ir::{Float, Integer};
 
 #[derive(Default)]
-pub struct Primitive {
-    editable: bool
-}
+pub struct Primitive;
 
 impl Primitive {
     pub fn new() -> Self {
         Default::default()
     }
+}
 
-    pub fn editable(&mut self, editable: bool) -> &mut Self {
-        self.editable = editable;
-        self
-    }
-
-    pub fn show(&mut self, ui: &mut egui::Ui, type_: &mut ligen_ir::Primitive) {
-        if self.editable {
+impl Widget for Primitive {
+    type Input = ligen_ir::Primitive;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, type_: &mut ligen_ir::Primitive) {
+        if settings.editor.editable_fields {
             let list = [
                 ligen_ir::Primitive::Float(Float::F32),
                 ligen_ir::Primitive::Float(Float::F64),
