@@ -15,6 +15,7 @@ pub struct DisplaySettings {
     pub show_identifier: bool,
     pub show_module: bool,
     pub show_project: bool,
+    pub show_symbols_count: bool,
 }
 
 impl Default for DisplaySettings {
@@ -34,6 +35,7 @@ impl Default for DisplaySettings {
             show_identifier: true,
             show_module: true,
             show_project: true,
+            show_symbols_count: true,
         }
     }
 }
@@ -59,7 +61,8 @@ impl DisplaySettings {
             ui.checkbox(&mut self.show_function, "Function");
             ui.checkbox(&mut self.show_identifier, "Identifier");
             ui.checkbox(&mut self.show_module, "Module");
-            ui.checkbox(&mut self.show_project, "Project");    
+            ui.checkbox(&mut self.show_project, "Project");
+            ui.checkbox(&mut self.show_symbols_count, "Symbols Count");
         });
     }
 }

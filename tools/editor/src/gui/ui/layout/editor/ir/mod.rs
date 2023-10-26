@@ -11,7 +11,6 @@ mod type_;
 mod function;
 mod object;
 mod interface;
-mod menu_button;
 
 use egui_tiles::UiResponse;
 pub use function::*;
@@ -26,7 +25,6 @@ pub use attributes::*;
 pub use project::*;
 pub use module::*;
 pub use literal::*;
-pub use menu_button::*;
 pub use interface::*;
 use ligen_ir::symbols::Symbols;
 use crate::gui::ui::List;

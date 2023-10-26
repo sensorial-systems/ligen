@@ -17,13 +17,21 @@ impl Module {
 impl Widget for Module {
     type Input = ligen_ir::Module;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
-        CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
+        let text = if settings.display.show_visibility {
+            format!("{} {}", module.visibility, module.identifier)
+        } else {
+            module.identifier.to_string()
+        };
+        let text = format!("{} - Symbols: {}", text, module.count_symbols());
+        CollapsingHeader::new(text)
             .id_source("module")
             .show(ui, |ui| {
-                ui.horizontal_top(|ui| {
-                    Visibility::new().show(settings, ui, &mut module.visibility);
-                    Identifier::new().show(settings, ui, &mut module.identifier);
-                });
+                if settings.editor.editable_fields {
+                    ui.horizontal_top(|ui| {
+                        Visibility::new().show(settings, ui, &mut module.visibility);
+                        Identifier::new().show(settings, ui, &mut module.identifier);
+                    });
+                }
                 EditableList::new(format!("Types - Symbols: {}", module.types.len()), "Add type").show(settings, ui, &mut module.types, |ui, type_| {
                     TypeDefinition::new().show(settings, ui, type_);
                 });

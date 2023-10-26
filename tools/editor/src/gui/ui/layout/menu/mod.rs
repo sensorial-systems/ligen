@@ -2,6 +2,8 @@ use crate::gui::ui::editor::ir;
 use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
 
+use super::editor::menu_button::EditorMenuButton;
+
 pub trait MenuButton {
     fn menu_title(&self) -> String;
     fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes);
@@ -20,7 +22,7 @@ pub struct Menu {
 impl Menu {
     pub fn new() -> Self {
         let buttons: Vec<Box<dyn MenuButton>> = vec![
-            Box::new(ir::EditorMenuButton)
+            Box::new(EditorMenuButton)
         ];
         Self { buttons }
     }
