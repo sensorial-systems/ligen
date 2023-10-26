@@ -20,13 +20,11 @@ impl OptionalField {
     }
 
     pub fn show<T: Default>(&mut self, ui: &mut egui::Ui, mut optional: &mut Option<T>, mut show: impl FnMut(&mut egui::Ui, &mut T)) {
-        if self.editable {
-            if ui.add(Button::new(&self.text)).clicked() {
-                *optional = if optional.is_some() {
-                    None
-                } else {
-                    Some(Default::default())
-                }
+        if self.editable && ui.add(Button::new(&self.text)).clicked() {
+            *optional = if optional.is_some() {
+                None
+            } else {
+                Some(Default::default())
             }
         }
         if let Some(optional) = &mut optional {
