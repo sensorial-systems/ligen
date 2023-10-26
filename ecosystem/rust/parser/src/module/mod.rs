@@ -73,9 +73,9 @@ impl ModuleParser {
         for item in items {
             match item {
                 syn::Item::Enum(enumeration) =>
-                    types.push(EnumerationParser::new().parse(enumeration.clone())?.into()),
+                    types.push(EnumerationParser::new().parse(enumeration.clone())?),
                 syn::Item::Struct(structure) =>
-                    types.push(StructureParser::new().parse(structure.clone())?.into()),
+                    types.push(StructureParser::new().parse(structure.clone())?),
                 syn::Item::Type(_type) => {
                     todo!("Type object isn't implemented yet.")
                 },
