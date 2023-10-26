@@ -21,6 +21,17 @@ impl Parser<syn::Field> for FieldParser {
     }
 }
 
+impl Parser<syn::Fields> for FieldParser {
+    type Output = Vec<Field>;
+    fn parse(&self, input: syn::Fields) -> Result<Self::Output> {
+        let mut fields = Vec::new();
+        for field in input {
+            fields.push(self.parse(field)?);
+        }
+        Ok(fields)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use syn::parse_quote::parse;

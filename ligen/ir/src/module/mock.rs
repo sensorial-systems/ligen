@@ -23,14 +23,16 @@ pub fn module_types() -> Module {
     Module {
         identifier: "types".into(),
         types: vec![
-            Structure {
+            TypeDefinition {
                 identifier: "Structure".into(),
+                definition: Structure::default().into(),
                 ..Default::default()
-            }.into(),
-            Enumeration {
+            },
+            TypeDefinition {
                 identifier: "Enumeration".into(),
+                definition: Enumeration::default().into(),
                 ..Default::default()
-            }.into()
+            },
         ],
         ..Default::default()
     }

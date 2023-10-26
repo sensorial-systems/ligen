@@ -5,7 +5,7 @@ pub mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use ligen::ir::Structure;
+use ligen::ir::{Structure, TypeDefinition};
 use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -16,19 +16,19 @@ pub struct StructureParser;
 
 impl StructureParser {
     pub fn new() -> Self {
-        Self
+        Default::default()
     }
 }
 
 impl Parser<proc_macro::TokenStream> for StructureParser {
-    type Output = Structure;
+    type Output = TypeDefinition;
     fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(token_stream))
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for StructureParser {
-    type Output = Structure;
+    type Output = TypeDefinition;
     fn parse(&self, tokenstream: proc_macro2::TokenStream) -> Result<Self::Output> {
         syn::parse2::<syn::ItemStruct>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
@@ -37,17 +37,15 @@ impl Parser<proc_macro2::TokenStream> for StructureParser {
 }
 
 impl Parser<syn::ItemStruct> for StructureParser {
-    type Output = Structure;
+    type Output = TypeDefinition;
     fn parse(&self, structure: syn::ItemStruct) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(structure.attrs)?;
         let identifier = IdentifierParser::new().parse(structure.ident)?;
         let visibility = VisibilityParser::new().parse(structure.vis)?;
         let interfaces = Default::default();
-        let mut fields = Vec::new();
-        for field in structure.fields {
-            fields.push(FieldParser.parse(field)?);
-        }
-        Ok(Self::Output { attributes, visibility, identifier, fields, interfaces })
+        let fields = FieldParser.parse(structure.fields)?;
+        let definition = Structure { fields }.into();
+        Ok(Self::Output { attributes, visibility, identifier, interfaces, definition })
     }
 }
 

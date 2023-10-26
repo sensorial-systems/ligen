@@ -18,7 +18,7 @@ impl Symbols {
             symbols.push(path.clone().join(object.identifier.clone()));
         });
         for type_ in module.types.iter() {
-            symbols.push(path.clone().join(type_.identifier().clone()));
+            symbols.push(path.clone().join(type_.identifier.clone()));
         }
         for module in module.modules.iter() {
             symbols.append(&mut Self::from_module(module, &path));

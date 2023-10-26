@@ -17,6 +17,17 @@ impl Parser<syn::Variant> for VariantParser {
     }
 }
 
+impl Parser<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>> for VariantParser {
+    type Output = Vec<Variant>;
+    fn parse(&self, input: syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>) -> Result<Self::Output> {
+        let mut variants = Vec::new();
+        for variant in input {
+            variants.push(self.parse(variant)?);
+        }
+        Ok(variants)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use quote::quote;

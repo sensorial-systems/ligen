@@ -1,12 +1,8 @@
-use crate::gui::ui::editor::{widget::Widget, settings::Settings};
+use crate::gui::ui::{editor::{widget::Widget, settings::Settings, ir::{Visibility, Identifier, Path, Attributes}}, EditableList};
 pub use crate::prelude::*;
 
-mod structure;
-mod enumeration;
-
-use egui::ComboBox;
-pub use structure::*;
-pub use enumeration::*;
+mod kind_definition;
+pub use kind_definition::*;
 
 #[derive(Default)]
 pub struct TypeDefinition;
@@ -20,23 +16,14 @@ impl TypeDefinition {
 impl Widget for TypeDefinition {
     type Input = ligen_ir::TypeDefinition;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_ir::TypeDefinition) {
-        let variant_name = match definition {
-            ligen_ir::TypeDefinition::Structure(_) => "Structure",
-            ligen_ir::TypeDefinition::Enumeration(_) => "Enumeration"
-        };
-        if settings.editor.editable_fields {
-            ComboBox::new("TypeDefinition", "")
-                .selected_text(variant_name)
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(definition, ligen_ir::TypeDefinition::Structure(Default::default()), "Structure");
-                    ui.selectable_value(definition, ligen_ir::TypeDefinition::Enumeration(Default::default()), "Enumeration");
-                });
-        } else {
-            ui.label(variant_name);
-        }
-        match definition {
-            ligen_ir::TypeDefinition::Structure(structure) => Structure::new().show(settings, ui, structure),
-            ligen_ir::TypeDefinition::Enumeration(enumeration) => Enumeration::new().show(settings, ui, enumeration)
-        }
+
+        Visibility::new().show(settings, ui, &mut definition.visibility);
+        KindDefinition::new().show_kind_name(settings, ui, &mut definition.definition);
+        Identifier::new().show(settings, ui, &mut definition.identifier);
+        EditableList::new("Interfaces", "Add interface").show(settings, ui, &mut definition.interfaces, |ui, interface| {
+            Path::new().show(settings, ui, interface);
+        });
+        Attributes::new().show(settings, ui, &mut definition.attributes);
+        KindDefinition::new().show(settings, ui, &mut definition.definition);
     }
 }
