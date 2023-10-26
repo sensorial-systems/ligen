@@ -12,30 +12,30 @@ impl Module {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
-        CollapsingHeader::new(module.identifier.to_string())
+        CollapsingHeader::new(format!("{} - Symbols: {}", module.identifier, module.count_symbols()))
             .id_source("module")
             .show(ui, |ui| {
                 ui.horizontal_top(|ui| {
                     Visibility::new().show(ui, &mut module.visibility);
                     Identifier::new().show(ui, &mut module.identifier);
                 });
-                EditableList::new("Types", "Add type").show(ui, &mut module.types, |ui, type_| {
+                EditableList::new(format!("Types - Symbols: {}", module.types.len()), "Add type").show(ui, &mut module.types, |ui, type_| {
                     TypeDefinition::new().show(ui, type_);
+                });
+                EditableList::new(format!("Objects - Symbols: {}", module.objects.len()), "Add object").show(ui, &mut module.objects, |ui, object| {
+                    Object::new().show(ui, object);
+                });
+                EditableList::new(format!("Functions - Symbols: {}", module.functions.len()), "Add function").show(ui, &mut module.functions, |ui, function| {
+                    Function::new().show(ui, function);
+                });
+                EditableList::new(format!("Interfaces - Symbols: {}", module.count_symbols_in_interfaces()), "Add interface").show(ui, &mut module.interfaces, |ui, interface| {
+                    Interface::new().show(ui, interface);
+                });
+                EditableList::new(format!("Modules - Symbols: {}", module.count_symbols_in_modules()), "Add module").show(ui, &mut module.modules, |ui, module| {
+                    Module::new().show(ui, module);
                 });
                 EditableList::new("Imports", "Add import").show(ui, &mut module.imports, |ui, import| {
                     Import::new().show(ui, import);
-                });
-                EditableList::new("Objects", "Add object").show(ui, &mut module.objects, |ui, object| {
-                    Object::new().show(ui, object);
-                });
-                EditableList::new("Functions", "Add function").show(ui, &mut module.functions, |ui, function| {
-                    Function::new().show(ui, function);
-                });
-                EditableList::new("Modules", "Add module").show(ui, &mut module.modules, |ui, module| {
-                    Module::new().show(ui, module);
-                });
-                EditableList::new("Interfaces", "Add interface").show(ui, &mut module.interfaces, |ui, interface| {
-                    Interface::new().show(ui, interface);
                 });
                 Attributes::new().show(ui, &mut module.attributes);
             });

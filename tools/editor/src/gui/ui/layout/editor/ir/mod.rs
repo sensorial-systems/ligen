@@ -28,17 +28,23 @@ pub use module::*;
 pub use literal::*;
 pub use menu_button::*;
 pub use interface::*;
+use ligen_ir::symbols::Symbols;
+use crate::gui::ui::List;
 
 use crate::gui::ui::panes::Pane;
 
 #[derive(Default)]
 pub struct Editor {
-    project: ligen_ir::Project
+    project: ligen_ir::Project,
+    filter: String,
+    symbols: Symbols
 }
 
 impl Editor {
     pub fn new(project: ligen_ir::Project) -> Self {
-        Self { project }
+        let filter = Default::default();
+        let symbols = Symbols::new(&project);
+        Self { project, symbols, filter }
     }
 }
 
@@ -67,6 +73,14 @@ impl Pane for Editor {
         });
         ui.separator();
         Project::new().show(ui, &mut self.project);
+        ui.separator();
+        ui.horizontal(|ui| {
+            ui.label("Filter");
+            ui.text_edit_singleline(&mut self.filter);
+        });
+        List::new("Symbols").show(ui, &mut self.symbols.symbols.iter_mut().filter(|symbol| symbol.to_string().contains(self.filter.as_str())), |ui, symbol| {
+            ui.label(symbol.to_string());
+        });
         UiResponse::None
     }
 }

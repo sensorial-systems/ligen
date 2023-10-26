@@ -23,13 +23,13 @@ impl Interface {
                 Visibility::new().show(ui, &mut interface.visibility);
                 Identifier::new().show(ui, &mut interface.identifier);    
             });
-            EditableList::new("Objects", "Add object").show(ui, &mut interface.objects, |ui, object| {
+            EditableList::new(format!("Objects - Symbols: {}", interface.objects.len()), "Add object").show(ui, &mut interface.objects, |ui, object| {
                 Object::new().show(ui, object);
             });
-            EditableList::new("Functions", "Add function").show(ui, &mut interface.functions, |ui, function| {
+            EditableList::new(format!("Functions - Symbols: {}", interface.functions.len()), "Add function").show(ui, &mut interface.functions, |ui, function| {
                 Function::new().show(ui, function);
             });
-            EditableList::new("Methods", "Add method").show(ui, &mut interface.methods, |ui, function| {
+            EditableList::new(format!("Methods - Symbols: {}", interface.methods.len()), "Add method").show(ui, &mut interface.methods, |ui, function| {
                 Method::new().show(ui, function);
             });
             EditableList::new("Interfaces", "Add interface").show(ui, &mut interface.interfaces, |ui, interface| {
