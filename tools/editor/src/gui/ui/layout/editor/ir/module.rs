@@ -14,6 +14,16 @@ impl Module {
     }
 }
 
+impl Module {
+    fn display_count(&self, name: &str, settings: &Settings, count: usize) -> String {
+        if settings.display.show_symbols_count {
+            format!("{} - Symbols: {}", name, count)
+        } else {
+            name.to_string()
+        }
+    }
+}
+
 impl Widget for Module {
     type Input = ligen_ir::Module;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
@@ -22,7 +32,7 @@ impl Widget for Module {
         } else {
             module.identifier.to_string()
         };
-        let text = format!("{} - Symbols: {}", text, module.count_symbols());
+        let text = self.display_count(&text, settings, module.count_symbols());
         CollapsingHeader::new(text)
             .id_source("module")
             .show(ui, |ui| {
@@ -32,19 +42,19 @@ impl Widget for Module {
                         Identifier::new().show(settings, ui, &mut module.identifier);
                     });
                 }
-                EditableList::new(format!("Types - Symbols: {}", module.types.len()), "Add type").show(settings, ui, &mut module.types, |ui, type_| {
+                EditableList::new(self.display_count("Types", settings, module.types.len()), "Add type").show(settings, ui, &mut module.types, |ui, type_| {
                     TypeDefinition::new().show(settings, ui, type_);
                 });
-                EditableList::new(format!("Objects - Symbols: {}", module.objects.len()), "Add object").show(settings, ui, &mut module.objects, |ui, object| {
+                EditableList::new(self.display_count("Objects", settings, module.objects.len()), "Add object").show(settings, ui, &mut module.objects, |ui, object| {
                     Object::new().show(settings, ui, object);
                 });
-                EditableList::new(format!("Functions - Symbols: {}", module.functions.len()), "Add function").show(settings, ui, &mut module.functions, |ui, function| {
+                EditableList::new(self.display_count("Functions", settings, module.functions.len()), "Add function").show(settings, ui, &mut module.functions, |ui, function| {
                     Function::new().show(settings, ui, function);
                 });
-                EditableList::new(format!("Interfaces - Symbols: {}", module.count_symbols_in_interfaces()), "Add interface").show(settings, ui, &mut module.interfaces, |ui, interface| {
+                EditableList::new(self.display_count("Interfaces", settings, module.count_symbols_in_interfaces()), "Add interface").show(settings, ui, &mut module.interfaces, |ui, interface| {
                     Interface::new().show(settings, ui, interface);
                 });
-                EditableList::new(format!("Modules - Symbols: {}", module.count_symbols_in_modules()), "Add module").show(settings, ui, &mut module.modules, |ui, module| {
+                EditableList::new(self.display_count("Modules", settings, module.count_symbols_in_modules()), "Add module").show(settings, ui, &mut module.modules, |ui, module| {
                     Module::new().show(settings, ui, module);
                 });
                 EditableList::new("Imports", "Add import").show(settings, ui, &mut module.imports, |ui, import| {
