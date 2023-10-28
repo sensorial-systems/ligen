@@ -50,7 +50,7 @@ impl TextPrinter for Module {
     fn print(&self, settings: &Settings, paper: &mut Paper, input: &Self::Input) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Identifier::new().print(settings, paper, &input.identifier);
-        SymbolsCount::new().print(settings, paper, &*input);
+        SymbolsCount::new().print(settings, paper, input);
         self
     }
 }

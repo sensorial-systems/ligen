@@ -46,7 +46,7 @@ impl TextPrinter for Interface {
     fn print(&self, settings: &Settings, paper: &mut Paper, input: &ligen_ir::Interface) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Identifier::new().print(settings, paper, &input.identifier);
-        SymbolsCount::new().print(settings, paper, &*input);
+        SymbolsCount::new().print(settings, paper, input);
         self
     }
 }
