@@ -34,6 +34,48 @@ pub struct Module {
     pub modules: Vec<Module>,
 }
 
+impl CountSymbols for Module {
+    fn count_symbols(&self) -> usize {
+        self.objects.len()
+            + self.functions.count_symbols()
+            + self.types.count_symbols()
+            + self.interfaces.count_symbols()
+            + self.modules.count_symbols()
+    }
+}
+
+impl CountSymbols for &mut Module {
+    fn count_symbols(&self) -> usize {
+        self.objects.len()
+            + self.functions.count_symbols()
+            + self.types.count_symbols()
+            + self.interfaces.count_symbols()
+            + self.modules.count_symbols()
+    }    
+}
+
+impl CountSymbols for &Module {
+    fn count_symbols(&self) -> usize {
+        self.objects.len()
+            + self.functions.count_symbols()
+            + self.types.count_symbols()
+            + self.interfaces.count_symbols()
+            + self.modules.count_symbols()
+    }    
+}
+
+impl CountSymbols for Vec<Module> {
+    fn count_symbols(&self) -> usize {
+        self.iter().fold(0, |acc, module| acc + module.count_symbols())
+    }
+}
+
+impl CountSymbols for &Vec<Module> {
+    fn count_symbols(&self) -> usize {
+        self.iter().fold(0, |acc, module| acc + module.count_symbols())
+    }
+}
+
 impl Module {
     /// Find the module with the specified path.
     pub fn find_module(&self, path: &Path) -> Option<&Module> {
@@ -60,21 +102,6 @@ impl Module {
         self.objects.extend(other.objects);
         self.modules.extend(other.modules);
         self.imports.extend(other.imports);
-    }
-
-    pub fn count_symbols_in_interfaces(&self) -> usize {
-        self.interfaces.iter().fold(0, |acc, interface| acc + interface.count_symbols())
-    }
-
-    pub fn count_symbols_in_modules(&self) -> usize {
-        self.modules.iter().fold(0, |acc, module| acc + module.count_symbols())
-    }
-    pub fn count_symbols(&self) -> usize {
-        self.objects.len()
-            + self.functions.len()
-            + self.types.len()
-            + self.count_symbols_in_interfaces()
-            + self.count_symbols_in_modules()
     }
 
     pub fn is_empty(&self) -> bool {

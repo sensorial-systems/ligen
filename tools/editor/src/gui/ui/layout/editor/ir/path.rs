@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{StringField, editor::{widget::Widget, settings::Settings}};
+use crate::gui::ui::{StringField, editor::{widget::{Widget, WidgetFor}, settings::Settings}};
 
 #[derive(Default)]
 pub struct Path;
@@ -9,6 +9,10 @@ impl Path {
     pub fn new() -> Self {
         Default::default()
     }
+}
+
+impl WidgetFor for ligen_ir::Path {
+    type Widget = Path;
 }
 
 impl Widget for Path {

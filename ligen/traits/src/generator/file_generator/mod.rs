@@ -9,7 +9,7 @@ pub use template_based::*;
 use crate::prelude::*;
 use crate::generator::Generator;
 
-use ligen_ir::conventions::naming::SnakeCase;
+use ligen_ir::{conventions::naming::SnakeCase, Project};
 use ligen_utils::fs::write_file;
 use std::path::{Path, PathBuf};
 

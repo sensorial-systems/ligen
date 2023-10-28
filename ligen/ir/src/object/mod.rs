@@ -16,3 +16,15 @@ pub struct Object {
     /// Object's literal value.
     pub literal: Literal,
 }
+
+impl CountSymbols for Vec<Object> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+
+impl CountSymbols for &Vec<Object> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}

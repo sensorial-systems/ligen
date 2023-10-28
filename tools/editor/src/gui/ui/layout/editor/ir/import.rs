@@ -1,5 +1,5 @@
 use crate::gui::ui::editor::settings::Settings;
-use crate::gui::ui::editor::widget::Widget;
+use crate::gui::ui::editor::widget::{Widget, WidgetFor};
 pub use crate::prelude::*;
 
 use crate::gui::ui::editor::ir::{Attributes, Identifier, Path, Visibility};
@@ -26,4 +26,8 @@ impl Widget for Import {
             Attributes::new().show(settings, ui, &mut import.attributes);
         });
     }
+}
+
+impl WidgetFor for ligen_ir::Import {
+    type Widget = Import;
 }

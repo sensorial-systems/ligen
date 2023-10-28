@@ -1,3 +1,4 @@
+use ligen_ir::Project;
 use ligen_traits::generator::file_generator::{FileGenerator, FileSet};
 use std::path::PathBuf;
 use std::str::FromStr;

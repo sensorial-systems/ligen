@@ -18,6 +18,11 @@ impl List {
         Self { name, id_source }
     }
 
+    pub fn id_source(&mut self, id_source: impl Into<String>) -> &mut Self {
+        self.id_source = id_source.into();
+        self
+    }
+
     pub fn show<T>(&mut self, ui: &mut egui::Ui, list: impl IntoIterator<Item = T>, mut show_item: impl FnMut(&mut egui::Ui, T))
     {
         let list = list.into_iter();

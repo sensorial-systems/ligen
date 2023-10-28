@@ -1,5 +1,5 @@
 use crate::gui::ui::editor::settings::Settings;
-use crate::gui::ui::editor::widget::Widget;
+use crate::gui::ui::editor::widget::{Widget, WidgetFor};
 pub use crate::prelude::*;
 
 mod synchrony;
@@ -20,6 +20,10 @@ impl Function {
     pub fn new() -> Self {
         Default::default()
     }
+}
+
+impl WidgetFor for ligen_ir::Function {
+    type Widget = Function;
 }
 
 impl Widget for Function {

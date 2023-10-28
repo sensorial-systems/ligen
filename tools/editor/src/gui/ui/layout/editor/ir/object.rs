@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::editor::{ir::{Identifier, Literal, Type}, settings::Settings, widget::Widget};
+use crate::gui::ui::editor::{ir::{Identifier, Literal, Type}, settings::Settings, widget::{Widget, WidgetFor}};
 
 #[derive(Default)]
 pub struct Object;
@@ -24,4 +24,8 @@ impl Widget for Object {
             Literal::new().show(settings, ui, &mut object.literal);
         });
     }
+}
+
+impl WidgetFor for ligen_ir::Object {
+    type Widget = Object;
 }

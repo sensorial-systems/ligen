@@ -19,11 +19,30 @@ pub struct Interface {
     pub interfaces: Vec<Path>
 }
 
-impl Interface {
-    /// Count the number of symbols in this interface.
-    pub fn count_symbols(&self) -> usize {
-        self.objects.len()
-        + self.functions.len()
-        + self.methods.len()
+impl CountSymbols for &Vec<Interface> {
+    fn count_symbols(&self) -> usize {
+        self.iter().fold(0, |acc, interface| acc + interface.count_symbols())
+    }
+}
+
+impl CountSymbols for Vec<Interface> {
+    fn count_symbols(&self) -> usize {
+        self.iter().fold(0, |acc, interface| acc + interface.count_symbols())
+    }
+}
+
+impl CountSymbols for &Interface {
+    fn count_symbols(&self) -> usize {
+        self.objects.count_symbols()
+            + self.functions.count_symbols()
+            + self.methods.count_symbols()
+    }
+}
+
+impl CountSymbols for Interface {
+    fn count_symbols(&self) -> usize {
+        self.objects.count_symbols()
+            + self.functions.count_symbols()
+            + self.methods.count_symbols()
     }
 }

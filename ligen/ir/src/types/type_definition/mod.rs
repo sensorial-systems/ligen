@@ -21,3 +21,15 @@ pub struct TypeDefinition {
     /// Specific definition of the kind (e.g. Structure, Enumeration).
     pub definition: KindDefinition
 }
+
+impl CountSymbols for Vec<TypeDefinition> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+
+impl CountSymbols for &Vec<TypeDefinition> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}

@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::{StringField, editor::{widget::Widget, settings::Settings}};
+use crate::gui::ui::{StringField, editor::{widget::Widget, settings::Settings}, TextPrinter, Paper};
 
 
 #[derive(Default)]
@@ -18,5 +18,13 @@ impl Widget for Identifier {
     type Input = ligen_ir::Identifier;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, identifier: &mut ligen_ir::Identifier) {
         self.string_field.show(settings, ui, identifier)
+    }
+}
+
+impl TextPrinter for Identifier {
+    type Input = ligen_ir::Identifier;
+    fn print(&self, settings: &Settings, paper: &mut Paper, input: &Self::Input) -> &Self {
+        paper.print_word(input);
+        self
     }
 }

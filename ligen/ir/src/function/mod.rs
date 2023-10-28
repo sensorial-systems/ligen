@@ -27,5 +27,17 @@ pub struct Function {
     pub output: Option<Type>,
 }
 
+impl CountSymbols for Vec<Function> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+
+impl CountSymbols for &Vec<Function> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;

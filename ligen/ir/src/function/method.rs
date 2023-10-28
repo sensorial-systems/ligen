@@ -19,3 +19,16 @@ pub struct Method {
     /// Output field.
     pub output: Option<Type>,
 }
+
+impl CountSymbols for &Vec<Method> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+
+impl CountSymbols for Vec<Method> {
+    fn count_symbols(&self) -> usize {
+        self.len()
+    }
+}
+

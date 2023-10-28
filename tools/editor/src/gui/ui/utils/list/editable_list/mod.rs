@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::gui::ui::editor::settings::Settings;
 pub use crate::prelude::*;
 
@@ -6,7 +8,7 @@ use egui::containers::CollapsingHeader;
 use super::List;
 
 pub struct EditableList {
-    list: List,
+    pub list: List,
     add_button_name: String,
 }
 
@@ -15,6 +17,11 @@ impl EditableList {
         let list = List::new(name);
         let add_button_name = add_button_name.as_ref().into();
         Self { list, add_button_name }
+    }
+
+    pub fn id_source(&mut self, id_source: impl Into<String>) -> &mut Self {
+        self.list.id_source(id_source);
+        self
     }
 
     pub fn show<T>(&mut self, settings: &Settings, ui: &mut egui::Ui, list: &mut Vec<T>, mut show_item: impl FnMut(&mut egui::Ui, &mut T))

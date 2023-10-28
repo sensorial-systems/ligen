@@ -1,5 +1,5 @@
 use std::path::{PathBuf, Path};
-use ligen_ir::prelude::*;
+use ligen_ir::{prelude::*, Project};
 use ligen_traits::build::{BuildSystem, BuildProfile};
 use ligen_ir::conventions::naming::SnakeCase;
 

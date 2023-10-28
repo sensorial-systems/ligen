@@ -1,4 +1,4 @@
-use crate::gui::ui::{editor::{widget::Widget, settings::Settings, ir::{Visibility, Identifier, Path, Attributes}}, EditableList};
+use crate::gui::ui::{editor::{widget::{Widget, WidgetFor}, settings::Settings, ir::{Visibility, Identifier, Path, Attributes}}, EditableList};
 pub use crate::prelude::*;
 
 mod kind_definition;
@@ -11,6 +11,10 @@ impl TypeDefinition {
     pub fn new() -> Self {
         Default::default()
     }
+}
+
+impl WidgetFor for ligen_ir::TypeDefinition {
+    type Widget = TypeDefinition;
 }
 
 impl Widget for TypeDefinition {

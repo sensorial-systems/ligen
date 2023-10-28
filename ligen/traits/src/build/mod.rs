@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 mod build_profile;
 pub use build_profile::*;
+use ligen_ir::Project;
 
 pub trait BuildSystem {
     fn check_build() -> Result<()>;

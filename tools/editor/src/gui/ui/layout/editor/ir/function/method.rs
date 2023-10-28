@@ -1,5 +1,5 @@
 use crate::gui::ui::editor::settings::Settings;
-use crate::gui::ui::editor::widget::Widget;
+use crate::gui::ui::editor::widget::{Widget, WidgetFor};
 use crate::gui::ui::{EditableList, OptionalField};
 use crate::gui::ui::editor::ir::{Attributes, Identifier, Parameter, Synchrony, Type, Visibility};
 pub use crate::prelude::*;
@@ -11,6 +11,10 @@ impl Method {
     pub fn new() -> Self {
         Default::default()
     }
+}
+
+impl WidgetFor for ligen_ir::Method {
+    type Widget = Method;
 }
 
 impl Widget for Method {
