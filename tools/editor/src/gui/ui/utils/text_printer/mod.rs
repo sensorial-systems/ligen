@@ -21,7 +21,7 @@ impl Paper {
 }
 
 #[derive(Default)]
-pub struct Printer;
+pub struct Printer {}
 
 impl Printer {
     pub fn new() -> Self {
