@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::prelude::*;
 
 /// Synchrony structure.
@@ -10,5 +12,14 @@ pub enum Synchrony {
 impl Default for Synchrony {
     fn default() -> Self {
         Self::Synchronous
+    }
+}
+
+impl Display for Synchrony {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Synchrony::Synchronous => write!(f, "Synchronous"),
+            Synchrony::Asynchronous => write!(f, "Asynchronous")
+        }
     }
 }

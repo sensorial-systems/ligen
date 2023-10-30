@@ -28,7 +28,7 @@ impl<L: LiteralParser> Parser<&str> for AttributesParser<L> {
     type Output = Attributes;
     fn parse(&self, input: &str) -> Result<Self::Output> {
         syn::parse_str::<syn2::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse attributes: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse attributes: {:?}. Input: {}", e, input)))
             .and_then(|nested_metas| self.parse(nested_metas.0))
     }
 }

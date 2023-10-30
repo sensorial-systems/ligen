@@ -5,6 +5,7 @@ mod enumeration;
 
 pub use structure::*;
 pub use enumeration::*;
+use crate::gui::ui::TextPrinter;
 use crate::gui::ui::editor::settings::Settings;
 use crate::prelude::*;
 use crate::gui::ui::editor::widget::Widget;
@@ -44,5 +45,13 @@ impl Widget for KindDefinition {
             ligen_ir::KindDefinition::Structure(structure) => Structure::new().show(settings, ui, structure),
             ligen_ir::KindDefinition::Enumeration(enumeration) => Enumeration::new().show(settings, ui, enumeration)
         }
+    }
+}
+
+impl TextPrinter for KindDefinition {
+    type Input = ligen_ir::KindDefinition;
+    fn print(&self, settings: &Settings, paper: &mut crate::gui::ui::Paper, input: &Self::Input) -> &Self {
+        paper.print_word(input.kind_name());
+        self
     }
 }
