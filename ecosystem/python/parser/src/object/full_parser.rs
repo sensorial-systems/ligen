@@ -1,7 +1,5 @@
-// FIXME: Duplicated from symbol_parser.
-
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
-use ligen::ir::{Object, Identifier, Mutability};
+use ligen::ir::Object;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
@@ -34,9 +32,12 @@ impl Parser<&Expr> for FullParser {
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let identifier = IdentifierParser::new().parse(identifier)?;
-        let mutability = self.get_mutability(&identifier);
-        Ok(Object { identifier, mutability, ..Default::default() })
+        let identifier_parser = IdentifierParser::new();
+        let identifier = identifier_parser.parse(identifier)?;
+        let mutability = identifier_parser.get_mutability(&identifier);
+        let literal = Err(Error::Message("Not implemented".into()))?;
+        let type_ = Err(Error::Message("Not implemented".into()))?;
+        Ok(Object { identifier, mutability, literal, type_ })
     }
 }
 
@@ -53,12 +54,3 @@ impl Parser<&StmtAssign> for FullParser {
     }
 }
 
-impl FullParser {
-    fn get_mutability(&self, identifier: &Identifier) -> Mutability {
-        if identifier.name.to_uppercase() == identifier.name {
-            Mutability::Constant
-        } else {
-            Mutability::Mutable
-        }
-    }
-}

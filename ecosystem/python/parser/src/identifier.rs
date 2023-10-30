@@ -1,4 +1,4 @@
-use ligen::ir::Identifier;
+use ligen::ir::{Identifier, Mutability};
 use ligen::parsing::parser::Parser;
 use ligen::parsing::parser::universal::identifier::IdentifierParser as InternalParser;
 use crate::prelude::*;
@@ -23,5 +23,13 @@ impl IdentifierParser {
 
     pub fn is_private(&self, identifier: &Identifier) -> bool {
         identifier.name.starts_with('_') && !identifier.name.starts_with("__")
+    }
+
+    pub fn get_mutability(&self, identifier: &Identifier) -> Mutability {
+        if identifier.name.to_uppercase() == identifier.name {
+            Mutability::Constant
+        } else {
+            Mutability::Mutable
+        }
     }
 }

@@ -1,6 +1,5 @@
-use ligen::ir::Mutability;
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
-use ligen::ir::{Object, Identifier};
+use ligen::ir::Object;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
@@ -34,8 +33,7 @@ impl Parser<&Expr> for SymbolParser {
             .id
             .as_str();
         let identifier = IdentifierParser::new().parse(identifier)?;
-        let mutability = self.get_mutability(&identifier);
-        Ok(Object { identifier, mutability, ..Default::default() })
+        Ok(Object { identifier, ..Default::default() })
     }
 }
 
@@ -49,15 +47,5 @@ impl Parser<&StmtAssign> for SymbolParser {
             }
         }
         Ok(objects)
-    }
-}
-
-impl SymbolParser {
-    fn get_mutability(&self, identifier: &Identifier) -> Mutability {
-        if identifier.name.to_uppercase() == identifier.name {
-            Mutability::Constant
-        } else {
-            Mutability::Mutable
-        }
     }
 }
