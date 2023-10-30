@@ -35,8 +35,8 @@ impl Parser<&Expr> for FullParser {
         let identifier_parser = IdentifierParser::new();
         let identifier = identifier_parser.parse(identifier)?;
         let mutability = identifier_parser.get_mutability(&identifier);
-        let literal = Err(Error::Message("Not implemented".into()))?;
-        let type_ = Err(Error::Message("Not implemented".into()))?;
+        let type_ = Default::default();
+        let literal = Default::default();
         Ok(Object { identifier, mutability, literal, type_ })
     }
 }

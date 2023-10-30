@@ -19,6 +19,8 @@ pub enum Literal {
     UnsignedInteger(u64),
     /// Float variant
     Float(f64),
+    /// None variant
+    None
 }
 
 impl Literal {
@@ -31,6 +33,7 @@ impl Literal {
             Literal::Integer(_) => type_.is_integer(),
             Literal::UnsignedInteger(_) => type_.is_unsigned_integer(),
             Literal::Float(_) => type_.is_float(),
+            Literal::None => false
         }
     }
 
@@ -48,14 +51,14 @@ impl Literal {
         } else if type_.is_float() {
             Self::Float(0.0)
         } else {
-            Self::String(Default::default())
+            Self::None
         }
     }
 }
 
 impl Default for Literal {
     fn default() -> Self {
-        Self::String(String::default())
+        Self::None
     }
 }
 
@@ -122,6 +125,7 @@ impl std::fmt::Display for Literal {
             Literal::Integer(value) => write!(f, "{}", value),
             Literal::UnsignedInteger(value) => write!(f, "{}", value),
             Literal::Float(value) => write!(f, "{}", value),
+            Literal::None => write!(f, "None")
         }
     }
 }

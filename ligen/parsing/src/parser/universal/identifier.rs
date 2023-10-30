@@ -22,9 +22,8 @@ impl Parser<String> for IdentifierParser {
 impl Parser<&str> for IdentifierParser {
     type Output = Identifier;
     fn parse(&self, input: &str) -> Result<Self::Output> {
-        syn::parse_str::<syn::Ident>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse identifier: {:?}", e)))
-            .and_then(|ident| self.parse(ident))
+        let name = input.into();
+        Ok(Identifier { name })
     }
 }
 

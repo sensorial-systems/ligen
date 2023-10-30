@@ -1,6 +1,6 @@
 use crate::prelude::*;
-use rustpython_parser::ast::{Arguments, Expr, Ranged, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
-use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type, Attributes};
+use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
+use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
 use crate::function::DynamicParser;
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
@@ -29,7 +29,7 @@ impl Parser<&str> for FullParser {
 impl Parser<WithSource<StmtFunctionDef>> for FullParser {
     type Output = Function;
     fn parse(&self, input: WithSource<StmtFunctionDef>) -> Result<Self::Output> {
-        let attributes = self.parse_attributes(input.sub(input.ast.decorator_list.clone()))?;
+        let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Synchronous;
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str())?;
@@ -45,7 +45,7 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FullParser {
     fn parse(&self, input: WithSource<StmtAsyncFunctionDef>) -> Result<Self::Output> {
         let source = input.source;
         let input = input.ast;
-        let attributes = self.parse_attributes(WithSource::new(source, input.decorator_list))?;
+        let attributes = AttributesParser::default().parse(WithSource::new(source, input.decorator_list))?;
         let visibility = Visibility::Public;
         let synchrony = Synchrony::Asynchronous;
         let identifier = IdentifierParser::new().parse(input.name.as_str())?;
@@ -56,14 +56,6 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FullParser {
 }
 
 impl FullParser {
-    fn parse_attributes(&self, attributes: WithSource<Vec<Expr>>) -> Result<Attributes> {
-        let source = if attributes.ast.is_empty() {
-            Default::default()
-        } else {
-            attributes.source[attributes.ast.first().unwrap().start().to_usize()..attributes.ast.last().unwrap().end().to_usize()].to_string()
-        };
-        AttributesParser::default().parse(source)
-    }
     fn parse_inputs(&self, args: Arguments) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args.args {

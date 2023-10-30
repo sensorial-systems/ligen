@@ -1,52 +1,24 @@
 pub mod attribute;
 
+use crate::prelude::*;
 use crate::literal::LiteralParser;
-pub type AttributesParser = ligen::parsing::parser::universal::attributes::AttributesParser<LiteralParser>;
+use ligen::parsing::parser::universal::attributes::AttributesParser as InternalParser;
+use ligen::ir::Attributes;
+use rustpython_parser::ast::{Expr, Ranged};
 
-// pub mod attribute;
-//
-// use rustpython_parser::ast::{Expr, ExprCall, Ranged};
-// use ligen::ir::Attributes;
-// use crate::macro_attributes::attributes::attribute::AttributeParser;
-// use crate::prelude::*;
-//
-// pub struct AttributesParser;
-//
-// impl Parser<WithSource<Vec<Expr>>> for AttributesParser {
-//     type Output = Attributes;
-//     fn parse(&self, input: WithSource<Vec<Expr>>) -> Result<Self::Output> {
-//         let source = input.source;
-//         let input = input.ast;
-//         if !input.is_empty() {
-//             println!("{}", &source[input.first().unwrap().start().to_usize()..input.last().unwrap().end().to_usize()]);
-//         }
-//         let mut attributes = Attributes::default();
-//         for expr in input {
-//             if let Expr::Attribute(expr) = expr {
-//                 attributes.attributes.push(AttributeParser.parse(WithSource::new(&source, expr))?);
-//             }
-//         }
-//         Ok(attributes)
-//     }
-// }
-//
-// impl Parser<WithSource<Box<Expr>>> for AttributesParser {
-//     type Output = Attributes;
-//     fn parse(&self, input: WithSource<Box<Expr>>) -> Result<Self::Output> {
-//         let source = input.source;
-//         let input = input.ast;
-//         let mut attributes = Attributes::default();
-//         match input.as_ref() {
-//             Expr::Call(call) => attributes.attributes.append(&mut AttributesParser::default().parse(WithSource::new(&source, call.clone()))?.attributes),
-//             _ => ()
-//         }
-//         Ok(attributes)
-//     }
-// }
-//
-// impl Parser<WithSource<ExprCall>> for AttributesParser {
-//     type Output = Attributes;
-//     fn parse(&self, _input: WithSource<ExprCall>) -> Result<Self::Output> {
-//         Ok(Default::default())
-//     }
-// }
+#[derive(Default)]
+pub struct AttributesParser {
+    parser: InternalParser<LiteralParser>
+}
+
+impl Parser<WithSource<Vec<Expr>>> for AttributesParser {
+    type Output = Attributes;
+    fn parse(&self, input: WithSource<Vec<Expr>>) -> Result<Self::Output> {
+        let source = if input.ast.is_empty() {
+            Default::default()
+        } else {
+            input.source[input.ast.first().unwrap().start().to_usize()..input.ast.last().unwrap().end().to_usize()].to_string()
+        };
+        self.parser.parse(source)
+    }
+}

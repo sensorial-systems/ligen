@@ -2,7 +2,14 @@ use rustpython_parser::ast::ExprName;
 use ligen::ir::{Type, Primitive, Integer, Float};
 use crate::prelude::*;
 
+#[derive(Default)]
 pub struct TypeParser;
+
+impl TypeParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
 
 impl Parser<ExprName> for TypeParser {
     type Output = Type;
@@ -14,7 +21,7 @@ impl Parser<ExprName> for TypeParser {
             "byte"    => Ok(Integer::I8.into()),
             "int"   => Ok(Integer::I32.into()),
             "float"   => Ok(Float::F32.into()),
-            _ => Err(Error::Message(format!("Unknown type: {}", name)))
+            name => Ok(Type::Composite(name.into(), Default::default()))
         }
     }
 }

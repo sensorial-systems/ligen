@@ -23,6 +23,7 @@ impl Widget for Literal {
                 ligen_ir::Literal::Float(_) => "Float",
                 ligen_ir::Literal::Character(_) => "Char",
                 ligen_ir::Literal::UnsignedInteger(_) => "Unsigned Integer",
+                ligen_ir::Literal::None => "None"
             };
             ui.horizontal_top(|ui| {
                 ComboBox::new("Literal", "")
@@ -57,6 +58,9 @@ impl Widget for Literal {
                     },
                     ligen_ir::Literal::Float(value) => {
                         ui.add(egui::DragValue::new(value));
+                    },
+                    ligen_ir::Literal::None => {
+                        ui.label("None");
                     }
                 }
             });
