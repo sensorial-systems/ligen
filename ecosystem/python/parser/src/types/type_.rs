@@ -1,5 +1,5 @@
-use rustpython_parser::ast::ExprName;
-use ligen::ir::{Type, Primitive, Integer, Float};
+use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple};
+use ligen::ir::{Type, Primitive, Integer, Float, Identifier};
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -11,17 +11,47 @@ impl TypeParser {
     }
 }
 
-impl Parser<ExprName> for TypeParser {
+impl Parser<&ExprName> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: ExprName) -> Result<Self::Output> {
-        let name = input.id;
-        match name.as_str() {
+    fn parse(&self, input: &ExprName) -> Result<Self::Output> {
+        match input.id.as_str() {
             "bool"  => Ok(Primitive::Boolean.into()),
             "char"  => Ok(Primitive::Character.into()),
             "byte"    => Ok(Integer::I8.into()),
             "int"   => Ok(Integer::I32.into()),
             "float"   => Ok(Float::F32.into()),
-            name => Ok(Type::Composite(name.into(), Default::default()))
+            name => Ok(Type::Composite(Identifier::from(name).into()))
+        }
+    }
+}
+
+impl Parser<&ExprSubscript> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: &ExprSubscript) -> Result<Self::Output> {
+        let mut type_ = self.parse(&*input.value)?;
+        if let Type::Composite(composite) = &mut type_ {
+            let type_ = self.parse(&*input.slice)?;
+            composite.generics.types.push(type_);
+        }
+        Ok(type_)
+    }
+}
+
+impl Parser<&ExprTuple> for TypeParser {
+    type Output = Type;
+    fn parse(&self, _input: &ExprTuple) -> Result<Self::Output> {
+        todo!("Tuple not implemented yet");
+    }
+}
+
+impl Parser<&Expr> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: &Expr) -> Result<Self::Output> {
+        match input {
+            Expr::Name(expr) => self.parse(expr),
+            Expr::Subscript(expr) => self.parse(expr),
+            Expr::Tuple(expr) => self.parse(expr),
+            _ => Err(Error::Message("Expected type".into()))
         }
     }
 }

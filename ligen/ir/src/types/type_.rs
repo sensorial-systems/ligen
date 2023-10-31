@@ -1,4 +1,4 @@
-use crate::{Primitive, Reference, Path, Identifier, Integer, Float, Generics};
+use crate::{Primitive, Reference, Path, Identifier, Integer, Float, Composite};
 use crate::prelude::*;
 use std::ops::Deref;
 
@@ -8,7 +8,7 @@ pub enum Type {
     /// Primitive variant
     Primitive(Primitive),
     /// Composite variant
-    Composite(Path, Generics),
+    Composite(Composite),
     /// Reference variant
     Reference(Reference),
 }
@@ -68,7 +68,7 @@ impl Type {
     /// Check if the `Type` is `String`.
     pub fn is_string(&self) -> bool {
         match self {
-            Self::Composite(path, _) => path == &Path::from("String"), // TODO: Create a String type.
+            Self::Composite(composite) => composite.path == Path::from("String"), // TODO: Create a String type.
             _ => false
         }
     }
@@ -84,13 +84,13 @@ impl Type {
 
 impl From<Identifier> for Type {
     fn from(identifier: Identifier) -> Self {
-        Self::Composite(identifier.into(), Default::default())
+        Self::Composite(identifier.into())
     }
 }
 
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        Self::Composite(path, Default::default())
+        Self::Composite(path.into())
     }
 }
 
@@ -122,7 +122,7 @@ impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match &self {
             Type::Primitive(primitive)               => format!("{}", primitive),
-            Type::Composite(composite, generics) => format!("{}{}", composite, generics),
+            Type::Composite(composite) => format!("{}", composite),
             Type::Reference(reference)         => format!("{}", reference),
         };
         f.write_str(&display)

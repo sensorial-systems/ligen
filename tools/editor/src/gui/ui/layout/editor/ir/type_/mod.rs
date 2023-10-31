@@ -2,13 +2,13 @@ pub use crate::prelude::*;
 
 mod primitive;
 mod reference;
-mod generics;
+mod composite;
 mod type_definition;
 
 pub use type_definition::*;
 pub use primitive::*;
 pub use reference::*;
-pub use generics::*;
+pub use composite::*;
 
 use crate::gui::ui::editor::{ir::Path, widget::Widget, settings::Settings};
 
@@ -35,7 +35,7 @@ impl Widget for Type {
             if settings.editor.editable_fields {
                 let variant_name = match type_ {
                     ligen_ir::Type::Primitive(_) => "Primitive",
-                    ligen_ir::Type::Composite(_, _) => "Composite",
+                    ligen_ir::Type::Composite(_) => "Composite",
                     ligen_ir::Type::Reference(_) => "Reference",
                 };
                 ui.horizontal_top(|ui| {
@@ -43,7 +43,7 @@ impl Widget for Type {
                         .selected_text(variant_name)
                         .show_ui(ui, |ui| {
                             ui.selectable_value(type_, ligen_ir::Type::Primitive(ligen_ir::Primitive::Boolean), "Primitive");
-                            ui.selectable_value(type_, ligen_ir::Type::Composite(Default::default(), Default::default()), "Composite");
+                            ui.selectable_value(type_, ligen_ir::Type::Composite(Default::default()), "Composite");
                             ui.selectable_value(type_, ligen_ir::Type::Reference(Default::default()), "Reference");
                         });
                 });
@@ -51,12 +51,7 @@ impl Widget for Type {
             match type_ {
                 ligen_ir::Type::Primitive(primitive) => Primitive::new().show(settings, ui, primitive),
                 ligen_ir::Type::Reference(reference) => Reference::new().show(settings, ui, reference),
-                ligen_ir::Type::Composite(path, generics) => {
-                    ui.horizontal_top(|ui| {
-                        Path::new().show(settings, ui, path);
-                        Generics::new().show(settings, ui, generics);
-                    });
-                }
+                ligen_ir::Type::Composite(composite) => Composite::new().show(settings, ui, composite)
             }
         });
     }

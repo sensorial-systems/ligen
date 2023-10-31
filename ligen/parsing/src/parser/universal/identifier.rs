@@ -22,6 +22,7 @@ impl Parser<String> for IdentifierParser {
 impl Parser<&str> for IdentifierParser {
     type Output = Identifier;
     fn parse(&self, input: &str) -> Result<Self::Output> {
+        // TODO: check if ident is valid identifier.
         let name = input.into();
         Ok(Identifier { name })
     }

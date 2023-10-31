@@ -66,7 +66,7 @@ impl FullParser {
 
     fn parse_output(&self, output: Option<Box<Expr>>) -> Result<Option<Type>> {
         if let Some(expr) = output.and_then(|expr| expr.name_expr()) {
-            Ok(Some(TypeParser.parse(expr)?))
+            Ok(Some(TypeParser.parse(&expr)?))
         } else {
             Ok(None)
         }

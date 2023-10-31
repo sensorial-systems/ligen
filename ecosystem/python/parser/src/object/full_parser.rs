@@ -2,6 +2,7 @@ use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
 use ligen::ir::Object;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
+use crate::types::type_::TypeParser;
 
 use super::DynamicParser;
 
@@ -13,7 +14,9 @@ pub struct FullParser;
 impl Parser<&StmtAnnAssign> for FullParser {
     type Output = Object;
     fn parse(&self, input: &StmtAnnAssign) -> Result<Self::Output> {
-        self.parse(input.target.as_ref())
+        let mut object = self.parse(input.target.as_ref())?;
+        object.type_ = TypeParser::new().parse(&*input.annotation)?;
+        Ok(object)
     }
 }
 

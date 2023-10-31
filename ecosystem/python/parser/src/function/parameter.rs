@@ -12,7 +12,7 @@ impl Parser<ArgWithDefault> for ParameterParser {
         let attributes = Default::default();
         let identifier = IdentifierParser::new().parse(input.def.arg.as_str())?;
         let type_ = if let Some(value) = input.def.annotation.and_then(|annotation| annotation.name_expr()) {
-            TypeParser.parse(value)?
+            TypeParser.parse(&value)?
         } else {
             Default::default()
         };

@@ -40,7 +40,7 @@ pub fn function_output() -> Function {
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: Some(Type::Composite(Identifier::new("String").into(), Default::default()))
+        output: Some(Type::Composite(Identifier::new("String").into()))
     }
 }
 
@@ -118,14 +118,14 @@ pub fn function_complete() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("a"),
-                type_: Type::Composite(Identifier::new("String").into(), Default::default())
+                type_: Type::Composite(Identifier::new("String").into())
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
                 type_: Type::Reference(Reference {
                     mutability: Mutability::Constant,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
+                    type_: Box::new(Type::Composite(Identifier::new("String").into()))
                 })
             },
             Parameter {
@@ -133,13 +133,13 @@ pub fn function_complete() -> Function {
                 identifier: Identifier::new("c"),
                 type_: Type::Reference(Reference {
                     mutability: Mutability::Mutable,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
+                    type_: Box::new(Type::Composite(Identifier::new("String").into()))
                 })
             },
         ],
         output: Some(Type::Reference(Reference {
             mutability: Mutability::Constant,
-            type_: Box::new(Type::Composite(Identifier::new("String").into(), Default::default()))
+            type_: Box::new(Type::Composite(Identifier::new("String").into()))
         }))
     }
 }

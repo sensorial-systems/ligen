@@ -1,4 +1,4 @@
-use ligen::ir::{Primitive, Reference, Mutability, Type};
+use ligen::ir::{Primitive, Reference, Mutability, Type, Composite};
 use crate::prelude::*;
 use ligen::parsing::parser::Parser;
 use crate::path::PathParser;
@@ -18,7 +18,9 @@ impl Parser<syn::Path> for TypeParser {
                 .last()
                 .map(|segment| GenericsParser.parse(segment.arguments.clone()).expect("Failed to parse generics."))
                 .unwrap_or_default();
-            Ok(Self::Output::Composite(PathParser.parse(path)?, generics))
+            let path = PathParser.parse(path)?;
+            let composite = Composite { path, generics };
+            Ok(Self::Output::Composite(composite))
         }
     }
 }
