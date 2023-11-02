@@ -80,8 +80,8 @@ impl Module {
     /// Find the module with the specified path.
     pub fn find_module(&self, path: &Path) -> Option<&Module> {
         let mut path = path.clone();
-        if let Some(identifier) = path.pop_back() {
-            if path.segments.is_empty() && self.identifier == identifier {
+        if let Some(path_segment) = path.pop_back() {
+            if path.segments.is_empty() && self.identifier == path_segment.identifier {
                 Some(self)
             } else {
                 self

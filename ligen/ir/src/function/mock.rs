@@ -21,12 +21,12 @@ pub fn function_input() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("a"),
-                type_: Integer::I32.into()
+                type_: Type::i32()
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
-                type_: Integer::I32.into()
+                type_: Type::i32()
             },
         ],
         output: None
@@ -40,7 +40,7 @@ pub fn function_output() -> Function {
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: Some(Type::Composite(Identifier::new("String").into()))
+        output: Some(Type::string())
     }
 }
 
@@ -53,16 +53,16 @@ pub fn function_input_output() -> Function {
         inputs: vec![
             Parameter {
                 identifier: Identifier::new("a"),
-                type_: Integer::I32.into(),
+                type_: Type::i32(),
                 .. Default::default()
             },
             Parameter {
                 identifier: Identifier::new("b"),
-                type_: Integer::I32.into(),
+                type_: Type::i32(),
                 .. Default::default()
             }
         ],
-        output: Some(Integer::I32.into())
+        output: Some(Type::i32())
     }
 }
 
@@ -118,14 +118,14 @@ pub fn function_complete() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("a"),
-                type_: Type::Composite(Identifier::new("String").into())
+                type_: Type::string()
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
                 type_: Type::Reference(Reference {
                     mutability: Mutability::Constant,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into()))
+                    type_: Box::new(Type::string())
                 })
             },
             Parameter {
@@ -133,13 +133,13 @@ pub fn function_complete() -> Function {
                 identifier: Identifier::new("c"),
                 type_: Type::Reference(Reference {
                     mutability: Mutability::Mutable,
-                    type_: Box::new(Type::Composite(Identifier::new("String").into()))
+                    type_: Box::new(Type::string())
                 })
             },
         ],
         output: Some(Type::Reference(Reference {
             mutability: Mutability::Constant,
-            type_: Box::new(Type::Composite(Identifier::new("String").into()))
+            type_: Box::new(Type::string())
         }))
     }
 }

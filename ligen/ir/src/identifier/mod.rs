@@ -1,6 +1,7 @@
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
+use crate::path::PathSegment;
 use crate::prelude::*;
 
 use crate::conventions::naming::SnakeCase;
@@ -36,5 +37,11 @@ impl From<&str> for Identifier {
 impl From<String> for Identifier {
     fn from(name: String) -> Self {
         name.as_str().into()
+    }
+}
+
+impl From<PathSegment> for Identifier {
+    fn from(value: PathSegment) -> Self {
+        value.identifier
     }
 }

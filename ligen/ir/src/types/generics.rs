@@ -2,7 +2,7 @@ use crate::Type;
 use crate::prelude::*;
 
 /// Generic arguments list.
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Default, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Generics {
     /// Generic types.
     pub types: Vec<Type>

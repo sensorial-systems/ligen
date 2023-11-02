@@ -6,7 +6,7 @@ pub use object::Object;
 pub use function::{Function, Parameter, Synchrony, Method};
 pub use identifier::Identifier;
 pub use literal::Literal;
-pub use path::Path;
+pub use path::{Path, PathSegment};
 pub use macro_attributes::{Attributes, Attribute, MacroAttributes, attributes, attribute};
 pub use types::*;
 pub use visibility::*;

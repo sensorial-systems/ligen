@@ -1,4 +1,4 @@
-use ligen::ir::Path;
+use ligen::ir::{Path, PathSegment};
 use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
@@ -11,7 +11,9 @@ impl Parser<syn::Path> for PathParser {
         let segments = path
             .segments
             .iter()
+            // FIXME: This isn't parsing generics, just the identifiers.
             .map(|segment| IdentifierParser::new().parse(segment.ident.clone()).expect("Failed to parse segment."))
+            .map(PathSegment::from)
             .collect();
         Ok(Self::Output { segments })
     }
@@ -20,7 +22,7 @@ impl Parser<syn::Path> for PathParser {
 impl Parser<syn::Ident> for PathParser {
     type Output = Path;
     fn parse(&self, identifier: syn::Ident) -> Result<Self::Output> {
-        let segments = vec![IdentifierParser::new().parse(identifier)?];
+        let segments = vec![IdentifierParser::new().parse(identifier)?.into()];
         Ok(Self::Output { segments })
     }
 }

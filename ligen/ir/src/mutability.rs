@@ -1,10 +1,9 @@
 //! Mutability.
 
-use serde::{Serialize, Deserialize};
 use crate::prelude::*;
 
 /// Mutability.
-#[derive(Debug, Hash, PartialEq, Eq, Copy, Clone, Serialize, Deserialize, EnumIter)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, EnumIter)]
 #[allow(missing_docs)]
 pub enum Mutability {
     Constant,

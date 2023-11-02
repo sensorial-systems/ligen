@@ -2,7 +2,7 @@ use crate::{Mutability, Type};
 use crate::prelude::*;
 
 /// Reference representation.
-#[derive(Debug, Default, Hash, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Reference {
     /// Mutability.
     pub mutability: Mutability,

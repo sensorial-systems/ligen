@@ -1,27 +1,35 @@
-use ligen::ir::{Primitive, Reference, Mutability, Type, Composite};
+use ligen::ir::{Reference, Mutability, Type};
 use crate::prelude::*;
 use ligen::parsing::parser::Parser;
 use crate::path::PathParser;
-use crate::types::GenericsParser;
-use crate::types::primitive::PrimitiveParser;
 
 pub struct TypeParser;
 
 impl Parser<syn::Path> for TypeParser {
     type Output = Type;
     fn parse(&self, path: syn::Path) -> Result<Self::Output> {
-        if Primitive::is_primitive(PathParser.parse(path.clone())?) {
-            Ok(Self::Output::Primitive(PrimitiveParser.parse(path)?))
-        } else {
-            let generics = path
-                .segments
-                .last()
-                .map(|segment| GenericsParser.parse(segment.arguments.clone()).expect("Failed to parse generics."))
-                .unwrap_or_default();
-            let path = PathParser.parse(path)?;
-            let composite = Composite { path, generics };
-            Ok(Self::Output::Composite(composite))
+        let mut path = PathParser.parse(path)?;
+        if path.segments.len() == 1 {
+            let segment = path.first_mut();
+            match segment.identifier.name.as_str() {
+                "i8"  | "i16" | "i32" | "i64" | "i128" |
+                "u8"  | "u16" | "u32" | "u64" | "u128" |
+                "f16" | "f32" | "f64" | "f128" =>
+                    segment
+                        .identifier
+                        .name
+                        .replace_range(..1, &segment.identifier.name[..1].to_uppercase()),
+                "usize" | "isize" =>
+                    segment
+                        .identifier
+                        .name
+                        .replace_range(..2, &segment.identifier.name[..2].to_uppercase()),
+                "char" => segment.identifier.name = "Character".into(),
+                "bool" => segment.identifier.name = "Boolean".into(),
+                _ => ()
+            }
         }
+        Ok(Type::Path(path))
     }
 }
 
@@ -73,7 +81,6 @@ impl Parser<proc_macro2::TokenStream> for TypeParser {
 
 #[cfg(test)]
 mod test {
-    use ligen::ir::{Float, Integer, Mutability};
     use ligen::parsing::parser::Parser;
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
@@ -101,21 +108,20 @@ mod test {
             })
             .collect();
         let expected: Vec<Type> = vec![
-            Integer::U8,
-            Integer::U16,
-            Integer::U32,
-            Integer::U64,
-            Integer::U128,
-            Integer::USize,
-            Integer::I8,
-            Integer::I16,
-            Integer::I32,
-            Integer::I64,
-            Integer::I128,
-            Integer::ISize,
+            Type::u8(),
+            Type::u16(),
+            Type::u32(),
+            Type::u64(),
+            Type::u128(),
+            Type::usize(),
+            Type::i8(),
+            Type::i16(),
+            Type::i32(),
+            Type::i64(),
+            Type::i128(),
+            Type::isize(),
         ]
             .into_iter()
-            .map(|x| Type::Primitive(Primitive::Integer(x)))
             .collect();
 
         for (value, expected_value) in vec.iter().zip(expected.iter()) {
@@ -131,9 +137,8 @@ mod test {
                 TypeParser.parse(x).expect("Failed to convert from syn::Type")
             })
             .collect();
-        let expected: Vec<Type> = vec![Float::F32, Float::F64]
+        let expected: Vec<Type> = vec![Type::f32(), Type::f64()]
             .into_iter()
-            .map(|x| Type::Primitive(Primitive::Float(x)))
             .collect();
 
         for (value, expected_value) in vec.iter().zip(expected.iter()) {
@@ -144,7 +149,7 @@ mod test {
     #[test]
     fn types_boolean() -> Result<()> {
         assert_eq!(
-            Type::Primitive(Primitive::Boolean),
+            Type::boolean(),
             TypeParser.parse(quote! {bool})?
         );
         Ok(())
@@ -153,7 +158,7 @@ mod test {
     #[test]
     fn types_character() -> Result<()> {
         assert_eq!(
-            Type::Primitive(Primitive::Character),
+            Type::character(),
             TypeParser.parse(quote! {char})?
         );
         Ok(())
@@ -165,13 +170,7 @@ mod test {
             Type::Reference(
                 Reference {
                     mutability: Mutability::Constant,
-                    type_: Box::new(
-                        Type::Primitive(
-                            Primitive::Integer(
-                                Integer::I32
-                            )
-                        )
-                    )
+                    type_: Type::i32().into()
                 }
             ),
             TypeParser.parse(quote! {&i32})?
@@ -185,13 +184,7 @@ mod test {
             Type::Reference(
                 Reference {
                     mutability: Mutability::Mutable,
-                    type_: Box::new(
-                        Type::Primitive(
-                            Primitive::Integer(
-                                Integer::I32
-                            )
-                        )
-                    )
+                    type_: Type::i32().into()
                 }
             ),
             TypeParser.parse(quote! {&mut i32})?
@@ -204,13 +197,7 @@ mod test {
         assert_eq!(
             Type::Reference(Reference {
                 mutability: Mutability::Constant,
-                type_: Box::new(
-                    Type::Primitive(
-                        Primitive::Integer(
-                            Integer::I32
-                        )
-                    )
-                )
+                type_: Type::i32().into()
             }),
             TypeParser.parse(quote! {*const i32})?
         );
@@ -222,13 +209,7 @@ mod test {
         assert_eq!(
             Type::Reference(Reference {
                 mutability: Mutability::Mutable,
-                type_: Box::new(
-                    Type::Primitive(
-                        Primitive::Integer(
-                            Integer::I32
-                        )
-                    )
-                )
+                type_: Type::i32().into()
             }),
             TypeParser.parse(quote! {*mut i32})?
         );

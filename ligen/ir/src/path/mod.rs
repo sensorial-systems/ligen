@@ -1,6 +1,10 @@
+pub mod path_segment;
+
 use crate::Identifier;
 use crate::prelude::*;
 use std::path::PathBuf;
+
+pub use path_segment::*;
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
@@ -9,46 +13,48 @@ pub mod mock;
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Path {
     /// The path segments.
-    pub segments: Vec<Identifier>
+    pub segments: Vec<PathSegment>
 }
 
 impl Path {
     /// Get `Path` from a `string` with a specified `separator`.
-    pub fn from_string(string: &str, separator: &str) -> Self {
+    pub fn from_string_with_separator(string: &str, separator: impl AsRef<str>) -> Self {
+        let separator = separator.as_ref();
         let segments = string
             .split(separator)
-            .map(Identifier::from)
+            .map(PathSegment::from)
             .collect();
         Self { segments }
 
     }
 
-    /// Converts to string with specified separator.
-    pub fn to_string(&self, separator: &str) -> String {
-        self
-            .segments
-            .clone()
-            .into_iter()
-            .map(|identifier| identifier.name)
-            .collect::<Vec<_>>()
-            .join(separator)
+    /// Convert the `Path` to a string with a specified separator.
+    pub fn to_string_with_separator(&self, separator: impl AsRef<str>) -> String {
+        let separator = separator.as_ref();
+        let segments: Vec<_> = self.segments.iter().map(|identifier| identifier.to_string()).collect();
+        segments.join(separator)
     }
 
     /// Get the first segment's reference.
-    pub fn first(&self) -> &Identifier {
+    pub fn first(&self) -> &PathSegment {
         self.segments.first().unwrap()
     }
 
     /// Get the first segment's mutable reference.
-    pub fn first_mut(&mut self) -> &mut Identifier {
+    pub fn first_mut(&mut self) -> &mut PathSegment {
         self.segments.first_mut().unwrap()
     }
 
-    /// Get the last segment of the path.
-    pub fn last(&self) -> Identifier {
-        self.segments.last().unwrap().clone()
+    /// Get the last segment's reference.
+    pub fn last(&self) -> &PathSegment {
+        self.segments.last().unwrap()
     }
 
+    /// Get the last segment's mutable reference.
+    pub fn last_mut(&mut self) -> &mut PathSegment {
+        self.segments.last_mut().unwrap()
+    }
+    
     /// Join the current path with another path.
     pub fn join<T: Into<Path>>(self, another: T) -> Self {
         let mut this = self;
@@ -69,7 +75,7 @@ impl Path {
     }
 
     /// Removes the first element and returns it, or None if the Path is empty.
-    pub fn pop_front(&mut self) -> Option<Identifier> {
+    pub fn pop_front(&mut self) -> Option<PathSegment> {
         if !self.segments.is_empty() {
             Some(self.segments.remove(0))
         } else {
@@ -78,29 +84,24 @@ impl Path {
     }
 
     /// Removes the last element and returns it, or None if the Path is empty.
-    pub fn pop_back(&mut self) -> Option<Identifier> {
+    pub fn pop_back(&mut self) -> Option<PathSegment> {
         self.segments.pop()
     }
 }
 
 impl<I: Into<Identifier>> From<Vec<I>> for Path {
     fn from(from: Vec<I>) -> Self {
-        let segments = from.into_iter().map(|x| x.into()).collect();
+        let segments = from
+            .into_iter()
+            .map(|x| x.into().into())
+            .collect();
         Self { segments }
     }
 }
 
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
-        let segments = if string.is_empty() {
-            Default::default()
-        } else {
-            string
-                .split("::")
-                .map(Identifier::new)
-                .collect()
-        };
-        Self { segments }
+        Self::from_string_with_separator(string, "::")
     }
 }
 
@@ -125,7 +126,7 @@ impl From<Path> for PathBuf {
     fn from(path: Path) -> Self {
         let mut path_buf = PathBuf::new();
         for segment in path.segments {
-            path_buf = path_buf.join(segment.name);
+            path_buf = path_buf.join(segment.identifier.name);
         }
         path_buf
     }
@@ -133,15 +134,14 @@ impl From<Path> for PathBuf {
 
 impl From<Identifier> for Path {
     fn from(identifier: Identifier) -> Self {
-        let segments = vec![identifier];
+        let segments = vec![identifier.into()];
         Self { segments }
     }
 }
 
 impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let segments: Vec<_> = self.segments.iter().map(|identifier| identifier.to_string()).collect();
-        f.write_str(&segments.join("::"))
+        f.write_str(self.to_string_with_separator("::").as_str())
     }
 }
 
@@ -151,7 +151,10 @@ mod test {
     #[test]
     fn path_from_string() {
         let path: Path = "std::convert::TryFrom".into();
-        let segments: Vec<_> = vec!["std", "convert", "TryFrom"].into_iter().map(Identifier::from).collect();
+        let segments: Vec<_> = vec!["std", "convert", "TryFrom"]
+            .into_iter()
+            .map(PathSegment::from)
+            .collect();
         assert_eq!(path.segments, segments);
     }
 }

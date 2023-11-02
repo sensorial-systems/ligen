@@ -17,7 +17,7 @@ pub fn join_path(inputs: &Inputs) -> String {
         .get(1)
         .and_then(|input| serde_json::from_value::<Path>(input).ok());
     if let (Some(separator), Some(path)) = (separator, path) {
-        path.to_string(&separator)
+        path.to_string_with_separator(&separator)
     } else {
         "<ligen:join_path error>".to_string()
     }
@@ -29,7 +29,7 @@ pub fn name_from_path(inputs: &Inputs) -> String {
         .and_then(|input| serde_json::from_value::<Path>(input).ok());
     if let Some(path) = path {
         let content = path.last();
-        content.name
+        content.identifier.name.clone()
     } else {
         "<ligen:name_from_path error>".to_string()
     }

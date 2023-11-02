@@ -1,5 +1,5 @@
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple};
-use ligen::ir::{Type, Primitive, Integer, Float, Identifier};
+use ligen::ir::Type;
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -15,12 +15,12 @@ impl Parser<&ExprName> for TypeParser {
     type Output = Type;
     fn parse(&self, input: &ExprName) -> Result<Self::Output> {
         match input.id.as_str() {
-            "bool"  => Ok(Primitive::Boolean.into()),
-            "char"  => Ok(Primitive::Character.into()),
-            "byte"    => Ok(Integer::I8.into()),
-            "int"   => Ok(Integer::I32.into()),
-            "float"   => Ok(Float::F32.into()),
-            name => Ok(Type::Composite(Identifier::from(name).into()))
+            "bool"  => Ok(Type::boolean()),
+            "char"  => Ok(Type::character()),
+            "byte"    => Ok(Type::i8()),
+            "int"   => Ok(Type::i32()),
+            "float"   => Ok(Type::f32()),
+            name => Ok(Type::Path(name.into()))
         }
     }
 }
@@ -29,9 +29,9 @@ impl Parser<&ExprSubscript> for TypeParser {
     type Output = Type;
     fn parse(&self, input: &ExprSubscript) -> Result<Self::Output> {
         let mut type_ = self.parse(&*input.value)?;
-        if let Type::Composite(composite) = &mut type_ {
+        if let Type::Path(path) = &mut type_ {
             let type_ = self.parse(&*input.slice)?;
-            composite.generics.types.push(type_);
+            path.last_mut().generics.types.push(type_);
         }
         Ok(type_)
     }
