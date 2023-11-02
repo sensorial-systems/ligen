@@ -17,7 +17,8 @@ impl Parser<WithSource<StmtClassDef>> for FullParser {
         let visibility = Visibility::Public;
         let interfaces = self.parse_interfaces(&input.ast.bases)?;
         let definition = self.parse_kind_definition(&input)?;
-        Ok(TypeDefinition { attributes, visibility, identifier, definition, interfaces })
+        let generics = Default::default();
+        Ok(TypeDefinition { attributes, visibility, identifier, generics, definition, interfaces })
     }
 }
 

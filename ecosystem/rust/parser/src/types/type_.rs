@@ -5,10 +5,17 @@ use crate::path::PathParser;
 
 pub struct TypeParser;
 
+impl Parser<syn::Ident> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: syn::Ident) -> Result<Self::Output> {
+        Ok(Type::Path(PathParser::default().parse(input)?))
+    }
+}
+
 impl Parser<syn::Path> for TypeParser {
     type Output = Type;
     fn parse(&self, path: syn::Path) -> Result<Self::Output> {
-        let mut path = PathParser.parse(path)?;
+        let mut path = PathParser::default().parse(path)?;
         if path.segments.len() == 1 {
             let segment = path.first_mut();
             match segment.identifier.name.as_str() {

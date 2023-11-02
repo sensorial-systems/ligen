@@ -3,6 +3,7 @@
 pub mod variant;
 
 use crate::prelude::*;
+use crate::types::GenericsParser;
 use ligen::ir::{Enumeration, TypeDefinition};
 use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
@@ -28,7 +29,8 @@ impl Parser<syn::ItemEnum> for EnumerationParser {
         let interfaces = Default::default();
         let variants = VariantParser.parse(enumeration.variants)?;
         let definition = Enumeration { variants }.into();
-        Ok(TypeDefinition { attributes, visibility, identifier, interfaces, definition })
+        let generics = GenericsParser::default().parse(enumeration.generics)?;
+        Ok(TypeDefinition { attributes, visibility, identifier, generics, interfaces, definition })
     }
 }
 

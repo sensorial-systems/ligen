@@ -3,7 +3,14 @@ use ligen::parsing::parser::Parser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
-pub struct GenericsParser;
+#[derive(Default)]
+pub struct GenericsParser {}
+
+impl GenericsParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
 
 impl Parser<syn::PathArguments> for GenericsParser {
     type Output = Generics;
@@ -22,5 +29,18 @@ impl Parser<syn::PathArguments> for GenericsParser {
             _ => Default::default()
         };
         Ok(Self::Output { types })
+    }
+}
+
+impl Parser<syn::Generics> for GenericsParser {
+    type Output = Generics;
+    fn parse(&self, input: syn::Generics) -> Result<Self::Output> {
+        let mut generics = Generics::default();
+        for generic in input.params {
+            if let syn::GenericParam::Type(type_) = generic {
+                generics.types.push(TypeParser.parse(type_.ident)?);
+            }
+        }
+        Ok(generics)
     }
 }

@@ -5,6 +5,7 @@ pub mod field;
 pub use field::*;
 
 use crate::prelude::*;
+use crate::types::GenericsParser;
 use ligen::ir::{Structure, TypeDefinition};
 use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
@@ -45,7 +46,8 @@ impl Parser<syn::ItemStruct> for StructureParser {
         let interfaces = Default::default();
         let fields = FieldParser.parse(structure.fields)?;
         let definition = Structure { fields }.into();
-        Ok(Self::Output { attributes, visibility, identifier, interfaces, definition })
+        let generics = GenericsParser::default().parse(structure.generics)?;
+        Ok(Self::Output { attributes, visibility, identifier, generics, interfaces, definition })
     }
 }
 

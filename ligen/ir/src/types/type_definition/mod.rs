@@ -4,7 +4,7 @@ pub mod kind_definition;
 
 pub use kind_definition::*;
 
-use crate::{prelude::*, Attributes, Visibility, Path};
+use crate::{prelude::*, Attributes, Visibility, Path, Generics};
 use crate::Identifier;
 
 /// All the possible ways to define a type.
@@ -16,6 +16,8 @@ pub struct TypeDefinition {
     pub visibility: Visibility,
     /// Definition identifier.
     pub identifier: Identifier,
+    /// Generic parameters.
+    pub generics: Generics,
     /// Interfaces that this definition implements.
     pub interfaces: Vec<Path>,
     /// Specific definition of the kind (e.g. Structure, Enumeration).

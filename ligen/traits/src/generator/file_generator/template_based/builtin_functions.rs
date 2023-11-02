@@ -17,7 +17,7 @@ pub fn join_path(inputs: &Inputs) -> String {
         .get(1)
         .and_then(|input| serde_json::from_value::<Path>(input).ok());
     if let (Some(separator), Some(path)) = (separator, path) {
-        path.to_string_with_separator(&separator)
+        path.to_string_with_separator(separator)
     } else {
         "<ligen:join_path error>".to_string()
     }

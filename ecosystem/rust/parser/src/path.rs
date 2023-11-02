@@ -3,7 +3,14 @@ use ligen::parsing::parser::Parser;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
-pub struct PathParser;
+#[derive(Default)]
+pub struct PathParser {}
+
+impl PathParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
 
 impl Parser<syn::Path> for PathParser {
     type Output = Path;
@@ -53,14 +60,14 @@ mod test {
 
     #[test]
     fn identifier_as_path() -> Result<()> {
-        assert_eq(PathParser, mock::identifier_as_path(), quote! {
+        assert_eq(PathParser::default(), mock::identifier_as_path(), quote! {
             u8
         })
     }
 
     #[test]
     fn path() -> Result<()> {
-        assert_eq(PathParser, mock::path(), quote! {
+        assert_eq(PathParser::default(), mock::path(), quote! {
             std::convert::TryFrom
         })
     }
