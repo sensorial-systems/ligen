@@ -1,4 +1,4 @@
-use ligen_ir::Project;
+use ligen_ir::Library;
 use ligen_python_parser::parser::PythonParser;
 
 use crate::prelude::*;
@@ -10,7 +10,7 @@ use ligen_parsing::parser::Parser;
 pub struct EditorMenuButton;
 impl MenuButton for EditorMenuButton {
     fn menu_title(&self) -> String {
-        "Project".to_string()
+        "Library".to_string()
     }
     fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
         if ui.button("Open").clicked() {
@@ -18,8 +18,8 @@ impl MenuButton for EditorMenuButton {
                 .add_filter("ligen-ir", &["lir"])
                 .pick_file();
             if let Some(file) = file {
-                if let Ok(project) = ligen_ir::Project::load(file) {
-                    panes.new_pane(Box::new(Editor::new(project)));
+                if let Ok(library) = ligen_ir::Library::load(file) {
+                    panes.new_pane(Box::new(Editor::new(library)));
                 }
             }
             ui.close_menu();
@@ -40,17 +40,17 @@ impl MenuButton for EditorMenuButton {
             ui.close_menu();
         }
         if ui.button("Parse Rust/Cargo").clicked() {
-            use ligen_cargo::parser::project::ProjectParser;
+            use ligen_cargo::parser::library::LibraryParser;
 
             let file = rfd::FileDialog::new()
-                .add_filter("Cargo project", &["toml"])
+                .add_filter("Cargo library", &["toml"])
                 .pick_file();
 
             if let Some(file) = file {
-                let project = ProjectParser
+                let library = LibraryParser
                     .parse(file.as_path())
-                    .expect("Failed to parse project.");
-                panes.new_pane(Box::new(Editor::new(project)));
+                    .expect("Failed to parse library.");
+                panes.new_pane(Box::new(Editor::new(library)));
             }
 
             ui.close_menu();

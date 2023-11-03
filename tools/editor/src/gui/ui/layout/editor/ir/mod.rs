@@ -1,4 +1,4 @@
-mod project;
+mod library;
 mod module;
 mod import;
 mod path;
@@ -22,7 +22,7 @@ pub use path::*;
 pub use object::*;
 pub use import::*;
 pub use attributes::*;
-pub use project::*;
+pub use library::*;
 pub use module::*;
 pub use literal::*;
 pub use interface::*;
@@ -36,24 +36,24 @@ use super::widget::Widget;
 
 #[derive(Default)]
 pub struct Editor {
-    project: ligen_ir::Project,
+    library: ligen_ir::Library,
     filter: String,
     display_settings: Settings,
     symbols: Symbols
 }
 
 impl Editor {
-    pub fn new(project: ligen_ir::Project) -> Self {
+    pub fn new(library: ligen_ir::Library) -> Self {
         let filter = Default::default();
-        let symbols = Symbols::new(&project);
+        let symbols = Symbols::new(&library);
         let display_settings = Default::default();
-        Self { project, symbols, filter, display_settings }
+        Self { library, symbols, filter, display_settings }
     }
 }
 
 impl Pane for Editor {
     fn title(&self) -> String {
-        self.project.name.to_string()
+        self.library.name.to_string()
     }
 
     fn show(&mut self, ui: &mut egui::Ui) -> UiResponse {
@@ -66,7 +66,7 @@ impl Pane for Editor {
                         .save_file();
                     if let Some(file) = file {
                         self
-                            .project
+                            .library
                             .save(file)
                             .ok();
                     }
@@ -77,7 +77,7 @@ impl Pane for Editor {
         ui.separator();
         self.display_settings.show(ui);
         ui.separator();
-        Project::new().show(&self.display_settings, ui, &mut self.project);
+        Library::new().show(&self.display_settings, ui, &mut self.library);
         ui.separator();
         ui.horizontal(|ui| {
             ui.label("Filter");

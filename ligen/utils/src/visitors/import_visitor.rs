@@ -1,12 +1,12 @@
-use ligen_ir::{Import, Path, Project};
+use ligen_ir::{Import, Path, Library};
 use crate::visitors::{ModuleVisitor, Visitor};
 
 pub type ImportVisitor = Visitor<ModuleVisitor, Import>;
 
 impl ImportVisitor {
-    /// Returns the parent project.
-    pub fn parent_project(&self) -> &Project {
-        self.parent.parent_project()
+    /// Returns the parent library.
+    pub fn parent_library(&self) -> &Library {
+        self.parent.parent_library()
     }
 
     pub fn find_absolute_path(&self) -> Option<Path> {

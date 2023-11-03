@@ -7,28 +7,28 @@ use crate::gui::ui::editor::ir::{Module, Directory};
 use crate::gui::ui::StringField;
 
 #[derive(Default)]	
-pub struct Project;
+pub struct Library;
 
-impl Project {
+impl Library {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Widget for Project {
-    type Input = ligen_ir::Project;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, project: &mut Self::Input) {
+impl Widget for Library {
+    type Input = ligen_ir::Library;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, library: &mut Self::Input) {
         egui::ScrollArea::both()
             .auto_shrink([false, true])
             .show(ui, |ui| {
-            CollapsingHeader::new(project.name.to_string())
-                .id_source("project")
+            CollapsingHeader::new(library.name.to_string())
+                .id_source("library")
                 .show(ui, |ui| {
                     if settings.editor.editable_fields {
                         StringField::new()
-                        .show(settings, ui, &mut project.name);
+                        .show(settings, ui, &mut library.name);
                     }
-                    Module::new().show(settings, ui, &mut project.root_module);
+                    Module::new().show(settings, ui, &mut library.root_module);
                 });
         });
     }

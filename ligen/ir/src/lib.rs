@@ -10,7 +10,7 @@ pub use path::{Path, PathSegment};
 pub use macro_attributes::{Attributes, Attribute, MacroAttributes, attributes, attribute};
 pub use types::*;
 pub use visibility::*;
-pub use project::*;
+pub use library::*;
 pub use mutability::*;
 pub use interface::*;
 
@@ -28,7 +28,7 @@ pub mod interface;
 pub mod path;
 pub mod mutability;
 pub mod source;
-pub mod project;
+pub mod library;
 pub mod conventions;
 
 pub mod symbols;

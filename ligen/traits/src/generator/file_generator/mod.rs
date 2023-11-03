@@ -9,7 +9,7 @@ pub use template_based::*;
 use crate::prelude::*;
 use crate::generator::Generator;
 
-use ligen_ir::{conventions::naming::SnakeCase, Project};
+use ligen_ir::{conventions::naming::SnakeCase, Library};
 use ligen_utils::fs::write_file;
 use std::path::{Path, PathBuf};
 
@@ -20,10 +20,10 @@ pub trait FileGenerator {
     fn base_path(&self) -> PathBuf;
 
     /// Generate files.
-    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()>;
+    fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
-    fn save_file_set(&self, project: &Project, file_set: FileSet) -> Result<()> {
+    fn save_file_set(&self, library: &Library, file_set: FileSet) -> Result<()> {
         let target = std::env::var("OUT_DIR")
             .ok()
             .map(PathBuf::from)
@@ -35,9 +35,9 @@ pub trait FileGenerator {
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
-        let project_dir = target_ligen_dir.join(SnakeCase::try_from(project.name().clone())?.to_string());
+        let library_dir = target_ligen_dir.join(SnakeCase::try_from(library.name().clone())?.to_string());
         for (_path, file) in file_set.files {
-            let file_path = project_dir.join(file.path);
+            let file_path = library_dir.join(file.path);
             write_file(&file_path, &file.content)?;
         }
         Ok(())
@@ -45,10 +45,10 @@ pub trait FileGenerator {
 }
 
 impl <T: FileGenerator> Generator for T {
-    fn generate(&self, project: &Project) -> Result<()> {
+    fn generate(&self, library: &Library) -> Result<()> {
         let mut file_set = FileSet::default();
-        self.generate_files(project, &mut file_set)?;
-        self.save_file_set(project, file_set)?;
+        self.generate_files(library, &mut file_set)?;
+        self.save_file_set(library, file_set)?;
         Ok(())
     }
 }

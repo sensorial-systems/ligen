@@ -4,7 +4,7 @@ use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::types::type_definition::TypeDefinitionParser;
 
-use ligen::ir::Project;
+use ligen::ir::Library;
 
 #[derive(Default)]
 pub struct PythonParser {
@@ -29,11 +29,11 @@ impl PythonParser {
 }
 
 impl Parser<&std::path::Path> for PythonParser {
-    type Output = Project;
+    type Output = Library;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
         let name = self.identifier_parser.parse(input)?;
         let name = name.name.as_str().try_into()?;
         let root_module = self.parse(SubPath(input))?;
-        Ok(Project { name, root_module })
+        Ok(Library { name, root_module })
     }
 }

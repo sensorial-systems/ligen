@@ -1,25 +1,25 @@
-use ligen_ir::{Import, Module, Project};
+use ligen_ir::{Import, Module, Library};
 use crate::transformers::Transform;
-use crate::visitors::{ImportVisitor, ModuleVisitor, ProjectVisitor};
+use crate::visitors::{ImportVisitor, ModuleVisitor, LibraryVisitor};
 
 // FIXME: Move this to ligen-rust.
 pub struct ReplaceCrateAlias;
 
 // FIXME: This logic is duplicated fro other transformers. This could be somehow generalized.
 
-impl Transform<Project, Project> for ReplaceCrateAlias {
-    fn transform(&self, data: &Project) -> Project {
-        let visitor = ProjectVisitor::from(data.clone());
-        <Self as Transform::<ProjectVisitor, Project>>::transform(self, &visitor)
+impl Transform<Library, Library> for ReplaceCrateAlias {
+    fn transform(&self, data: &Library) -> Library {
+        let visitor = LibraryVisitor::from(data.clone());
+        <Self as Transform::<LibraryVisitor, Library>>::transform(self, &visitor)
     }
 }
 
-impl Transform<ProjectVisitor, Project> for ReplaceCrateAlias {
-    fn transform(&self, data: &ProjectVisitor) -> Project {
-        let mut project = data.current.clone();
+impl Transform<LibraryVisitor, Library> for ReplaceCrateAlias {
+    fn transform(&self, data: &LibraryVisitor) -> Library {
+        let mut library = data.current.clone();
         let visitor = ModuleVisitor::from(&data.child(data.current.root_module.clone()));
-        project.root_module = <Self as Transform::<ModuleVisitor, Module>>::transform(self, &visitor);
-        project
+        library.root_module = <Self as Transform::<ModuleVisitor, Module>>::transform(self, &visitor);
+        library
     }
 }
 
@@ -43,7 +43,7 @@ impl Transform<ImportVisitor, Import> for ReplaceCrateAlias {
         let mut import = data.current.clone();
         let first = import.path.first_mut();
         if *first == "crate".into() {
-            *first = data.parent_project().root_module.identifier.clone().into();
+            *first = data.parent_library().root_module.identifier.clone().into();
         }
         import
     }

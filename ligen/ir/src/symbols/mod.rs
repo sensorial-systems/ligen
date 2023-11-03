@@ -1,4 +1,4 @@
-use crate::{Project, Path, Module, interface};
+use crate::{Library, Path, Module, interface};
 
 #[derive(Default)]
 pub struct Symbols {
@@ -6,8 +6,8 @@ pub struct Symbols {
 }
 
 impl Symbols {
-    pub fn new(project: &Project) -> Self {
-        let symbols = Self::from_module(&project.root_module, &Default::default());
+    pub fn new(library: &Library) -> Self {
+        let symbols = Self::from_module(&library.root_module, &Default::default());
         Symbols { symbols }
     }
 

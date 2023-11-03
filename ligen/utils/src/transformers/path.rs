@@ -1,25 +1,25 @@
-use ligen_ir::{Function, Import, Module, Project, Type};
+use ligen_ir::{Function, Import, Module, Library, Type};
 use crate::transformers::Transform;
-use crate::visitors::{FunctionVisitor, ImportVisitor, ModuleVisitor, ProjectVisitor};
+use crate::visitors::{FunctionVisitor, ImportVisitor, ModuleVisitor, LibraryVisitor};
 
 pub struct RelativePathToAbsolutePath;
 
-impl Transform<Project, Project> for RelativePathToAbsolutePath {
-    fn transform(&self, data: &Project) -> Project {
+impl Transform<Library, Library> for RelativePathToAbsolutePath {
+    fn transform(&self, data: &Library) -> Library {
         let data = data.clone();
         // TODO: We need to review this process.
         // data.root_module.guarantee_absolute_paths();
-        let visitor = ProjectVisitor::from(data);
-        <Self as Transform<ProjectVisitor, Project>>::transform(self, &visitor)
+        let visitor = LibraryVisitor::from(data);
+        <Self as Transform<LibraryVisitor, Library>>::transform(self, &visitor)
     }
 }
 
-impl Transform<ProjectVisitor, Project> for RelativePathToAbsolutePath {
-    fn transform(&self, data: &ProjectVisitor) -> Project {
-        let mut project = data.current.clone();
+impl Transform<LibraryVisitor, Library> for RelativePathToAbsolutePath {
+    fn transform(&self, data: &LibraryVisitor) -> Library {
+        let mut library = data.current.clone();
         let visitor = ModuleVisitor::from(&data.child(data.current.root_module.clone()));
-        project.root_module = <Self as Transform::<ModuleVisitor, Module>>::transform(self, &visitor);
-        project
+        library.root_module = <Self as Transform::<ModuleVisitor, Module>>::transform(self, &visitor);
+        library
     }
 }
 

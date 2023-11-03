@@ -4,13 +4,13 @@ pub use enumeration_visitor::*;
 pub use function_visitor::*;
 pub use module_visitor::*;
 pub use parameter_visitor::*;
-pub use project_visitor::*;
+pub use library_visitor::*;
 pub use structure_visitor::*;
 pub use import_visitor::*;
 
 use crate::prelude::*;
 
-mod project_visitor;
+mod library_visitor;
 mod module_visitor;
 mod enumeration_visitor;
 mod structure_visitor;

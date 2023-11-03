@@ -1,6 +1,6 @@
 // TODO: Remove this file if it is no longer used.
 // use ligen_ir::{Type, Attribute, Reference, Mutability};
-// use ligen_utils::visitors::{ModuleVisitor, ProjectVisitor, StructureVisitor};
+// use ligen_utils::visitors::{ModuleVisitor, LibraryVisitor, StructureVisitor};
 // use std::collections::HashMap;
 //
 // /// Marshal type from.
@@ -40,9 +40,9 @@
 //         Default::default()
 //     }
 //
-//     /// Register marshallers in project.
-//     pub fn register_project(&mut self, project: &ProjectVisitor) {
-//         let module = ModuleVisitor::from(&project.child(project.root_module.clone()));
+//     /// Register marshallers in library.
+//     pub fn register_library(&mut self, library: &LibraryVisitor) {
+//         let module = ModuleVisitor::from(&library.child(library.root_module.clone()));
 //         self.register_module(&module);
 //     }
 //

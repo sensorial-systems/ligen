@@ -29,7 +29,7 @@ pub fn module_file() {
         ],
         .. Default::default()
     };
-    let project_root = project_root::get_project_root().expect("Failed to get project root.");
+    let project_root = project_root::get_project_root().expect("Failed to get library root.");
     let path = project_root.join(file!());
     assert_eq(ModuleParser, module, path.as_path()).unwrap()
 }

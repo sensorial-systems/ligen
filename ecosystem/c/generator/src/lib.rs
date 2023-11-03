@@ -12,7 +12,7 @@ pub struct CGenerator;
 
 impl TemplateRegister for CGenerator {
     fn register_templates(&self, template: &mut Template) -> Result<()> {
-        register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, project);
+        register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, library);
         Ok(())
     }
 }
@@ -80,7 +80,7 @@ fn mapped_type(inputs: &Inputs) -> String {
 }
 
 impl TemplateBasedGenerator for CGenerator {
-    fn register_functions(&self, _project: &Project, template: &mut Template) {
+    fn register_functions(&self, _library: &Library, template: &mut Template) {
         register_functions!(template, mapped_type);
     }
 
@@ -88,7 +88,7 @@ impl TemplateBasedGenerator for CGenerator {
         PathBuf::from("c".to_string())
     }
 
-    fn module_generation_path(&self, _project: &Project, _module: &Module) -> PathBuf {
+    fn module_generation_path(&self, _library: &Library, _module: &Module) -> PathBuf {
         let mut path = PathBuf::from_str("include").unwrap();
         // FIXME: This is not working.
         // path = path.join(PathBuf::from(module.path.clone()));

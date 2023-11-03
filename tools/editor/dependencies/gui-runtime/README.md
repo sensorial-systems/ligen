@@ -13,7 +13,7 @@ You can compile your app natively or for the web, and share it using Github Page
 
 Start by clicking "Use this template" at https://github.com/emilk/eframe_template/ or follow [these instructions](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template).
 
-Change the name of the crate: Chose a good name for your project, and change the name to it in:
+Change the name of the crate: Chose a good name for your library, and change the name to it in:
 * `Cargo.toml`
     * Change the `package.name` from `eframe_template` to `your_crate`.
     * Change the `package.authors`
@@ -52,7 +52,7 @@ You can compile your app to [WASM](https://en.wikipedia.org/wiki/WebAssembly) an
 We use [Trunk](https://trunkrs.dev/) to build for web target.
 1. Install the required target with `rustup target add wasm32-unknown-unknown`.
 2. Install Trunk with `cargo install --locked trunk`.
-3. Run `trunk serve` to build and serve on `http://127.0.0.1:8080`. Trunk will rebuild automatically if you edit the project.
+3. Run `trunk serve` to build and serve on `http://127.0.0.1:8080`. Trunk will rebuild automatically if you edit the library.
 4. Open `http://127.0.0.1:8080/index.html#dev` in a browser. See the warning below.
 
 > `assets/sw.js` script will try to cache our app, and loads the cached version when it cannot connect to server allowing your app to work offline (like PWA).

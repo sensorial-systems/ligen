@@ -3,7 +3,7 @@ use ligen::traits::generator::file_generator::{File, FileSet, FileGenerator};
 use std::path::PathBuf;
 use ligen::ir::conventions::naming::SnakeCase;
 
-/// CMake project generator.
+/// CMake library generator.
 #[derive(Debug, Clone)]
 pub struct CMakeGenerator(pub Language);
 
@@ -18,20 +18,20 @@ impl FileGenerator for CMakeGenerator {
         "c".into()
     }
 
-    fn generate_files(&self, project: &Project, file_set: &mut FileSet) -> Result<()> {
+    fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let generator_version = env!("CARGO_PKG_VERSION");
-        let project_name = SnakeCase::try_from(project.name.clone())?.to_string();
+        let library_name = SnakeCase::try_from(library.name.clone())?.to_string();
 
         let content = match self.0 {
             Language::CPP => format!(
                 include_str!("CMakeLists.txt.cpp"),
                 generator_version = generator_version,
-                project_name = project_name
+                library_name = library_name
             ),
             Language::C => format!(
                 include_str!("CMakeLists.txt.c"),
                 generator_version = generator_version,
-                project_name = project_name
+                library_name = library_name
             )
         };
         let file = File::new(PathBuf::from("CMakeLists.txt"), content);

@@ -1,4 +1,4 @@
-use ligen_ir::Project;
+use ligen_ir::Library;
 
 pub mod path;
 pub mod alias;
@@ -21,4 +21,4 @@ pub trait Transformable: Sized + Clone {
     }
 }
 
-impl Transformable for Project {}
+impl Transformable for Library {}

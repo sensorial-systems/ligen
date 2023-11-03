@@ -4,7 +4,7 @@ edition.workspace = true
 license.workspace = true
 name              = "ligen-cmake"
 version           = "0.1.4"
-description       = "CMake project generator"
+description       = "CMake library generator"
 documentation     = "https://docs.rs/ligen-cmake"
 readme            = "README.md"
 

@@ -2,7 +2,7 @@
 
 Ligen Editor is a Rust-based code editor designed specifically for working with Ligen IR. It provides a simple and intuitive interface for:
 
-* Parsing projects to Ligen IR
+* Parsing librarys to Ligen IR
 * Saving and loading IRs
 * Getting metrics of the parsed IR
 * Generating language bindings

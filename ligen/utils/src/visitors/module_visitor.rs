@@ -1,11 +1,11 @@
-use super::{ProjectVisitor, Visitor};
-use ligen_ir::{Module, Project, Path};
+use super::{LibraryVisitor, Visitor};
+use ligen_ir::{Module, Library, Path};
 
 /// All the possibilities of module parents.
 #[derive(Debug, Clone)]
 #[allow(missing_docs)]
 pub enum ModuleParent {
-    Project(ProjectVisitor),
+    Library(LibraryVisitor),
     Module(Box<ModuleVisitor>)
 }
 
@@ -16,16 +16,16 @@ impl ModuleVisitor {
     /// Get the module path.
     pub fn path(&self) -> Path {
         match &self.parent {
-            ModuleParent::Project(visitor) => visitor.current.root_module.identifier.clone().into(),
+            ModuleParent::Library(visitor) => visitor.current.root_module.identifier.clone().into(),
             ModuleParent::Module(module) => module.path().clone().join(self.identifier.clone())
         }
     }
 
-    /// Returns the parent project.
-    pub fn parent_project(&self) -> &Project {
+    /// Returns the parent library.
+    pub fn parent_library(&self) -> &Library {
          match &self.parent {
-            ModuleParent::Project(visitor) => &visitor.current,
-            ModuleParent::Module(module) => module.parent_project()
+            ModuleParent::Library(visitor) => &visitor.current,
+            ModuleParent::Module(module) => module.parent_library()
         }
     }
 
@@ -33,7 +33,7 @@ impl ModuleVisitor {
     pub fn parent_module(&self) -> Option<&ModuleVisitor> {
         match &self.parent {
             ModuleParent::Module(module) => Some(module),
-            ModuleParent::Project(_) => None
+            ModuleParent::Library(_) => None
         }
     }
 }
@@ -44,15 +44,15 @@ impl ModuleVisitor {
         let mut consumed_relative_path = relative_path.clone();
         // path is not empty
         if let Some(path_segment) = consumed_relative_path.pop_front() {
-            let project = self.parent_project();
-            let root_module_name = &project.root_module.identifier;
+            let library = self.parent_library();
+            let root_module_name = &library.root_module.identifier;
             // the first segment can be either: crate, self, super, a module or the definition itself.
             // self module
             if path_segment == "self".into() {
                 self.find_absolute_path(&consumed_relative_path)
             // root module
             } else if path_segment.identifier == *root_module_name {
-                let visitor = ProjectVisitor::from(project.clone()).root_module_visitor();
+                let visitor = LibraryVisitor::from(library.clone()).root_module_visitor();
                 visitor.find_absolute_path(&consumed_relative_path)
             // super module
             } else if path_segment == "super".into() {
@@ -104,9 +104,9 @@ impl ModuleVisitor {
     }
 }
 
-impl From<&Visitor<ProjectVisitor, Module>> for ModuleVisitor {
-    fn from(visitor: &Visitor<ProjectVisitor, Module>) -> Self {
-        let parent = ModuleParent::Project(visitor.parent.clone());
+impl From<&Visitor<LibraryVisitor, Module>> for ModuleVisitor {
+    fn from(visitor: &Visitor<LibraryVisitor, Module>) -> Self {
+        let parent = ModuleParent::Library(visitor.parent.clone());
         let current = visitor.current.clone();
         Self { parent, current }
     }

@@ -1,13 +1,13 @@
 use ligen_ir::conventions::naming::{SnakeCase, NamingConvention};
 use ligen_ir::prelude::*;
-use ligen_ir::Project;
+use ligen_ir::Library;
 use ligen_parsing::parser::Parser;
 use ligen_rust_parser::module::ModuleParser;
 
-pub struct ProjectParser;
+pub struct LibraryParser;
 
-impl Parser<&std::path::Path> for ProjectParser {
-    type Output = Project;
+impl Parser<&std::path::Path> for LibraryParser {
+    type Output = Library;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
         let cargo_path = if input.is_dir() {
             input.join("Cargo.toml")

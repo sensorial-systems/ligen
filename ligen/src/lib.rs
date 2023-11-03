@@ -12,7 +12,7 @@
 //!
 //! ### How to use
 //!
-//! Here is an project on how to use the C generator and the CMake project generator in your crate:
+//! Here is an library on how to use the C generator and the CMake library generator in your crate:
 //! `Cargo.toml`
 //! ```toml
 //! [dev-dependencies]
@@ -28,11 +28,11 @@
 //! use ligen_cmake::Generator as CMakeGenerator;
 //!
 //! fn main() {
-//!     if let Ok(project) = Project::read() {
+//!     if let Ok(library) = Library::read() {
 //!         let c_generator = CGenerator::default();
 //!         let cmake_generator = CMakeGenerator::default();
-//!         cmake_generator.generate(&project).expect("Couldn't generate CMake project.");
-//!         c_generator.generate(&project).expect("Couldn't generate C bindings");
+//!         cmake_generator.generate(&library).expect("Couldn't generate CMake library.");
+//!         c_generator.generate(&library).expect("Couldn't generate C bindings");
 //!     }
 //! }
 //! ```
@@ -46,7 +46,7 @@
 //!
 //! Here are a few links to get started:
 //! * [List of officially supported languages](https://github.com/search?q=org%3Asensorial-systems+ligen).
-//! * [Usage project](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
+//! * [Usage library](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
 
 #![warn(missing_copy_implementations)]
 #![warn(missing_debug_implementations)]

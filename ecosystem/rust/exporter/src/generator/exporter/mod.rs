@@ -87,13 +87,13 @@ pub struct RustGenerator;
 
 impl TemplateRegister for RustGenerator {
     fn register_templates(&self, template: &mut Template) -> Result<()> {
-        register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, project);
+        register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, library);
         Ok(())
     }
 }
 
 impl TemplateBasedGenerator for RustGenerator {
-    fn register_functions(&self, _project: &Project, template: &mut Template) {
+    fn register_functions(&self, _library: &Library, template: &mut Template) {
         register_functions!(template, mapped_type, marshal_output);
     }
 
@@ -101,8 +101,8 @@ impl TemplateBasedGenerator for RustGenerator {
         PathBuf::from("rust".to_string())
     }
 
-    fn module_generation_path(&self, _project: &Project, _module: &Module) -> PathBuf {
-        // let is_root_module = project.root_module == *module;
+    fn module_generation_path(&self, _library: &Library, _module: &Module) -> PathBuf {
+        // let is_root_module = library.root_module == *module;
         // let name = if is_root_module { "lib.rs" } else { "mod.rs" };
         let path = PathBuf::from_str("src").unwrap();
         // path = path.join(PathBuf::from(module.path.clone().without_first()));
