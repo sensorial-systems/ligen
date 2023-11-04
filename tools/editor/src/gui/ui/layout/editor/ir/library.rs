@@ -21,12 +21,12 @@ impl Widget for Library {
         egui::ScrollArea::both()
             .auto_shrink([false, true])
             .show(ui, |ui| {
-            CollapsingHeader::new(library.name.to_string())
+            CollapsingHeader::new(library.identifier.to_string())
                 .id_source("library")
                 .show(ui, |ui| {
                     if settings.editor.editable_fields {
                         StringField::new()
-                        .show(settings, ui, &mut library.name);
+                        .show(settings, ui, &mut library.identifier);
                     }
                     Module::new().show(settings, ui, &mut library.root_module);
                 });

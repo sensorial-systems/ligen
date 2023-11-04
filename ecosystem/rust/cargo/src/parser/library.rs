@@ -1,4 +1,4 @@
-use ligen_ir::conventions::naming::{SnakeCase, NamingConvention};
+use ligen_ir::Identifier;
 use ligen_ir::prelude::*;
 use ligen_ir::Library;
 use ligen_parsing::parser::Parser;
@@ -22,9 +22,9 @@ impl Parser<&std::path::Path> for LibraryParser {
         let library = cargo_toml.lib.ok_or_else(|| Error::Message("Library not found in Cargo.toml.".into()))?;
         let library_path = directory.join(library.path.unwrap_or("src/lib.rs".into()));
 
-        let name = NamingConvention::try_from(package.name.as_str())?;
+        let identifier = Identifier::from(package.name.as_str());
         let mut root_module = ModuleParser.parse(library_path.as_path())?;
-        root_module.identifier = SnakeCase::try_from(name.clone())?.to_string().into();
-        Ok(Self::Output { name, root_module })
+        root_module.identifier = identifier.clone();
+        Ok(Self::Output { identifier, root_module })
     }
 }

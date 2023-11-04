@@ -29,6 +29,5 @@ pub mod path;
 pub mod mutability;
 pub mod source;
 pub mod library;
-pub mod conventions;
 
 pub mod symbols;

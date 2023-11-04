@@ -53,7 +53,7 @@ impl Editor {
 
 impl Pane for Editor {
     fn title(&self) -> String {
-        self.library.name.to_string()
+        self.library.identifier.to_string()
     }
 
     fn show(&mut self, ui: &mut egui::Ui) -> UiResponse {

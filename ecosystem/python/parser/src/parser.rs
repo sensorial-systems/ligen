@@ -32,8 +32,7 @@ impl Parser<&std::path::Path> for PythonParser {
     type Output = Library;
     fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
         let name = self.identifier_parser.parse(input)?;
-        let name = name.name.as_str().try_into()?;
         let root_module = self.parse(SubPath(input))?;
-        Ok(Library { name, root_module })
+        Ok(Library { identifier: name, root_module })
     }
 }

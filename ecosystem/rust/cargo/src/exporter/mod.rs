@@ -15,7 +15,7 @@ impl FileGenerator for CargoGenerator {
     fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(&PathBuf::from_str("Cargo.toml").unwrap());
         let version = "0.1.0";
-        let name = &library.name;
+        let name = &library.identifier;
         // FIXME: This is a placeholder and it will fail.
         let path = PathBuf::default();
         let path = path.display().to_string().replace('\\', "/");

@@ -1,10 +1,11 @@
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
+pub mod naming_convention;
+pub use naming_convention::*;
+
 use crate::path::PathSegment;
 use crate::prelude::*;
-
-use crate::conventions::naming::SnakeCase;
 
 /// Identifier structure
 #[derive(Clone, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize)]
@@ -19,12 +20,6 @@ impl Identifier {
     pub fn new<S: AsRef<str>>(name: S) -> Self {
         let name = String::from(name.as_ref());
         Self { name }
-    }
-}
-
-impl From<SnakeCase> for Identifier {
-    fn from(snake_case: SnakeCase) -> Self {
-        snake_case.to_string().into()
     }
 }
 

@@ -1,24 +1,19 @@
 // FIXME: Look for mentions to "library" and rename it to "library".
 //! Library representation.
 
+use crate::Identifier;
 use crate::Module;
 use crate::prelude::*;
-use crate::conventions::naming::NamingConvention;
 
 /// Library representation.
 #[allow(missing_docs)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Library {
-    pub name: NamingConvention,
+    pub identifier: Identifier,
     pub root_module: Module,
 }
 
 impl Library {
-    /// Get the library name.
-    pub fn name(&self) -> &NamingConvention {
-        &self.name
-    }
-
     /// Save library to file.
     pub fn save(&self, path: impl AsRef<std::path::Path>) -> Result<()> {
         let contents = serde_json::to_string_pretty(self)?;

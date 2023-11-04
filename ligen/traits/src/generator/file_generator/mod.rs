@@ -9,7 +9,7 @@ pub use template_based::*;
 use crate::prelude::*;
 use crate::generator::Generator;
 
-use ligen_ir::{conventions::naming::SnakeCase, Library};
+use ligen_ir::Library;
 use ligen_utils::fs::write_file;
 use std::path::{Path, PathBuf};
 
@@ -35,7 +35,7 @@ pub trait FileGenerator {
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
-        let library_dir = target_ligen_dir.join(SnakeCase::try_from(library.name().clone())?.to_string());
+        let library_dir = target_ligen_dir.join(library.identifier.clone().to_string());
         for (_path, file) in file_set.files {
             let file_path = library_dir.join(file.path);
             write_file(&file_path, &file.content)?;

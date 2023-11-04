@@ -1,7 +1,6 @@
 use std::path::{PathBuf, Path};
 use ligen_ir::{prelude::*, Library};
 use ligen_traits::build::{BuildSystem, BuildProfile};
-use ligen_ir::conventions::naming::SnakeCase;
 
 /// Cargo builder.
 #[derive(Clone, Copy, Debug)]
@@ -48,13 +47,12 @@ impl BuildSystem for CargoBuilder {
             build_command = build_command.arg("--release");
         }
 
-        let library_name = SnakeCase::try_from(library.name.clone())?.to_string();
         let ligen_path = Self::target_dir()
             .unwrap()
             .join("ligen");
         let library_path = ligen_path
             .join("rust")
-            .join(&library_name);
+            .join(&library.identifier.name);
         let manifest_path = library_path.join("Cargo.toml");
         let target_dir = library_path.join("target");
 
@@ -73,11 +71,11 @@ impl BuildSystem for CargoBuilder {
                 .filter_map(|entry| entry.ok());
             let libraries_dir = ligen_path
                 .join("libraries")
-                .join(&library_name);
+                .join(&library.identifier.name);
             std::fs::create_dir_all(&libraries_dir)?;
             for entry in directory {
                 if let Some(file_name) = entry.file_name().to_str() {
-                    if entry.file_type()?.is_file() && file_name.contains(&library_name) {
+                    if entry.file_type()?.is_file() && file_name.contains(&library.identifier.name) {
                         std::fs::copy(&entry.path(), libraries_dir.join(file_name))?;
                     }
                 }
