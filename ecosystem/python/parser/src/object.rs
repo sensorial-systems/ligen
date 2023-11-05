@@ -5,30 +5,28 @@ use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
-use super::DynamicParser;
-
-impl<'a> DynamicParser<'a> for FullParser {}
-
 #[derive(Default)]
-pub struct FullParser;
+pub struct ObjectParser;
 
-impl Parser<&StmtAnnAssign> for FullParser {
+impl Parser<&StmtAnnAssign> for ObjectParser {
     type Output = Object;
     fn parse(&self, input: &StmtAnnAssign, config: &ParserConfig) -> Result<Self::Output> {
         let mut object = self.parse(input.target.as_ref(), config)?;
-        object.type_ = TypeParser::new().parse(&*input.annotation, config)?;
+        if !config.only_parse_symbols() {
+            object.type_ = TypeParser::new().parse(&*input.annotation, config)?;
+        }
         Ok(object)
     }
 }
 
-impl Parser<&StmtAugAssign> for FullParser {
+impl Parser<&StmtAugAssign> for ObjectParser {
     type Output = Object;
     fn parse(&self, input: &StmtAugAssign, config: &ParserConfig) -> Result<Self::Output> {
         self.parse(input.target.as_ref(), config)
     }
 }
 
-impl Parser<&Expr> for FullParser {
+impl Parser<&Expr> for ObjectParser {
     type Output = Object;
     fn parse(&self, expr: &Expr, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = expr
@@ -38,14 +36,18 @@ impl Parser<&Expr> for FullParser {
             .as_str();
         let identifier_parser = IdentifierParser::new();
         let identifier = identifier_parser.parse(identifier, config)?;
-        let mutability = identifier_parser.get_mutability(&identifier);
-        let type_ = Default::default();
-        let literal = Default::default();
-        Ok(Object { identifier, mutability, literal, type_ })
+        if config.only_parse_symbols() {
+            Ok(Object { identifier, ..Default::default() })
+        } else {
+            let mutability = identifier_parser.get_mutability(&identifier);
+            let type_ = Default::default();
+            let literal = Default::default();
+            Ok(Object { identifier, mutability, literal, type_ })
+        }
     }
 }
 
-impl Parser<&StmtAssign> for FullParser {
+impl Parser<&StmtAssign> for ObjectParser {
     type Output = Vec<Object>;
     fn parse(&self, input: &StmtAssign, config: &ParserConfig) -> Result<Self::Output> {
         let mut objects = Vec::new();

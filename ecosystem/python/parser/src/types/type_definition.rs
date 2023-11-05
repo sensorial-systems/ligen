@@ -2,27 +2,27 @@ use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attribut
 use ligen::{ir::{TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parsing::parser::ParserConfig};
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
-use super::DynamicParser;
-
 #[derive(Default)]
-pub struct FullParser {}
+pub struct TypeDefinitionParser {}
 
-impl<'a> DynamicParser<'a> for FullParser {}
-
-impl Parser<WithSource<StmtClassDef>> for FullParser {
+impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
     type Output = TypeDefinition;
     fn parse(&self, input: WithSource<StmtClassDef>, config: &ParserConfig) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
-        let visibility = Visibility::Public;
-        let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
-        let definition = self.parse_kind_definition(&input, config)?;
-        let generics = Default::default();
-        Ok(TypeDefinition { attributes, visibility, identifier, generics, definition, interfaces })
+        if config.only_parse_symbols() {
+            Ok(TypeDefinition { identifier, ..Default::default() })
+        } else {
+            let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
+            let visibility = Visibility::Public;
+            let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
+            let definition = self.parse_kind_definition(&input, config)?;
+            let generics = Default::default();
+            Ok(TypeDefinition { attributes, visibility, identifier, generics, definition, interfaces })
+        }
     }
 }
 
-impl FullParser {
+impl TypeDefinitionParser {
     fn parse_interfaces(&self, input: &Vec<Expr>, config: &ParserConfig) -> Result<Vec<Path>> {
         let mut interfaces = Vec::new();
         for expr in input {
@@ -109,7 +109,7 @@ impl FullParser {
                     }
                 },
                 Stmt::FunctionDef(function_def) => {
-                    let function = FunctionParser::full().parse(input.sub(function_def.clone()), config)?;
+                    let function = FunctionParser::default().parse(input.sub(function_def.clone()), config)?;
                     if function.attributes.contains(&Attribute::Group("property".into(), Default::default())) {
                         let identifier = Some(function.identifier);
                         let type_ = function.output.unwrap_or_default();

@@ -1,22 +1,84 @@
-use ligen::parsing::dynamic_parser;
-use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
-use ligen::ir::Function;
-use crate::prelude::*;
-
 pub mod parameter;
 pub mod method;
 
-mod full_parser;
-mod symbol_parser;
+use crate::prelude::*;
+use ligen::parsing::parser::ParserConfig;
+use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
+use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
+use crate::function::parameter::ParameterParser;
+use crate::identifier::IdentifierParser;
+use crate::macro_attributes::attributes::AttributesParser;
+use crate::types::type_::TypeParser;
 
-dynamic_parser!{
-    FunctionParser,
-    full_parser::FullParser,
-    symbol_parser::SymbolParser,
-    Function,
-    WithSource<StmtFunctionDef>,
-    WithSource<StmtAsyncFunctionDef>,
-    &str | &'a str
+
+#[derive(Default)]
+pub struct FunctionParser;
+
+impl Parser<&str> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+        let statement = Stmt::parse(input, "<embedded>")
+            .map_err(|error| Error::Message(format!("Failed to parse statement: {}", error)))?;
+        match statement {
+            Stmt::FunctionDef(function) => self.parse(WithSource::new(input, function), config),
+            Stmt::AsyncFunctionDef(function) => self.parse(WithSource::new(input, function), config),
+            _ => Err(Error::Message("No function found".into()))
+        }
+    }
+}
+
+impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+        let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
+        if config.only_parse_symbols() {
+            Ok(Function { identifier, ..Default::default() })
+        } else {
+            let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
+            let visibility = Visibility::Public;
+            let synchrony = Synchrony::Synchronous;
+            let inputs = self.parse_inputs(*input.ast.args, config)?;
+            let output = self.parse_output(input.ast.returns, config)?;
+            Ok(Function { attributes, visibility, synchrony, identifier, inputs, output })    
+        }
+    }
+}
+
+impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
+    type Output = Function;
+    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+        let source = input.source;
+        let input = input.ast;
+        let identifier = IdentifierParser::new().parse(input.name.as_str(), config)?;
+        if config.only_parse_symbols() {
+            Ok(Function { identifier, ..Default::default() })
+        } else {
+            let attributes = AttributesParser::default().parse(WithSource::new(source, input.decorator_list), config)?;
+            let visibility = Visibility::Public;
+            let synchrony = Synchrony::Asynchronous;
+            let inputs = self.parse_inputs(*input.args, config)?;
+            let output = self.parse_output(input.returns, config)?;    
+            Ok(Function { attributes, visibility, synchrony, identifier, inputs, output })
+        }
+    }
+}
+
+impl FunctionParser {
+    fn parse_inputs(&self, args: Arguments, config: &ParserConfig) -> Result<Vec<Parameter>> {
+        let mut parameters = Vec::new();
+        for arg in args.args {
+            parameters.push(ParameterParser.parse(arg, config)?);
+        }
+        Ok(parameters)
+    }
+
+    fn parse_output(&self, output: Option<Box<Expr>>, config: &ParserConfig) -> Result<Option<Type>> {
+        if let Some(expr) = output.and_then(|expr| expr.name_expr()) {
+            Ok(Some(TypeParser::default().parse(&expr, config)?))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 #[cfg(test)]

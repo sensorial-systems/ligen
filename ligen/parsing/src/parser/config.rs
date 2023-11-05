@@ -11,20 +11,48 @@ pub struct ParserConfig {
     map: Group
 }
 
-#[derive(Serialize, Deserialize)]
+impl ParserConfig {
+    /// Whether to parse all symbols or only the ones that are explicitly marked as such.
+    pub fn only_parse_symbols(&self) -> bool {
+        self.get("ligen::only-parse-symbols")
+            .and_then(|literal| literal.as_boolean())
+            .cloned()
+            .unwrap_or(false)
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum Value {
     Literal(Literal),
     Group(Group)
 }
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize, Clone)]
 struct Group {
     #[serde(flatten)]
     map: HashMap<String, Value>
 }
 
 impl Group {
+    /// Sets the value at the given path.
+    fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L) {
+        let mut path = path.into();
+        if let Some(word) = path.pop_front() {
+            if path.is_empty() {
+                self.map.insert(word.identifier.name, Value::Literal(value.into()));
+            } else {
+                let group = self.map
+                    .entry(word.identifier.name)
+                    .or_insert_with(|| Value::Group(Group::default()));
+                if let Value::Group(group) = group {
+                    group.set(path, value);
+                }
+            }
+        }
+    }
+
+    /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         let mut path = path.into();
         if let Some(word) = path.pop_front() {
@@ -55,8 +83,14 @@ impl TryFrom<&str> for ParserConfig {
 }
 
 impl ParserConfig {
+    /// Gets the value at the given path.
     pub fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         self.map.get(path)
+    }
+
+    /// Sets the value at the given path.
+    pub fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L) {
+        self.map.set(path, value);
     }
 }
 
@@ -65,11 +99,12 @@ mod tests {
     use super::ParserConfig;
 
     fn config() -> ParserConfig {
-        ParserConfig::try_from(r#"
+        let mut config = ParserConfig::try_from(r#"
             [ligen]
-            parse-all = false
-            default-name = "library""#
-        ).unwrap()
+            parse-all = false"#
+        ).unwrap();
+        config.set("ligen::default-name", "library");
+        config
     }
 
     #[test]

@@ -5,7 +5,7 @@ use crate::prelude::*;
 use crate::gui::ui::editor::ir::Editor;
 use crate::gui::ui::menu::MenuButton;
 use crate::gui::ui::panes::Panes;
-use ligen_parsing::parser::Parser;
+use ligen_parsing::parser::{Parser, ParserConfig};
 
 pub struct EditorMenuButton;
 impl MenuButton for EditorMenuButton {
@@ -30,9 +30,12 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let config = Default::default();
-                    let symbols = PythonParser::symbol().parse(entry.as_path(), &config).unwrap();
-                    let full = PythonParser::full().parse(entry.as_path(), &config).unwrap();
+                    let full_config = Default::default();
+                    let mut symbols_config = ParserConfig::default();
+                    symbols_config.set("ligen::only-parse-symbols", true);
+                    let parser = PythonParser::default();
+                    let symbols = parser.parse(entry.as_path(), &symbols_config).unwrap();
+                    let full = parser.parse(entry.as_path(), &full_config).unwrap();
                     panes.new_pane(Box::new(Editor::new(symbols)));
                     panes.new_pane(Box::new(Editor::new(full)));
                 });

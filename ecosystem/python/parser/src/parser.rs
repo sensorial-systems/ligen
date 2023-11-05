@@ -16,16 +16,8 @@ pub struct PythonParser {
 }
 
 impl PythonParser {
-    pub fn full() -> Self {
+    pub fn new() -> Self {
         Default::default()
-    }
-
-    pub fn symbol() -> Self {
-        let identifier_parser = IdentifierParser::new();
-        let function_parser = FunctionParser::symbol();
-        let type_definition_parser = TypeDefinitionParser::symbol();
-        let object_parser = ObjectParser::symbol();
-        Self { identifier_parser, function_parser, type_definition_parser, object_parser }
     }
 }
 

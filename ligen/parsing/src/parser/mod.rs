@@ -1,4 +1,3 @@
-pub mod dynamic_parser;
 pub mod universal;
 pub mod config;
 
