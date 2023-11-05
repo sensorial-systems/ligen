@@ -1,5 +1,5 @@
 use ligen::ir::{Object, Mutability};
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::prelude::*;
@@ -9,12 +9,12 @@ pub struct ObjectParser;
 
 impl Parser<syn::ImplItemConst> for ObjectParser {
     type Output = Object;
-    fn parse(&self, item_const: syn::ImplItemConst) -> Result<Self::Output> {
+    fn parse(&self, item_const: syn::ImplItemConst, config: &ParserConfig) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             let mutability = Mutability::Constant;
-            let identifier = IdentifierParser::new().parse(item_const.ident.clone())?;
-            let type_ = TypeParser.parse(item_const.ty)?;
-            let literal = LiteralParser.parse(lit)?;
+            let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
+            let type_ = TypeParser.parse(item_const.ty, config)?;
+            let literal = LiteralParser.parse(lit, config)?;
             Ok(Self::Output { mutability, identifier, type_, literal })
         } else {
             Err("Undefined Constant inside Impl block".into())
@@ -24,12 +24,12 @@ impl Parser<syn::ImplItemConst> for ObjectParser {
 
 impl Parser<syn::ItemConst> for ObjectParser {
     type Output = Object;
-    fn parse(&self, item_const: syn::ItemConst) -> Result<Self::Output> {
+    fn parse(&self, item_const: syn::ItemConst, config: &ParserConfig) -> Result<Self::Output> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             let mutability = Mutability::Constant;
-            let identifier = IdentifierParser::new().parse(item_const.ident.clone())?;
-            let type_ = TypeParser.parse(*item_const.ty)?;
-            let literal = LiteralParser.parse(lit)?;
+            let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
+            let type_ = TypeParser.parse(*item_const.ty, config)?;
+            let literal = LiteralParser.parse(lit, config)?;
             Ok(Self::Output { mutability, identifier, type_, literal })
         } else {
             Err("Undefined Constant".into())
@@ -39,17 +39,17 @@ impl Parser<syn::ItemConst> for ObjectParser {
 
 impl Parser<proc_macro::TokenStream> for ObjectParser {
     type Output = Object;
-    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input))
+    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(input), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for ObjectParser {
     type Output = Object;
-    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::ItemConst>(input)
             .map_err(|e| Error::Message(format!("Failed to parse constant: {:?}", e)))
-            .and_then(|constant| self.parse(constant))
+            .and_then(|constant| self.parse(constant, config))
     }
 }
 

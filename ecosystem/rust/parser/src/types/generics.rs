@@ -1,5 +1,5 @@
 use ligen::ir::Generics;
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
@@ -14,14 +14,14 @@ impl GenericsParser {
 
 impl Parser<syn::PathArguments> for GenericsParser {
     type Output = Generics;
-    fn parse(&self, input: syn::PathArguments) -> Result<Self::Output> {
+    fn parse(&self, input: syn::PathArguments, config: &ParserConfig) -> Result<Self::Output> {
         let types = match input {
             syn::PathArguments::AngleBracketed(arguments) => {
                 arguments
                     .args
                     .into_iter()
                     .filter_map(|generic| match generic {
-                        syn::GenericArgument::Type(type_) => Some(TypeParser.parse(type_).expect("Failed to parse generic type.")),
+                        syn::GenericArgument::Type(type_) => Some(TypeParser.parse(type_, config).expect("Failed to parse generic type.")),
                         _ => None
                     })
                     .collect()
@@ -34,11 +34,11 @@ impl Parser<syn::PathArguments> for GenericsParser {
 
 impl Parser<syn::Generics> for GenericsParser {
     type Output = Generics;
-    fn parse(&self, input: syn::Generics) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Generics, config: &ParserConfig) -> Result<Self::Output> {
         let mut generics = Generics::default();
         for generic in input.params {
             if let syn::GenericParam::Type(type_) = generic {
-                generics.types.push(TypeParser.parse(type_.ident)?);
+                generics.types.push(TypeParser.parse(type_.ident, config)?);
             }
         }
         Ok(generics)

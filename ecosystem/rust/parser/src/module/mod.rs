@@ -4,7 +4,7 @@ mod import;
 
 use syn::spanned::Spanned;
 use ligen::ir::Object;
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::prelude::*;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
 use crate::object::ObjectParser;
@@ -20,37 +20,37 @@ pub struct ModuleParser;
 
 impl Parser<proc_macro2::TokenStream> for ModuleParser {
     type Output = Module;
-    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::ItemMod>(token_stream)
             .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
-            .and_then(|module| self.parse(module))
+            .and_then(|module| self.parse(module, config))
     }
 }
 
 impl Parser<syn::ItemMod> for ModuleParser {
     type Output = Module;
-    fn parse(&self, module: syn::ItemMod) -> Result<Self::Output> {
+    fn parse(&self, module: syn::ItemMod, config: &ParserConfig) -> Result<Self::Output> {
         let items = module
             .content
             .map(|(_, items)| items)
             .ok_or("Module file isn't loaded.")?;
-        let attributes = AttributesParser::default().parse(module.attrs)?;
-        let visibility = VisibilityParser.parse(module.vis)?;
-        let identifier = IdentifierParser::new().parse(module.ident)?;
+        let attributes = AttributesParser::default().parse(module.attrs, config)?;
+        let visibility = VisibilityParser.parse(module.vis, config)?;
+        let identifier = IdentifierParser::new().parse(module.ident, config)?;
 
-        let imports = self.extract_imports(items.as_slice())?;
-        let functions = self.extract_functions(items.as_slice())?;
-        let objects = self.extract_objects(items.as_slice())?;
-        let types = self.extract_types(items.as_slice())?;
+        let imports = self.extract_imports(items.as_slice(), config)?;
+        let functions = self.extract_functions(items.as_slice(), config)?;
+        let objects = self.extract_objects(items.as_slice(), config)?;
+        let types = self.extract_types(items.as_slice(), config)?;
         let interfaces = self.extract_interfaces(items.as_slice())?;
-        let modules = self.extract_modules(items)?;
+        let modules = self.extract_modules(items, config)?;
         Ok(Self::Output { attributes, visibility, identifier, imports, functions, objects, types, interfaces, modules })
     }
 }
 
 impl Parser<&std::path::Path> for ModuleParser {
     type Output = Module;
-    fn parse(&self, path: &std::path::Path) -> Result<Self::Output> {
+    fn parse(&self, path: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
         let module = syn2::file_parser::parse_file_recursive(path)?;
         let ident = syn::Ident::new(path.file_stem().unwrap_or_default().to_str().unwrap_or_default(), module.span()); // FIXME: This is hardcoded.
         let attrs = module.attrs;
@@ -60,7 +60,7 @@ impl Parser<&std::path::Path> for ModuleParser {
         let content = Some((Default::default(), module.items));
         let vis = syn::Visibility::Public(syn::VisPublic { pub_token });
         let module = syn::ItemMod { attrs, vis, mod_token, ident, semi, content };
-        self.parse(module)
+        self.parse(module, config)
     }
 }
 
@@ -68,14 +68,14 @@ impl ModuleParser {
     fn extract_interfaces(&self, _items: &[syn::Item]) -> Result<Vec<Interface>> {
         Ok(Default::default())
     }
-    fn extract_types(&self, items: &[syn::Item]) -> Result<Vec<TypeDefinition>> {
+    fn extract_types(&self, items: &[syn::Item], config: &ParserConfig) -> Result<Vec<TypeDefinition>> {
         let mut types = Vec::new();
         for item in items {
             match item {
                 syn::Item::Enum(enumeration) =>
-                    types.push(EnumerationParser::new().parse(enumeration.clone())?),
+                    types.push(EnumerationParser::new().parse(enumeration.clone(), config)?),
                 syn::Item::Struct(structure) =>
-                    types.push(StructureParser::new().parse(structure.clone())?),
+                    types.push(StructureParser::new().parse(structure.clone(), config)?),
                 syn::Item::Type(_type) => {
                     todo!("Type object isn't implemented yet.")
                 },
@@ -88,26 +88,26 @@ impl ModuleParser {
         Ok(types)
     }
 
-    fn extract_imports(&self, items: &[syn::Item]) -> Result<Vec<Import>> {
+    fn extract_imports(&self, items: &[syn::Item], config: &ParserConfig) -> Result<Vec<Import>> {
         let mut imports: Vec<Import> = Default::default();
         for item in items {
             if let syn::Item::Use(import) = item {
-                imports.append(&mut ImportsParser.parse(import.clone())?);
+                imports.append(&mut ImportsParser.parse(import.clone(), config)?);
             }
         }
         Ok(imports)
     }
-    fn extract_functions(&self, items: &[syn::Item]) -> Result<Vec<Function>> {
+    fn extract_functions(&self, items: &[syn::Item], config: &ParserConfig) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
         for item in items {
             if let syn::Item::Fn(function) = item {
-                functions.push(FunctionParser.parse(function.clone())?);
+                functions.push(FunctionParser.parse(function.clone(), config)?);
             }
         }
         Ok(functions)
     }
 
-    fn extract_modules(&self, items: Vec<syn::Item>) -> Result<Vec<Module>> {
+    fn extract_modules(&self, items: Vec<syn::Item>, config: &ParserConfig) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
         let items = items
             .into_iter()
@@ -119,16 +119,16 @@ impl ModuleParser {
                 }
             });
         for module in items {
-            modules.push(self.parse(module)?)
+            modules.push(self.parse(module, config)?)
         }
         Ok(modules)
     }
 
-    fn extract_objects(&self, items: &[syn::Item]) -> Result<Vec<Object>> {
+    fn extract_objects(&self, items: &[syn::Item], config: &ParserConfig) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
         for item in items {
             if let syn::Item::Const(constant) = item {
-                objects.push(ObjectParser.parse(constant.clone())?);
+                objects.push(ObjectParser.parse(constant.clone(), config)?);
             }
         }
         Ok(objects)

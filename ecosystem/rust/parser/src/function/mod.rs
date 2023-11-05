@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use ligen::ir::{Function, Parameter, Type};
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -21,43 +21,43 @@ pub struct FunctionParser;
 
 impl Parser<syn::ItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, item_fn: syn::ItemFn) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(item_fn.attrs)?;
-        let visibility = VisibilityParser.parse(item_fn.vis)?;
-        let synchrony = SynchronyParser.parse(item_fn.sig.asyncness)?;
-        let identifier = IdentifierParser::new().parse(item_fn.sig.ident)?;
-        let inputs = self.parse_inputs(item_fn.sig.inputs)?;
-        let output = self.parse_output(item_fn.sig.output)?;
+    fn parse(&self, item_fn: syn::ItemFn, config: &ParserConfig) -> Result<Self::Output> {
+        let attributes = AttributesParser::default().parse(item_fn.attrs, config)?;
+        let visibility = VisibilityParser.parse(item_fn.vis, config)?;
+        let synchrony = SynchronyParser.parse(item_fn.sig.asyncness, config)?;
+        let identifier = IdentifierParser::new().parse(item_fn.sig.ident, config)?;
+        let inputs = self.parse_inputs(item_fn.sig.inputs, config)?;
+        let output = self.parse_output(item_fn.sig.output, config)?;
         Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })
     }
 }
 
 impl Parser<syn::ImplItemMethod> for FunctionParser {
     type Output = Function;
-    fn parse(&self, method: syn::ImplItemMethod) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(method.attrs)?;
-        let visibility = VisibilityParser.parse(method.vis)?;
-        let synchrony = SynchronyParser.parse(method.sig.asyncness)?;
-        let identifier = IdentifierParser::new().parse(method.sig.ident)?;
-        let inputs = self.parse_inputs(method.sig.inputs)?;
-        let output = self.parse_output(method.sig.output)?;
+    fn parse(&self, method: syn::ImplItemMethod, config: &ParserConfig) -> Result<Self::Output> {
+        let attributes = AttributesParser::default().parse(method.attrs, config)?;
+        let visibility = VisibilityParser.parse(method.vis, config)?;
+        let synchrony = SynchronyParser.parse(method.sig.asyncness, config)?;
+        let identifier = IdentifierParser::new().parse(method.sig.ident, config)?;
+        let inputs = self.parse_inputs(method.sig.inputs, config)?;
+        let output = self.parse_output(method.sig.output, config)?;
         Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })
     }
 }
 
 impl FunctionParser {
-    fn parse_output(&self, output: syn::ReturnType) -> Result<Option<Type>> {
+    fn parse_output(&self, output: syn::ReturnType, config: &ParserConfig) -> Result<Option<Type>> {
         Ok(match output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_x, y) => {
-                Some(TypeParser.parse(*y)?)
+                Some(TypeParser.parse(*y, config)?)
             }
         })
     }
-    fn parse_inputs(&self, args: syn::punctuated::Punctuated<syn::FnArg, syn::token::Comma>) -> Result<Vec<Parameter>> {
+    fn parse_inputs(&self, args: syn::punctuated::Punctuated<syn::FnArg, syn::token::Comma>, config: &ParserConfig) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args {
-            parameters.push(ParameterParser.parse(arg)?);
+            parameters.push(ParameterParser.parse(arg, config)?);
         }
         Ok(parameters)
     }
@@ -65,26 +65,26 @@ impl FunctionParser {
 
 impl Parser<proc_macro::TokenStream> for FunctionParser {
     type Output = Function;
-    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(token_stream))
+    fn parse(&self, token_stream: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for FunctionParser {
     type Output = Function;
-    fn parse(&self, token_stream: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::ItemFn>(token_stream)
             .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
-            .and_then(|function| self.parse(function))
+            .and_then(|function| self.parse(function, config))
     }
 }
 
 impl Parser<&str> for FunctionParser {
     type Output = Function;
-    fn parse(&self, input: &str) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse_str::<syn::ItemFn>(input)
             .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
-            .and_then(|function| self.parse(function))
+            .and_then(|function| self.parse(function, config))
     }
 }
 

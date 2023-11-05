@@ -2,13 +2,14 @@ use ligen_ir::Identifier;
 use ligen_ir::prelude::*;
 use ligen_ir::Library;
 use ligen_parsing::parser::Parser;
+use ligen_parsing::parser::ParserConfig;
 use ligen_rust_parser::module::ModuleParser;
 
 pub struct LibraryParser;
 
 impl Parser<&std::path::Path> for LibraryParser {
     type Output = Library;
-    fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
         let cargo_path = if input.is_dir() {
             input.join("Cargo.toml")
         } else {
@@ -23,7 +24,7 @@ impl Parser<&std::path::Path> for LibraryParser {
         let library_path = directory.join(library.path.unwrap_or("src/lib.rs".into()));
 
         let identifier = Identifier::from(package.name.as_str());
-        let mut root_module = ModuleParser.parse(library_path.as_path())?;
+        let mut root_module = ModuleParser.parse(library_path.as_path(), config)?;
         root_module.identifier = identifier.clone();
         Ok(Self::Output { identifier, root_module })
     }

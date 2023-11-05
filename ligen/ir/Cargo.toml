@@ -12,7 +12,8 @@ readme.workspace        = true
 mocks = []
 
 [dependencies]
-ligen-common.workspace = true
-serde.workspace        = true
-serde_json.workspace   = true
-strum                  = { version = "0.25.0", features = ["derive"] }
+ligen-common.workspace  = true
+serde.workspace         = true
+serde_json.workspace    = true
+enum-as-inner.workspace = true
+strum                   = { version = "0.25.0", features = ["derive"] }

@@ -33,16 +33,16 @@ macro_rules! trait_implementation {
     ($name:ident, $output:ty, $first:ty $(| $first_constraint:ty)? $(=> $first_output:ty)? $(, $rest:ty $(| $rest_constraint:ty)? $(=> $rest_output:ty)?)*) => {
         impl Parser<$first> for $name {
             type Output = $crate::pick_output!($output $(, $first_output)?);
-            fn parse(&self, input: $first) -> Result<Self::Output> {
-                self.parser.parse(input)
+            fn parse(&self, input: $first, config: &$crate::parser::ParserConfig) -> Result<Self::Output> {
+                self.parser.parse(input, config)
             }
         }
 
         $(
             impl Parser<$rest> for $name {
                 type Output = $crate::pick_output!($output $(, $rest_output)?);
-                fn parse(&self, input: $rest) -> Result<Self::Output> {
-                    self.parser.parse(input)
+                fn parse(&self, input: $rest, config: &$crate::parser::ParserConfig) -> Result<Self::Output> {
+                    self.parser.parse(input, config)
                 }
             }                    
         )*

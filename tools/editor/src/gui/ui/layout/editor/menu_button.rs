@@ -30,8 +30,9 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(entry) = entry {
                 stacker::grow(1024 * 1024 * 10, || {
-                    let symbols = PythonParser::symbol().parse(entry.as_path()).unwrap();
-                    let full = PythonParser::full().parse(entry.as_path()).unwrap();
+                    let config = Default::default();
+                    let symbols = PythonParser::symbol().parse(entry.as_path(), &config).unwrap();
+                    let full = PythonParser::full().parse(entry.as_path(), &config).unwrap();
                     panes.new_pane(Box::new(Editor::new(symbols)));
                     panes.new_pane(Box::new(Editor::new(full)));
                 });
@@ -48,7 +49,7 @@ impl MenuButton for EditorMenuButton {
 
             if let Some(file) = file {
                 let library = LibraryParser
-                    .parse(file.as_path())
+                    .parse(file.as_path(), &Default::default())
                     .expect("Failed to parse library.");
                 panes.new_pane(Box::new(Editor::new(library)));
             }

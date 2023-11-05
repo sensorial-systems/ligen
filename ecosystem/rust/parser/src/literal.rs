@@ -1,5 +1,5 @@
 use ligen::ir::Literal;
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -9,7 +9,7 @@ impl ligen::parsing::parser::universal::literal::LiteralParser for LiteralParser
 
 impl Parser<syn::Lit> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, lit: syn::Lit) -> Result<Self::Output> {
+    fn parse(&self, lit: syn::Lit, _config: &ParserConfig) -> Result<Self::Output> {
         Ok(match lit {
             syn::Lit::Str(litstr) => Self::Output::String(litstr.value()),
             syn::Lit::Verbatim(litverb) => Self::Output::String(litverb.to_string()),
@@ -25,40 +25,40 @@ impl Parser<syn::Lit> for LiteralParser {
 
 impl Parser<syn::Ident> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: syn::Ident) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Ident, _config: &ParserConfig) -> Result<Self::Output> {
         Ok(Self::Output::String(input.to_string()))
     }
 }
 
 impl Parser<proc_macro::TokenStream> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input))
+    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(input), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::Lit>(input)
             .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
-            .and_then(|literal| self.parse(literal))
+            .and_then(|literal| self.parse(literal, config))
     }
 }
 
 impl Parser<String> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: String) -> Result<Self::Output> {
-        self.parse(input.as_str())
+    fn parse(&self, input: String, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(input.as_str(), config)
     }
 }
 
 impl Parser<&str> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &str) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse_str::<syn::Lit>(input)
             .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
-            .and_then(|literal| self.parse(literal))
+            .and_then(|literal| self.parse(literal, config))
     }
 }
 

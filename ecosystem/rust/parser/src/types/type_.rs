@@ -1,4 +1,4 @@
-use ligen::ir::{Reference, Mutability, Type};
+use ligen::{ir::{Reference, Mutability, Type}, parsing::parser::ParserConfig};
 use crate::prelude::*;
 use ligen::parsing::parser::Parser;
 use crate::path::PathParser;
@@ -7,15 +7,15 @@ pub struct TypeParser;
 
 impl Parser<syn::Ident> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: syn::Ident) -> Result<Self::Output> {
-        Ok(Type::Path(PathParser::default().parse(input)?))
+    fn parse(&self, input: syn::Ident, config: &ParserConfig) -> Result<Self::Output> {
+        Ok(Type::Path(PathParser::default().parse(input, config)?))
     }
 }
 
 impl Parser<syn::Path> for TypeParser {
     type Output = Type;
-    fn parse(&self, path: syn::Path) -> Result<Self::Output> {
-        let mut path = PathParser::default().parse(path)?;
+    fn parse(&self, path: syn::Path, config: &ParserConfig) -> Result<Self::Output> {
+        let mut path = PathParser::default().parse(path, config)?;
         if path.segments.len() == 1 {
             let segment = path.first_mut();
             match segment.identifier.name.as_str() {
@@ -42,9 +42,9 @@ impl Parser<syn::Path> for TypeParser {
 
 impl Parser<syn::Type> for TypeParser {
     type Output = Type;
-    fn parse(&self, syn_type: syn::Type) -> Result<Self::Output> {
+    fn parse(&self, syn_type: syn::Type, config: &ParserConfig) -> Result<Self::Output> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
-            Ok(self.parse(path)?)
+            Ok(self.parse(path, config)?)
         } else {
             let reference = match &syn_type {
                 syn::Type::Reference(syn::TypeReference {
@@ -58,7 +58,7 @@ impl Parser<syn::Type> for TypeParser {
             if let Some((elem, mutability)) = reference {
                 if let syn::Type::Path(syn::TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                    let type_ = Box::new(TypeParser.parse(path)?);
+                    let type_ = Box::new(TypeParser.parse(path, config)?);
                     Ok(Self::Output::Reference(Reference { mutability, type_, }))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))
@@ -72,17 +72,17 @@ impl Parser<syn::Type> for TypeParser {
 
 impl Parser<proc_macro::TokenStream> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: proc_macro::TokenStream) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input))
+    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(input), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::Type>(input)
             .map_err(|e| Error::Message(format!("Failed to parse type: {}", e)))
-            .and_then(|syn_type| self.parse(syn_type))
+            .and_then(|syn_type| self.parse(syn_type, config))
     }
 }
 
@@ -92,6 +92,8 @@ mod test {
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
     use super::*;
+
+    // FIXME: Update this tests to use the mock module.
 
     #[test]
     fn types_integer() {
@@ -111,7 +113,7 @@ mod test {
         ]
             .into_iter()
             .map(|x| {
-                TypeParser.parse(x).expect("Failed to convert from syn::Type")
+                TypeParser.parse(x, &Default::default()).expect("Failed to convert from syn::Type")
             })
             .collect();
         let expected: Vec<Type> = vec![
@@ -141,7 +143,7 @@ mod test {
         let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
             .into_iter()
             .map(|x| {
-                TypeParser.parse(x).expect("Failed to convert from syn::Type")
+                TypeParser.parse(x, &Default::default()).expect("Failed to convert from syn::Type")
             })
             .collect();
         let expected: Vec<Type> = vec![Type::f32(), Type::f64()]
@@ -157,7 +159,7 @@ mod test {
     fn types_boolean() -> Result<()> {
         assert_eq!(
             Type::boolean(),
-            TypeParser.parse(quote! {bool})?
+            TypeParser.parse(quote! {bool}, &Default::default())?
         );
         Ok(())
     }
@@ -166,7 +168,7 @@ mod test {
     fn types_character() -> Result<()> {
         assert_eq!(
             Type::character(),
-            TypeParser.parse(quote! {char})?
+            TypeParser.parse(quote! {char}, &Default::default())?
         );
         Ok(())
     }
@@ -180,7 +182,7 @@ mod test {
                     type_: Type::i32().into()
                 }
             ),
-            TypeParser.parse(quote! {&i32})?
+            TypeParser.parse(quote! {&i32}, &&Default::default())?
         );
         Ok(())
     }
@@ -194,7 +196,7 @@ mod test {
                     type_: Type::i32().into()
                 }
             ),
-            TypeParser.parse(quote! {&mut i32})?
+            TypeParser.parse(quote! {&mut i32}, &Default::default())?
         );
         Ok(())
     }
@@ -206,7 +208,7 @@ mod test {
                 mutability: Mutability::Constant,
                 type_: Type::i32().into()
             }),
-            TypeParser.parse(quote! {*const i32})?
+            TypeParser.parse(quote! {*const i32}, &Default::default())?
         );
         Ok(())
     }
@@ -218,7 +220,7 @@ mod test {
                 mutability: Mutability::Mutable,
                 type_: Type::i32().into()
             }),
-            TypeParser.parse(quote! {*mut i32})?
+            TypeParser.parse(quote! {*mut i32}, &Default::default())?
         );
         Ok(())
     }

@@ -5,6 +5,7 @@ use crate::identifier::IdentifierParser;
 use crate::types::type_definition::TypeDefinitionParser;
 
 use ligen::ir::Library;
+use ligen::parsing::parser::ParserConfig;
 
 #[derive(Default)]
 pub struct PythonParser {
@@ -30,9 +31,9 @@ impl PythonParser {
 
 impl Parser<&std::path::Path> for PythonParser {
     type Output = Library;
-    fn parse(&self, input: &std::path::Path) -> Result<Self::Output> {
-        let name = self.identifier_parser.parse(input)?;
-        let root_module = self.parse(SubPath(input))?;
+    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+        let name = self.identifier_parser.parse(input, config)?;
+        let root_module = self.parse(SubPath(input), config)?;
         Ok(Library { identifier: name, root_module })
     }
 }

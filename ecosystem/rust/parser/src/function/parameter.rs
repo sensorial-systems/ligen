@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::{Identifier, Reference, Type, Mutability, Parameter};
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -12,14 +12,14 @@ pub struct ParameterParser;
 impl Parser<syn::FnArg> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, fn_arg: syn::FnArg) -> Result<Self::Output> {
+    fn parse(&self, fn_arg: syn::FnArg, config: &ParserConfig) -> Result<Self::Output> {
         match fn_arg {
             syn::FnArg::Typed(syn::PatType { pat, ty, attrs, .. }) => {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
                     Ok(Self::Output {
-                        attributes: AttributesParser::default().parse(attrs)?,
-                        identifier: IdentifierParser::new().parse(ident)?,
-                        type_: TypeParser.parse(*ty)?,
+                        attributes: AttributesParser::default().parse(attrs, config)?,
+                        identifier: IdentifierParser::new().parse(ident, config)?,
+                        type_: TypeParser.parse(*ty, config)?,
                     })
                 } else {
                     Err(Error::Message("Identifier not found".into()))
@@ -32,7 +32,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                                 mutability,
                                 ..
                             }) => {
-                let attributes = AttributesParser::default().parse(attrs)?;
+                let attributes = AttributesParser::default().parse(attrs, config)?;
                 let identifier = Identifier::new("self");
                 let type_ = reference
                     .map(|_| {
@@ -50,28 +50,28 @@ impl Parser<syn::FnArg> for ParameterParser {
 impl Parser<proc_macro::TokenStream> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, token_stream: proc_macro::TokenStream) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(token_stream))
+    fn parse(&self, token_stream: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, input: proc_macro2::TokenStream) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse2::<syn::FnArg>(input)
             .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
-            .and_then(|parameter| self.parse(parameter))
+            .and_then(|parameter| self.parse(parameter, config))
     }
 }
 
 impl Parser<&str> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, input: &str) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse_str::<syn::FnArg>(input)
             .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
-            .and_then(|parameter| self.parse(parameter))
+            .and_then(|parameter| self.parse(parameter, config))
     }
 }
 

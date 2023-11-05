@@ -1,5 +1,5 @@
 use ligen::ir::{Identifier, Mutability};
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use ligen::parsing::parser::universal::identifier::IdentifierParser as InternalParser;
 use crate::prelude::*;
 
@@ -13,12 +13,12 @@ impl IdentifierParser {
         Default::default()
     }
 
-    pub fn parse<T>(&self, input: T) -> Result<Identifier>
+    pub fn parse<T>(&self, input: T, config: &ParserConfig) -> Result<Identifier>
     where InternalParser: Parser<T, Output = Identifier>
     {
         self
             .parser
-            .parse(input)
+            .parse(input, config)
     }
 
     pub fn is_private(&self, identifier: &Identifier) -> bool {

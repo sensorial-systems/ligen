@@ -2,7 +2,7 @@ use ligen::ir::Mutability;
 use crate::prelude::*;
 
 use ligen::ir::{Attributes, Method, Parameter, Type};
-use ligen::parsing::parser::Parser;
+use ligen::parsing::parser::{Parser, ParserConfig};
 use crate::function::parameter::ParameterParser;
 use crate::function::SynchronyParser;
 use crate::identifier::IdentifierParser;
@@ -14,7 +14,7 @@ pub struct MethodParser;
 
 impl Parser<syn::ImplItemMethod> for MethodParser {
     type Output = Method;
-    fn parse(&self, method: syn::ImplItemMethod) -> Result<Self::Output> {
+    fn parse(&self, method: syn::ImplItemMethod, config: &ParserConfig) -> Result<Self::Output> {
         let mutability = method.sig.receiver().map(|arg| {
             match arg {
                 syn::FnArg::Receiver(receiver) => if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant },
@@ -32,12 +32,12 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
             .clone()
             .into_iter()
             .filter(|input| matches!(input, syn::FnArg::Receiver(_)))
-            .map(|x| ParameterParser.parse(x).expect("Failed to convert Parameter"))
+            .map(|x| ParameterParser.parse(x, config).expect("Failed to convert Parameter"))
             .collect();
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_x, y) => {
-                Some(TypeParser.parse(*y)?)
+                Some(TypeParser.parse(*y, config)?)
             }
         };
         Ok(Self::Output {
@@ -46,12 +46,12 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
                 attributes: method
                     .attrs
                     .into_iter()
-                    .map(|attribute| AttributeParser::default().parse(attribute).expect("Failed to parse meta."))
+                    .map(|attribute| AttributeParser::default().parse(attribute, config).expect("Failed to parse meta."))
                     .collect(),
             },
-            visibility: VisibilityParser.parse(method.vis)?,
-            synchrony: SynchronyParser.parse(asyncness)?,
-            identifier: IdentifierParser::new().parse(ident)?,
+            visibility: VisibilityParser.parse(method.vis, config)?,
+            synchrony: SynchronyParser.parse(asyncness, config)?,
+            identifier: IdentifierParser::new().parse(ident, config)?,
             inputs,
             output,
         })
