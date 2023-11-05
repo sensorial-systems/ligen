@@ -30,7 +30,7 @@ impl Identifier {
             NamingConvention::SnakeCase
         } else if self.name.chars().next().unwrap().is_uppercase() {
             NamingConvention::PascalCase
-        } else if self.name.chars().find(|c| c.is_uppercase()).is_some() {
+        } else if self.name.chars().any(|c| c.is_uppercase()) {
             NamingConvention::CamelCase
         } else {
             NamingConvention::Unknown
@@ -110,7 +110,6 @@ impl Identifier {
                     .chain(std::iter::once(self.name.len()))
                     .collect::<Vec<_>>();
                 (0 .. indices.len() - 1)
-                    .into_iter()
                     .map(|i| {
                         &self.name[indices[i]..=(indices[i + 1] - 1)]
                     })
@@ -128,7 +127,6 @@ impl Identifier {
                         .chain(std::iter::once(self.name.len()))
                     ).collect::<Vec<_>>();
                 (0 .. indices.len() - 1)
-                    .into_iter()
                     .map(|i| {
                         &self.name[indices[i]..=(indices[i + 1] - 1)]
                     })

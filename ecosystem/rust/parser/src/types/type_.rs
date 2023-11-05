@@ -182,7 +182,7 @@ mod test {
                     type_: Type::i32().into()
                 }
             ),
-            TypeParser.parse(quote! {&i32}, &&Default::default())?
+            TypeParser.parse(quote! {&i32}, &Default::default())?
         );
         Ok(())
     }
