@@ -17,6 +17,11 @@ pub struct Path {
 }
 
 impl Path {
+    /// Is empty.
+    pub fn is_empty(&self) -> bool {
+        self.segments.is_empty()
+    }
+
     /// Get `Path` from a `string` with a specified `separator`.
     pub fn from_string_with_separator(string: &str, separator: impl AsRef<str>) -> Self {
         let separator = separator.as_ref();

@@ -6,6 +6,7 @@ pub mod mock;
 
 /// Literal Enum
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner)]
+#[serde(untagged)]
 pub enum Literal {
     /// String variant
     String(String),
