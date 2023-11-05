@@ -12,7 +12,7 @@ use crate::types::type_::TypeParser;
 
 
 #[derive(Default)]
-pub struct FunctionParser;
+pub struct FunctionParser {}
 
 impl Parser<&str> for FunctionParser {
     type Output = Function;
