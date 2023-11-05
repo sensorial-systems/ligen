@@ -4,13 +4,12 @@ use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple};
 use ligen::{ir::Type, parsing::parser::ParserConfig};
 use crate::prelude::*;
 
-#[derive(Default)]
 pub struct TypeParser {
     mapper: HashMap<String, Type>,
 }
 
-impl TypeParser {
-    pub fn new() -> Self {
+impl Default for TypeParser {
+    fn default() -> Self {
         let mapper = HashMap::from([
             ("bool".into(), Type::boolean()),
             ("char".into(), Type::character()),
@@ -19,6 +18,12 @@ impl TypeParser {
             ("float".into(), Type::f32()),
         ]);
         Self { mapper }
+    }
+}
+
+impl TypeParser {
+    pub fn new() -> Self {
+        Default::default()
     }
 }
 
