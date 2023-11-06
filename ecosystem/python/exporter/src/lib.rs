@@ -8,7 +8,7 @@ use ligen_traits::generator::file_generator::{TemplateRegister, Template, Templa
 
 
 #[derive(Debug, Default)]
-pub struct PythonGenerator;
+pub struct PythonGenerator {}
 
 impl TemplateRegister for PythonGenerator {
     fn register_templates(&self, _template: &mut Template) -> Result<()> {

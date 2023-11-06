@@ -30,7 +30,7 @@ impl Widget for Generators {
     fn show(&mut self, settings: &Settings, ui: &mut ligen_gui_runtime::egui::Ui, input: &mut Self::Input) {
         for (index, generator) in self.generators.iter_mut().enumerate() {
             ui.push_id(index, |ui| {
-                generator.show(&settings, ui, input);
+                generator.show(settings, ui, input);
             });
         }
     }
