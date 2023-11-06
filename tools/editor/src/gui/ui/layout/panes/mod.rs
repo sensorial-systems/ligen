@@ -6,7 +6,7 @@ use tree_behavior::*;
 
 pub trait Pane {
     fn title(&self) -> String;
-    fn show(&mut self, ui: &mut egui::Ui, pane_manager: &mut PaneManager) -> egui_tiles::UiResponse;
+    fn show(&mut self, ui: &mut egui::Ui, panes: &mut PaneManager) -> egui_tiles::UiResponse;
 }
 
 #[derive(Default)]

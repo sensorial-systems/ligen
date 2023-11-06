@@ -13,8 +13,6 @@ use std::path::PathBuf;
 #[macro_export]
 macro_rules! register_template {
     ($template:ident, $identifier:ident) => {
-        // TODO: Stop using expect and use ? instead?
-        // $template.register_template_string(stringify!($identifier), include_str!(concat!("templates/", stringify!($identifier), ".hbs"))).expect(concat!("Failed to load ", stringify!($identifier), " template."));
         $template.register_template(stringify!($identifier), include_str!(concat!("templates/", stringify!($identifier), ".hbs")));
     }
 }

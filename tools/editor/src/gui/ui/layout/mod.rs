@@ -8,7 +8,7 @@ use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
 
 use self::editor::ir::Editor;
-use self::editor::parsing::Parsing;
+use self::editor::parsers::Parsers;
 
 #[derive(Serialize, Deserialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state
@@ -23,7 +23,7 @@ impl Default for Layout {
     fn default() -> Self {
         let menu = Menu::new();
         let mut panes = Panes::new();
-        panes.new_pane(Box::new(Parsing::new()));
+        panes.new_pane(Box::new(Parsers::new()));
         Self { menu, panes }
     }
 }

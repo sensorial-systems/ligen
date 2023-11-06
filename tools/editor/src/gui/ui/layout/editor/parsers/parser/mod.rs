@@ -12,8 +12,11 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(parser: Box<dyn for<'a> parser::Parser<&'a Path, Output = ligen_ir::Library>>) -> Self {
+    pub fn new<T>(parser: T) -> Self
+    where T: for<'a> parser::Parser<&'a Path, Output = ligen_ir::Library> + 'static
+    {
         let config = parser.config();
+        let parser = Box::new(parser);
         Self { parser, config }
     }
 }

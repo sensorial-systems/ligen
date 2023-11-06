@@ -9,28 +9,28 @@ use crate::gui::ui::panes::PaneManager;
 
 use super::{ir::Editor, widget::Widget, settings::Settings};
 
-pub struct Parsing {
+pub struct Parsers {
     parsers: Vec<Parser>
 }
 
-impl Default for Parsing {
+impl Default for Parsers {
     fn default() -> Self {
         let parsers = vec![
-            Parser::new(Box::<PythonParser>::default())
+            Parser::new(PythonParser::default())
         ];
         Self { parsers }
     }
 }
 
-impl Parsing {
+impl Parsers {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Pane for Parsing {
+impl Pane for Parsers {
     fn title(&self) -> String {
-        "Parsing".to_string()
+        "Parsers".to_string()
     }
     fn show(&mut self, ui: &mut ligen_gui_runtime::egui::Ui, pane_manager: &mut PaneManager) -> egui_tiles::UiResponse {
         let mut settings = Settings::default();

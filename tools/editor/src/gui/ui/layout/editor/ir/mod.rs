@@ -31,6 +31,7 @@ use crate::gui::ui::List;
 
 use crate::gui::ui::panes::{Pane, PaneManager};
 
+use super::generators::Generators;
 use super::settings::Settings;
 use super::widget::Widget;
 
@@ -38,7 +39,7 @@ use super::widget::Widget;
 pub struct Editor {
     library: ligen_ir::Library,
     filter: String,
-    display_settings: Settings,
+    settings: Settings,
     symbols: Symbols
 }
 
@@ -47,7 +48,7 @@ impl Editor {
         let filter = Default::default();
         let symbols = Symbols::new(&library);
         let display_settings = Default::default();
-        Self { library, symbols, filter, display_settings }
+        Self { library, symbols, filter, settings: display_settings }
     }
 }
 
@@ -75,9 +76,11 @@ impl Pane for Editor {
             });
         });
         ui.separator();
-        self.display_settings.show(ui);
+        self.settings.show(ui);
         ui.separator();
-        Library::new().show(&self.display_settings, ui, &mut self.library);
+        Library::new().show(&self.settings, ui, &mut self.library);
+        ui.separator();
+        Generators::new().show(&self.settings, ui, &mut self.library);
         ui.separator();
         ui.horizontal(|ui| {
             ui.label("Filter");
