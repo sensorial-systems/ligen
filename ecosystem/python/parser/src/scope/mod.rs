@@ -1,8 +1,8 @@
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::{ir::{Interface, Object, Function, Method, TypeDefinition}, parsing::parser::{ParserConfig, ParserConfigGet}};
-use crate::prelude::*;
+use ligen::{ir::{Interface, Object, Function, Method, TypeDefinition}, parsing::parser::ParserConfig};
+use crate::{prelude::*, parser::PythonParserConfig};
 
 pub use scope_type::*;
 use crate::parser::PythonParser;
@@ -162,11 +162,7 @@ impl PythonParser {
 
     fn parse_objects(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
-        let class_variables_as_properties = config
-            .get("class_variables_as_properties")
-            .and_then(|x| x.as_boolean())
-            .cloned()
-            .unwrap_or_default();
+        let class_variables_as_properties = PythonParserConfig::from(config).get_class_variables_as_properties();
         if !class_variables_as_properties {
             for statement in statements.ast {
                 match statement {

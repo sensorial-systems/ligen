@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 use ligen_ir::{Literal, Path};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ParserConfig {
     #[serde(flatten)]
     map: Group
@@ -24,29 +24,29 @@ impl ParserConfig {
     pub fn iter(&self) -> impl Iterator<Item = (Path, Literal)> {
         self.map.iter()
     }
+
+    /// Sets whether to parse all symbols or only the ones that are explicitly marked as such.
+    pub fn set_only_parse_symbols(&mut self, value: bool) {
+        self.set("ligen::only-parse-symbols", value);
+    }    
+
+    /// Whether to parse all symbols or only the ones that are explicitly marked as such.
+    pub fn get_only_parse_symbols(&self) -> bool {
+        self.get("ligen::only-parse-symbols")
+            .and_then(|literal| literal.as_boolean())
+            .cloned()
+            .unwrap_or(false)
+    }
 }
 
 pub trait ParserConfigGet {
     /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal>;
-
-    /// Whether to parse all symbols or only the ones that are explicitly marked as such.
-    fn get_only_parse_symbols(&self) -> bool {
-        self.get("ligen::only-parse-symbols")
-            .and_then(|literal| literal.as_boolean())
-            .cloned()
-            .unwrap_or(false)
-    }    
 }
 
 pub trait ParserConfigSet {    
     /// Sets the value at the given path.
-    fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L);
-    
-    /// Sets whether to parse all symbols or only the ones that are explicitly marked as such.
-    fn set_only_parse_symbols(&mut self, value: bool) {
-        self.set("ligen::only-parse-symbols", value);
-    }
+    fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L);    
 }
 
 impl ParserConfig {

@@ -31,4 +31,10 @@ impl Parser<&std::path::Path> for PythonParser {
         let root_module = self.parse(SubPath(input), config)?;
         Ok(Library { identifier: name, root_module })
     }
+    fn name(&self) -> &str {
+        "Python"
+    }
+    fn config(&self) -> ParserConfig {
+        PythonParserConfig::default().into()
+    }
 }

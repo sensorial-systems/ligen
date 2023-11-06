@@ -2,7 +2,7 @@ pub mod parameter;
 pub mod method;
 
 use crate::prelude::*;
-use ligen::parsing::parser::{ParserConfig, ParserConfigGet};
+use ligen::parsing::parser::ParserConfig;
 use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
 use crate::function::parameter::ParameterParser;

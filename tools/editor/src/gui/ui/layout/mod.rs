@@ -7,8 +7,8 @@ use crate::gui::ui::menu::Menu;
 use crate::gui::ui::panes::Panes;
 use crate::prelude::*;
 
-use self::editor::Parsing;
 use self::editor::ir::Editor;
+use self::editor::parsing::Parsing;
 
 #[derive(Serialize, Deserialize)]
 #[serde(default)] // if we add new fields, give them default values when deserializing old state

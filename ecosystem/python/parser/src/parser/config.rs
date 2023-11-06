@@ -14,12 +14,18 @@ impl<T> From<T> for PythonParserConfig<T> {
     }
 }
 
-impl<T: Default + ParserConfigSet> Default for PythonParserConfig<T> {
+impl Default for PythonParserConfig<ParserConfig> {
     fn default() -> Self {
         let config = Default::default();
         let mut config = Self { config };
         config.set_class_variables_as_properties(false);
         config
+    }
+}
+
+impl From<PythonParserConfig<ParserConfig>> for ParserConfig {
+    fn from(config: PythonParserConfig<ParserConfig>) -> Self {
+        config.config
     }
 }
 

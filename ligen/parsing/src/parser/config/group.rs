@@ -4,14 +4,14 @@ use ligen_ir::{Literal, Path};
 
 use crate::prelude::*;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Value {
     Literal(Literal),
     Group(Group)
 }
 
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Group {
     #[serde(flatten)]
     map: HashMap<String, Value>
