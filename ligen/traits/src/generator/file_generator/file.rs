@@ -51,7 +51,7 @@ impl File {
         self
             .sections
             .entry(name.as_ref().to_string())
-            .or_insert_with(Default::default)
+            .or_default()
     }
 
     /// Gets content.
@@ -99,7 +99,7 @@ impl FileSet {
 
     /// Returns an existing File assigned to an entry or creates a new one if it isn't present.
     pub fn entry(&mut self, path: &Path) -> &mut File {
-        self.files.entry(path.to_path_buf()).or_insert(File::new(path.to_path_buf()))
+        self.files.entry(path.to_path_buf()).or_insert(File::new(path))
     }
 }
 
