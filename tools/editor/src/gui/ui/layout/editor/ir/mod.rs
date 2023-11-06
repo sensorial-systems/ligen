@@ -40,7 +40,8 @@ pub struct Editor {
     library: ligen_ir::Library,
     filter: String,
     settings: Settings,
-    symbols: Symbols
+    symbols: Symbols,
+    generators: Generators
 }
 
 impl Editor {
@@ -48,7 +49,8 @@ impl Editor {
         let filter = Default::default();
         let symbols = Symbols::new(&library);
         let display_settings = Default::default();
-        Self { library, symbols, filter, settings: display_settings }
+        let generators = Default::default();
+        Self { library, symbols, filter, settings: display_settings, generators }
     }
 }
 
@@ -80,7 +82,7 @@ impl Pane for Editor {
         ui.separator();
         Library::new().show(&self.settings, ui, &mut self.library);
         ui.separator();
-        Generators::new().show(&self.settings, ui, &mut self.library);
+        self.generators.show(&self.settings, ui, &mut self.library);
         ui.separator();
         ui.horizontal(|ui| {
             ui.label("Filter");
