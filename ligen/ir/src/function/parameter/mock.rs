@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{*, macro_attributes::Group};
 
 pub fn primitive_parameter() -> Parameter {
     Parameter {
@@ -10,7 +10,7 @@ pub fn primitive_parameter() -> Parameter {
 
 pub fn parameter_attribute() -> Parameter {
     Parameter {
-        attributes: Attribute::Group("attribute".into(), Default::default()).into(),
+        attributes: Group::from("attribute").into(),
         identifier: Identifier::new("integer"),
         type_: Type::i32()
     }

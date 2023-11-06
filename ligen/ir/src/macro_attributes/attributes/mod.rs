@@ -52,9 +52,9 @@ impl Attributes {
             .attributes
             .iter()
             .find_map(|attribute| {
-                if let Attribute::Group(identifier, attributes) = attribute {
-                    if *identifier == name {
-                        Some(attributes)
+                if let Attribute::Group(group) = attribute {
+                    if group.identifier == name {
+                        Some(&group.attributes)
                     } else {
                         None
                     }
@@ -71,9 +71,9 @@ impl Attributes {
             .attributes
             .iter()
             .find_map(|attribute| {
-                if let Attribute::Named(identifier, literal) = attribute {
-                    if *identifier == name {
-                        Some(literal)
+                if let Attribute::Named(named) = attribute {
+                    if named.identifier == name {
+                        Some(&named.literal)
                     } else {
                         None
                     }
@@ -93,12 +93,34 @@ impl Attributes {
 
     /// Check if the attributes list has an ignore attribute.
     pub fn has_ignore_attribute(&self) -> bool {
-        self.contains(&Attribute::Group("ligen".into(), Attribute::Group("ignore".into(), Default::default()).into()))
+        self.contains(&Attribute::Group(Group::new("ligen", Group::from("ignore"))))
     }
 }
 
-impl From<Vec<Attribute>> for Attributes {
-    fn from(attributes: Vec<Attribute>) -> Self {
+impl From<Group> for Attributes {
+    fn from(group: Group) -> Self {
+        Self { attributes: vec![group.into()] }
+    }
+}
+
+impl From<Named> for Attributes {
+    fn from(named: Named) -> Self {
+        Self { attributes: vec![named.into()] }
+    }
+}
+
+impl<L: Into<Literal>> From<L> for Attributes {
+    fn from(literal: L) -> Self {
+        Self { attributes: vec![literal.into().into()] }
+    }
+}
+
+impl<A: Into<Attribute>> From<Vec<A>> for Attributes {
+    fn from(attributes: Vec<A>) -> Self {
+        let attributes = attributes
+            .into_iter()
+            .map(|attribute| attribute.into())
+            .collect();
         Self { attributes }
     }
 }

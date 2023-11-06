@@ -1,5 +1,6 @@
 //! Attribute enumeration.
 
+use ligen_ir::macro_attributes::{Named, Group};
 use syn::__private::ToTokens;
 use crate::prelude::*;
 use ligen_ir::Attribute;
@@ -24,7 +25,10 @@ impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::ItemMacro".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Group(IdentifierParser::new().parse(identifier, config)?, AttributesParser::<T>::default().parse(call.mac.tokens.to_string().as_str(), config)?))
+        let identifier = IdentifierParser::new().parse(identifier, config)?;
+        let attributes = AttributesParser::<T>::default().parse(call.mac.tokens.to_string().as_str(), config)?;
+        let group = Group::new(identifier, attributes).into();
+        Ok(group)
     }
 }
 
@@ -38,10 +42,10 @@ impl<T: LiteralParser> Parser<syn::MetaList> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::MetaList".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Group(
-            IdentifierParser::new().parse(identifier, config)?,
-            AttributesParser::<T>::default().parse(meta_list, config)?,
-        ))
+        let identifier = IdentifierParser::new().parse(identifier, config)?;
+        let attributes = AttributesParser::<T>::default().parse(meta_list, config)?;
+        let group = Group::new(identifier, attributes);
+        Ok(group.into())
     }
 }
 
@@ -54,7 +58,9 @@ impl<T: LiteralParser> Parser<syn::Path> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::Path".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Group(IdentifierParser::new().parse(identifier, config)?, Default::default()))
+        let identifier = IdentifierParser::new().parse(identifier, config)?;
+        let attribute = Group::from(identifier).into();
+        Ok(attribute)
     }
 }
 
@@ -69,7 +75,8 @@ impl<T: LiteralParser> Parser<syn::MetaNameValue> for AttributeParser<T> {
             .ok_or(Error::Message("Failed to get identifier from syn::MetaNameValue".to_string()))?
             .ident
             .clone();
-        Ok(Self::Output::Named(IdentifierParser::new().parse(identifier, config)?, self.literal_parser.parse(meta_name_value.lit.to_token_stream().to_string(), config)?))
+        let attribute = Named::new(IdentifierParser::new().parse(identifier, config)?, self.literal_parser.parse(meta_name_value.lit.to_token_stream().to_string(), config)?).into();
+        Ok(attribute)
     }
 }
 

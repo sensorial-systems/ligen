@@ -1,7 +1,7 @@
-use crate::*;
+use crate::{*, macro_attributes::Group};
 
 fn attributes() -> Attributes {
-    Attribute::Group("custom".into(), Attribute::Group("attribute".into(), Default::default()).into()).into()
+    Group::new("custom", Group::from("attribute")).into()
 }
 
 pub fn import() -> Vec<Import> {

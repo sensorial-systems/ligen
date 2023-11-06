@@ -3,6 +3,7 @@ pub mod child;
 #[test]
 pub fn module_file() {
     use ligen::ir::*;
+    use ligen_ir::macro_attributes::Group;
     use ligen::parsing::assert::assert_eq;
     use ligen_rust_parser::module::ModuleParser;
 
@@ -10,7 +11,7 @@ pub fn module_file() {
         identifier: "lib".into(),
         functions: vec![
             Function {
-                attributes: Attribute::Group("test".into(), Default::default()).into(),
+                attributes: Group::from("test").into(),
                 identifier: "module_file".into(),
                 ..Default::default()
             }

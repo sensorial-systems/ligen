@@ -1,33 +1,15 @@
-use crate::*;
+use crate::{*, macro_attributes::{Named, Group}};
 
 pub fn attribute_group() -> Attribute {
-    Attribute::Group(
-        Identifier::new("c"),
-        Attributes {
-            attributes: vec![
-                Attribute::Named(
-                    Identifier::new("int"),
-                    Literal::String(String::from("sized"))
-                )
-            ]
-        }
-    )
+    Group::new("c", Named::new("int", "sized")).into()
 }
 
 pub fn attribute_empty_group() -> Attribute {
-    Attribute::Group(
-        Identifier::new("c"),
-        Attributes::default()
-    )
+    Group::from("c").into()
 }
 
 pub fn attribute_named() -> Attribute {
-    Attribute::Named(
-        Identifier::new("int"),
-        Literal::String(
-            String::from("sized")
-        )
-    )
+    Named::new("int", "sized").into()
 }
 
 pub fn attribute_literal() -> Attribute {

@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{*, macro_attributes::{Group, Named}};
 
 pub fn function() -> Function {
     Function {
@@ -68,17 +68,7 @@ pub fn function_input_output() -> Function {
 
 pub fn function_attribute() -> Function {
     Function {
-        attributes: Attributes {
-            attributes: vec![Attribute::Group(
-                Identifier::new("test"),
-                Attributes {
-                    attributes: vec![Attribute::Named(
-                        Identifier::new("a"),
-                        Literal::String(String::from("b"))
-                    )]
-                }
-            )]
-        },
+        attributes: Group::new("test", Named::new("a", "b")).into(),
         visibility: Visibility::Public,
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
@@ -100,17 +90,7 @@ pub fn function_async() -> Function {
 
 pub fn function_complete() -> Function {
     Function {
-        attributes: Attributes {
-            attributes: vec![Attribute::Group(
-                Identifier::new("test"),
-                Attributes {
-                    attributes: vec![Attribute::Named(
-                        Identifier::new("a"),
-                        Literal::String(String::from("b"))
-                    )]
-                }
-            )]
-        },
+        attributes: Group::new("test", Named::new("a", "b")).into(),
         visibility: Visibility::Public,
         synchrony: Synchrony::Asynchronous,
         identifier: "test".into(),

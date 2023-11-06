@@ -1,51 +1,24 @@
-use crate::*;
+use crate::{*, macro_attributes::{Group, Named}};
 
 pub fn parse_attributes() -> Attributes {
-    Attributes {
-        attributes: vec![
-            Attribute::Group(
-                Identifier::new("c"),
-                Attributes {
-                    attributes: vec![Attribute::Named(
-                        Identifier::new("int"),
-                        Literal::String(String::from("sized"))
-                        )
-                    ]
-                }
-            )
-        ]
-    }
+    Group::new(
+        "c",
+        Named::new("int", "sized")
+    ).into()
 }
 
 pub fn parse_literals() -> Attributes {
-    Attributes {
-        attributes: vec![
-            Attribute::Group(
-                Identifier::new("c"),
-                Attributes {
-                    attributes: vec![
-                        Attribute::Group(
-                            Identifier::new("marshal_as"),
-                            Attributes {
-                                attributes: vec![
-                                    Attribute::Named(
-                                        Identifier::new("name"),
-                                        Literal::String(String::from("hello"))
-                                    ),
-                                    Attribute::Named(
-                                        Identifier::new("uuid"),
-                                        Literal::Integer(5)
-                                    )
-                                ]
-                            }
-                        ),
-                        Attribute::Named(
-                            Identifier::new("int"),
-                            Literal::String(String::from("sized"))
-                        )
-                    ]
-                }
-            )
+    Group::new(
+        "c",
+        vec![
+            Attribute::Group(Group::new(
+                "marshal_as",
+                vec![
+                    Named::new("name", "hello"),
+                    Named::new("uuid", 5)
+                ]
+            )),
+            Attribute::Named(Named::new("int", "sized"))
         ]
-    }
+    ).into()
 }

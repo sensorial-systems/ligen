@@ -1,5 +1,6 @@
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser};
 use ligen::{ir::{TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parsing::parser::ParserConfig};
+use ligen::ir::macro_attributes::Group;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
 #[derive(Default)]
@@ -110,7 +111,7 @@ impl TypeDefinitionParser {
                 },
                 Stmt::FunctionDef(function_def) => {
                     let function = FunctionParser::default().parse(input.sub(function_def.clone()), config)?;
-                    if function.attributes.contains(&Attribute::Group("property".into(), Default::default())) {
+                    if function.attributes.contains(&Attribute::Group(Group::from("property"))) {
                         let identifier = Some(function.identifier);
                         let type_ = function.output.unwrap_or_default();
                         let field = Field { identifier, type_, ..Default::default() };
