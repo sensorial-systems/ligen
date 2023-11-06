@@ -3,7 +3,7 @@ pub use crate::prelude::*;
 use crate::gui::ui::{StringField, editor::{widget::{Widget, WidgetFor}, settings::Settings}};
 
 #[derive(Default)]
-pub struct Path;
+pub struct Path {}
 
 impl Path {
     pub fn new() -> Self {

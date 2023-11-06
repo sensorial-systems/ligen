@@ -16,7 +16,7 @@ pub struct Parsing {
 impl Default for Parsing {
     fn default() -> Self {
         let parsers = vec![
-            Parser::new(Box::new(PythonParser::default()))
+            Parser::new(Box::<PythonParser>::default())
         ];
         Self { parsers }
     }

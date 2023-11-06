@@ -4,7 +4,7 @@ pub use crate::prelude::*;
 use egui::ComboBox;
 
 #[derive(Default)]
-pub struct Literal;
+pub struct Literal {}
 
 impl Literal {
     pub fn new() -> Self {
