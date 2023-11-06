@@ -6,7 +6,7 @@ use tree_behavior::*;
 
 pub trait Pane {
     fn title(&self) -> String;
-    fn show(&mut self, ui: &mut egui::Ui) -> egui_tiles::UiResponse;
+    fn show(&mut self, ui: &mut egui::Ui, pane_manager: &mut PaneManager) -> egui_tiles::UiResponse;
 }
 
 #[derive(Default)]
@@ -35,7 +35,26 @@ impl Panes {
 
     pub fn show(&mut self, ctx: &egui::Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.tree.ui(&mut TreeBehavior::new(), ui);
+            let mut pane_manager = PaneManager::new();
+            self.tree.ui(&mut TreeBehavior::new(&mut pane_manager), ui);
+            for pane in pane_manager.panes {
+                self.new_pane(pane)
+            }
         });
+    }
+}
+
+#[derive(Default)]
+pub struct PaneManager {
+    pub panes: Vec<Box<dyn Pane>>
+}
+
+impl PaneManager {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn new_pane(&mut self, pane: Box<dyn Pane>) {
+        self.panes.push(pane);
     }
 }

@@ -29,7 +29,7 @@ pub use interface::*;
 use ligen_ir::symbols::Symbols;
 use crate::gui::ui::List;
 
-use crate::gui::ui::panes::Pane;
+use crate::gui::ui::panes::{Pane, PaneManager};
 
 use super::settings::Settings;
 use super::widget::Widget;
@@ -56,7 +56,7 @@ impl Pane for Editor {
         self.library.identifier.to_string()
     }
 
-    fn show(&mut self, ui: &mut egui::Ui) -> UiResponse {
+    fn show(&mut self, ui: &mut egui::Ui, _panes: &mut PaneManager) -> UiResponse {
         ui.add_space(ui.spacing().menu_margin.top);
         egui::menu::bar(ui, |ui| {
             ui.menu_button("File", |ui| {

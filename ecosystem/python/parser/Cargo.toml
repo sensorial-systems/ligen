@@ -11,6 +11,7 @@ readme.workspace = true
 [dependencies]
 ligen.workspace = true
 rustpython-parser = "0.3.0"
+shrinkwraprs.workspace = true
 
 [dev-dependencies]
 ligen-ir = { workspace = true, features = ["mocks"]}

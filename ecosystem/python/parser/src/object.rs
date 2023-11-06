@@ -1,4 +1,4 @@
-use ligen::parsing::parser::ParserConfig;
+use ligen::parsing::parser::{ParserConfig, ParserConfigGet};
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
 use ligen::ir::Object;
 use crate::identifier::IdentifierParser;
@@ -12,7 +12,7 @@ impl Parser<&StmtAnnAssign> for ObjectParser {
     type Output = Object;
     fn parse(&self, input: &StmtAnnAssign, config: &ParserConfig) -> Result<Self::Output> {
         let mut object = self.parse(input.target.as_ref(), config)?;
-        if !config.only_parse_symbols() {
+        if !config.get_only_parse_symbols() {
             object.type_ = TypeParser::new().parse(&*input.annotation, config)?;
         }
         Ok(object)
@@ -36,7 +36,7 @@ impl Parser<&Expr> for ObjectParser {
             .as_str();
         let identifier_parser = IdentifierParser::new();
         let identifier = identifier_parser.parse(identifier, config)?;
-        if config.only_parse_symbols() {
+        if config.get_only_parse_symbols() {
             Ok(Object { identifier, ..Default::default() })
         } else {
             let mutability = identifier_parser.get_mutability(&identifier);

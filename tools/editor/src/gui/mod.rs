@@ -15,10 +15,9 @@ impl Gui {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
-        cc.egui_ctx.set_style(Style {
-            visuals: Visuals::light(),
-            ..Default::default()
-        });
+        let mut visuals = Visuals::light();
+        visuals.indent_has_left_vline = false;
+        cc.egui_ctx.set_style(Style { visuals, ..Default::default() });
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.

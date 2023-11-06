@@ -92,6 +92,16 @@ impl Path {
     pub fn pop_back(&mut self) -> Option<PathSegment> {
         self.segments.pop()
     }
+
+    /// Pushes the given segment onto the end of the Path.
+    pub fn push_front(&mut self, segment: impl Into<PathSegment>) {
+        self.segments.insert(0, segment.into());
+    }
+
+    /// Pushes the given segment onto the end of the Path.
+    pub fn push_back(&mut self, segment: impl Into<PathSegment>) {
+        self.segments.push(segment.into());
+    }
 }
 
 impl<I: Into<Identifier>> From<Vec<I>> for Path {

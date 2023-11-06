@@ -14,6 +14,12 @@ impl From<&str> for PathSegment {
     }
 }
 
+impl From<String> for PathSegment {
+    fn from(value: String) -> Self {
+        Identifier::from(value).into()
+    }
+}
+
 impl From<Identifier> for PathSegment {
     fn from(identifier: Identifier) -> Self {
         let generics = Default::default();

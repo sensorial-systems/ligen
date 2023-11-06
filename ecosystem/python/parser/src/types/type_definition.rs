@@ -1,5 +1,5 @@
-use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser};
-use ligen::{ir::{TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parsing::parser::ParserConfig};
+use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
+use ligen::{ir::{TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parsing::parser::{ParserConfig, ParserConfigGet}};
 use ligen::ir::macro_attributes::Group;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
@@ -10,7 +10,7 @@ impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
     type Output = TypeDefinition;
     fn parse(&self, input: WithSource<StmtClassDef>, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
-        if config.only_parse_symbols() {
+        if config.get_only_parse_symbols() {
             Ok(TypeDefinition { identifier, ..Default::default() })
         } else {
             let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
@@ -84,11 +84,7 @@ impl TypeDefinitionParser {
 
     fn parse_kind_definition(&self, input: &WithSource<StmtClassDef>, config: &ParserConfig) -> Result<KindDefinition> {
         let mut fields = Vec::new();
-        let class_variables_as_properties = config
-            .get("class_variables_as_properties")
-            .and_then(|x| x.as_boolean())
-            .cloned()
-            .unwrap_or_default();
+        let class_variables_as_properties = PythonParserConfig::from(config).get_class_variables_as_properties();
         for stmt in &input.ast.body {
             match stmt {
                 Stmt::AnnAssign(ann_assign) => {

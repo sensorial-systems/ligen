@@ -2,7 +2,7 @@ pub mod parameter;
 pub mod method;
 
 use crate::prelude::*;
-use ligen::parsing::parser::ParserConfig;
+use ligen::parsing::parser::{ParserConfig, ParserConfigGet};
 use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
 use crate::function::parameter::ParameterParser;
@@ -31,7 +31,7 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     type Output = Function;
     fn parse(&self, input: WithSource<StmtFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
-        if config.only_parse_symbols() {
+        if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
             let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
@@ -50,7 +50,7 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
         let source = input.source;
         let input = input.ast;
         let identifier = IdentifierParser::new().parse(input.name.as_str(), config)?;
-        if config.only_parse_symbols() {
+        if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
             let attributes = AttributesParser::default().parse(WithSource::new(source, input.decorator_list), config)?;

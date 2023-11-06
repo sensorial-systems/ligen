@@ -4,6 +4,9 @@ use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::types::type_definition::TypeDefinitionParser;
 
+pub mod config;
+pub use config::*;
+
 use ligen::ir::Library;
 use ligen::parsing::parser::ParserConfig;
 
