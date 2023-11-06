@@ -3,21 +3,18 @@
 use crate::prelude::*;
 use ligen_utils::fs::write_file;
 use std::path::{Path, PathBuf};
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 
-/// Structure representing a file path and its content.
-#[derive(Debug, Clone, PartialEq)]
-pub struct File {
-    /// File path.
-    pub path: PathBuf,
-    /// File content.
+#[derive(Default, Debug, Clone, PartialEq)]
+pub struct FileSection {
+    /// File section content.
     pub content: String
 }
 
-impl File {
-    /// Creates a new file with the specified path and content.
-    pub fn new(path: PathBuf, content: String) -> Self {
-        Self { path, content }
+impl FileSection {
+    /// Creates a new FileSection.
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Writes the content to the file buffer.
@@ -29,11 +26,57 @@ impl File {
     pub fn writeln<S: AsRef<str>>(&mut self, content: S) {
         self.content.push_str(content.as_ref());
         self.content.push('\n');
+    }    
+}
+
+/// Structure representing a file path and its content.
+#[derive(Debug, Clone, PartialEq)]
+pub struct File {
+    /// File path.
+    pub path: PathBuf,
+    /// File sections.
+    pub sections: BTreeMap<String, FileSection>,
+}
+
+impl File {
+    /// Creates a new file with the specified path and content.
+    pub fn new(path: impl AsRef<std::path::Path>) -> Self {
+        let sections = Default::default();
+        let path = path.as_ref().to_path_buf();
+        Self { path, sections }
+    }
+
+    /// Gets or creates a new section with the specified name.
+    pub fn section(&mut self, name: impl AsRef<str>) -> &mut FileSection {
+        self
+            .sections
+            .entry(name.as_ref().to_string())
+            .or_insert_with(Default::default)
+    }
+
+    /// Gets content.
+    pub fn content(&self) -> String {
+        let mut content = String::new();
+        for section in self.sections.values() {
+            content.push_str(&section.content);
+        }
+        content
+    }
+
+    /// Gets content in order.
+    pub fn content_in_order<S: AsRef<str>, A: AsRef<[S]>>(&self, order: A) -> String {
+        let mut content = String::new();
+        for section in order.as_ref() {
+            if let Some(section) = self.sections.get(section.as_ref()) {
+                content.push_str(&section.content);
+            }
+        }
+        content
     }
 
     /// Saves the file.
     pub fn save(&self) -> Result<()> {
-        write_file(&self.path, &self.content)
+        write_file(&self.path, &self.content())
     }
 }
 
@@ -56,6 +99,20 @@ impl FileSet {
 
     /// Returns an existing File assigned to an entry or creates a new one if it isn't present.
     pub fn entry(&mut self, path: &Path) -> &mut File {
-        self.files.entry(path.to_path_buf()).or_insert(File::new(path.to_path_buf(), Default::default()))
+        self.files.entry(path.to_path_buf()).or_insert(File::new(path.to_path_buf()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::File;
+
+    #[test]
+    fn order() {
+        let mut file = File::new("path");
+        file.section("b").write("B");
+        file.section("a").write("A");
+        assert_eq!(file.content(), "AB");
+        assert_eq!(file.content_in_order(["b", "a"]), "BA");
     }
 }

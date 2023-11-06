@@ -20,7 +20,7 @@ impl FileGenerator for CargoGenerator {
         let path = PathBuf::default();
         let path = path.display().to_string().replace('\\', "/");
         let content = format!(include_str!("Cargo.template.toml"), name = name, version = version, path = path);
-        file.writeln(content);
+        file.section("root").writeln(content);
         Ok(())
     }
 }

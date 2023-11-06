@@ -56,7 +56,7 @@ pub trait TemplateBasedGenerator: TemplateRegister {
 
         let path = self.module_generation_path(library, module);
 
-        file_set.entry(&path).writeln(content);
+        file_set.entry(&path).section("root").writeln(content);
         for module in &module.modules {
             self.generate_module(library, module, file_set, template)?;
         }
