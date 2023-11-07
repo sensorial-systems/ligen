@@ -1,5 +1,5 @@
 use ligen_ir::Library;
-use ligen_traits::generator::file_generator::{FileGenerator, FileSet};
+use ligen_generator::file_generator::{FileGenerator, FileSet};
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_traits::prelude::*;

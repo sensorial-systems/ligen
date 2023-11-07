@@ -16,6 +16,7 @@ ligen-parser.workspace = true
 ligen-cargo.workspace = true
 ligen-python-parser.workspace = true
 ligen-traits.workspace = true
+ligen-generator.workspace = true
 ligen-python-exporter.workspace = true
 egui_tiles = "0.2.0"
 stacker = "0.1.15"

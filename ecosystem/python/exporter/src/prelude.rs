@@ -1,1 +1,1 @@
-pub use ligen_common::*;
+pub use ligen_generator::prelude::*;

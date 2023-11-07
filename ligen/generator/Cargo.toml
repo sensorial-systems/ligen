@@ -11,3 +11,7 @@ readme.workspace        = true
 [dependencies]
 ligen-common.workspace = true
 ligen-ir.workspace = true
+ligen-utils.workspace = true
+
+serde_json.workspace = true
+handlebars = "4.1.6"

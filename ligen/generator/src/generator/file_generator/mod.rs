@@ -11,7 +11,7 @@ use crate::generator::Generator;
 
 use ligen_ir::Library;
 use ligen_utils::fs::write_file;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 /// File generator.
 pub trait FileGenerator {
@@ -23,15 +23,8 @@ pub trait FileGenerator {
     fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
-    fn save_file_set(&self, library: &Library, file_set: FileSet) -> Result<()> {
-        let target = std::env::var("OUT_DIR")
-            .ok()
-            .map(PathBuf::from)
-            .and_then(|path| path
-                .ancestors()
-                .nth(4)
-                .map(Path::to_path_buf))
-            .unwrap_or(std::env::current_dir()?);
+    fn save_file_set(&self, library: &Library, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
+        let target = folder.to_path_buf();
         let target_ligen_dir = target
             .join("ligen")
             .join(self.base_path());
@@ -45,10 +38,10 @@ pub trait FileGenerator {
 }
 
 impl <T: FileGenerator> Generator for T {
-    fn generate(&self, library: &Library) -> Result<()> {
+    fn generate(&self, library: &Library, folder: &std::path::Path) -> Result<()> {
         let mut file_set = FileSet::default();
         self.generate_files(library, &mut file_set)?;
-        self.save_file_set(library, file_set)?;
+        self.save_file_set(library, file_set, folder)?;
         Ok(())
     }
 }

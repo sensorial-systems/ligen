@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 ligen-ir.workspace          = true
 ligen-traits.workspace      = true
+ligen-generator.workspace   = true
 ligen-utils.workspace       = true
 ligen-parser.workspace      = true
 ligen-rust-parser.workspace = true
