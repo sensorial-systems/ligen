@@ -30,6 +30,7 @@ impl Parser<&std::path::Path> for LibraryParser {
         let identifier = Identifier::from(package.name.as_str());
         let mut root_module = ModuleParser.parse(library_path.as_path(), config)?;
         root_module.identifier = identifier.clone();
-        Ok(Self::Output { identifier, root_module })
+        let metadata = Default::default();
+        Ok(Self::Output { identifier, metadata, root_module })
     }
 }

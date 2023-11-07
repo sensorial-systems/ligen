@@ -1,5 +1,7 @@
-// FIXME: Look for mentions to "library" and rename it to "library".
 //! Library representation.
+
+pub mod metadata;
+pub use metadata::*;
 
 use crate::Identifier;
 use crate::Module;
@@ -10,6 +12,7 @@ use crate::prelude::*;
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Library {
     pub identifier: Identifier,
+    pub metadata: Metadata,
     pub root_module: Module,
 }
 
