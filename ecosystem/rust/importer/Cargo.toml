@@ -1,5 +1,5 @@
 [package]
-name = "ligen-python-exporter"
+name = "ligen-rust-importer"
 version = "0.1.0"
 edition.workspace = true
 description.workspace = true

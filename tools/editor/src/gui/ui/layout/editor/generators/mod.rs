@@ -1,6 +1,6 @@
 pub mod generator;
 pub use generator::*;
-use ligen_python_exporter::PythonGenerator;
+use ligen_rust_importer::RustImporter;
 
 use crate::gui::ui::panes::{Pane, PaneManager};
 
@@ -13,7 +13,7 @@ pub struct Generators {
 impl Default for Generators {
     fn default() -> Self {
         let generators = vec![
-            Generator::new(PythonGenerator::default())
+            Generator::new(RustImporter::default())
         ];
         Self { generators }
     }

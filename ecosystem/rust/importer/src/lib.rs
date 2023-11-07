@@ -7,9 +7,9 @@ use prelude::*;
 use ligen_generator::{file_generator::{TemplateRegister, Template, TemplateBasedGenerator}, register_templates};
 
 #[derive(Debug, Default)]
-pub struct PythonGenerator {}
+pub struct RustImporter {}
 
-impl TemplateRegister for PythonGenerator {
+impl TemplateRegister for RustImporter {
     fn register_templates(&self, template: &mut Template) -> Result<()> {
         register_templates!(template, module);
         // register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, library);
@@ -17,7 +17,7 @@ impl TemplateRegister for PythonGenerator {
     }
 }
 
-impl TemplateBasedGenerator for PythonGenerator {
+impl TemplateBasedGenerator for RustImporter {
     fn register_functions(&self, _library: &Library, _template: &mut Template) {
         //register_functions!(template, mapped_type, marshal_output);
     }

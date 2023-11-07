@@ -8,7 +8,7 @@ members = [
     "ligen/utils",
     "ligen/traits",
     "ecosystem/python/parser",
-    "ecosystem/python/exporter",
+    "ecosystem/rust/importer",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
 #    "ecosystem/rust/exporter",
@@ -42,7 +42,7 @@ ligen-utils            = { path = "ligen/utils" }
 #ligen-c                = { path = "ecosystem/c/generator" }
 #ligen-cmake            = { path = "ecosystem/c/cmake" }
 ligen-python-parser    = { path = "ecosystem/python/parser" }
-ligen-python-exporter = { path = "ecosystem/python/exporter" }
+ligen-rust-importer    = { path = "ecosystem/rust/importer" }
 #ligen-rust-exporter    = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
 ligen-cargo             = { path = "ecosystem/rust/cargo" }
