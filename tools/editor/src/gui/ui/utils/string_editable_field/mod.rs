@@ -6,7 +6,7 @@ mod string_editable;
 pub use string_editable::*;
 
 #[derive(Default)]
-pub struct StringField;
+pub struct StringField {}
 
 impl StringField {
     pub fn new() -> Self {

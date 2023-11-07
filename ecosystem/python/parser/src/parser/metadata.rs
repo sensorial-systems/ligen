@@ -53,7 +53,7 @@ impl Parser<&std::path::Path> for MetadataParser {
             .ok_or("Failed to find metadata file.")?
             .path()
             .join("METADATA");
-        let content = std::fs::read_to_string(&metadata_file)?;
+        let content = std::fs::read_to_string(metadata_file)?;
         let metadata = python_pkginfo::Metadata::parse(content.as_bytes())
             .map_err(|e| Error::Message(format!("Failed to parse metadata: {}", e)))?;
         self.parse(metadata, config)
