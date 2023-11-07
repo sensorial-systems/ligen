@@ -2,7 +2,7 @@ pub mod parameter;
 pub mod method;
 
 use crate::prelude::*;
-use ligen::parsing::parser::ParserConfig;
+use ligen::parser::ParserConfig;
 use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
 use crate::function::parameter::ParameterParser;
@@ -85,7 +85,7 @@ impl FunctionParser {
 mod test {
     use crate::function::FunctionParser;
     use ligen::prelude::*;
-    use ligen::parsing::assert::assert_eq;
+    use ligen::parser::assert::assert_eq;
     use ligen_ir::function::mock;
 
     #[test]

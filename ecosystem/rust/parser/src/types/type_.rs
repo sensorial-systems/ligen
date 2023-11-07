@@ -1,6 +1,6 @@
-use ligen::{ir::{Reference, Mutability, Type}, parsing::parser::ParserConfig};
+use ligen::{ir::{Reference, Mutability, Type}, parser::ParserConfig};
 use crate::prelude::*;
-use ligen::parsing::parser::Parser;
+use ligen::parser::Parser;
 use crate::path::PathParser;
 
 pub struct TypeParser;
@@ -88,7 +88,7 @@ impl Parser<proc_macro2::TokenStream> for TypeParser {
 
 #[cfg(test)]
 mod test {
-    use ligen::parsing::parser::Parser;
+    use ligen::parser::Parser;
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
     use super::*;

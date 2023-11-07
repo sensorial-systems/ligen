@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::{ir::Module, parsing::parser::ParserConfig};
+use ligen::{ir::Module, parser::ParserConfig};
 use rustpython_parser::ast::ModModule;
 use crate::parser::PythonParser;
 

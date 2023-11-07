@@ -2,7 +2,7 @@ pub mod attribute;
 
 use crate::prelude::*;
 use crate::literal::LiteralParser;
-use ligen::parsing::parser::{universal::attributes::AttributesParser as InternalParser, ParserConfig};
+use ligen::parser::{universal::attributes::AttributesParser as InternalParser, ParserConfig};
 use ligen::ir::Attributes;
 use rustpython_parser::ast::{Expr, Ranged};
 

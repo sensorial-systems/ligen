@@ -63,5 +63,6 @@ pub mod prelude;
 pub use ligen_ir as ir;
 pub use ligen_utils as utils;
 pub use ligen_traits as traits;
-pub use ligen_parsing as parsing;
+pub use ligen_parser as parser;
 pub use ligen_common as common;
+pub use ligen_generator as generator;

@@ -76,7 +76,7 @@ impl File {
 
     /// Saves the file.
     pub fn save(&self) -> Result<()> {
-        write_file(&self.path, &self.content())
+        write_file(&self.path, self.content())
     }
 }
 

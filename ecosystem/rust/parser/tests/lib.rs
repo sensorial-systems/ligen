@@ -4,7 +4,7 @@ pub mod child;
 pub fn module_file() {
     use ligen::ir::*;
     use ligen_ir::macro_attributes::Group;
-    use ligen::parsing::assert::assert_eq;
+    use ligen::parser::assert::assert_eq;
     use ligen_rust_parser::module::ModuleParser;
 
     let module = Module {

@@ -1,7 +1,7 @@
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::{ir::{Interface, Object, Function, Method, TypeDefinition}, parsing::parser::ParserConfig};
+use ligen::{ir::{Interface, Object, Function, Method, TypeDefinition}, parser::ParserConfig};
 use crate::{prelude::*, parser::PythonParserConfig};
 
 pub use scope_type::*;

@@ -1,4 +1,4 @@
-use ligen::parsing::parser::{ParserConfigSet, ParserConfigGet, ParserConfig};
+use ligen::parser::{ParserConfigSet, ParserConfigGet, ParserConfig};
 
 use crate::prelude::*;
 

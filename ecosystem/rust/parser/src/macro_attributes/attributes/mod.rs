@@ -3,14 +3,14 @@ mod attribute;
 pub use attribute::*;
 
 use crate::literal::LiteralParser;
-pub type AttributesParser = ligen::parsing::parser::universal::attributes::AttributesParser<LiteralParser>;
+pub type AttributesParser = ligen::parser::universal::attributes::AttributesParser<LiteralParser>;
 
 #[cfg(test)]
 mod test {
     use crate::prelude::*;
     use super::*;
     use ligen::ir::attributes::mock;
-    use ligen::parsing::assert::assert_eq;
+    use ligen::parser::assert::assert_eq;
 
     #[test]
     fn parse_literals() -> Result<()> {

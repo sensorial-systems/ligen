@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::Field;
-use ligen::parsing::parser::{Parser, ParserConfig};
+use ligen::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;

@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::parsing::parser::ParserConfig;
+use ligen::parser::ParserConfig;
 use rustpython_parser::ast::StmtClassDef;
 use ligen::ir::Interface;
 use crate::identifier::IdentifierParser;

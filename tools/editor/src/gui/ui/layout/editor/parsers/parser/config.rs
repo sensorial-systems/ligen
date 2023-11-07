@@ -1,5 +1,5 @@
 use crate::{prelude::*, gui::ui::editor::ir::{Path, Literal}};
-use ligen_parsing::parser::{self, ParserConfigSet};
+use ligen_parser::ParserConfigSet;
 
 use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 
@@ -13,7 +13,7 @@ impl ParserConfig {
 }
 
 impl Widget for ParserConfig {
-    type Input = parser::ParserConfig;
+    type Input = ligen_parser::ParserConfig;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, input: &mut Self::Input) {
         ui.label("Configuration");
         for (index, (mut path, mut literal)) in input.iter().enumerate() {

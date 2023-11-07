@@ -2,7 +2,7 @@ use ligen::ir::Mutability;
 use crate::prelude::*;
 
 use ligen::ir::{Attributes, Method, Parameter, Type};
-use ligen::parsing::parser::{Parser, ParserConfig};
+use ligen::parser::{Parser, ParserConfig};
 use crate::function::parameter::ParameterParser;
 use crate::function::SynchronyParser;
 use crate::identifier::IdentifierParser;

@@ -8,7 +8,7 @@ pub mod config;
 pub use config::*;
 
 use ligen::ir::Library;
-use ligen::parsing::parser::ParserConfig;
+use ligen::parser::ParserConfig;
 
 #[derive(Default)]
 pub struct PythonParser {

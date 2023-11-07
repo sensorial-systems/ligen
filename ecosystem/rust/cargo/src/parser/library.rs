@@ -1,8 +1,8 @@
 use ligen_ir::Identifier;
 use ligen_ir::prelude::*;
 use ligen_ir::Library;
-use ligen_parsing::parser::Parser;
-use ligen_parsing::parser::ParserConfig;
+use ligen_parser::Parser;
+use ligen_parser::ParserConfig;
 use ligen_rust_parser::module::ModuleParser;
 
 pub struct LibraryParser;

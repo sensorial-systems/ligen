@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::Variant;
-use ligen::parsing::parser::{Parser, ParserConfig};
+use ligen::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
@@ -33,7 +33,7 @@ mod tests {
     use quote::quote;
     use syn::parse_quote::parse;
     use ligen::ir::Variant;
-    use ligen::parsing::parser::Parser;
+    use ligen::parser::Parser;
     use crate::types::type_definition::enumeration::variant::VariantParser;
 
     #[test]

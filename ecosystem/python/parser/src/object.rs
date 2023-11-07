@@ -1,4 +1,4 @@
-use ligen::parsing::parser::ParserConfig;
+use ligen::parser::ParserConfig;
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
 use ligen::ir::Object;
 use crate::identifier::IdentifierParser;

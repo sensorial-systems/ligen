@@ -1,6 +1,6 @@
 use crate::{prelude::*, gui::ui::panes::Pane};
-use ligen_parsing::parser::ParserConfigSet;
-use ligen_python_parser::parser::{PythonParserConfig, PythonParser};
+use ligen_parser::ParserConfigSet;
+use ligen_python_parser::{PythonParserConfig, PythonParser};
 
 pub mod parser;
 pub use parser::*;

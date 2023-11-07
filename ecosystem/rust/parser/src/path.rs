@@ -1,5 +1,5 @@
 use ligen::ir::{Path, PathSegment};
-use ligen::parsing::parser::{Parser, ParserConfig};
+use ligen::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 
@@ -55,7 +55,7 @@ mod test {
     use crate::path::PathParser;
     use crate::prelude::*;
 
-    use ligen::parsing::assert::*;
+    use ligen::parser::assert::*;
     use ligen::ir::path::mock;
 
     #[test]

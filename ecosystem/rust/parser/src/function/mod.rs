@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use ligen::ir::{Function, Parameter, Type};
-use ligen::parsing::parser::{Parser, ParserConfig};
+use ligen::parser::{Parser, ParserConfig};
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -90,7 +90,7 @@ impl Parser<&str> for FunctionParser {
 
 #[cfg(test)]
 mod test {
-    use ligen::parsing::assert::assert_eq;
+    use ligen::parser::assert::assert_eq;
     use crate::function::FunctionParser;
     use crate::prelude::*;
 

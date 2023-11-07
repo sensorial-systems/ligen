@@ -1,6 +1,6 @@
 use ligen::ir::{Identifier, Mutability};
-use ligen::parsing::parser::{Parser, ParserConfig};
-use ligen::parsing::parser::universal::identifier::IdentifierParser as InternalParser;
+use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::universal::identifier::IdentifierParser as InternalParser;
 use crate::prelude::*;
 
 #[derive(Default)]

@@ -8,4 +8,5 @@ pub mod literal;
 pub mod scope;
 pub mod interface;
 pub mod object;
-pub mod parser;
+mod parser;
+pub use parser::*;

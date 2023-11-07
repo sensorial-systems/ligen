@@ -1,7 +1,7 @@
 //! Visibility enumeration.
 
 use crate::prelude::*;
-use ligen::{ir::Visibility, parsing::parser::ParserConfig};
+use ligen::{ir::Visibility, parser::ParserConfig};
 
 #[derive(Default)]
 pub struct VisibilityParser;

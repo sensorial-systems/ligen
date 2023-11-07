@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple};
-use ligen::{ir::Type, parsing::parser::ParserConfig};
+use ligen::{ir::Type, parser::ParserConfig};
 use crate::prelude::*;
 
 pub struct TypeParser {

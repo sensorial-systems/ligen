@@ -2,13 +2,13 @@
 
 use crate::literal::LiteralParser;
 
-pub type AttributeParser = ligen::parsing::parser::universal::attributes::attribute::AttributeParser<LiteralParser>;
+pub type AttributeParser = ligen::parser::universal::attributes::attribute::AttributeParser<LiteralParser>;
 
 #[cfg(test)]
 mod test {
     use crate::prelude::*;
     use super::*;
-    use ligen::parsing::assert::assert_eq;
+    use ligen::parser::assert::assert_eq;
     use ligen::ir::attribute::mock;
 
     #[test]

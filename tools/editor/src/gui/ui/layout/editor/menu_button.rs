@@ -1,11 +1,11 @@
 use ligen_ir::Library;
-use ligen_python_parser::parser::{PythonParser, PythonParserConfig};
+use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 use crate::prelude::*;
 use crate::gui::ui::editor::ir::Editor;
 use crate::gui::ui::menu::MenuButton;
 use crate::gui::ui::panes::Panes;
-use ligen_parsing::parser::{Parser, ParserConfig};
+use ligen_parser::{Parser, ParserConfig};
 
 pub struct EditorMenuButton;
 impl MenuButton for EditorMenuButton {
