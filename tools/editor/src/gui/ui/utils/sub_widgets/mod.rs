@@ -17,6 +17,12 @@ impl SubWidgets {
     pub fn new(name: impl AsRef<str>) -> Self {
         let singular = name.as_ref().to_string();
         let plural = singular.clone() + "s";
+        Self::new_irregular(singular, plural)
+    }
+
+    pub fn new_irregular(singular: impl AsRef<str>, plural: impl AsRef<str>) -> Self {
+        let singular = singular.as_ref().to_string();
+        let plural = plural.as_ref().to_string();
         let add_button_name = format!("Add {}", singular.to_lowercase());
         Self { plural, add_button_name }
     }

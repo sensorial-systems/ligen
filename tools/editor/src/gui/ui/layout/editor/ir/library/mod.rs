@@ -1,3 +1,6 @@
+pub mod metadata;
+pub use metadata::*;
+
 use crate::gui::ui::editor::settings::Settings;
 use crate::gui::ui::editor::widget::Widget;
 pub use crate::prelude::*;
@@ -25,9 +28,9 @@ impl Widget for Library {
                 .id_source("library")
                 .show(ui, |ui| {
                     if settings.editor.editable_fields {
-                        StringField::new()
-                        .show(settings, ui, &mut library.identifier);
+                        StringField::new().show(settings, ui, &mut library.identifier);
                     }
+                    Metadata::new().show(settings, ui, &mut library.metadata);
                     Module::new().show(settings, ui, &mut library.root_module);
                 });
         });
