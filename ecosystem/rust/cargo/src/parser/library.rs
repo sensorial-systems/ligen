@@ -5,10 +5,14 @@ use ligen_parser::Parser;
 use ligen_parser::ParserConfig;
 use ligen_rust_parser::module::ModuleParser;
 
-pub struct LibraryParser;
+#[derive(Default)]
+pub struct LibraryParser {}
 
 impl Parser<&std::path::Path> for LibraryParser {
     type Output = Library;
+    fn name(&self) -> &str {
+        "Rust"
+    }
     fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
         let cargo_path = if input.is_dir() {
             input.join("Cargo.toml")

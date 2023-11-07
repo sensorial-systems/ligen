@@ -1,4 +1,5 @@
 use crate::{prelude::*, gui::ui::panes::Pane};
+use ligen_cargo::parser::library::LibraryParser;
 use ligen_parser::ParserConfigSet;
 use ligen_python_parser::{PythonParserConfig, PythonParser};
 
@@ -16,7 +17,8 @@ pub struct Parsers {
 impl Default for Parsers {
     fn default() -> Self {
         let parsers = vec![
-            Parser::new(PythonParser::default())
+            Parser::new(PythonParser::default()),
+            Parser::new(LibraryParser::default()) // TODO: This is the Rust parser. We need to rename it and also make it parse from the project directory. It's currently using the Cargo.toml file.
         ];
         Self { parsers }
     }

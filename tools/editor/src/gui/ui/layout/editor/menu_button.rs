@@ -24,21 +24,5 @@ impl MenuButton for EditorMenuButton {
             }
             ui.close_menu();
         }
-        if ui.button("Parse Rust/Cargo").clicked() {
-            use ligen_cargo::parser::library::LibraryParser;
-
-            let file = rfd::FileDialog::new()
-                .add_filter("Cargo library", &["toml"])
-                .pick_file();
-
-            if let Some(file) = file {
-                let library = LibraryParser
-                    .parse(file.as_path(), &Default::default())
-                    .expect("Failed to parse library.");
-                panes.new_pane(Box::new(Editor::new(library)));
-            }
-
-            ui.close_menu();
-        }
     }
 }

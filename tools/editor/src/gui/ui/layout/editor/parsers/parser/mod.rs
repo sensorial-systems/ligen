@@ -1,5 +1,6 @@
 pub mod config;
 pub use config::*;
+use ligen_gui_runtime::egui::CollapsingHeader;
 
 use crate::{prelude::*, gui::ui::{editor::{widget::Widget, settings::Settings, ir::Editor}, panes::PaneManager}};
 use std::path::Path;
@@ -24,20 +25,20 @@ impl Parser {
 impl Widget for Parser {
     type Input = PaneManager;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, pane_manager: &mut PaneManager) {
-        ui.indent("indent", |ui| {
-            ui.add_space(16.0);
-            ui.label(self.parser.name());
-            config::ParserConfig::new().show(settings, ui, &mut self.config);
-            if ui.button("Parse").clicked() {
-                let entry = rfd::FileDialog::new()
-                    .pick_folder();
-                if let Some(entry) = entry {
-                    stacker::grow(1024 * 1024 * 10, || {
-                        let library = self.parser.parse(entry.as_path(), &self.config).unwrap();
-                        pane_manager.new_pane(Box::new(Editor::new(library)));
-                    });
-                }
-            }    
-        });
+        CollapsingHeader::new(self.parser.name())
+            .default_open(false)
+            .show(ui, |ui| {
+                config::ParserConfig::new().show(settings, ui, &mut self.config);
+                if ui.button("Parse").clicked() {
+                    let entry = rfd::FileDialog::new()
+                        .pick_folder();
+                    if let Some(entry) = entry {
+                        stacker::grow(1024 * 1024 * 10, || {
+                            let library = self.parser.parse(entry.as_path(), &self.config).unwrap();
+                            pane_manager.new_pane(Box::new(Editor::new(library)));
+                        });
+                    }
+                }        
+            });
     }
 }
