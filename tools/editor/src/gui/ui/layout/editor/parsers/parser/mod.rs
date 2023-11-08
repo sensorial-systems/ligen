@@ -1,6 +1,6 @@
 pub mod config;
 pub use config::*;
-use ligen_gui_runtime::egui::CollapsingHeader;
+use ligen_gui_runtime::egui::{CollapsingHeader, Color32};
 
 use crate::{prelude::*, gui::ui::{editor::{widget::Widget, settings::Settings, ir::Editor}, panes::PaneManager}};
 use std::path::Path;
@@ -9,7 +9,8 @@ use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 pub struct Parser {
     parser: Box<dyn for<'a> ligen_parser::Parser<&'a Path, Output = ligen_ir::Library>>,
-    config: ParserConfig
+    config: ParserConfig,
+    result: String
 }
 
 impl Parser {
@@ -18,7 +19,8 @@ impl Parser {
     {
         let config = parser.config();
         let parser = Box::new(parser);
-        Self { parser, config }
+        let result = Default::default();
+        Self { parser, config, result }
     }
 }
 
@@ -34,11 +36,18 @@ impl Widget for Parser {
                         .pick_folder();
                     if let Some(entry) = entry {
                         stacker::grow(1024 * 1024 * 10, || {
-                            let library = self.parser.parse(entry.as_path(), &self.config).unwrap();
-                            pane_manager.new_pane(Box::new(Editor::new(library)));
+                            match self.parser.parse(entry.as_path(), &self.config) {
+                                Ok(library) => pane_manager.new_pane(Box::new(Editor::new(library))),
+                                Err(error) => {
+                                    self.result = format!("{:?}", error);
+                                }
+                            }
                         });
                     }
-                }        
+                }
+                if !self.result.is_empty() {
+                    ui.colored_label(Color32::from_rgb(255, 0, 0), &self.result);
+                }
             });
     }
 }
