@@ -2,6 +2,8 @@ pub mod prelude;
 pub mod module_generator;
 pub use module_generator::*;
 
+pub mod templates;
+
 use std::path::PathBuf;
 
 use ligen_ir::Library;
@@ -16,10 +18,9 @@ impl LibraryGenerator {
     pub fn generate_project_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from("Cargo.toml"));
         let mut template = Template::new();
-        template.register_template("project", include_str!("templates/Cargo.hbs"))?;
-        let template = template.render("project", library)?;
-        let root = file.section("root");
-        root.write(template);
+        template.register_template("project", templates::CARGO)?;
+        let content = template.render("project", library)?;
+        file.write(content);
         Ok(())
     }
 
@@ -32,8 +33,7 @@ impl LibraryGenerator {
 
     pub fn generate_readme(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from("README.md"));
-        let root = file.section("root");
-        root.write(&library.metadata.description);
+        file.write(&library.metadata.description);
         Ok(())
     }
 }

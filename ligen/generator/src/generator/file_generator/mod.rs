@@ -30,7 +30,7 @@ pub trait FileGenerator {
             .join(self.base_path());
         for (_path, file) in file_set.files {
             let file_path = library_dir.join(&file.path);
-            write_file(&file_path, &file.content())?;
+            write_file(&file_path, &file.to_string())?;
         }
         Ok(())
     }

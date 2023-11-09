@@ -19,6 +19,13 @@ pub struct File {
 }
 
 impl File {
+    /// Creates a new file from a template.
+    pub fn from_template(path: impl AsRef<Path>, template: impl AsRef<str>) -> Result<Self> {
+        let path = path.as_ref().to_path_buf();
+        let section = FileSection::from_template("root", template)?;
+        Ok(Self { path, section })
+    }
+
     /// Creates a new file with the specified path and content.
     pub fn new(path: impl AsRef<std::path::Path>) -> Self {
         let path = path.as_ref().to_path_buf();
@@ -28,7 +35,7 @@ impl File {
 
     /// Saves the file.
     pub fn save(&self) -> Result<()> {
-        write_file(&self.path, self.content())
+        write_file(&self.path, self.to_string())
     }
 }
 
@@ -98,29 +105,39 @@ impl FileSection {
         Ok(section)
     }
 
-    /// Gets content.
-    pub fn content(&self) -> String {
-        self.to_string()
-    }
-    
-    /// Gets or creates a new section with the specified name.
-    pub fn section(&mut self, name: impl AsRef<str>) -> &mut FileSection {
-        let (index, exists) = self
-            .content
-            .iter()
+    /// Gets the section name.
+    pub fn find_section(&mut self, name: impl AsRef<str>) -> Option<(usize, &mut FileSection)> {
+        let name = name.as_ref();
+        self.content
+            .iter_mut()
             .enumerate()
             .find_map(|(index, content)| {
                 content
-                    .as_section()
+                    .as_section_mut()
                     .and_then(|section|
-                        if section.name == name.as_ref() {
-                            Some(index)
+                        if section.name == name {
+                            Some((index, section))
                         } else {
                             None
                         }
                     )
             })
-            .map(|index| (index, true))
+    }
+
+    /// Set section.
+    pub fn set_section(&mut self, section: FileSection) {
+        if let Some((_, old_section)) = self.find_section(&section.name) {
+            *old_section = section;
+        } else {
+            self.content.push(Box::new(section));
+        }
+    }
+
+    /// Gets or creates a new section with the specified name.
+    pub fn section(&mut self, name: impl AsRef<str>) -> &mut FileSection {
+        let (index, exists) = self
+            .find_section(name.as_ref())
+            .map(|(index, _)| (index, true))
             .unwrap_or((0, false));
         if exists {
             self
@@ -131,7 +148,7 @@ impl FileSection {
                 .unwrap()
         } else {
             let section = FileSection::new(name.as_ref());
-            self.content.push(Box::new(section));
+            self.set_section(section);
             self.content.last_mut().unwrap().as_section_mut().unwrap()
         }
     }
@@ -237,7 +254,7 @@ mod tests {
         let mut file = File::new("path");
         file.section("b").write("B");
         file.section("a").write("A");
-        assert_eq!(file.content(), "BA");
+        assert_eq!(file.to_string(), "BA");
     }
 
     #[test]
@@ -248,7 +265,7 @@ mod tests {
         section.section("sub1").write("//! This is a sub-section and ");
         section.section("sub2").writeln("//! This is another sub-section.");
         section.section("sub1").writeln("we can add to it later.");
-        assert_eq!(section.content(), "//! This is a Rust\n//! documentation.\n//! This is a sub-section and we can add to it later.\n//! This is another sub-section.\n");
+        assert_eq!(section.to_string(), "//! This is a Rust\n//! documentation.\n//! This is a sub-section and we can add to it later.\n//! This is another sub-section.\n");
     }
 
     #[test]
@@ -258,7 +275,7 @@ mod tests {
         section.section("attribute::parameters").write("name = \"test\"");
         section.section("attribute::parameters").write(", truth = true");
         section.section("attribute::end").writeln(")]");
-        assert_eq!(section.content(), "#[ligen(name = \"test\", truth = true)]\n");
+        assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
 
         let mut section = FileSection::new("root");
         for name in ["attribute::begin", "attribute::parameters", "attribute::end"] {
@@ -268,7 +285,7 @@ mod tests {
         section.section("attribute::end").writeln(")]");
         section.section("attribute::parameters").write("name = \"test\"");
         section.section("attribute::parameters").write(", truth = true");
-        assert_eq!(section.content(), "#[ligen(name = \"test\", truth = true)]\n");
+        assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
     }
 
     #[test]
@@ -279,7 +296,7 @@ mod tests {
         section.section("attribute::end").writeln(")]");
         section.section("attribute::parameters").write("name = \"test\"");
         section.section("attribute::parameters").write(", truth = true");
-        assert_eq!(section.content(), "#[ligen(name = \"test\", truth = true)]\n");
+        assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
         Ok(())
     }
 
@@ -289,7 +306,7 @@ mod tests {
         let mut section = FileSection::from_template("root", template)?;
         section.section("begin").write("-begin-");
         section.section("end").write("-end-");
-        assert_eq!(section.content(), "before-begin-content-end-after");
+        assert_eq!(section.to_string(), "before-begin-content-end-after");
         Ok(())
     }
 
@@ -299,6 +316,50 @@ mod tests {
         section.indexed_write(0, "First");
         section.indexed_write(1, ", Third");
         section.indexed_write(1, ", Second");
-        assert_eq!(section.content(), "First, Second, Third");
+        assert_eq!(section.to_string(), "First, Second, Third");
+    }
+
+    struct SectionTemplate {
+        name: String,
+        template: String,
+        children: Vec<Self>
+    }
+
+    impl SectionTemplate {
+        pub fn new(name: impl Into<String>, template: impl Into<String>) -> Self {
+            let name = name.into();
+            let template = template.into();
+            let children = Default::default();
+            Self { name, template, children }
+        }
+
+        pub fn set_child(&mut self, template: impl Into<Self>) {
+            let template = template.into();
+            self.children.push(template);
+        }
+    }
+
+    #[test]
+    fn templated_sub_sections() -> Result<()> {
+        let root = "[section(name)]\n[section(age)]\n";
+        let name = "Name: [section(name)]";
+        let age = "Age: [section(number)] years old";
+
+        let mut template = SectionTemplate::new("root", root);
+        template.set_child(SectionTemplate::new("name", name));
+        template.set_child(SectionTemplate::new("age", age));
+
+        let name = FileSection::from_template("name", name)?;
+        let age = FileSection::from_template("age", age)?;
+        let mut root = FileSection::from_template("root", root)?;
+        root.set_section(name);
+        root.set_section(age);
+        root.section("name").write("John");
+        root.section("age").section("number").write("42");
+        for (index, content) in root.content.iter().enumerate() {
+            println!("{} - {:?}", index, content)
+        }
+        assert_eq!(root.to_string(), "Name: John\nAge: 42 years old\n");
+        Ok(())
     }
 }
