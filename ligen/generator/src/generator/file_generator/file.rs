@@ -20,9 +20,9 @@ pub struct File {
 
 impl File {
     /// Creates a new file from a template.
-    pub fn from_template(path: impl AsRef<Path>, template: impl AsRef<str>) -> Result<Self> {
+    pub fn from_template(path: impl AsRef<Path>, template: &SectionTemplate) -> Result<Self> {
         let path = path.as_ref().to_path_buf();
-        let section = FileSection::from_template("root", template)?;
+        let section = FileSection::from_template(template)?;
         Ok(Self { path, section })
     }
 
@@ -70,14 +70,33 @@ impl FileContent for FileSection {
     }
 }
 
-impl Display for FileSection {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for file_content in &self.content {
-            write!(f, "{}", file_content)?;
-        }
-        Ok(())
+pub struct SectionTemplate {
+    name: String,
+    content: String,
+    children: Vec<Self>
+}
+
+impl SectionTemplate {
+    pub fn new(name: impl Into<String>, content: impl Into<String>) -> Self {
+        let name = name.into();
+        let content = content.into();
+        let children = Default::default();
+        Self { name, content, children }
+    }
+
+    pub fn find_child(&self, name: impl AsRef<str>) -> Option<&Self> {
+        let name = name.as_ref();
+        self.children
+            .iter()
+            .find(|section| section.name == name)
+    }
+
+    pub fn set_child(&mut self, template: impl Into<Self>) {
+        let template = template.into();
+        self.children.push(template);
     }
 }
+
 
 #[derive(Debug)]
 pub struct FileSection {
@@ -96,11 +115,10 @@ impl FileSection {
     }
 
     /// Creates a new FileSection from a template.
-    pub fn from_template(name: impl Into<String>, template: impl AsRef<str>) -> Result<Self> {
-        let mut section = Self::new(name);
-        let template = template.as_ref();
+    pub fn from_template(template: &SectionTemplate) -> Result<Self> {
+        let mut section = Self::new(&template.name);
         let sections = Self::get_sections_ranges(template)?;
-        section.write_from_template(template, sections);
+        section.write_from_template(template, sections)?;
 
         Ok(section)
     }
@@ -185,8 +203,8 @@ impl FileSection {
     const SECTION_END: &'static str = ")]";
 
     /// Gets the sections ranges.
-    fn get_sections_ranges(template: impl AsRef<str>) -> Result<Vec<Range<usize>>> {
-        let template = template.as_ref();
+    fn get_sections_ranges(template: &SectionTemplate) -> Result<Vec<Range<usize>>> {
+        let template = template.content.as_str();
         let mut sections = Vec::new();
         for (index, _) in template.match_indices(Self::SECTION_START) {
             let index_start = index;
@@ -200,22 +218,36 @@ impl FileSection {
     }
 
     /// Registers the sections and writes the text in-between them. See the `template_with_content` test.
-    fn write_from_template(&mut self, template: impl AsRef<str>, sections: impl IntoIterator<Item = Range<usize>>) {
-        let template = template.as_ref();
+    fn write_from_template(&mut self, template: &SectionTemplate, sections: impl IntoIterator<Item = Range<usize>>) -> Result<()> {
         let mut start = 0;
         for section in sections {
-            let before = &template[start..section.start];
+            let before = &template.content[start..section.start];
             if !before.is_empty() {
                 self.write(before);
             }
             start = section.end;
-            let section = &template[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
-            self.section(section);
+            let section = &template.content[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
+            let section = if let Some(template) = template.find_child(section) {
+                FileSection::from_template(template)?
+            } else {
+                FileSection::new(section)
+            };
+            self.set_section(section);
         }
-        let after = &template[start..];
+        let after = &template.content[start..];
         if !after.is_empty() {
             self.write(after);
         }
+        Ok(())
+    }
+}
+
+impl Display for FileSection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for file_content in &self.content {
+            write!(f, "{}", file_content)?;
+        }
+        Ok(())
     }
 }
 
@@ -245,7 +277,7 @@ impl FileSet {
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
-    use crate::file_generator::FileSection;
+    use crate::file_generator::{FileSection, SectionTemplate};
 
     use super::File;
 
@@ -291,7 +323,8 @@ mod tests {
     #[test]
     fn template() -> Result<()> {
         let template = "[section(attribute::begin)][section(attribute::parameters)][section(attribute::end)]";
-        let mut section = FileSection::from_template("root", template)?;
+        let template = SectionTemplate::new("root", template);
+        let mut section = FileSection::from_template(&template)?;
         section.section("attribute::begin").write("#[ligen(");
         section.section("attribute::end").writeln(")]");
         section.section("attribute::parameters").write("name = \"test\"");
@@ -303,7 +336,8 @@ mod tests {
     #[test]
     fn template_with_content() -> Result<()> {
         let template = "before[section(begin)]content[section(end)]after";
-        let mut section = FileSection::from_template("root", template)?;
+        let template = SectionTemplate::new("root", template);
+        let mut section = FileSection::from_template(&template)?;
         section.section("begin").write("-begin-");
         section.section("end").write("-end-");
         assert_eq!(section.to_string(), "before-begin-content-end-after");
@@ -319,41 +353,17 @@ mod tests {
         assert_eq!(section.to_string(), "First, Second, Third");
     }
 
-    struct SectionTemplate {
-        name: String,
-        template: String,
-        children: Vec<Self>
-    }
-
-    impl SectionTemplate {
-        pub fn new(name: impl Into<String>, template: impl Into<String>) -> Self {
-            let name = name.into();
-            let template = template.into();
-            let children = Default::default();
-            Self { name, template, children }
-        }
-
-        pub fn set_child(&mut self, template: impl Into<Self>) {
-            let template = template.into();
-            self.children.push(template);
-        }
-    }
-
     #[test]
     fn templated_sub_sections() -> Result<()> {
         let root = "[section(name)]\n[section(age)]\n";
         let name = "Name: [section(name)]";
         let age = "Age: [section(number)] years old";
 
-        let mut template = SectionTemplate::new("root", root);
-        template.set_child(SectionTemplate::new("name", name));
-        template.set_child(SectionTemplate::new("age", age));
+        let mut root = SectionTemplate::new("root", root);
+        root.set_child(SectionTemplate::new("name", name));
+        root.set_child(SectionTemplate::new("age", age));
 
-        let name = FileSection::from_template("name", name)?;
-        let age = FileSection::from_template("age", age)?;
-        let mut root = FileSection::from_template("root", root)?;
-        root.set_section(name);
-        root.set_section(age);
+        let mut root = FileSection::from_template(&root)?;
         root.section("name").write("John");
         root.section("age").section("number").write("42");
         for (index, content) in root.content.iter().enumerate() {
