@@ -2,11 +2,13 @@
 
 use crate::prelude::*;
 use ligen_utils::fs::write_file;
+use std::fmt::{Display, Debug};
+use std::ops::Range;
 use std::path::{Path, PathBuf};
-use std::collections::{HashMap, BTreeMap};
+use std::collections::HashMap;
 
 /// Structure representing a file path and its content.
-#[derive(Debug, Clone, PartialEq, Shrinkwrap)]
+#[derive(Debug, Shrinkwrap)]
 #[shrinkwrap(mutable)]
 pub struct File {
     /// File path.
@@ -20,7 +22,7 @@ impl File {
     /// Creates a new file with the specified path and content.
     pub fn new(path: impl AsRef<std::path::Path>) -> Self {
         let path = path.as_ref().to_path_buf();
-        let section = Default::default();
+        let section = FileSection::new("root");
         Self { path, section }
     }
 
@@ -30,87 +32,178 @@ impl File {
     }
 }
 
+pub trait FileContent: Display + Debug {
+    fn as_string(&self) -> Option<&String> {
+        None
+    }
+    fn as_string_mut(&mut self) -> Option<&mut String> {
+        None
+    }
+    fn as_section(&self) -> Option<&FileSection> {
+        None
+    }
+    fn as_section_mut(&mut self) -> Option<&mut FileSection> {
+        None
+    }
+}
+impl FileContent for String {
+    fn as_string(&self) -> Option<&String> {
+        Some(self)
+    }
+    fn as_string_mut(&mut self) -> Option<&mut String> {
+        Some(self)
+    }
+}
+impl FileContent for FileSection {
+    fn as_section(&self) -> Option<&FileSection> {
+        Some(self)
+    }
+    fn as_section_mut(&mut self) -> Option<&mut FileSection> {
+        Some(self)
+    }
+}
 
-#[derive(Default, Debug, Clone, PartialEq)]
+impl Display for FileSection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for file_content in &self.content {
+            write!(f, "{}", file_content)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub struct FileSection {
+    /// File section name.
+    name: String,
     /// File section content.
-    content: Vec<String>,
-    sections: BTreeMap<String, FileSection>,
-    order: Vec<String>
+    content: Vec<Box<dyn FileContent>>
 }
 
 impl FileSection {
     /// Creates a new FileSection.
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(name: impl Into<String>) -> Self {
+        let name = name.into();
+        let content = Default::default();
+        Self { name, content }
     }
 
     /// Creates a new FileSection from a template.
-    pub fn from_template(template: impl AsRef<str>) -> Result<Self> {
-        let mut section = Self::new();
+    pub fn from_template(name: impl Into<String>, template: impl AsRef<str>) -> Result<Self> {
+        let mut section = Self::new(name);
         let template = template.as_ref();
-        const SECTION_START: &str = "[section(";
-        const SECTION_END: &str = ")]";
-        for (index, _) in template.match_indices(SECTION_START) {
-            let index = index + SECTION_START.len();
-            let index_end = template[index..]
-                .find(SECTION_END)
-                .ok_or_else(|| Error::Message("Failed to parse template: missing section end.".to_string()))? + index;
-            let section_name = &template[index..index_end];
-            section.section(section_name);
-        }
+        let sections = Self::get_sections_ranges(template)?;
+        section.write_from_template(template, sections);
+
         Ok(section)
     }
 
     /// Gets content.
     pub fn content(&self) -> String {
-        let mut content = self.content.join("");
-        for section in &self.order {
-            if let Some(section) = self.sections.get(section) {
-                content.push_str(&section.content());
-            }
-        }
-        content
+        self.to_string()
     }
     
     /// Gets or creates a new section with the specified name.
     pub fn section(&mut self, name: impl AsRef<str>) -> &mut FileSection {
-        self
-            .sections
-            .entry(name.as_ref().to_string())
-            .or_insert_with(|| {
-                self.order.push(name.as_ref().to_string());
-                Default::default()
+        let (index, exists) = self
+            .content
+            .iter()
+            .enumerate()
+            .find_map(|(index, content)| {
+                content
+                    .as_section()
+                    .and_then(|section|
+                        if section.name == name.as_ref() {
+                            Some(index)
+                        } else {
+                            None
+                        }
+                    )
             })
+            .map(|index| (index, true))
+            .unwrap_or((0, false));
+        if exists {
+            self
+                .content
+                .get_mut(index)
+                .unwrap()
+                .as_section_mut()
+                .unwrap()
+        } else {
+            let section = FileSection::new(name.as_ref());
+            self.content.push(Box::new(section));
+            self.content.last_mut().unwrap().as_section_mut().unwrap()
+        }
     }
 
     /// Writes the content to the file section at the specified index.
-    pub fn indexed_write<S: AsRef<str>>(&mut self, index: usize, content: S) {
-        self.content.insert(index, content.as_ref().to_string())
+    pub fn indexed_write<S: Into<String>>(&mut self, index: usize, content: S) {
+        self.content.insert(index, Box::new(content.into()))
     }
 
     /// Writes the content to the file section at the specified index and adds a new line.
-    pub fn indexed_writeln<S: AsRef<str>>(&mut self, index: usize, content: S) {
-        let mut string = content.as_ref().to_string();
+    pub fn indexed_writeln<S: Into<String>>(&mut self, index: usize, content: S) {
+        let mut string = content.into();
         string.push('\n');
         self.indexed_write(index, string);
     }
 
     /// Writes the content to the file buffer.
-    pub fn write<S: AsRef<str>>(&mut self, content: S) {
-        self.content.push(content.as_ref().to_string());
+    pub fn write<S: Into<String>>(&mut self, content: S) {
+        self.content.push(Box::new(content.into()));
     }
 
     /// Writes the content to the file buffer and adds a new line.
-    pub fn writeln<S: AsRef<str>>(&mut self, content: S) {
-        let mut string = content.as_ref().to_string();
+    pub fn writeln<S: Into<String>>(&mut self, content: S) {
+        let mut string = content.into();
         string.push('\n');
-        self.content.push(string);
+        self.content.push(Box::new(string));
     }    
 }
 
+impl FileSection {
+    /// Section start.
+    const SECTION_START: &'static str = "[section(";
+    /// Section end.
+    const SECTION_END: &'static str = ")]";
+
+    /// Gets the sections ranges.
+    fn get_sections_ranges(template: impl AsRef<str>) -> Result<Vec<Range<usize>>> {
+        let template = template.as_ref();
+        let mut sections = Vec::new();
+        for (index, _) in template.match_indices(Self::SECTION_START) {
+            let index_start = index;
+            let index_end = template[index_start..]
+                .find(Self::SECTION_END)
+                .ok_or_else(|| Error::Message("Failed to parse template: missing section end.".to_string()))?;
+            let index_end = index_end + index_start + Self::SECTION_END.len();
+            sections.push(index_start..index_end);
+        }
+        Ok(sections)        
+    }
+
+    /// Registers the sections and writes the text in-between them. See the `template_with_content` test.
+    fn write_from_template(&mut self, template: impl AsRef<str>, sections: impl IntoIterator<Item = Range<usize>>) {
+        let template = template.as_ref();
+        let mut start = 0;
+        for section in sections {
+            let before = &template[start..section.start];
+            if !before.is_empty() {
+                self.write(before);
+            }
+            start = section.end;
+            let section = &template[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
+            self.section(section);
+        }
+        let after = &template[start..];
+        if !after.is_empty() {
+            self.write(after);
+        }
+    }
+}
+
 /// Structure representing all the file set to be generated.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 pub struct FileSet {
     pub(crate) files: HashMap<PathBuf, File>
 }
@@ -149,7 +242,7 @@ mod tests {
 
     #[test]
     fn section() {
-        let mut section = FileSection::new();
+        let mut section = FileSection::new("root");
         section.writeln("//! This is a Rust");
         section.writeln("//! documentation.");
         section.section("sub1").write("//! This is a sub-section and ");
@@ -160,14 +253,14 @@ mod tests {
 
     #[test]
     fn deep_section() {
-        let mut section = FileSection::new();
+        let mut section = FileSection::new("root");
         section.section("attribute::begin").write("#[ligen(");
         section.section("attribute::parameters").write("name = \"test\"");
         section.section("attribute::parameters").write(", truth = true");
         section.section("attribute::end").writeln(")]");
         assert_eq!(section.content(), "#[ligen(name = \"test\", truth = true)]\n");
 
-        let mut section = FileSection::new();
+        let mut section = FileSection::new("root");
         for name in ["attribute::begin", "attribute::parameters", "attribute::end"] {
             section.section(name);
         }
@@ -181,8 +274,7 @@ mod tests {
     #[test]
     fn template() -> Result<()> {
         let template = "[section(attribute::begin)][section(attribute::parameters)][section(attribute::end)]";
-        let mut section = FileSection::from_template(template)?;
-        assert_eq!(section.order, vec!["attribute::begin", "attribute::parameters", "attribute::end"]);
+        let mut section = FileSection::from_template("root", template)?;
         section.section("attribute::begin").write("#[ligen(");
         section.section("attribute::end").writeln(")]");
         section.section("attribute::parameters").write("name = \"test\"");
@@ -191,20 +283,19 @@ mod tests {
         Ok(())
     }
 
-    // #[test]
-    // fn template_with_content() -> Result<()> {
-    //     let template = "before[section(begin)]content[section(end)]after";
-    //     let mut section = FileSection::from_template(template)?;
-    //     assert_eq!(section.order, vec!["begin", "end"]);
-    //     section.section("begin").write("-begin-");
-    //     section.section("end").write("-end-");
-    //     assert_eq!(section.content(), "before-begin-content-end-after");
-    //     Ok(())
-    // }
+    #[test]
+    fn template_with_content() -> Result<()> {
+        let template = "before[section(begin)]content[section(end)]after";
+        let mut section = FileSection::from_template("root", template)?;
+        section.section("begin").write("-begin-");
+        section.section("end").write("-end-");
+        assert_eq!(section.content(), "before-begin-content-end-after");
+        Ok(())
+    }
 
     #[test]
     fn indexed_section() {
-        let mut section = FileSection::new();
+        let mut section = FileSection::new("root");
         section.indexed_write(0, "First");
         section.indexed_write(1, ", Third");
         section.indexed_write(1, ", Second");
