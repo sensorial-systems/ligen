@@ -9,26 +9,25 @@ pub use template_based::*;
 use crate::prelude::*;
 use crate::generator::Generator;
 
-use ligen_ir::Library;
 use ligen_utils::fs::write_file;
 use std::path::PathBuf;
 
 /// File generator.
 pub trait FileGenerator {
+    type Input;
     // TODO: Fetch this from the generator configuration instead and possibly default to something if it doesn't exist.
     /// Generation base path.
     fn base_path(&self) -> PathBuf;
 
     /// Generate files.
-    fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()>;
+    fn generate_files(&self, input: &Self::Input, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
-    fn save_file_set(&self, library: &Library, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
+    fn save_file_set(&self, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
         let target = folder.to_path_buf();
-        let target_ligen_dir = target
+        let library_dir = target
             .join("ligen")
             .join(self.base_path());
-        let library_dir = target_ligen_dir.join(library.identifier.clone().to_string());
         for (_path, file) in file_set.files {
             let file_path = library_dir.join(&file.path);
             write_file(&file_path, &file.content())?;
@@ -37,11 +36,12 @@ pub trait FileGenerator {
     }
 }
 
-impl <T: FileGenerator> Generator for T {
-    fn generate(&self, library: &Library, folder: &std::path::Path) -> Result<()> {
+impl <I, T: FileGenerator<Input = I>> Generator for T {
+    type Input = I;
+    fn generate(&self, input: &Self::Input, folder: &std::path::Path) -> Result<()> {
         let mut file_set = FileSet::default();
-        self.generate_files(library, &mut file_set)?;
-        self.save_file_set(library, file_set, folder)?;
+        self.generate_files(input, &mut file_set)?;
+        self.save_file_set(file_set, folder)?;
         Ok(())
     }
 }

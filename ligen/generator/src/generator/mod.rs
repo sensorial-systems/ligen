@@ -6,6 +6,7 @@ pub mod file_generator;
 
 /// Generator trait.
 pub trait Generator {
+    type Input;
     /// The Generator's entry point.
-    fn generate(&self, library: &ligen_ir::Library, folder: &std::path::Path) -> Result<()>;
+    fn generate(&self, input: &Self::Input, folder: &std::path::Path) -> Result<()>;
 }

@@ -8,6 +8,7 @@ use ligen_traits::prelude::*;
 pub struct CargoGenerator;
 
 impl FileGenerator for CargoGenerator {
+    type Input = Library;
     fn base_path(&self) -> PathBuf {
         PathBuf::from("rust".to_string())
     }

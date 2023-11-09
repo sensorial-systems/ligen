@@ -1,37 +1,52 @@
 pub mod prelude;
-use std::{path::PathBuf, str::FromStr};
+pub mod module_generator;
+pub use module_generator::*;
 
-use ligen_ir::{Module, Library};
+use std::path::PathBuf;
+
+use ligen_ir::Library;
 use prelude::*;
 
-use ligen_generator::{file_generator::{TemplateRegister, Template, TemplateBasedGenerator}, register_templates};
+use ligen_generator::file_generator::{FileGenerator, FileSet, Template};
 
 #[derive(Debug, Default)]
-pub struct RustImporter {}
+pub struct LibraryGenerator {}
 
-impl TemplateRegister for RustImporter {
-    fn register_templates(&self, template: &mut Template) -> Result<()> {
-        register_templates!(template, module);
-        // register_templates!(template, identifier, arguments, implementation, method, function, module, object, parameters, library);
+impl LibraryGenerator {
+    pub fn generate_project_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
+        let file = file_set.entry(PathBuf::from("Cargo.toml"));
+        let mut template = Template::new();
+        template.register_template("project", include_str!("templates/Cargo.hbs"))?;
+        let template = template.render("project", &library)?;
+        let root = file.section("root");
+        root.write(template);
+        Ok(())
+    }
+
+    pub fn generate_lib_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
+        let file = file_set.entry(PathBuf::from("src").join("lib.rs"));
+        let section = file.section("documentation");
+        section.writeln(library.metadata.description.split("\n").map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+        Ok(())
+    }
+
+    pub fn generate_readme(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
+        let file = file_set.entry(PathBuf::from("README.md"));
+        let root = file.section("root");
+        root.write(&library.metadata.description);
         Ok(())
     }
 }
 
-impl TemplateBasedGenerator for RustImporter {
-    fn register_functions(&self, _library: &Library, _template: &mut Template) {
-        //register_functions!(template, mapped_type, marshal_output);
-    }
-
+impl FileGenerator for LibraryGenerator {
+    type Input = Library;
     fn base_path(&self) -> PathBuf {
-        PathBuf::from("python".to_string())
+        PathBuf::from("rust".to_string())
     }
 
-    fn module_generation_path(&self, library: &Library, module: &Module) -> PathBuf {
-        let is_root_module = library.root_module == *module;
-        let name = if is_root_module { "lib.rs" } else { "mod.rs" };
-        let mut path = PathBuf::from_str("src").unwrap();
-        path = path.join(PathBuf::from(module.identifier.name.clone()));
-        path = path.join(name);
-        path
+    fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
+        self.generate_project_file(library, file_set)?;
+        self.generate_lib_file(library, file_set)?;
+        Ok(())
     }
 }

@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub mod requirement;
 pub use requirement::*;
 
-#[derive(Shrinkwrap, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Shrinkwrap, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[shrinkwrap(mutable)]
 pub struct Version(pub semver::Version);
 

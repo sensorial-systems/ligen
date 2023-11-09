@@ -4,12 +4,12 @@ use crate::prelude::*;
 use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 
 pub struct Generator {
-    generator: Box<dyn ligen_generator::Generator>,
+    generator: Box<dyn ligen_generator::Generator<Input = ligen_ir::Library>>,
     result: String
 }
 
 impl Generator {
-    pub fn new<T: ligen_generator::Generator + 'static>(generator: T) -> Self {
+    pub fn new<T: ligen_generator::Generator<Input = ligen_ir::Library> + 'static>(generator: T) -> Self {
         let generator = Box::new(generator);
         let result = Default::default();
         Self { generator, result }

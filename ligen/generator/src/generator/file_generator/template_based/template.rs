@@ -1,3 +1,5 @@
+use crate::prelude::*;
+
 use handlebars;
 use handlebars::{Handlebars, Context, Helper, HelperResult, Output, RenderContext};
 
@@ -7,8 +9,14 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn render<S: AsRef<str>>(&self, template: S, value: &serde_json::Value) -> Result<String, Box<dyn std::error::Error>> {
-        Ok(self.handlebars.render(template.as_ref(), value)?)
+    pub fn render<S, T>(&self, template: S, value: T) -> Result<String>
+    where T: Serialize, S: AsRef<str> {
+        let value = serde_json::to_value(value)?;
+        let result = self
+            .handlebars
+            .render(template.as_ref(), &value)
+            .map_err(|e| format!("Failed to render template: {}", e))?;
+        Ok(result)
     }
 }
 
@@ -39,12 +47,15 @@ impl From<&Helper<'_, '_>> for Inputs {
 }
 
 impl Template {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Default::default()
     }
 
-    pub fn register_template<S: AsRef<str>>(&mut self, name: S, content: S) {
-        self.handlebars.register_template_string(name.as_ref(), content.as_ref()).ok();
+    pub fn register_template<S: AsRef<str>>(&mut self, name: S, content: S) -> Result<()> {
+        self
+            .handlebars
+            .register_template_string(name.as_ref(), content.as_ref())
+            .map_err(|e| Error::Message(format!("Failed to register template: {}", e)))
     }
 
     pub fn register_function<S: AsRef<str>, F: Fn(&Inputs) -> String + Send + Sync + 'static>(&mut self, name: S, function: F) {

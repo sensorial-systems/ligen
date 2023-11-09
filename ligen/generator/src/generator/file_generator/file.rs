@@ -36,6 +36,7 @@ pub struct File {
     pub path: PathBuf,
     /// File sections.
     pub sections: BTreeMap<String, FileSection>,
+    order: Vec<String>
 }
 
 impl File {
@@ -43,7 +44,8 @@ impl File {
     pub fn new(path: impl AsRef<std::path::Path>) -> Self {
         let sections = Default::default();
         let path = path.as_ref().to_path_buf();
-        Self { path, sections }
+        let order = Default::default();
+        Self { path, sections, order }
     }
 
     /// Gets or creates a new section with the specified name.
@@ -51,23 +53,17 @@ impl File {
         self
             .sections
             .entry(name.as_ref().to_string())
-            .or_default()
+            .or_insert_with(|| {
+                self.order.push(name.as_ref().to_string());
+                Default::default()
+            })
     }
 
     /// Gets content.
     pub fn content(&self) -> String {
         let mut content = String::new();
-        for section in self.sections.values() {
-            content.push_str(&section.content);
-        }
-        content
-    }
-
-    /// Gets content in order.
-    pub fn content_in_order<S: AsRef<str>, A: AsRef<[S]>>(&self, order: A) -> String {
-        let mut content = String::new();
-        for section in order.as_ref() {
-            if let Some(section) = self.sections.get(section.as_ref()) {
+        for section in &self.order {
+            if let Some(section) = self.sections.get(section) {
                 content.push_str(&section.content);
             }
         }
@@ -98,8 +94,8 @@ impl FileSet {
     }
 
     /// Returns an existing File assigned to an entry or creates a new one if it isn't present.
-    pub fn entry(&mut self, path: &Path) -> &mut File {
-        self.files.entry(path.to_path_buf()).or_insert(File::new(path))
+    pub fn entry(&mut self, path: impl AsRef<Path>) -> &mut File {
+        self.files.entry(path.as_ref().to_path_buf()).or_insert(File::new(path))
     }
 }
 
@@ -112,7 +108,6 @@ mod tests {
         let mut file = File::new("path");
         file.section("b").write("B");
         file.section("a").write("A");
-        assert_eq!(file.content(), "AB");
-        assert_eq!(file.content_in_order(["b", "a"]), "BA");
+        assert_eq!(file.content(), "BA");
     }
 }

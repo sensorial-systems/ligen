@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Shrinkwrap, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Shrinkwrap, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[shrinkwrap(mutable)]
 pub struct VersionRequirement(pub semver::VersionReq);
 

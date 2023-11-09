@@ -1,0 +1,10 @@
+[package]
+name = "{{identifier.name}}"
+version = "{{metadata.version}}"
+edition = "2021"
+description = "{{metadata.summary}}"
+license = "{{metadata.license}}"
+homepage = "{{metadata.homepage}}"
+authors = [{{#each metadata.authors}}"{{name}} <{{email}}>"{{#unless @last}}, {{/unless}}{{/each}}]
+keywords = [{{#each metadata.keywords}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}]
+readme = "README.md"
