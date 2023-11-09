@@ -17,7 +17,7 @@ impl LibraryGenerator {
         let file = file_set.entry(PathBuf::from("Cargo.toml"));
         let mut template = Template::new();
         template.register_template("project", include_str!("templates/Cargo.hbs"))?;
-        let template = template.render("project", &library)?;
+        let template = template.render("project", library)?;
         let root = file.section("root");
         root.write(template);
         Ok(())
@@ -26,7 +26,7 @@ impl LibraryGenerator {
     pub fn generate_lib_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from("src").join("lib.rs"));
         let section = file.section("documentation");
-        section.writeln(library.metadata.description.split("\n").map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+        section.writeln(library.metadata.description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
         Ok(())
     }
 
