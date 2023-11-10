@@ -8,43 +8,28 @@ where Segment: 'a
 
 impl<'a> Path<'a, &'a str> {
     fn from_string(path: &'a str) -> Path<'a, &str> {
-        let segments = vec![path];
+        // TODO: Create segments from slices.
+        let segments = vec![&path[1..]];
         let phantom = Default::default();
         Self { segments, phantom }
     }
 }
 
-pub trait IntoPath<'a, Segment>
+impl<'a, Segment> From<Vec<Segment>> for Path<'a, Segment>
 where Segment: 'a
 {
-    fn into_path(self) -> Path<'a, Segment>;
-}
-
-impl<'a, Segment> IntoPath<'a, Segment> for Segment
-where Segment: 'a
-{
-    fn into_path(self) -> Path<'a, Segment> {
-        let segments = vec![self];
+    fn from(value: Vec<Segment>) -> Path<'a, Segment> {
+        let segments = value;
         let phantom = Default::default();
         Path { segments, phantom }
     }
 }
 
-impl<'a, Segment> IntoPath<'a, Segment> for Vec<Segment>
-where Segment: 'a
-{
-    fn into_path(self) -> Path<'a, Segment> {
-        let segments = self;
-        let phantom = Default::default();
-        Path { segments, phantom }
-    }
-}
-
-impl<'a, Segment> IntoPath<'a, Segment> for &'a [Segment]
+impl<'a, Segment> From<&'a [Segment]> for Path<'a, Segment>
 where Segment: Copy
 {
-    fn into_path(self) -> Path<'a, Segment> {
-        let segments = self.to_vec();
+    fn from(value: &'a [Segment]) -> Path<'a, Segment> {
+        let segments = value.to_vec();
         let phantom = Default::default();
         Path { segments, phantom }
     }
@@ -58,7 +43,7 @@ mod tests {
     fn from_single() {
         let value = "A";
         let value = std::slice::from_ref(&value);
-        let path: Path<'_, &str> = value.into_path();
+        let path = Path::from(value);
         assert_eq!(path.segments, ["A"]);
     }
 
@@ -66,14 +51,14 @@ mod tests {
     fn from_array() {
         let array = ["A", "B", "C"];
         let slice = array.as_slice();
-        let path: Path<'_, &str> = slice.into_path();
+        let path: Path<'_, _> = Path::from(slice);
         assert_eq!(path.segments, ["A", "B", "C"]);
     }
 
     #[test]
     fn from_vector() {
         let vector = vec!["A", "B", "C"];
-        let path: Path<'_, &str> = vector.into_path();
+        let path = Path::from(vector);
         assert_eq!(path.segments, ["A", "B", "C"]);
     }
 }
