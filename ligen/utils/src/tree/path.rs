@@ -6,10 +6,9 @@ where Segment: 'a
     phantom: std::marker::PhantomData<&'a Segment>
 }
 
-impl<'a> Path<'a, &'a str> {
-    fn from_string(path: &'a str) -> Path<'a, &str> {
-        // TODO: Create segments from slices.
-        let segments = vec![&path[1..]];
+impl<'a> From<&'a str> for Path<'a, &'a str> {
+    fn from(value: &'a str) -> Path<'a, &'a str> {
+        let segments = value.split("::").collect();
         let phantom = Default::default();
         Self { segments, phantom }
     }
@@ -40,11 +39,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn from_single() {
-        let value = "A";
-        let value = std::slice::from_ref(&value);
-        let path = Path::from(value);
+    fn from_string() {
+        let path = Path::from("A");
         assert_eq!(path.segments, ["A"]);
+        let path = Path::from("A::B");
+        assert_eq!(path.segments, ["A", "B"]);
     }
 
     #[test]

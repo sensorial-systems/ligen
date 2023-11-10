@@ -1,11 +1,12 @@
 pub mod identifier;
 pub mod path;
 
+use std::collections::HashMap;
+
 pub use identifier::*;
 pub use path::*;
 
 use crate::prelude::*;
-use std::fmt::{Display, Debug};
 
 #[derive(Shrinkwrap)]
 #[shrinkwrap(mutable)]
@@ -14,7 +15,7 @@ where Value: Identifier
 {
     #[shrinkwrap(main_field)]
     pub value: Value,
-    pub children: Vec<Tree<Value>>
+    pub children: HashMap<Value::Identifier, Tree<Value>>
 }
 
 impl<Value> Tree<Value>
@@ -25,29 +26,28 @@ where Value: Identifier
     }
 
     pub fn add_child(&mut self, child: impl Into<Self>) -> &mut Self {
-        self.children.push(child.into());
-        self.children.last_mut().unwrap()
+        let child = child.into();
+        self.children
+            .entry(child.identifier().clone())
+            .or_insert(child)
     }
 
-    // pub fn get<'a, Segment>(&self, path: impl Into<Path<'a, Segment>>) -> Option<&Self>
-    // where Segment: PartialEq<Value::Identifier> + 'a + Display + Debug,
-    // Value::Identifier: Display
-    // {
-    //     let path = path.into();
-    //     if let Some(identifier) = path.segments.first() {
-    //         let rest = &path.segments[1..];
-    //         if rest.is_empty() && self.is(**identifier) {
-    //             Some(self)
-    //         } else {
-    //             self
-    //             .children
-    //             .iter()
-    //             .find_map(|child| child.get::<&Segment>(rest))
-    //         }
-    //     } else {
-    //         None
-    //     }
-    // }
+    pub fn get<'a, Segment>(&self, path: impl Into<Path<'a, Segment>>) -> Option<&Self>
+    where Segment: PartialEq<Value::Identifier> + Copy + 'a
+    {
+        let path = path.into();
+        if let Some(identifier) = path.segments.first() {
+            let rest = &path.segments[1..];
+            if rest.is_empty() && self.is(*identifier) {
+                Some(self)
+            } else {
+                // self.children.get(identifier);
+                None
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl<Value> From<Value> for Tree<Value>
@@ -120,20 +120,20 @@ mod test {
 
     #[test]
     fn get() {
-        // let jose = create();
-        // let jose = jose.get("José").unwrap();
-        // assert!(jose.is("José"));
-        // assert_eq!(jose.say(), "My name is José");
+        let jose = create();
+        let jose = jose.get("José").unwrap();
+        assert!(jose.is("José"));
+        assert_eq!(jose.say(), "My name is José");
 
-        // println!("Getting Danilo from José.");
-        // let danilo = jose.get::<&str>([&"José", &"Danilo"].as_slice()).unwrap();
-        // assert!(danilo.is("Danilo"));
-        // assert_eq!(danilo.say(), "My name is Danilo");
+        println!("Getting Danilo from José.");
+        let danilo = jose.get("José::Danilo").unwrap();
+        assert!(danilo.is("Danilo"));
+        assert_eq!(danilo.say(), "My name is Danilo");
 
-        // println!("Getting Joaquim from José.");
-        // assert!(jose.get(&"Joaquim").is_none());
-        // let joaquim = jose.get(Path::from(&["José", "Danilo", "Joaquim"])).unwrap();
-        // assert!(joaquim.is("Joaquim"));
-        // assert_eq!(joaquim.say(), "My name is Joaquim");
+        println!("Getting Joaquim from José.");
+        assert!(jose.get("Joaquim").is_none());
+        let joaquim = jose.get("José::Danilo::Joaquim").unwrap();
+        assert!(joaquim.is("Joaquim"));
+        assert_eq!(joaquim.say(), "My name is Joaquim");
     }
 }
