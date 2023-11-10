@@ -8,7 +8,8 @@ where Segment: 'a
 
 impl<'a> Path<'a, &'a str> {
     fn from_string(path: &'a str) -> Path<'a, &str> {
-        let segments = vec![path];
+        // TODO: Create segments from slices.
+        let segments = vec![&path[1..]];
         let phantom = Default::default();
         Self { segments, phantom }
     }
