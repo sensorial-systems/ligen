@@ -1,2 +1,2 @@
-pub const CARGO: &'static str = include_str!("Cargo.hbs");
-pub const MODULE: &'static str = include_str!("module.hbs");
+pub const CARGO: &str = include_str!("Cargo.hbs");
+pub const MODULE: &str = include_str!("module.hbs");
