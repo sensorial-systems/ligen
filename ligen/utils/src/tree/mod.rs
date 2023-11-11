@@ -113,58 +113,59 @@ where Value: HasIdentifier
     }
 }
 
-impl HasIdentifier for usize {
-    type Identifier = usize;
-    fn identifier(&self) -> &Self::Identifier {
-        self
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
 
-    pub struct Person {
-        name: String
-    }
-    
-    impl Person {
-        pub fn say(&self) -> String {
-            format!("My name is {}", self.name)
+
+    impl HasIdentifier for usize {
+        type Identifier = usize;
+        fn identifier(&self) -> &Self::Identifier {
+            self
         }
     }
     
-    impl<S: Into<String>> From<S> for Person {
+    pub struct Module {
+        identifier: String
+    }
+    
+    impl Module {
+        pub fn format(&self) -> String {
+            format!("[{}]", self.identifier)
+        }
+    }
+    
+    impl<S: Into<String>> From<S> for Module {
         fn from(name: S) -> Self {
             let name = name.into();
-            Self { name }       
+            Self { identifier: name }
         }
     }
     
-    impl HasIdentifier for Person {
+    impl HasIdentifier for Module {
         type Identifier = String;
         fn identifier(&self) -> &Self::Identifier {
-            &self.name
+            &self.identifier
         }
     }
 
-    fn create() -> Tree<Person> {
+    fn create() -> Tree<Module> {
         let tree = Tree::from(5);
         assert!(tree.is(5 as usize));
 
-        let mut jose = Tree::from(Person::from("José"));
-        assert!(jose.is("José"));
-        assert_eq!(jose.say(), "My name is José");
+        let mut root = Tree::from(Module::from("root"));
+        assert!(root.is("root"));
+        assert_eq!(root.format(), "[root]");
 
-        let danilo = jose.add_branch(Person::from("Danilo"));
-        assert!(danilo.is("Danilo"));
-        assert_eq!(danilo.say(), "My name is Danilo");
+        let branch = root.add_branch(Module::from("branch"));
+        assert!(branch.is("branch"));
+        assert_eq!(branch.format(), "[branch]");
         
-        let joaquim = danilo.add_branch(Person::from("Joaquim"));
-        assert!(joaquim.is("Joaquim"));
-        assert_eq!(joaquim.say(), "My name is Joaquim");
+        let leaf = branch.add_branch(Module::from("leaf"));
+        assert!(leaf.is("leaf"));
+        assert_eq!(leaf.format(), "[leaf]");
 
-        jose
+        root
     }
 
     #[test]
@@ -174,35 +175,69 @@ mod test {
 
     #[test]
     fn get() {
-        let jose = create();
-        assert!(jose.is("José"));
-        assert_eq!(jose.say(), "My name is José");
+        let root = create();
+        assert!(root.is("root"));
+        assert_eq!(root.format(), "[root]");
 
-        let danilo = jose.get("Danilo").unwrap();
-        assert!(danilo.is("Danilo"));
-        assert_eq!(danilo.say(), "My name is Danilo");
+        let branch = root.get("branch").unwrap();
+        assert!(branch.is("branch"));
+        assert_eq!(branch.format(), "[branch]");
 
-        let joaquim = danilo.get("Joaquim").unwrap();
-        assert!(joaquim.is("Joaquim"));
-        assert_eq!(joaquim.say(), "My name is Joaquim");
+        let leaf = branch.get("leaf").unwrap();
+        assert!(leaf.is("leaf"));
+        assert_eq!(leaf.format(), "[leaf]");
     }
 
     #[test]
     fn get_from_path() {
-        let jose = create();
-        let jose = jose.path_get::<&str>([]).unwrap();
-        assert!(jose.is("José"));
-        assert_eq!(jose.say(), "My name is José");
+        let root = create();
+        let jose = root.path_get::<&str>([]).unwrap();
+        assert!(jose.is("root"));
+        assert_eq!(jose.format(), "[root]");
 
-        assert!(jose.path_get(["Ninguém"]).is_none());
-        assert!(jose.path_get(["Danilo", "Olívia"]).is_none());
+        assert!(jose.path_get(["none"]).is_none());
+        assert!(jose.path_get(["branch", "fruit"]).is_none());
 
-        let danilo = jose.path_get(["Danilo"]).unwrap();
-        assert!(danilo.is("Danilo"));
-        assert_eq!(danilo.say(), "My name is Danilo");
+        let danilo = jose.path_get(["branch"]).unwrap();
+        assert!(danilo.is("branch"));
+        assert_eq!(danilo.format(), "[branch]");
 
-        let joaquim = jose.path_get(["Danilo", "Joaquim"]).unwrap();
-        assert!(joaquim.is("Joaquim"));
-        assert_eq!(joaquim.say(), "My name is Joaquim");
+        let joaquim = jose.path_get(["branch", "leaf"]).unwrap();
+        assert!(joaquim.is("leaf"));
+        assert_eq!(joaquim.format(), "[leaf]");
+    }
+
+    #[derive(Debug)]
+    struct Fibonacci {
+        pub current: Option<u8>,
+        pub next: Option<u8>
+    }
+
+    impl Fibonacci {
+        pub fn start() -> Self {
+            let current = Some(0);
+            let next = Some(1);
+            Self { current, next }
+        }
+    }
+
+    impl Iterator for Fibonacci {
+        type Item = u8;
+        fn next(&mut self) -> Option<Self::Item> {
+            println!("{:?}", self);
+            let current = self.current.take();
+            self.current = self.next;
+        self.next = current
+            .zip(self.next)
+            .and_then(|(current, next)| current.checked_add(next));
+            current
+        }
+    }
+
+    #[test]
+    fn iterator() {
+        for iteration in Fibonacci::start() {
+            println!("{}", iteration);
+        }
     }
 }
