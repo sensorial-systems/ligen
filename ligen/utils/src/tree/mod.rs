@@ -8,7 +8,7 @@ pub use path::*;
 
 use crate::prelude::*;
 
-pub trait TreeTrait<Value>: Identifier {
+pub trait IsTree: HasIdentifier {
     fn is(&self, identifier: impl PartialEq<Self::Identifier>) -> bool {
         identifier.eq(self.identifier())
     }
@@ -29,28 +29,19 @@ pub trait TreeTrait<Value>: Identifier {
     where K: Into<Self::Identifier>, Self::Identifier: BorrowMut<Self::Identifier>;
     
     fn path_get<'a, K>(&'a self, path: impl IntoIterator<Item = K>) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: BorrowMut<Self::Identifier>,
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>,
     Self::Identifier: Display
     {
-        let mut iter = path.into_iter();
-        if let Some(identifier) = iter.next() {
-            let identifier = identifier.into();
-            println!("Is {} self", identifier);
-            if self.is(identifier) {
-                if let Some(identifier) = iter.next() {
-                    let identifier = identifier.into();
-                    println!("Trying to find {}", identifier);
-                    self
-                    .get(identifier)
-                    .and_then(|branch| branch.path_get(iter))
-                } else {
-                    Some(self)
-                }
-            } else {
-                None
-            }
+        let mut path = path.into_iter();
+        if let Some(segment) = path.next() {
+            let segment = segment.into();
+            self
+                .get(segment)
+                .and_then(|branch|
+                    branch.path_get(path)
+                )
         } else {
-            None
+            Some(self)
         }
     }
 }
@@ -58,15 +49,15 @@ pub trait TreeTrait<Value>: Identifier {
 #[derive(Shrinkwrap)]
 #[shrinkwrap(mutable)]
 pub struct Tree<Value>
-where Value: Identifier
+where Value: HasIdentifier
 {
     #[shrinkwrap(main_field)]
     pub value: Value,
     pub children: HashMap<Value::Identifier, Tree<Value>>
 }
 
-impl<Value> Identifier for Tree<Value>
-where Value: Identifier
+impl<Value> HasIdentifier for Tree<Value>
+where Value: HasIdentifier
 {
     type Identifier = Value::Identifier;
     fn identifier(&self) -> &Self::Identifier {
@@ -74,8 +65,8 @@ where Value: Identifier
     }
 }
 
-impl<Value> TreeTrait<Value> for Tree<Value>
-where Value: Identifier
+impl<Value> IsTree for Tree<Value>
+where Value: HasIdentifier
 {
     fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
     where Self: Sized
@@ -114,7 +105,7 @@ where Value: Identifier
 }
 
 impl<Value> From<Value> for Tree<Value>
-where Value: Identifier
+where Value: HasIdentifier
 {
     fn from(value: Value) -> Self {
         let children = Default::default();
@@ -122,7 +113,7 @@ where Value: Identifier
     }
 }
 
-impl Identifier for usize {
+impl HasIdentifier for usize {
     type Identifier = usize;
     fn identifier(&self) -> &Self::Identifier {
         self
@@ -150,7 +141,7 @@ mod test {
         }
     }
     
-    impl Identifier for Person {
+    impl HasIdentifier for Person {
         type Identifier = String;
         fn identifier(&self) -> &Self::Identifier {
             &self.name
@@ -199,13 +190,19 @@ mod test {
     #[test]
     fn get_from_path() {
         let jose = create();
-        let jose = jose.path_get(["José"]).unwrap();
+        let jose = jose.path_get::<&str>([]).unwrap();
         assert!(jose.is("José"));
         assert_eq!(jose.say(), "My name is José");
 
-        println!("Trying to find Danilo");
-        let danilo = jose.path_get(["José", "Danilo"]).unwrap();
+        assert!(jose.path_get(["Ninguém"]).is_none());
+        assert!(jose.path_get(["Danilo", "Olívia"]).is_none());
+
+        let danilo = jose.path_get(["Danilo"]).unwrap();
         assert!(danilo.is("Danilo"));
         assert_eq!(danilo.say(), "My name is Danilo");
+
+        let joaquim = jose.path_get(["Danilo", "Joaquim"]).unwrap();
+        assert!(joaquim.is("Joaquim"));
+        assert_eq!(joaquim.say(), "My name is Joaquim");
     }
 }
