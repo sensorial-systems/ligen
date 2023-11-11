@@ -1,7 +1,7 @@
 pub mod identifier;
 pub mod path;
 
-use std::{collections::HashMap, borrow::{Borrow, BorrowMut}};
+use std::{collections::HashMap, borrow::{Borrow, BorrowMut}, fmt::Display};
 
 pub use identifier::*;
 pub use path::*;
@@ -9,7 +9,9 @@ pub use path::*;
 use crate::prelude::*;
 
 pub trait TreeTrait<Value>: Identifier {
-    fn is(&self, identifier: impl PartialEq<Self::Identifier>) -> bool;
+    fn is(&self, identifier: impl PartialEq<Self::Identifier>) -> bool {
+        identifier.eq(self.identifier())
+    }
 
     fn add_branch(&mut self, _child: impl Into<Self>) -> &mut Self where Self: Sized {
         self
@@ -26,18 +28,31 @@ pub trait TreeTrait<Value>: Identifier {
     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
     where K: Into<Self::Identifier>, Self::Identifier: BorrowMut<Self::Identifier>;
     
-    // fn path_get<'a, I: Into<Self::Identifier> + 'a>(&'a self, path: impl IntoIterator<Item = &'a I>) -> Option<&Self> {
-    //     let mut iter = path.into_iter().peekable();
-    //     if let Some(identifier) = iter.next() {
-    //         if iter.peek().is_none() && self.is(identifier) {
-    //             Some(self)
-    //         } else {
-    //             self.get(identifier)
-    //         }
-    //     } else {
-    //         None
-    //     }
-    // }
+    fn path_get<'a, K>(&'a self, path: impl IntoIterator<Item = K>) -> Option<&Self>
+    where K: Into<Self::Identifier>, Self::Identifier: BorrowMut<Self::Identifier>,
+    Self::Identifier: Display
+    {
+        let mut iter = path.into_iter();
+        if let Some(identifier) = iter.next() {
+            let identifier = identifier.into();
+            println!("Is {} self", identifier);
+            if self.is(identifier) {
+                if let Some(identifier) = iter.next() {
+                    let identifier = identifier.into();
+                    println!("Trying to find {}", identifier);
+                    self
+                    .get(identifier)
+                    .and_then(|branch| branch.path_get(iter))
+                } else {
+                    Some(self)
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Shrinkwrap)]
@@ -62,10 +77,6 @@ where Value: Identifier
 impl<Value> TreeTrait<Value> for Tree<Value>
 where Value: Identifier
 {
-    fn is(&self, identifier: impl PartialEq<Self::Identifier>) -> bool {
-        identifier.eq(self.identifier())
-    }
-
     fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
     where Self: Sized
     {
@@ -185,15 +196,16 @@ mod test {
         assert_eq!(joaquim.say(), "My name is Joaquim");
     }
 
-    // #[test]
-    // fn get_from_path() {
-    //     let jose = create();
-    //     let jose = jose.path_get(["José"]).unwrap();
-    //     assert!(jose.is("José"));
-    //     assert_eq!(jose.say(), "My name is José");        
+    #[test]
+    fn get_from_path() {
+        let jose = create();
+        let jose = jose.path_get(["José"]).unwrap();
+        assert!(jose.is("José"));
+        assert_eq!(jose.say(), "My name is José");
 
-    //     let danilo = jose.path_get(["José", "Danilo"]).unwrap();
-    //     assert!(danilo.is("Danilo"));
-    //     assert_eq!(danilo.say(), "My name is Danilo");
-    // }
+        println!("Trying to find Danilo");
+        let danilo = jose.path_get(["José", "Danilo"]).unwrap();
+        assert!(danilo.is("Danilo"));
+        assert_eq!(danilo.say(), "My name is Danilo");
+    }
 }
