@@ -41,8 +41,8 @@ mod tests {
     #[test]
     fn order() {
         let mut file = File::new("path");
-        file.section("b").write("B");
-        file.section("a").write("A");
+        file.branch("b").write("B");
+        file.branch("a").write("A");
         assert_eq!(file.to_string(), "BA");
     }
 
@@ -51,29 +51,29 @@ mod tests {
         let mut section = FileSection::new("root");
         section.writeln("//! This is a Rust");
         section.writeln("//! documentation.");
-        section.section("sub1").write("//! This is a sub-section and ");
-        section.section("sub2").writeln("//! This is another sub-section.");
-        section.section("sub1").writeln("we can add to it later.");
+        section.branch("sub1").write("//! This is a sub-section and ");
+        section.branch("sub2").writeln("//! This is another sub-section.");
+        section.branch("sub1").writeln("we can add to it later.");
         assert_eq!(section.to_string(), "//! This is a Rust\n//! documentation.\n//! This is a sub-section and we can add to it later.\n//! This is another sub-section.\n");
     }
 
     #[test]
     fn deep_section() {
         let mut section = FileSection::new("root");
-        section.section("attribute::begin").write("#[ligen(");
-        section.section("attribute::parameters").write("name = \"test\"");
-        section.section("attribute::parameters").write(", truth = true");
-        section.section("attribute::end").writeln(")]");
+        section.branch("attribute::begin").write("#[ligen(");
+        section.branch("attribute::parameters").write("name = \"test\"");
+        section.branch("attribute::parameters").write(", truth = true");
+        section.branch("attribute::end").writeln(")]");
         assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
 
         let mut section = FileSection::new("root");
         for name in ["attribute::begin", "attribute::parameters", "attribute::end"] {
-            section.section(name);
+            section.branch(name);
         }
-        section.section("attribute::begin").write("#[ligen(");
-        section.section("attribute::end").writeln(")]");
-        section.section("attribute::parameters").write("name = \"test\"");
-        section.section("attribute::parameters").write(", truth = true");
+        section.branch("attribute::begin").write("#[ligen(");
+        section.branch("attribute::end").writeln(")]");
+        section.branch("attribute::parameters").write("name = \"test\"");
+        section.branch("attribute::parameters").write(", truth = true");
         assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
     }
 
@@ -82,10 +82,10 @@ mod tests {
         let template = "[section(attribute::begin)][section(attribute::parameters)][section(attribute::end)]";
         let template = SectionTemplate::new("root", template);
         let mut section = FileSection::from_template(&template)?;
-        section.section("attribute::begin").write("#[ligen(");
-        section.section("attribute::end").writeln(")]");
-        section.section("attribute::parameters").write("name = \"test\"");
-        section.section("attribute::parameters").write(", truth = true");
+        section.branch("attribute::begin").write("#[ligen(");
+        section.branch("attribute::end").writeln(")]");
+        section.branch("attribute::parameters").write("name = \"test\"");
+        section.branch("attribute::parameters").write(", truth = true");
         assert_eq!(section.to_string(), "#[ligen(name = \"test\", truth = true)]\n");
         Ok(())
     }
@@ -95,8 +95,8 @@ mod tests {
         let template = "before[section(begin)]content[section(end)]after";
         let template = SectionTemplate::new("root", template);
         let mut section = FileSection::from_template(&template)?;
-        section.section("begin").write("-begin-");
-        section.section("end").write("-end-");
+        section.branch("begin").write("-begin-");
+        section.branch("end").write("-end-");
         assert_eq!(section.to_string(), "before-begin-content-end-after");
         Ok(())
     }
@@ -121,11 +121,8 @@ mod tests {
         root.add_branch(SectionTemplate::new("age", age));
 
         let mut root = FileSection::from_template(&root)?;
-        root.section("name").write("John");
-        root.section("age").section("number").write("42");
-        for (index, content) in root.content.iter().enumerate() {
-            println!("{} - {:?}", index, content)
-        }
+        root.branch("name").write("John");
+        root.branch("age").branch("number").write("42");
         assert_eq!(root.to_string(), "Name: John\nAge: 42 years old\n");
         Ok(())
     }

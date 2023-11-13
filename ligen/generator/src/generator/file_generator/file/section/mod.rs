@@ -1,10 +1,11 @@
 use crate::prelude::*;
+use std::borrow::Borrow;
 
 pub mod content;
 pub mod template;
 
 pub use content::*;
-use ligen_utils::tree::IsTree;
+use ligen_utils::tree::{IsTree, HasIdentifier};
 pub use template::*;
 
 use std::ops::Range;
@@ -17,12 +18,17 @@ pub struct FileSection {
     pub content: Vec<Box<dyn FileSectionContent>>
 }
 
+impl From<String> for FileSection {
+    fn from(name: String) -> Self {
+        let content = Default::default();
+        Self { name, content }
+    }
+}
+
 impl FileSection {
     /// Creates a new FileSection.
     pub fn new(name: impl Into<String>) -> Self {
-        let name = name.into();
-        let content = Default::default();
-        Self { name, content }
+        Self::from(name.into())
     }
 
     /// Creates a new FileSection from a template.
@@ -32,54 +38,6 @@ impl FileSection {
         section.write_from_template(template, sections)?;
 
         Ok(section)
-    }
-
-    /// Gets the section name.
-    pub fn find_section(&mut self, name: impl AsRef<str>) -> Option<(usize, &mut FileSection)> {
-        let name = name.as_ref();
-        self.content
-            .iter_mut()
-            .enumerate()
-            .find_map(|(index, content)| {
-                content
-                    .as_section_mut()
-                    .and_then(|section|
-                        if section.name == name {
-                            Some((index, section))
-                        } else {
-                            None
-                        }
-                    )
-            })
-    }
-
-    /// Set section.
-    pub fn set_section(&mut self, section: FileSection) {
-        if let Some((_, old_section)) = self.find_section(&section.name) {
-            *old_section = section;
-        } else {
-            self.content.push(Box::new(section));
-        }
-    }
-
-    /// Gets or creates a new section with the specified name.
-    pub fn section(&mut self, name: impl AsRef<str>) -> &mut FileSection {
-        let (index, exists) = self
-            .find_section(name.as_ref())
-            .map(|(index, _)| (index, true))
-            .unwrap_or((0, false));
-        if exists {
-            self
-                .content
-                .get_mut(index)
-                .unwrap()
-                .as_section_mut()
-                .unwrap()
-        } else {
-            let section = FileSection::new(name.as_ref());
-            self.set_section(section);
-            self.content.last_mut().unwrap().as_section_mut().unwrap()
-        }
     }
 
     /// Writes the content to the file section at the specified index.
@@ -105,6 +63,73 @@ impl FileSection {
         string.push('\n');
         self.content.push(Box::new(string));
     }    
+}
+
+impl HasIdentifier for FileSection {
+    type Identifier = String;
+    fn identifier(&self) -> &Self::Identifier {
+        &self.name
+    }
+}
+
+impl IsTree for FileSection {
+    fn add_branch(&mut self, section: impl Into<Self>) -> &mut Self where Self: Sized {
+        self.content.push(Box::new(section.into()));
+        self
+            .content
+            .last_mut()
+            .unwrap()
+            .as_section_mut()
+            .unwrap()
+    }
+
+    fn get<K>(&self, key: K) -> Option<&Self>
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>
+    {
+        let name = key.into();
+        let name = name.borrow();
+        self.content
+            .iter()
+            .find_map(|content| {
+                content
+                    .as_section()
+                    .and_then(|section|
+                        if section.name == name {
+                            Some(section)
+                        } else {
+                            None
+                        }
+                    )
+            })
+    }
+
+    fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
+    where K: Into<Self::Identifier>, Self::Identifier: std::borrow::BorrowMut<Self::Identifier>
+    {
+        let name = key.into();
+        let name = name.borrow();
+        self.content
+            .iter_mut()
+            .find_map(|content| {
+                content
+                    .as_section_mut()
+                    .and_then(|section|
+                        if section.name == name {
+                            Some(section)
+                        } else {
+                            None
+                        }
+                    )
+            })
+    }
+
+    fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
+        Box::new(self.content.iter().filter_map(|content| content.as_section()))
+    }
+
+    fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
+        Box::new(self.content.iter_mut().filter_map(|content| content.as_section_mut()))
+    }
 }
 
 impl FileSection {
@@ -143,7 +168,7 @@ impl FileSection {
             } else {
                 FileSection::new(section)
             };
-            self.set_section(section);
+            self.add_branch(section);
         }
         let after = &template.content[start..];
         if !after.is_empty() {

@@ -13,3 +13,4 @@ readme.workspace = true
 [dependencies]
 ligen-ir.workspace = true
 ligen-generator.workspace = true
+ligen-utils.workspace = true
