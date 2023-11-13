@@ -15,6 +15,7 @@ pub trait FileSectionContent: Display + Debug {
         None
     }
 }
+
 impl FileSectionContent for String {
     fn as_string(&self) -> Option<&String> {
         Some(self)
@@ -23,6 +24,7 @@ impl FileSectionContent for String {
         Some(self)
     }
 }
+
 impl FileSectionContent for FileSection {
     fn as_section(&self) -> Option<&FileSection> {
         Some(self)

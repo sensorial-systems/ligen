@@ -31,6 +31,8 @@ impl FileSet {
 
 #[cfg(test)]
 mod tests {
+    use ligen_utils::tree::IsTree;
+
     use crate::prelude::*;
     use crate::file_generator::{FileSection, SectionTemplate};
 
@@ -115,8 +117,8 @@ mod tests {
         let age = "Age: [section(number)] years old";
 
         let mut root = SectionTemplate::new("root", root);
-        root.set_child(SectionTemplate::new("name", name));
-        root.set_child(SectionTemplate::new("age", age));
+        root.add_branch(SectionTemplate::new("name", name));
+        root.add_branch(SectionTemplate::new("age", age));
 
         let mut root = FileSection::from_template(&root)?;
         root.section("name").write("John");

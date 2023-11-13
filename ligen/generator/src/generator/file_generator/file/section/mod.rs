@@ -4,6 +4,7 @@ pub mod content;
 pub mod template;
 
 pub use content::*;
+use ligen_utils::tree::IsTree;
 pub use template::*;
 
 use std::ops::Range;
@@ -137,7 +138,7 @@ impl FileSection {
             }
             start = section.end;
             let section = &template.content[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
-            let section = if let Some(template) = template.find_child(section) {
+            let section = if let Some(template) = template.get(section) {
                 FileSection::from_template(template)?
             } else {
                 FileSection::new(section)
