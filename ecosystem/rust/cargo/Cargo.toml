@@ -13,3 +13,4 @@ ligen-utils.workspace       = true
 ligen-parser.workspace      = true
 ligen-rust-parser.workspace = true
 cargo_toml = "0.16.0"
+is-tree.workspace = true

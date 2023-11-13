@@ -12,6 +12,7 @@ readme.workspace        = true
 ligen-common.workspace = true
 ligen-ir.workspace = true
 ligen-utils.workspace = true
+is-tree.workspace = true
 
 serde_json.workspace = true
 handlebars = "4.1.6"

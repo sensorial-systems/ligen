@@ -31,7 +31,7 @@ impl FileSet {
 
 #[cfg(test)]
 mod tests {
-    use ligen_utils::tree::IsTree;
+    use is_tree::IsTree;
 
     use crate::prelude::*;
     use crate::file_generator::{FileSection, SectionTemplate};

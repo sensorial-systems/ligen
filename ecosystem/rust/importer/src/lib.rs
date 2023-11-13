@@ -10,7 +10,7 @@ use ligen_ir::Library;
 use prelude::*;
 
 use ligen_generator::file_generator::{FileGenerator, FileSet, Template};
-use ligen_utils::tree::IsTree;
+use is_tree::IsTree;
 
 #[derive(Debug, Default)]
 pub struct LibraryGenerator {}

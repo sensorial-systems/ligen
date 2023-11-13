@@ -1,6 +1,6 @@
 use ligen_ir::Library;
 use ligen_generator::file_generator::{FileGenerator, FileSet};
-use ligen_utils::tree::IsTree;
+use is_tree::IsTree;
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_traits::prelude::*;

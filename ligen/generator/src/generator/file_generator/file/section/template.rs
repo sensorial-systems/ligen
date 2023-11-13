@@ -1,4 +1,4 @@
-use ligen_utils::tree::{IsTree, HasIdentifier};
+use is_tree::{IsTree, HasIdentifier};
 use std::borrow::Borrow;
 
 pub struct SectionTemplate {

@@ -5,7 +5,7 @@ pub mod content;
 pub mod template;
 
 pub use content::*;
-use ligen_utils::tree::{IsTree, HasIdentifier};
+use is_tree::*;
 pub use template::*;
 
 use std::ops::Range;

@@ -7,6 +7,7 @@ members = [
     "ligen/generator",
     "ligen/utils",
     "ligen/traits",
+    "ligen/is-tree", # TODO: Make is-tree its own repository.
     "ecosystem/python/parser",
     "ecosystem/rust/importer",
     "ecosystem/rust/cargo",
@@ -17,7 +18,7 @@ members = [
 #    "ecosystem/c/cmake",
 #    "ecosystem/c/generator",
     "tools/editor/dependencies/gui-runtime",
-    "tools/editor"
+    "tools/editor",
 ]
 resolver = "2"
 
@@ -47,6 +48,7 @@ ligen-rust-importer    = { path = "ecosystem/rust/importer" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
 ligen-cargo             = { path = "ecosystem/rust/cargo" }
 ligen-gui-runtime       = { path = "tools/editor/dependencies/gui-runtime" }
+is-tree                = { path = "ligen/is-tree" }
 serde                   = { version = "1", features = ["derive"] }
 enum-as-inner           = "0.6.0"
 serde_json              = "1"

@@ -14,3 +14,4 @@ readme.workspace = true
 ligen-ir.workspace = true
 ligen-generator.workspace = true
 ligen-utils.workspace = true
+is-tree.workspace = true
