@@ -6,9 +6,10 @@ pub mod import;
 pub mod mock;
 
 pub use import::*;
+use is_tree::{IsTree, HasIdentifier};
 
 use crate::prelude::*;
-use crate::{Path, Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
+use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
 use crate::interface::Interface;
 
 /// Module representation.
@@ -76,25 +77,24 @@ impl CountSymbols for &Vec<Module> {
     }
 }
 
-impl Module {
-    /// Find the module with the specified path.
-    pub fn find_module(&self, path: &Path) -> Option<&Module> {
-        let mut path = path.clone();
-        if let Some(path_segment) = path.pop_back() {
-            if path.segments.is_empty() && self.identifier == path_segment.identifier {
-                Some(self)
-            } else {
-                self
-                    .modules
-                    .iter()
-                    .filter_map(|module| module.find_module(&path))
-                    .next()
-            }
-        } else {
-            None
-        }
+impl HasIdentifier for Module {
+    type Identifier = Identifier;
+    fn identifier(&self) -> &Self::Identifier {
+        &self.identifier
     }
+}
 
+impl IsTree for Module {
+    fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Self> + 'a> {
+        Box::new(self.modules.iter())
+    }
+    
+    fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &'a mut Self> + 'a> {
+        Box::new(self.modules.iter_mut())
+    }
+}
+
+impl Module {
     pub fn join(&mut self, other: Self) {
         self.interfaces.extend(other.interfaces);
         self.functions.extend(other.functions);

@@ -1,7 +1,7 @@
 pub mod identifier;
 pub mod path;
 
-use std::{borrow::Borrow, fmt::Display};
+use std::borrow::Borrow;
 
 pub use identifier::*;
 pub use path::*;
@@ -38,14 +38,25 @@ pub trait IsTree: HasIdentifier {
     }
 
     fn get<K>(&self, key: K) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>;
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+        let key = key.into();
+        let key = key.borrow();
+        self
+            .branches()
+            .find(|branch| branch.identifier().borrow() == key)
+    }
     
     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>;
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+        let key = key.into();
+        let key = key.borrow();
+        self
+            .branches_mut()
+            .find(|branch| branch.identifier().borrow() == key)
+    }
     
-    fn path_get<'a, K>(&'a self, path: impl IntoIterator<Item = K>) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>,
-    Self::Identifier: Display
+    fn path_get<K>(&self, path: impl IntoIterator<Item = K>) -> Option<&Self>
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>
     {
         let mut path = path.into_iter();
         if let Some(segment) = path.next() {
@@ -59,6 +70,22 @@ pub trait IsTree: HasIdentifier {
             Some(self)
         }
     }
+
+    fn path_get_mut<K>(&mut self, path: impl IntoIterator<Item = K>) -> Option<&mut Self>
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+        let mut path = path.into_iter();
+        if let Some(segment) = path.next() {
+            let segment = segment.into();
+            self
+                .get_mut(segment)
+                .and_then(|branch|
+                    branch.path_get_mut(path)
+                )
+        } else {
+            Some(self)
+        }
+    }
+
 }
 
 #[cfg(test)]
@@ -168,7 +195,7 @@ mod test {
 
     fn create() -> Tree<Module> {
         let tree = Tree::from(5);
-        assert!(tree.is(5 as usize));
+        assert!(tree.is(5_usize));
 
         let mut root = Tree::from(Module::from("root"));
         assert!(root.is("root"));
