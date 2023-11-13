@@ -1,7 +1,7 @@
 pub mod identifier;
 pub mod path;
 
-use std::{collections::HashMap, borrow::{Borrow, BorrowMut}, fmt::Display};
+use std::{collections::HashMap, borrow::Borrow, fmt::Display};
 
 pub use identifier::*;
 pub use path::*;
@@ -22,11 +22,28 @@ pub trait IsTree: HasIdentifier {
     fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a>;
     fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a>;
 
+    fn branch<K>(&mut self, key: K) -> &mut Self
+    where K: Into<Self::Identifier>,
+          Self::Identifier: Borrow<Self::Identifier>,
+          Self: From<Self::Identifier>
+    {
+        // FIXME: This is a workaround for
+        //  https://rust-lang.github.io/rfcs/2094-nll.html#problem-case-3-conditional-control-flow-across-functions
+        //  Fix it when the borrow checker is fixed.
+        let myself = unsafe { &mut *(self as *mut Self) };
+        let key = key.into();
+        if let Some(value) = myself.get_mut(key.clone()) {
+            value
+        } else {
+            self.add_branch(Self::from(key))
+        }
+    }
+
     fn get<K>(&self, key: K) -> Option<&Self>
     where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>;
     
     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-    where K: Into<Self::Identifier>, Self::Identifier: BorrowMut<Self::Identifier>;
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>;
     
     fn path_get<'a, K>(&'a self, path: impl IntoIterator<Item = K>) -> Option<&Self>
     where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>,
@@ -207,37 +224,4 @@ mod test {
         assert_eq!(joaquim.format(), "[leaf]");
     }
 
-    #[derive(Debug)]
-    struct Fibonacci {
-        pub current: Option<u8>,
-        pub next: Option<u8>
-    }
-
-    impl Fibonacci {
-        pub fn start() -> Self {
-            let current = Some(0);
-            let next = Some(1);
-            Self { current, next }
-        }
-    }
-
-    impl Iterator for Fibonacci {
-        type Item = u8;
-        fn next(&mut self) -> Option<Self::Item> {
-            println!("{:?}", self);
-            let current = self.current.take();
-            self.current = self.next;
-        self.next = current
-            .zip(self.next)
-            .and_then(|(current, next)| current.checked_add(next));
-            current
-        }
-    }
-
-    #[test]
-    fn iterator() {
-        for iteration in Fibonacci::start() {
-            println!("{}", iteration);
-        }
-    }
 }
