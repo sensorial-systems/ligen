@@ -91,46 +91,18 @@ pub trait IsTree: HasIdentifier {
     }
 }
 
-use shrinkwraprs::Shrinkwrap;
-use std::collections::HashMap;
-
-#[derive(Shrinkwrap)]
-#[shrinkwrap(mutable)]
-pub struct Tree<Value>
-where Value: HasIdentifier
-{
-    #[shrinkwrap(main_field)]
-    pub value: Value,
-    pub children: HashMap<Value::Identifier, Tree<Value>>
-}
-
-impl<Value: HasIdentifier> Tree<Value> {
-    pub fn iter<'a>(&'a self) -> TreeIterator<'a, Value> {
-        TreeIterator::new(self)
+#[cfg(test)]
+mod test {
+    use super::*;
+    
+    pub struct Module {
+        identifier: String,
+        children: HashMap<String, Module>
     }
-}
 
-impl<Value> HasIdentifier for Tree<Value>
-where Value: HasIdentifier
-{
-    type Identifier = Value::Identifier;
-    fn identifier(&self) -> &Self::Identifier {
-        self.value.identifier()
-    }
-}
+    use std::collections::HashMap;
 
-impl<Value> HasIdentifier for &Tree<Value>
-where Value: HasIdentifier
-{
-    type Identifier = Value::Identifier;
-    fn identifier(&self) -> &Self::Identifier {
-        self.value.identifier()
-    }
-}
-
-impl<Value> IsTree for Tree<Value>
-where Value: HasIdentifier
-{
+impl IsTree for Module {
     fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
     where Self: Sized
     {
@@ -151,56 +123,36 @@ where Value: HasIdentifier
     fn get<K>(&self, key: K) -> Option<&Self>
     where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
         let key = key.into();
-        let key = key.borrow();
         self
             .children
-            .get(key)
+            .get(&key)
     }
 
     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
     where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
         let key = key.into();
-        let key = key.borrow();
         self
             .children
-            .get_mut(key)
+            .get_mut(&key)
     }
 }
 
-impl<Value> From<Value> for Tree<Value>
-where Value: HasIdentifier
-{
-    fn from(value: Value) -> Self {
-        let children = Default::default();
-        Self { value, children }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    impl HasIdentifier for usize {
-        type Identifier = usize;
-        fn identifier(&self) -> &Self::Identifier {
-            self
-        }
-    }
-    
-    pub struct Module {
-        identifier: String
-    }
     
     impl Module {
         pub fn format(&self) -> String {
             format!("[{}]", self.identifier)
         }
+
+        pub fn iter(&self) -> TreeIterator<Self> {
+            TreeIterator::new(self)
+        }
     }
-    
+
     impl<S: Into<String>> From<S> for Module {
-        fn from(name: S) -> Self {
-            let name = name.into();
-            Self { identifier: name }
+        fn from(identifier: S) -> Self {
+            let identifier = identifier.into();
+            let children = Default::default();
+            Self { identifier, children }
         }
     }
     
@@ -211,11 +163,8 @@ mod test {
         }
     }
 
-    fn create() -> Tree<Module> {
-        let tree = Tree::from(5);
-        assert!(tree.is(5_usize));
-
-        let mut root = Tree::from(Module::from("root"));
+    fn create() -> Module {
+        let mut root = Module::from("root");
         assert!(root.is("root"));
         assert_eq!(root.format(), "[root]");
 

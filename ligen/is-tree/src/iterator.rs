@@ -1,17 +1,16 @@
-use crate::{HasIdentifier, Visitor, Tree, IsTree};
+use crate::{HasIdentifier, Visitor, IsTree};
 
 pub struct TreeIterator<'a, Value>
-where
-    Value: HasIdentifier,
+where Value: HasIdentifier,
 {
-    stack: Vec<Visitor<'a, &'a Tree<Value>>>,
+    stack: Vec<Visitor<'a, Value>>,
 }
 
 impl<'a, Value> TreeIterator<'a, Value>
 where
     Value: HasIdentifier,
 {
-    pub fn new(root: &'a Tree<Value>) -> Self {
+    pub fn new(root: &'a Value) -> Self {
         let mut stack = Vec::new();
         stack.push(Visitor::new(root, Default::default()));
         Self { stack }
@@ -19,9 +18,9 @@ where
 }
 
 impl<'a, Value> Iterator for TreeIterator<'a, Value>
-where Value: HasIdentifier
+where Value: HasIdentifier + IsTree
 {
-    type Item = Visitor<'a, &'a Tree<Value>>;
+    type Item = Visitor<'a, Value>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let node = self.stack.pop()?;
