@@ -1,10 +1,14 @@
 pub mod identifier;
 pub mod path;
+pub mod visitor;
+pub mod iterator;
 
 use std::borrow::Borrow;
 
 pub use identifier::*;
 pub use path::*;
+pub use visitor::*;
+pub use iterator::*;
 
 pub trait IsTree: HasIdentifier {
     fn is(&self, identifier: impl PartialEq<Self::Identifier>) -> bool {
@@ -85,82 +89,96 @@ pub trait IsTree: HasIdentifier {
             Some(self)
         }
     }
+}
 
+use shrinkwraprs::Shrinkwrap;
+use std::collections::HashMap;
+
+#[derive(Shrinkwrap)]
+#[shrinkwrap(mutable)]
+pub struct Tree<Value>
+where Value: HasIdentifier
+{
+    #[shrinkwrap(main_field)]
+    pub value: Value,
+    pub children: HashMap<Value::Identifier, Tree<Value>>
+}
+
+impl<Value: HasIdentifier> Tree<Value> {
+    pub fn iter<'a>(&'a self) -> TreeIterator<'a, Value> {
+        TreeIterator::new(self)
+    }
+}
+
+impl<Value> HasIdentifier for Tree<Value>
+where Value: HasIdentifier
+{
+    type Identifier = Value::Identifier;
+    fn identifier(&self) -> &Self::Identifier {
+        self.value.identifier()
+    }
+}
+
+impl<Value> HasIdentifier for &Tree<Value>
+where Value: HasIdentifier
+{
+    type Identifier = Value::Identifier;
+    fn identifier(&self) -> &Self::Identifier {
+        self.value.identifier()
+    }
+}
+
+impl<Value> IsTree for Tree<Value>
+where Value: HasIdentifier
+{
+    fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
+    where Self: Sized
+    {
+        let child = child.into();
+        self.children
+            .entry(child.identifier().clone())
+            .or_insert(child)
+    }
+
+    fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
+        Box::new(self.children.values())
+    }
+
+    fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
+        Box::new(self.children.values_mut())        
+    }
+
+    fn get<K>(&self, key: K) -> Option<&Self>
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
+        let key = key.into();
+        let key = key.borrow();
+        self
+            .children
+            .get(key)
+    }
+
+    fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
+    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
+        let key = key.into();
+        let key = key.borrow();
+        self
+            .children
+            .get_mut(key)
+    }
+}
+
+impl<Value> From<Value> for Tree<Value>
+where Value: HasIdentifier
+{
+    fn from(value: Value) -> Self {
+        let children = Default::default();
+        Self { value, children }
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use shrinkwraprs::Shrinkwrap;
-    use std::collections::HashMap;
-
-    #[derive(Shrinkwrap)]
-    #[shrinkwrap(mutable)]
-    pub struct Tree<Value>
-    where Value: HasIdentifier
-    {
-        #[shrinkwrap(main_field)]
-        pub value: Value,
-        pub children: HashMap<Value::Identifier, Tree<Value>>
-    }
-
-    impl<Value> HasIdentifier for Tree<Value>
-    where Value: HasIdentifier
-    {
-        type Identifier = Value::Identifier;
-        fn identifier(&self) -> &Self::Identifier {
-            self.value.identifier()
-        }
-    }
-
-    impl<Value> IsTree for Tree<Value>
-    where Value: HasIdentifier
-    {
-        fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
-        where Self: Sized
-        {
-            let child = child.into();
-            self.children
-                .entry(child.identifier().clone())
-                .or_insert(child)
-        }
-
-        fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
-            Box::new(self.children.values())
-        }
-
-        fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
-            Box::new(self.children.values_mut())        
-        }
-
-        fn get<K>(&self, key: K) -> Option<&Self>
-        where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
-            let key = key.into();
-            let key = key.borrow();
-            self
-                .children
-                .get(key)
-        }
-
-        fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-        where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>{
-            let key = key.into();
-            let key = key.borrow();
-            self
-                .children
-                .get_mut(key)
-        }
-    }
-
-    impl<Value> From<Value> for Tree<Value>
-    where Value: HasIdentifier
-    {
-        fn from(value: Value) -> Self {
-            let children = Default::default();
-            Self { value, children }
-        }
-    }
-
 
     impl HasIdentifier for usize {
         type Identifier = usize;
@@ -251,4 +269,11 @@ mod test {
         assert_eq!(joaquim.format(), "[leaf]");
     }
 
+    #[test]
+    fn iterator() {
+        let root = create();
+        for module in root.iter() {
+            println!("[{}] {}", module.path.segments.join("::"), module.value.format());
+        }
+    }
 }

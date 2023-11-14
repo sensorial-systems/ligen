@@ -1,9 +1,18 @@
 
+#[derive(Clone)]
 pub struct Path<'a, Segment>
 where Segment: 'a
 {
     pub segments: Vec<Segment>,
     phantom: std::marker::PhantomData<&'a Segment>
+}
+
+impl<T> Default for Path<'_, T> {
+    fn default() -> Self {
+        let segments = Vec::new();
+        let phantom = Default::default();
+        Self { segments, phantom }
+    }
 }
 
 impl<'a> From<&'a str> for Path<'a, &'a str> {
