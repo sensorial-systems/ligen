@@ -2,6 +2,7 @@
 pub mod mock;
 
 pub mod naming_convention;
+use is_tree::IsIdentifier;
 pub use naming_convention::*;
 
 use crate::path::PathSegment;
@@ -38,5 +39,19 @@ impl From<String> for Identifier {
 impl From<PathSegment> for Identifier {
     fn from(value: PathSegment) -> Self {
         value.identifier
+    }
+}
+
+impl IsIdentifier for Identifier {
+    fn root() -> Self {
+        Self::new("root")
+    }
+
+    fn self_() -> Self {
+        Self::new("self")
+    }
+
+    fn super_() -> Self {
+        Self::new("super")
     }
 }

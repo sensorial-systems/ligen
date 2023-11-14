@@ -1,33 +1,40 @@
+use std::rc::Rc;
+
 use crate::{HasIdentifier, Visitor, IsTree};
 
 pub struct TreeIterator<'a, Value>
 where Value: HasIdentifier,
 {
-    stack: Vec<Visitor<'a, Value>>,
+    stack: Vec<Rc<Visitor<'a, Value>>>,
 }
 
 impl<'a, Value> TreeIterator<'a, Value>
 where
-    Value: HasIdentifier,
+    Value: HasIdentifier + IsTree,
 {
     pub fn new(root: &'a Value) -> Self {
-        let stack = vec![Visitor::new(root, Default::default())];
-        Self { stack }
+        let visitor = Visitor::new(root, Default::default(), Default::default());
+        let stack = Vec::new();
+        let mut iterator = Self { stack };
+        iterator.build(visitor);
+        iterator
+    }
+
+    fn build(&mut self, visitor: Rc<Visitor<'a, Value>>) {
+        self.stack.push(visitor.clone());
+        for child in visitor.value.branches() {
+            let visitor = visitor.child(child);
+            self.build(visitor);
+        }
     }
 }
 
 impl<'a, Value> Iterator for TreeIterator<'a, Value>
-where Value: HasIdentifier + IsTree
+where Value: HasIdentifier
 {
-    type Item = Visitor<'a, Value>;
+    type Item = Rc<Visitor<'a, Value>>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let node = self.stack.pop()?;
-        self.stack.extend(node.value.branches().map(|branch| {
-            let mut path = node.path.clone();
-            path.segments.push(branch.identifier().clone());
-            Visitor::new(branch, path)
-        }));
-        Some(node)
+        self.stack.pop()
     }
 }

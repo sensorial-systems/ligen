@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 
 #[derive(Clone)]
 pub struct Path<'a, Segment>
@@ -5,6 +7,16 @@ where Segment: 'a
 {
     pub segments: Vec<Segment>,
     phantom: std::marker::PhantomData<&'a Segment>
+}
+
+impl<'a, Segment> Path<'a, Segment> {
+    pub fn join(&self, segment: impl Into<Segment>) -> Path<'a, Segment>
+    where Path<'a, Segment>: Clone
+    {
+        let mut clone = self.clone();
+        clone.segments.push(segment.into());
+        clone
+    }
 }
 
 impl<T> Default for Path<'_, T> {
@@ -40,6 +52,12 @@ where Segment: Copy
         let segments = value.to_vec();
         let phantom = Default::default();
         Path { segments, phantom }
+    }
+}
+
+impl<'a> Display for Path<'a, String> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.segments.join("::"))
     }
 }
 

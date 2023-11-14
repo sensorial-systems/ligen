@@ -29,9 +29,8 @@ pub trait IsTree: HasIdentifier {
           Self::Identifier: Borrow<Self::Identifier>,
           Self: From<Self::Identifier>
     {
-        // FIXME: This is a workaround for
-        //  https://rust-lang.github.io/rfcs/2094-nll.html#problem-case-3-conditional-control-flow-across-functions
-        //  Fix it when the borrow checker is fixed.
+        // This works and it's safe, but the borrow checker doesn't like it.
+        // https://rust-lang.github.io/rfcs/2094-nll.html#problem-case-3-conditional-control-flow-across-functions
         let myself = unsafe { &mut *(self as *mut Self) };
         let key = key.into();
         if let Some(value) = myself.get_mut(key.clone()) {
@@ -42,25 +41,23 @@ pub trait IsTree: HasIdentifier {
     }
 
     fn get<K>(&self, key: K) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+    where K: Into<Self::Identifier> {
         let key = key.into();
-        let key = key.borrow();
         self
             .branches()
-            .find(|branch| branch.identifier().borrow() == key)
+            .find(|branch| branch.identifier() == &key)
     }
     
     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+    where K: Into<Self::Identifier> {
         let key = key.into();
-        let key = key.borrow();
         self
             .branches_mut()
-            .find(|branch| branch.identifier().borrow() == key)
+            .find(|branch| branch.identifier() == &key)
     }
     
     fn path_get<K>(&self, path: impl IntoIterator<Item = K>) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>
+    where K: Into<Self::Identifier>
     {
         let mut path = path.into_iter();
         if let Some(segment) = path.next() {
@@ -76,7 +73,7 @@ pub trait IsTree: HasIdentifier {
     }
 
     fn path_get_mut<K>(&mut self, path: impl IntoIterator<Item = K>) -> Option<&mut Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier> {
+    where K: Into<Self::Identifier> {
         let mut path = path.into_iter();
         if let Some(segment) = path.next() {
             let segment = segment.into();
@@ -89,15 +86,23 @@ pub trait IsTree: HasIdentifier {
             Some(self)
         }
     }
+
+    fn iter(&self) -> TreeIterator<'_, Self>
+    where Self: Sized
+    {
+        TreeIterator::new(self)
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    type Identifier = String;
     
     pub struct Module {
-        identifier: String,
-        children: HashMap<String, Module>
+        identifier: Identifier,
+        children: HashMap<Identifier, Module>
     }
 
     use std::collections::HashMap;
@@ -117,7 +122,7 @@ impl IsTree for Module {
     }
 
     fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
-        Box::new(self.children.values_mut())        
+        Box::new(self.children.values_mut())
     }
 
     fn get<K>(&self, key: K) -> Option<&Self>
@@ -139,16 +144,12 @@ impl IsTree for Module {
 
     
     impl Module {
-        pub fn format(&self) -> String {
+        pub fn format(&self) -> Identifier {
             format!("[{}]", self.identifier)
-        }
-
-        pub fn iter(&self) -> TreeIterator<Self> {
-            TreeIterator::new(self)
         }
     }
 
-    impl<S: Into<String>> From<S> for Module {
+    impl<S: Into<Identifier>> From<S> for Module {
         fn from(identifier: S) -> Self {
             let identifier = identifier.into();
             let children = Default::default();
@@ -157,7 +158,7 @@ impl IsTree for Module {
     }
     
     impl HasIdentifier for Module {
-        type Identifier = String;
+        type Identifier = Identifier;
         fn identifier(&self) -> &Self::Identifier {
             &self.identifier
         }
@@ -221,8 +222,31 @@ impl IsTree for Module {
     #[test]
     fn iterator() {
         let root = create();
-        for module in root.iter() {
-            println!("[{}] {}", module.path.segments.join("::"), module.value.format());
-        }
+        assert_eq!(root.iter().count(), 3);
+        assert_eq!(root.iter().map(|module| module.value.format()).collect::<Vec<_>>(), ["[leaf]", "[branch]", "[root]"]);
+    }
+
+    #[test]
+    fn visitor_relative_path() {
+        let root = create();
+        let leaf = root.iter().find(|visitor| visitor.value.identifier == "leaf").unwrap();
+        assert_eq!(leaf.value.format(), "[leaf]");
+
+        let leaf = leaf.relative([Identifier::self_()]).unwrap();
+        assert_eq!(leaf.value.format(), "[leaf]");
+
+        let branch = leaf.relative([Identifier::super_()]).unwrap();
+        assert_eq!(branch.value.format(), "[branch]");
+
+        let root = branch.relative(["super"]).unwrap();
+        assert_eq!(root.value.format(), "[root]");
+
+        assert!(root.relative(["super"]).is_none());
+
+        let root = leaf.relative(["super", "super"]).unwrap();
+        assert_eq!(root.value.format(), "[root]");
+
+        let root = leaf.relative([Identifier::root()]).unwrap();
+        assert_eq!(root.value.format(), "[root]")
     }
 }
