@@ -11,8 +11,7 @@ where
     Value: HasIdentifier,
 {
     pub fn new(root: &'a Value) -> Self {
-        let mut stack = Vec::new();
-        stack.push(Visitor::new(root, Default::default()));
+        let stack = vec![Visitor::new(root, Default::default())];
         Self { stack }
     }
 }
