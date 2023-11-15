@@ -203,20 +203,20 @@ impl IsTree for Module {
     #[test]
     fn get_from_path() {
         let root = create();
-        let jose = root.path_get::<&str>([]).unwrap();
-        assert!(jose.is("root"));
-        assert_eq!(jose.format(), "[root]");
+        let root = root.path_get::<&str>([]).unwrap();
+        assert!(root.is("root"));
+        assert_eq!(root.format(), "[root]");
 
-        assert!(jose.path_get(["none"]).is_none());
-        assert!(jose.path_get(["branch", "fruit"]).is_none());
+        assert!(root.path_get(["none"]).is_none());
+        assert!(root.path_get(["branch", "fruit"]).is_none());
 
-        let danilo = jose.path_get(["branch"]).unwrap();
-        assert!(danilo.is("branch"));
-        assert_eq!(danilo.format(), "[branch]");
+        let branch = root.path_get(["branch"]).unwrap();
+        assert!(branch.is("branch"));
+        assert_eq!(branch.format(), "[branch]");
 
-        let joaquim = jose.path_get(["branch", "leaf"]).unwrap();
-        assert!(joaquim.is("leaf"));
-        assert_eq!(joaquim.format(), "[leaf]");
+        let leaf = root.path_get(["branch", "leaf"]).unwrap();
+        assert!(leaf.is("leaf"));
+        assert_eq!(leaf.format(), "[leaf]");
     }
 
     #[test]
