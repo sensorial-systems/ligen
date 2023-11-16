@@ -1,22 +1,48 @@
 use std::collections::HashMap;
 
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple};
-use ligen::{ir::Type, parser::ParserConfig};
+use ligen::{ir::{Type, Identifier}, parser::ParserConfig};
 use crate::prelude::*;
 
+pub struct PythonMapper {
+    map: HashMap<Identifier, Identifier>
+}
+
+impl Default for PythonMapper {
+    fn default() -> Self {
+        let mut map = HashMap::new();
+        map.insert("bool".into(), Identifier::boolean(), );
+        map.insert("int".into(), Identifier::i32());
+        map.insert("float".into(), Identifier::f32());
+        map.insert("str".into(), Identifier::string());
+        map.insert("Optional".into(), Identifier::option());
+        map.insert("Any".into(), Identifier::opaque());
+        map.insert("byte".into(), Identifier::i8());
+        map.insert("datetime".into(), Identifier::date_time());
+        map.insert("List".into(), Identifier::vector());
+        map.insert("list".into(), Identifier::vector());
+        map.insert("dict".into(), Identifier::dictionary());
+        Self { map }
+    }
+}
+
+impl PythonMapper {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn to_ligen(&self, identifier: &Identifier) -> Option<&Identifier> {
+        self.map.get(identifier)
+    }
+}
+
 pub struct TypeParser {
-    mapper: HashMap<String, Type>,
+    mapper: PythonMapper
 }
 
 impl Default for TypeParser {
     fn default() -> Self {
-        let mapper = HashMap::from([
-            ("bool".into(), Type::boolean()),
-            ("char".into(), Type::character()),
-            ("byte".into(), Type::i8()),
-            ("int".into(), Type::i32()),
-            ("float".into(), Type::f32()),
-        ]);
+        let mapper = PythonMapper::new();
         Self { mapper }
     }
 }
@@ -31,11 +57,12 @@ impl Parser<&ExprName> for TypeParser {
     type Output = Type;
     fn parse(&self, input: &ExprName, _config: &ParserConfig) -> Result<Self::Output> {
         let name = input.id.as_str();
-        let type_ = self
+        let identifier = self
             .mapper
-            .get(name)
+            .to_ligen(&name.into())
             .cloned()
-            .unwrap_or(Type::Path(name.into()));
+            .unwrap_or(Identifier::from(name));
+        let type_ = identifier.into();
         Ok(type_)
     }
 }
@@ -55,6 +82,7 @@ impl Parser<&ExprSubscript> for TypeParser {
 impl Parser<&ExprTuple> for TypeParser {
     type Output = Type;
     fn parse(&self, _input: &ExprTuple, _config: &ParserConfig) -> Result<Self::Output> {
+        println!("{:#?}", _input);
         todo!("Tuple not implemented yet");
     }
 }

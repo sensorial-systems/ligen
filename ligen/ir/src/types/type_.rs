@@ -14,102 +14,102 @@ pub enum Type {
 impl Type {
     /// Returns a new `Type` representing an opaque type.
     pub fn opaque() -> Self {
-        Self::Path("Opaque".into())
+        Identifier::opaque().into()
     }
 
     /// Returns a new `Type` representing a boolean type.
     pub fn boolean() -> Self {
-        Self::Path("Boolean".into())
+        Identifier::boolean().into()
     }
 
     /// Returns a new `Type` representing a character type.
     pub fn character() -> Self {
-        Self::Path("Character".into())
+        Identifier::character().into()
     }
 
     /// Returns a new `Type` representing an 8-bit signed integer type.
     pub fn i8() -> Self {
-        Self::Path("I8".into())
+        Identifier::i8().into()
     }
 
     /// Returns a new `Type` representing a 16-bit signed integer type.
     pub fn i16() -> Self {
-        Self::Path("I16".into())
+        Identifier::i16().into()
     }
 
     /// Returns a new `Type` representing a 32-bit signed integer type.
     pub fn i32() -> Self {
-        Self::Path("I32".into())
+        Identifier::i32().into()
     }
 
     /// Returns a new `Type` representing a 64-bit signed integer type.
     pub fn i64() -> Self {
-        Self::Path("I64".into())
+        Identifier::i64().into()
     }
 
     /// Returns a new `Type` representing a 128-bit signed integer type.
     pub fn i128() -> Self {
-        Self::Path("I128".into())
+        Identifier::i128().into()
     }
 
     /// Returns a new `Type` representing an pointer-sized integer type.
     pub fn isize() -> Self {
-        Self::Path("ISize".into())
+        Identifier::isize().into()
     }
 
     /// Returns a new `Type` representing an 8-bit unsigned integer type.
     pub fn u8() -> Self {
-        Self::Path("U8".into())
+        Identifier::u8().into()
     }
 
     /// Returns a new `Type` representing a 16-bit unsigned integer type.
     pub fn u16() -> Self {
-        Self::Path("U16".into())
+        Identifier::u16().into()
     }
 
     /// Returns a new `Type` representing a 32-bit unsigned integer type.
     pub fn u32() -> Self {
-        Self::Path("U32".into())
+        Identifier::u32().into()
     }
 
     /// Returns a new `Type` representing a 64-bit unsigned integer type.
     pub fn u64() -> Self {
-        Self::Path("U64".into())
+        Identifier::u64().into()
     }
 
     /// Returns a new `Type` representing a 128-bit unsigned integer type.
     pub fn u128() -> Self {
-        Self::Path("U128".into())
+        Identifier::u128().into()
     }
 
     /// Returns a new `Type` representing an pointer-sized unsigned integer type.
     pub fn usize() -> Self {
-        Self::Path("USize".into())
+        Identifier::usize().into()
     }
 
     /// Returns a new `Type` representing a 16-bit floating-point type.
     pub fn f16() -> Self {
-        Self::Path("F16".into())
+        Identifier::f16().into()
     }
 
     /// Returns a new `Type` representing a 32-bit floating-point type.
     pub fn f32() -> Self {
-        Self::Path("F32".into())
+        Identifier::f32().into()
     }
 
     /// Returns a new `Type` representing a 64-bit floating-point type.
     pub fn f64() -> Self {
-        Self::Path("F64".into())
+        Identifier::f64().into()
     }
 
     /// Returns a new `Type` representing a 128-bit floating-point type.
     pub fn f128() -> Self {
-        Self::Path("F128".into())
+        Identifier::f128().into()
     }
 
     /// Returns a new `Type` representing a string type.
     pub fn string() -> Self {
-        Self::Path("String".into())
+        Identifier::string().into()
     }
 }
 

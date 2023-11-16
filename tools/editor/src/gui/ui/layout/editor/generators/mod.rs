@@ -1,6 +1,6 @@
 pub mod generator;
 pub use generator::*;
-use ligen_rust_importer::LibraryGenerator;
+use ligen_rust_pyo3_importer::LibraryGenerator;
 
 use crate::gui::ui::panes::{Pane, PaneManager};
 

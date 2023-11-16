@@ -9,7 +9,7 @@ members = [
     "ligen/traits",
     "ligen/is-tree", # TODO: Make is-tree its own repository.
     "ecosystem/python/parser",
-    "ecosystem/rust/importer",
+    "ecosystem/rust/pyo3-importer",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
 #    "ecosystem/rust/exporter",
@@ -18,6 +18,7 @@ members = [
 #    "ecosystem/c/cmake",
 #    "ecosystem/c/generator",
     "tools/editor/dependencies/gui-runtime",
+    "tools/cli",
     "tools/editor",
 ]
 resolver = "2"
@@ -43,7 +44,7 @@ ligen-utils            = { path = "ligen/utils" }
 #ligen-c                = { path = "ecosystem/c/generator" }
 #ligen-cmake            = { path = "ecosystem/c/cmake" }
 ligen-python-parser    = { path = "ecosystem/python/parser" }
-ligen-rust-importer    = { path = "ecosystem/rust/importer" }
+ligen-rust-pyo3-importer    = { path = "ecosystem/rust/pyo3-importer" }
 #ligen-rust-exporter    = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
 ligen-cargo             = { path = "ecosystem/rust/cargo" }

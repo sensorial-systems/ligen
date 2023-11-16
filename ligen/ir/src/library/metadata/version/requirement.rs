@@ -7,7 +7,9 @@ pub struct VersionRequirement(pub semver::VersionReq);
 impl TryFrom<&str> for VersionRequirement {
     type Error = Error;
     fn try_from(value: &str) -> Result<Self> {
-        let value = value.replace("==", "=");
+        let value = value
+            .replace("==", "=")
+            .replace(['(', ')'], "");
         let version =
             semver::VersionReq::parse(&value)
                 .map_err(|e| Error::Message(format!("Failed to parse version requirement: {}, Reason: {}", value, e)))?;

@@ -8,3 +8,6 @@ homepage = "{{metadata.homepage}}"
 authors = [{{#each metadata.authors}}"{{name}} <{{email}}>"{{#unless @last}}, {{/unless}}{{/each}}]
 keywords = [{{#each metadata.keywords}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}]
 readme = "README.md"
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["auto-initialize"] }
