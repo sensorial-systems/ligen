@@ -4,7 +4,7 @@ use ligen::parser::{Parser, ParserConfig};
 use crate::prelude::*;
 
 #[derive(Default)]
-pub struct LiteralParser;
+pub struct LiteralParser {}
 
 impl ligen::parser::universal::literal::LiteralParser for LiteralParser {}
 
