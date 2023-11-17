@@ -72,7 +72,13 @@ impl LibraryGenerator {
 
     fn translate_identifier(identifier: &Identifier) -> Identifier {
         let keywords = rust_keywords();
-        keywords.get(&identifier.name).map(|_| format!("{}_", identifier.name)).unwrap_or_else(|| identifier.name.clone()).into()
+        let identifier = Identifier::from(
+            keywords
+                .get(&identifier.name)
+                .map(|_| format!("{}_", identifier.name))
+                .unwrap_or_else(|| identifier.name.clone())
+        );
+        identifier.to_snake_case()
     }
 
     fn translate_type(type_: &Type) -> Type {
@@ -107,7 +113,11 @@ impl LibraryGenerator {
             types.writeln(" {");
             if let KindDefinition::Structure(structure) = &type_.definition {
                 for field in &structure.fields {
-                    let name = field.identifier.as_ref().map(|identifier| format!("{}: ", Self::translate_identifier(identifier))).unwrap_or_default();
+                    let name = field
+                        .identifier
+                        .as_ref()
+                        .map(|identifier| format!("{}: ", Self::translate_identifier(identifier)))
+                        .unwrap_or_default();
                     let type_ = Self::translate_type(&field.type_);
                     types.writeln(format!("    pub {}{},", name, type_));
                 }

@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::{ir::{TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parser::ParserConfig};
+use ligen::{ir::{Type, TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parser::ParserConfig};
 use ligen::ir::macro_attributes::Group;
+use ligen::ir::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
 #[derive(Default)]
@@ -58,25 +61,33 @@ impl TypeDefinitionParser {
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let identifier = Some(identifier);
-        let type_ = Default::default();
-        let visibility = Default::default();
-        let attributes = Default::default();
-        Ok(Field { identifier, type_, visibility, attributes })
+        let parser = IdentifierParser::new();
+        let identifier = parser.parse(identifier, config)?;
+        if let Mutability::Mutable = parser.get_mutability(&identifier) {
+            let identifier = Some(identifier);
+            let type_ = Default::default();
+            let visibility = Default::default();
+            let attributes = Default::default();
+            Ok(Field { identifier, type_, visibility, attributes })
+        } else {
+            Err(Error::Message("Expected mutable identifier".into()))
+        }
     }
 
     fn parse_fields_from_assign(&self, input: &WithSource<&StmtAssign>, config: &ParserConfig) -> Result<Vec<Field>> {
         let mut fields = Vec::new();
         for target in &input.ast.targets {
             if let Some(identifier) = target.as_name_expr() {
-                let identifier = IdentifierParser::new().parse(identifier.id.as_str(), config)?;
-                let identifier = Some(identifier);
-                let type_ = Default::default();
-                let visibility = Default::default();
-                let attributes = Default::default();
-                let field = Field { identifier, type_, visibility, attributes };
-                fields.push(field);
+                let parser = IdentifierParser::new();
+                let identifier = parser.parse(identifier.id.as_str(), config)?;
+                if let Mutability::Mutable = parser.get_mutability(&identifier) {
+                    let identifier = Some(identifier);
+                    let type_ = Default::default();
+                    let visibility = Default::default();
+                    let attributes = Default::default();
+                    let field = Field { identifier, type_, visibility, attributes };
+                    fields.push(field);
+                }
             }
         }
         Ok(fields)
@@ -89,10 +100,6 @@ impl TypeDefinitionParser {
             match stmt {
                 Stmt::AnnAssign(ann_assign) => {
                     if class_variables_as_properties {
-                        let dbg = format!("{:#?}", ann_assign);
-                        if dbg.contains("admin_user_ids") || dbg.contains("media_ids") {
-                            println!("{:#?}", ann_assign);
-                        }
                         let field = self.parse_field_from_ann_assign(&input.sub(ann_assign), config)?;
                         fields.push(field);
                     }
@@ -116,11 +123,25 @@ impl TypeDefinitionParser {
                         let type_ = function.output.unwrap_or_default();
                         let field = Field { identifier, type_, ..Default::default() };
                         fields.push(field);
-                    }    
+                    }
                 },
                 _ => ()
             }
         }
+        let mut set = HashMap::new();
+        let results = fields
+            .into_iter()
+            .map(|field| set.insert(field.identifier.clone(), field))
+            .collect::<Vec<_>>();
+        for result in results {
+            if let Some(field) = result {
+                let stored = set.get(&field.identifier).unwrap();
+                if stored.type_ == Type::opaque() {
+                    set.insert(stored.identifier.clone(), field);
+                }
+            }
+        }
+        let fields = set.into_iter().map(|(_, field)| field).collect();
         let structure = Structure { fields };
         Ok(structure.into())
     }

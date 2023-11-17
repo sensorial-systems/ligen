@@ -120,6 +120,17 @@ impl From<PathSegment> for Path {
     }
 }
 
+impl From<&[&str]> for Path {
+    fn from(from: &[&str]) -> Self {
+        let segments = from
+            .into_iter()
+            .map(|x| (*x).into())
+            .collect();
+        Self { segments }
+    }
+
+}
+
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
         Self::from_string_with_separator(string, "::")

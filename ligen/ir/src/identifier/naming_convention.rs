@@ -132,7 +132,7 @@ impl Identifier {
                     })
                     .collect()
             },
-            NamingConvention::Unknown => vec![],
+            NamingConvention::Unknown => vec![self.name.as_str()],
         }
     }
 }
@@ -165,6 +165,7 @@ mod tests {
 
     #[test]
     fn words() {
+        assert_eq!(Identifier::from("case").words(), vec!["case"]);
         assert_eq!(Identifier::from("kebab-case").words(), vec!["kebab", "case"]);
         assert_eq!(Identifier::from("snake_case").words(), vec!["snake", "case"]);
         assert_eq!(Identifier::from("PascalCase").words(), vec!["Pascal", "Case"]);

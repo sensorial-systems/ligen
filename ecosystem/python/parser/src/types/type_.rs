@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant};
-use ligen::{ir::{Type, Identifier}, parser::ParserConfig};
+use ligen::{ir::{Path, Type, Identifier}, parser::{ParserConfig, ParserConfigGet}};
 use crate::prelude::*;
 
 pub struct PythonMapper {
@@ -55,15 +55,23 @@ impl TypeParser {
 
 impl Parser<&ExprName> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: &ExprName, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &ExprName, config: &ParserConfig) -> Result<Self::Output> {
         let name = input.id.as_str();
         let identifier = self
             .mapper
             .to_ligen(&name.into())
             .cloned()
             .unwrap_or(Identifier::from(name));
-        let type_ = identifier.into();
-        Ok(type_)
+        let mut type_ = Type::from(identifier);
+        if type_.path.last().identifier == Identifier::vector() {
+            type_.path.last_mut().generics.types.push(Type::opaque());
+        }
+        let name = type_.path.last().identifier.name.as_str();
+        if config.get(Path::from("ligen::python::as-opaque").join(name)).is_some() {
+            Ok(Type::opaque())
+        } else {
+            Ok(type_)
+        }
     }
 }
 
@@ -77,7 +85,12 @@ impl Parser<WithSource<&ExprSubscript>> for TypeParser {
             types.extend(self.parse(input.sub(expr), config)?);
         } else {
             let type_ = self.parse(input.sub(&*input.ast.slice), config)?;
-            path.last_mut().generics.types.push(type_);
+            let last = path.last_mut();
+            if last.identifier == Identifier::vector() {
+                last.generics.types[0] = type_;
+            } else {
+                last.generics.types.push(type_);
+            }
         }
         Ok(type_)
     }

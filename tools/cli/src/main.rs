@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::Parser;
 use ligen_generator::Generator;
 use ligen_ir::prelude::*;
-use ligen_parser::Parser as LigenParser;
+use ligen_parser::{Parser as LigenParser, ParserConfigSet};
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 use ligen_rust_pyo3_importer::LibraryGenerator;
 
@@ -28,6 +28,8 @@ fn main() -> Result<()> {
     let parser = PythonParser::default();
     let mut config = PythonParserConfig::default();
     config.set_class_variables_as_properties(true);
+    config.set("ligen::python::as-opaque::HttpUrl", true);
+    config.set("ligen::python::as-opaque::FilePath", true);
     let input = PathBuf::from(&args.input);
     let library = parser.parse(input.as_path(), &config)?;
     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;

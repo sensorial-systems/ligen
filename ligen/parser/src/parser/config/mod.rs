@@ -117,5 +117,9 @@ mod tests {
         assert_eq!(config.get("ligen::parse_all"), None);
         assert_eq!(config.get("ligen::parse-all"), Some(&false.into()));
         assert_eq!(config.get("ligen::default-name"), Some(&"library".into()));
+
+        assert_eq!(config.get(["ligen", "parse_all"].as_slice()), None);
+        assert_eq!(config.get(["ligen", "parse-all"].as_slice()), Some(&false.into()));
+        assert_eq!(config.get(["ligen", "default-name"].as_slice()), Some(&"library".into()));
     }
 }
