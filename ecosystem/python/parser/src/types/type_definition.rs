@@ -13,7 +13,7 @@ impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
         if config.get_only_parse_symbols() {
             Ok(TypeDefinition { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
+            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
             let visibility = Visibility::Public;
             let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
             let definition = self.parse_kind_definition(&input, config)?;
@@ -44,7 +44,7 @@ impl TypeDefinitionParser {
             .as_str();
         let identifier = IdentifierParser::new().parse(identifier, config)?;
         let identifier = Some(identifier);
-        let type_ = TypeParser::new().parse(&*input.ast.annotation, config)?;
+        let type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
         let visibility = Default::default();
         let attributes = Default::default();
         Ok(Field { identifier, type_, visibility, attributes })

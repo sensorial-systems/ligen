@@ -114,6 +114,12 @@ impl<I: Into<Identifier>> From<Vec<I>> for Path {
     }
 }
 
+impl From<PathSegment> for Path {
+    fn from(segment: PathSegment) -> Self {
+        Self { segments: vec![segment] }
+    }
+}
+
 impl From<&str> for Path {
     fn from(string: &str) -> Path {
         Self::from_string_with_separator(string, "::")

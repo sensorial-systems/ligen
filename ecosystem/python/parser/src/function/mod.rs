@@ -34,7 +34,7 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(input.ast.decorator_list.clone()), config)?;
+            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
             let visibility = Visibility::Public;
             let synchrony = Synchrony::Synchronous;
             let inputs = self.parse_inputs(*input.ast.args, config)?;
@@ -47,17 +47,15 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
 impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
     type Output = Function;
     fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
-        let source = input.source;
-        let input = input.ast;
-        let identifier = IdentifierParser::new().parse(input.name.as_str(), config)?;
+        let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(WithSource::new(source, input.decorator_list), config)?;
+            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
             let visibility = Visibility::Public;
             let synchrony = Synchrony::Asynchronous;
-            let inputs = self.parse_inputs(*input.args, config)?;
-            let output = self.parse_output(input.returns, config)?;    
+            let inputs = self.parse_inputs(*input.ast.args, config)?;
+            let output = self.parse_output(input.ast.returns, config)?;    
             Ok(Function { attributes, visibility, synchrony, identifier, inputs, output })
         }
     }

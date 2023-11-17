@@ -29,6 +29,16 @@ impl Identifier {
         Self { name }
     }
 
+    /// Returns a new `Identifier` representing a union type.
+    pub fn union() -> Self {
+        "Union".into()
+    }
+
+    /// Returns a new `Identifier` representing a variadic type.
+    pub fn variadic() -> Self {
+        "Variadic".into()
+    }
+
     /// Returns a new `Identifier` representing a tuple type.
     pub fn tuple() -> Self {
         "Tuple".into()

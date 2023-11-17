@@ -140,8 +140,9 @@ impl PythonParser {
         let mut types = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                if let Ok(type_definition) = self.type_definition_parser.parse(statements.sub(class.clone()), config) {
-                    types.push(type_definition)
+                match self.type_definition_parser.parse(statements.sub(class.clone()), config) {
+                    Ok(type_definition) => types.push(type_definition),
+                    Err(error) => println!("Failed to parse type definition: {:?}", error)
                 }
             }
         }
@@ -172,7 +173,7 @@ impl PythonParser {
                         }
                     },
                     Stmt::AnnAssign(assign) => {
-                        if let Ok(object) = self.object_parser.parse(assign, config) {
+                        if let Ok(object) = self.object_parser.parse(statements.sub(assign), config) {
                             objects.push(object)
                         }
                     },

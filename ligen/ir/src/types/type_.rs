@@ -1,4 +1,4 @@
-use crate::{Reference, Path, Identifier};
+use crate::{Reference, Path, Identifier, PathSegment};
 use crate::prelude::*;
 use std::ops::Deref;
 
@@ -12,6 +12,31 @@ pub enum Type {
 }
 
 impl Type {
+    /// Returns a new `Type` representing a vector type.
+    pub fn vector(type_: impl Into<Type>) -> Self {
+        Path::from(PathSegment::new(Identifier::vector(), type_.into())).into()
+    }
+
+    /// Returns a new `Type`representing an union type.
+    pub fn union(types: Vec<Type>) -> Self {
+        Path::from(PathSegment::new(Identifier::union(), types)).into()
+    }
+
+    /// Returns a new `Type` representing a variadic type.
+    pub fn variadic(type_: impl Into<Type>) -> Self {
+        Path::from(PathSegment::new(Identifier::variadic(), type_.into())).into()
+    }
+
+    /// Returns a new `Type` representing a dictionary type.
+    pub fn tuple(types: Vec<Type>) -> Self {
+        Path::from(PathSegment::new(Identifier::tuple(), types)).into()
+    }
+
+    /// Returns a new `Type` representing a option type.
+    pub fn option(type_: impl Into<Type>) -> Self {
+        Path::from(PathSegment::new(Identifier::option(), type_.into())).into()
+    }
+
     /// Returns a new `Type` representing an opaque type.
     pub fn opaque() -> Self {
         Identifier::opaque().into()

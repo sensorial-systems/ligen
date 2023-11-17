@@ -8,6 +8,14 @@ pub struct PathSegment {
     pub generics: Generics
 }
 
+impl PathSegment {
+    pub fn new(identifier: impl Into<Identifier>, generics: impl Into<Generics>) -> Self {
+        let identifier = identifier.into();
+        let generics = generics.into();
+        Self { identifier, generics }
+    }    
+}
+
 impl From<&str> for PathSegment {
     fn from(value: &str) -> Self {
         Identifier::from(value).into()

@@ -8,12 +8,12 @@ use crate::types::type_::TypeParser;
 #[derive(Default)]
 pub struct ObjectParser;
 
-impl Parser<&StmtAnnAssign> for ObjectParser {
+impl Parser<WithSource<&StmtAnnAssign>> for ObjectParser {
     type Output = Object;
-    fn parse(&self, input: &StmtAnnAssign, config: &ParserConfig) -> Result<Self::Output> {
-        let mut object = self.parse(input.target.as_ref(), config)?;
+    fn parse(&self, input: WithSource<&StmtAnnAssign>, config: &ParserConfig) -> Result<Self::Output> {
+        let mut object = self.parse(input.ast.target.as_ref(), config)?;
         if !config.get_only_parse_symbols() {
-            object.type_ = TypeParser::new().parse(&*input.annotation, config)?;
+            object.type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
         }
         Ok(object)
     }

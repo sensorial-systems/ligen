@@ -8,6 +8,23 @@ pub struct Generics {
     pub types: Vec<Type>
 }
 
+impl<T: Into<Type>> From<Vec<T>> for Generics {
+    fn from(value: Vec<T>) -> Self {
+        let types = value
+            .into_iter()
+            .map(|type_| type_.into())
+            .collect();
+        Self { types }
+    }
+}
+
+impl From<Type> for Generics {
+    fn from(value: Type) -> Self {
+        let types = vec![value];
+        Self { types }
+    }
+}
+
 impl std::fmt::Display for Generics {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if self.types.is_empty() {
