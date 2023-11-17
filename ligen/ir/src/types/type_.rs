@@ -8,6 +8,7 @@ pub struct Type {
     pub path: Path
 }
 
+// TODO: Move these constructors to its all structures? Reference, Vector, String, etc... And make them convertable to Type.
 impl Type {
     /// Returns a new `Type` representing a mutable reference type.
     pub fn mutable_reference(type_: impl Into<Type>) -> Self {
