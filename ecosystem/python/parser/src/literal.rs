@@ -1,4 +1,4 @@
-use rustpython_parser::ast::{Constant, ExprConstant};
+use rustpython_parser::ast::{Constant, ExprConstant, Expr};
 use ligen::ir::Literal;
 use ligen::parser::{Parser, ParserConfig};
 use crate::prelude::*;
@@ -23,19 +23,37 @@ impl Parser<&str> for LiteralParser {
         } else {
             ExprConstant::parse(input, "<embedded>")
                 .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
-                .and_then(|constant| self.parse(constant.value, config))
+                .and_then(|constant| self.parse(&constant, config))
         }
     }
 }
 
-impl Parser<Constant> for LiteralParser {
+impl Parser<&Constant> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: Constant, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
         match input {
-            Constant::Bool(bool) => Ok(Literal::Boolean(bool)),
-            Constant::Float(float) => Ok(Literal::Float(float)),
-            Constant::Str(string) => Ok(Literal::String(string)),
+            Constant::Bool(bool) => Ok(Literal::Boolean(*bool)),
+            Constant::Float(float) => Ok(Literal::Float(*float)),
+            Constant::Str(string) => Ok(Literal::String(string.clone())),
             _ => Err(Error::Message(format!("Failed to parse literal: {:?}", input)))
+        }
+    }
+}
+
+impl Parser<&ExprConstant> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: &ExprConstant, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(&input.value, config)
+    }
+}
+
+impl Parser<&Expr> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: &Expr, config: &ParserConfig) -> Result<Self::Output> {
+        if let Expr::Constant(constant) = input {
+                self.parse(constant, config)
+        } else {
+            Err(Error::Message(format!("Failed to parse literal: {:?}", input)))
         }
     }
 }

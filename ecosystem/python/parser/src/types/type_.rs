@@ -122,19 +122,19 @@ impl Parser<WithSource<&ExprConstant>> for TypeParser {
 
 impl Parser<&Constant> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: &Constant, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
         match &input {
-            Constant::Ellipsis => Ok(Type::variadic(Type::opaque()).into()),
-            Constant::Str(_) => Ok(Type::string().into()),
-            Constant::Bool(_) => Ok(Type::boolean().into()),
+            Constant::Ellipsis => Ok(Type::variadic(Type::opaque())),
+            Constant::Str(_) => Ok(Type::string()),
+            Constant::Bool(_) => Ok(Type::boolean()),
             Constant::Bytes(_) => Ok(Type::vector(Type::u8())),
             Constant::Float(_) => Ok(Type::f64()),
             Constant::Int(_) => Ok(Type::i32()),
-            Constant::None => Ok(Type::option(Type::opaque()).into()),
+            Constant::None => Ok(Type::option(Type::opaque())),
             Constant::Tuple(values) => {
                 let types = values
                     .iter()
-                    .map(|expr| self.parse(expr, config))
+                    .map(|expr| self.parse(expr, _config))
                     .collect::<Result<Vec<Type>>>()?;
                 Ok(Type::tuple(types))
             },
