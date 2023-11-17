@@ -108,6 +108,9 @@ impl LibraryGenerator {
 
         let types = file.branch("types");
         for type_ in &visitor.value.types {
+            if !type_.definition.is_empty() {
+                types.writeln("#[derive(pyo3::FromPyObject)]");
+            }
             types.write(format!("pub struct {}", type_.identifier));
             // TODO: Write generics.
             types.writeln(" {");
@@ -123,6 +126,7 @@ impl LibraryGenerator {
                 }
             }
             types.writeln("}");
+            types.writeln("");
         }
         Ok(())
     }

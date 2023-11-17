@@ -21,6 +21,23 @@ impl KindDefinition {
             Self::Enumeration(_) => "Enumeration"
         }
     }
+
+    /// Returns `true` if the kind is empty.
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Self::Structure(structure) => structure.fields.is_empty(),
+            Self::Enumeration(enumeration) => enumeration.variants.is_empty()
+        }
+    }
+
+    /// Returns the number of items in the kind.
+    pub fn count(&self) -> usize {
+        match self {
+            Self::Structure(structure) => structure.fields.len(),
+            Self::Enumeration(enumeration) => enumeration.variants.len()
+        }
+    
+    }
 }
 
 impl Default for KindDefinition {
