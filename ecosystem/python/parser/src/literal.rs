@@ -67,21 +67,21 @@ mod test {
 
     #[test]
     fn literal_string() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_string(), "\"string\"")
+        assert_eq(LiteralParser::default(), mock::literal_string(), "\"string\"")
     }
 
     #[test]
     fn literal_bool() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_bool(), "False")
+        assert_eq(LiteralParser::default(), mock::literal_bool(), "False")
     }
 
     #[test]
     fn literal_integer() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_integer(), "-2")
+        assert_eq(LiteralParser::default(), mock::literal_integer(), "-2")
     }
 
     #[test]
     fn literal_float() -> Result<()> {
-        assert_eq(LiteralParser, mock::literal_float(), "3.5")
+        assert_eq(LiteralParser::default(), mock::literal_float(), "3.5")
     }
 }
