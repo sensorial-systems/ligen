@@ -129,19 +129,17 @@ impl TypeDefinitionParser {
             }
         }
         let mut set = HashMap::new();
-        let results = fields
+        let duplicated_fields = fields
             .into_iter()
             .map(|field| set.insert(field.identifier.clone(), field))
             .collect::<Vec<_>>();
-        for result in results {
-            if let Some(field) = result {
-                let stored = set.get(&field.identifier).unwrap();
-                if stored.type_ == Type::opaque() {
-                    set.insert(stored.identifier.clone(), field);
-                }
+        for field in duplicated_fields.into_iter().flatten() {
+            let stored = set.get(&field.identifier).unwrap();
+            if stored.type_ == Type::opaque() {
+                set.insert(stored.identifier.clone(), field);
             }
         }
-        let fields = set.into_iter().map(|(_, field)| field).collect();
+        let fields = set.into_values().collect();
         let structure = Structure { fields };
         Ok(structure.into())
     }
