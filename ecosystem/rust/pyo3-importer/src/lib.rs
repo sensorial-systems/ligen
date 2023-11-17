@@ -77,22 +77,13 @@ impl LibraryGenerator {
 
     fn translate_type(type_: &Type) -> Type {
         let map = identifier_map();
-        match type_ {
-            Type::Path(path) => {
-                let mut path = path.clone();
-                path.segments.iter_mut().for_each(|segment| {
-                    let identifier = map.get("ligen", &segment.identifier).unwrap_or(&segment.identifier).clone();
-                    segment.identifier = identifier;
-                    segment.generics.types.iter_mut().for_each(|type_| *type_ = Self::translate_type(type_));
-                });
-                Type::Path(path)
-            },
-            Type::Reference(reference) => {
-                let mut reference = reference.clone();
-                reference.type_ = Box::new(Self::translate_type(&reference.type_));
-                Type::Reference(reference)
-            }
-        }
+        let mut path = type_.path.clone();
+        path.segments.iter_mut().for_each(|segment| {
+            let identifier = map.get("ligen", &segment.identifier).unwrap_or(&segment.identifier).clone();
+            segment.identifier = identifier;
+            segment.generics.types.iter_mut().for_each(|type_| *type_ = Self::translate_type(type_));
+        });
+        path.into()
     }
 
     pub fn generate_module(&self, library: &Library, visitor: Rc<Visitor<'_, Module>>, file_set: &mut FileSet) -> Result<()> {

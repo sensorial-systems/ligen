@@ -1,4 +1,4 @@
-use ligen::{ir::{Reference, Mutability, Type}, parser::ParserConfig};
+use ligen::{ir::{Mutability, Type}, parser::ParserConfig};
 use crate::prelude::*;
 use ligen::parser::Parser;
 use crate::path::PathParser;
@@ -8,7 +8,7 @@ pub struct TypeParser;
 impl Parser<syn::Ident> for TypeParser {
     type Output = Type;
     fn parse(&self, input: syn::Ident, config: &ParserConfig) -> Result<Self::Output> {
-        Ok(Type::Path(PathParser::default().parse(input, config)?))
+        Ok(PathParser::default().parse(input, config)?.into())
     }
 }
 
@@ -36,7 +36,7 @@ impl Parser<syn::Path> for TypeParser {
                 _ => ()
             }
         }
-        Ok(Type::Path(path))
+        Ok(path.into())
     }
 }
 
@@ -58,8 +58,8 @@ impl Parser<syn::Type> for TypeParser {
             if let Some((elem, mutability)) = reference {
                 if let syn::Type::Path(syn::TypePath { path, .. }) = *elem.clone() {
                     let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                    let type_ = Box::new(TypeParser.parse(path, config)?);
-                    Ok(Self::Output::Reference(Reference { mutability, type_, }))
+                    let type_ = TypeParser.parse(path, config)?;
+                    Ok(Self::Output::reference(mutability, type_))
                 } else {
                     Err(Error::Message("Couldn't find path".into()))
                 }
@@ -176,12 +176,7 @@ mod test {
     #[test]
     fn types_borrow_constant() -> Result<()> {
         assert_eq!(
-            Type::Reference(
-                Reference {
-                    mutability: Mutability::Constant,
-                    type_: Type::i32().into()
-                }
-            ),
+            Type::constant_reference(Type::i32()),
             TypeParser.parse(quote! {&i32}, &Default::default())?
         );
         Ok(())
@@ -190,12 +185,7 @@ mod test {
     #[test]
     fn types_borrow_mutable() -> Result<()> {
         assert_eq!(
-            Type::Reference(
-                Reference {
-                    mutability: Mutability::Mutable,
-                    type_: Type::i32().into()
-                }
-            ),
+            Type::mutable_reference(Type::i32()),
             TypeParser.parse(quote! {&mut i32}, &Default::default())?
         );
         Ok(())
@@ -204,10 +194,7 @@ mod test {
     #[test]
     fn types_pointer_constant() -> Result<()> {
         assert_eq!(
-            Type::Reference(Reference {
-                mutability: Mutability::Constant,
-                type_: Type::i32().into()
-            }),
+            Type::constant_reference(Type::i32()),
             TypeParser.parse(quote! {*const i32}, &Default::default())?
         );
         Ok(())
@@ -216,10 +203,7 @@ mod test {
     #[test]
     fn types_pointer_mutable() -> Result<()> {
         assert_eq!(
-            Type::Reference(Reference {
-                mutability: Mutability::Mutable,
-                type_: Type::i32().into()
-            }),
+            Type::mutable_reference(Type::i32()),
             TypeParser.parse(quote! {*mut i32}, &Default::default())?
         );
         Ok(())

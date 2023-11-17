@@ -27,12 +27,7 @@ pub fn composite_parameter() -> Parameter {
 pub fn constant_reference_parameter() -> Parameter {
     Parameter {
         identifier: Identifier::new("name"),
-        type_: Type::Reference(
-            Reference {
-                mutability: Mutability::Constant,
-                type_: Type::string().into()
-            }
-        ),
+        type_: Type::constant_reference(Type::string()),
         .. Default::default()
     }
 }
@@ -40,12 +35,7 @@ pub fn constant_reference_parameter() -> Parameter {
 pub fn mutable_reference_parameter() -> Parameter {
     Parameter {
         identifier: Identifier::new("name"),
-        type_: Type::Reference(
-            Reference {
-                mutability: Mutability::Mutable,
-                type_: Type::string().into()
-            }
-        ),
+        type_: Type::mutable_reference(Type::string()),
         .. Default::default()
     }
 }
@@ -61,11 +51,7 @@ pub fn receiver_parameter() -> Parameter {
 pub fn reference_receiver_parameter() -> Parameter {
     Parameter {
         identifier: Identifier::new("self"),
-        type_: Type::Reference(
-            Reference {
-                mutability: Mutability::Constant,
-                type_: Box::new(Type::from("Self"))            }
-        ),
+        type_: Type::constant_reference("Self"),
         .. Default::default()
     }
 }
@@ -73,12 +59,7 @@ pub fn reference_receiver_parameter() -> Parameter {
 pub fn mutable_receiver_parameter() -> Parameter {
     Parameter {
         identifier: Identifier::new("self"),
-        type_: Type::Reference(
-            Reference {
-                mutability: Mutability::Mutable,
-                type_: Box::new(Type::from("Self"))
-            }
-        ),
+        type_: Type::mutable_reference("Self"),
         .. Default::default()
     }
 }

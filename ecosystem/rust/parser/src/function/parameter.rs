@@ -1,7 +1,7 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use ligen::ir::{Identifier, Reference, Type, Mutability, Parameter};
+use ligen::ir::{Identifier, Type, Mutability, Parameter};
 use ligen::parser::{Parser, ParserConfig};
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -37,8 +37,8 @@ impl Parser<syn::FnArg> for ParameterParser {
                 let type_ = reference
                     .map(|_| {
                         let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                        let type_ = Box::new(Type::from(Identifier::new("Self")));
-                        Type::Reference(Reference { mutability, type_ })
+                        let type_ = Type::from(Identifier::new("Self"));
+                        Type::reference(mutability, type_)
                     })
                     .unwrap_or_else(|| Type::from(Identifier::new("Self")));
                 Ok(Self::Output { attributes, identifier, type_ })

@@ -89,6 +89,10 @@ impl TypeDefinitionParser {
             match stmt {
                 Stmt::AnnAssign(ann_assign) => {
                     if class_variables_as_properties {
+                        let dbg = format!("{:#?}", ann_assign);
+                        if dbg.contains("admin_user_ids") || dbg.contains("media_ids") {
+                            println!("{:#?}", ann_assign);
+                        }
                         let field = self.parse_field_from_ann_assign(&input.sub(ann_assign), config)?;
                         fields.push(field);
                     }

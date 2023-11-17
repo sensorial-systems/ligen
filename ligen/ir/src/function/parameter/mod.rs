@@ -20,10 +20,11 @@ pub struct Parameter {
 
 impl Parameter {
     /// Get parameter mutability.
-    pub fn mutability(&self) -> &Mutability {
-        match &self.type_ {
-            Type::Reference(reference) => &reference.mutability,
-            _ => &Mutability::Constant
+    pub fn mutability(&self) -> Mutability {
+        if self.type_.is_mutable_reference() {
+            Mutability::Mutable
+        } else {
+            Mutability::Constant
         }
     }
 }

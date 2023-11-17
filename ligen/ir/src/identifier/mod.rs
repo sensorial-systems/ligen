@@ -6,7 +6,7 @@ use is_tree::IsIdentifier;
 pub use naming_convention::*;
 
 use crate::path::PathSegment;
-use crate::prelude::*;
+use crate::{prelude::*, Mutability};
 
 /// Identifier structure
 #[derive(Clone, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize)]
@@ -27,6 +27,24 @@ impl Identifier {
     pub fn new<S: AsRef<str>>(name: S) -> Self {
         let name = String::from(name.as_ref());
         Self { name }
+    }
+
+    /// Returns a new `Identifier` representing a reference type.
+    pub fn reference(mutability: Mutability) -> Self {
+        match mutability {
+            Mutability::Constant => Self::constant_reference(),
+            Mutability::Mutable => Self::mutable_reference(),
+        }
+    }
+
+    /// Returns a new `Identifier` representing a mutable reference type.
+    pub fn mutable_reference() -> Self {
+        "MutableReference".into()
+    }
+
+    /// Returns a new `Identifier` representing a constant reference type.
+    pub fn constant_reference() -> Self {
+        "Reference".into()
     }
 
     /// Returns a new `Identifier` representing a union type.

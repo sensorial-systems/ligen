@@ -71,14 +71,13 @@ impl Parser<WithSource<&ExprSubscript>> for TypeParser {
     type Output = Type;
     fn parse(&self, input: WithSource<&ExprSubscript>, config: &ParserConfig) -> Result<Self::Output> {
         let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
-        if let Type::Path(path) = &mut type_ {
-            if let Expr::Tuple(expr) = &*input.ast.slice {
-                let types = &mut path.last_mut().generics.types;
-                types.extend(self.parse(input.sub(expr), config)?);
-            } else {
-                let type_ = self.parse(input.sub(&*input.ast.slice), config)?;
-                path.last_mut().generics.types.push(type_);    
-            }
+        let path = &mut type_.path;
+        if let Expr::Tuple(expr) = &*input.ast.slice {
+            let types = &mut path.last_mut().generics.types;
+            types.extend(self.parse(input.sub(expr), config)?);
+        } else {
+            let type_ = self.parse(input.sub(&*input.ast.slice), config)?;
+            path.last_mut().generics.types.push(type_);
         }
         Ok(type_)
     }

@@ -1,17 +1,29 @@
-use crate::{Reference, Path, Identifier, PathSegment};
+use crate::{Path, Identifier, PathSegment, Mutability};
 use crate::prelude::*;
-use std::ops::Deref;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
-/// Type Enum
-pub enum Type {
+/// Type structure.
+pub struct Type {
     /// Type path.
-    Path(Path),
-    /// Type reference.
-    Reference(Reference),
+    pub path: Path
 }
 
 impl Type {
+    /// Returns a new `Type` representing a mutable reference type.
+    pub fn mutable_reference(type_: impl Into<Type>) -> Self {
+        PathSegment::new(Identifier::mutable_reference(), type_.into()).into()
+    }
+
+    /// Returns a new `Type` representing a reference type.
+    pub fn reference(mutability: Mutability, type_: impl Into<Type>) -> Self {
+        PathSegment::new(Identifier::reference(mutability), type_.into()).into()
+    }
+
+    /// Returns a new `Type` representing a constant reference type.
+    pub fn constant_reference(type_: impl Into<Type>) -> Self {
+        PathSegment::new(Identifier::constant_reference(), type_.into()).into()
+    }
+
     /// Returns a new `Type` representing a vector type.
     pub fn vector(type_: impl Into<Type>) -> Self {
         Path::from(PathSegment::new(Identifier::vector(), type_.into())).into()
@@ -158,6 +170,11 @@ impl Type {
         self == &t.into()
     }
 
+    /// Check if the `Type` is `MutableReference`
+    pub fn is_mutable_reference(&self) -> bool {
+        self.path.last().identifier == Identifier::mutable_reference()
+    }
+
     /// Check if the `Type` is `Boolean`.
     pub fn is_boolean(&self) -> bool {
         self.is(Self::boolean())
@@ -192,46 +209,37 @@ impl Type {
     pub fn is_string(&self) -> bool {
         self.is(Self::string())
     }
+}
 
-    /// Transforms Type::Reference to Type::Path
-    pub fn drop_reference(&self) -> Self {
-        match self {
-            Self::Reference(reference) => reference.type_.deref().clone(),
-            _ => self.clone()
-        }
+impl From<PathSegment> for Type {
+    fn from(path_segment: PathSegment) -> Self {
+        let path = path_segment.into();
+        Self { path }
     }
 }
 
 impl From<&str> for Type {
     fn from(value: &str) -> Self {
-        Self::Path(value.into())
+        let path = value.into();
+        Self { path }
     }
 }
 
 impl From<Identifier> for Type {
     fn from(identifier: Identifier) -> Self {
-        Self::Path(identifier.into())
+        let path = identifier.into();
+        Self { path }
     }
 }
 
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        Self::Path(path)
-    }
-}
-
-impl From<Reference> for Type {
-    fn from(reference: Reference) -> Self {
-        Self::Reference(reference)
+        Self { path }
     }
 }
 
 impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let display = match &self {
-            Type::Path(path) => format!("{}", path),
-            Type::Reference(reference) => format!("{}", reference),
-        };
-        f.write_str(&display)
+        f.write_str(&self.path.to_string())
     }
 }

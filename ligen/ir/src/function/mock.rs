@@ -103,23 +103,14 @@ pub fn function_complete() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
-                type_: Type::Reference(Reference {
-                    mutability: Mutability::Constant,
-                    type_: Box::new(Type::string())
-                })
+                type_: Type::constant_reference(Type::string())
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("c"),
-                type_: Type::Reference(Reference {
-                    mutability: Mutability::Mutable,
-                    type_: Box::new(Type::string())
-                })
+                type_: Type::mutable_reference(Type::string())
             },
         ],
-        output: Some(Type::Reference(Reference {
-            mutability: Mutability::Constant,
-            type_: Box::new(Type::string())
-        }))
+        output: Some(Type::constant_reference(Type::string()))
     }
 }

@@ -66,14 +66,8 @@ impl Transform<FunctionVisitor, Function> for RelativePathToAbsolutePath {
 }
 
 fn type_to_absolute_path(module_visitor: &ModuleVisitor, type_: &mut Type) {
-    match type_ {
-        Type::Path(path) => {
-            if let Some(absolute_path) = module_visitor.find_absolute_path(path) {
-                *path = absolute_path
-            }
-        },
-        Type::Reference(reference) => {
-            type_to_absolute_path(module_visitor, &mut reference.type_)
-        }
+    let path = &mut type_.path;
+    if let Some(absolute_path) = module_visitor.find_absolute_path(path) {
+        *path = absolute_path
     }
 }
