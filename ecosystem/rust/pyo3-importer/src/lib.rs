@@ -124,9 +124,6 @@ impl LibraryGenerator {
                         .map(|identifier| format!("{}", Self::translate_identifier(identifier)))
                         .unwrap_or_default();
                     let type_ = Self::translate_type(&field.type_);
-                    if name == "_external_url" {
-                        println!("{:#?}", field);
-                    }
                     if let Visibility::Public = field.visibility {
                         implementation.writeln(format!("    pub fn {name}(&self) -> {type_} {{"));
                         implementation.writeln(format!("        self.{name}.clone()"));
