@@ -7,10 +7,10 @@ pub mod templates;
 
 use std::{path::PathBuf, rc::Rc, collections::HashSet};
 
-use ligen_ir::{Library, Module, KindDefinition, Identifier, Type};
+use ligen_ir::{Library, Module, KindDefinition, Identifier, Type, Visibility};
 use prelude::*;
 
-use ligen_generator::file_generator::{FileGenerator, FileSet, Template};
+use ligen_generator::file_generator::{FileGenerator, FileSet, Template, File};
 use is_tree::{IsTree, Visitor};
 
 pub fn identifier_map() -> LanguageMap<Identifier> {
@@ -106,10 +106,74 @@ impl LibraryGenerator {
             modules.writeln(format!("pub mod {};", module.identifier));
         }
 
+        self.generate_impl(&visitor, file)?;
+        // self.generate_types(visitor, file)?;
+        Ok(())
+    }
+
+    pub fn generate_impl(&self, visitor: &Rc<Visitor<'_, Module>>, file: &mut File) -> Result<()> {
+        let implementation = file.branch("impl");
+        for type_ in &visitor.value.types {
+            implementation.write(format!("impl {}", type_.identifier));
+            implementation.writeln(" {");
+            if let KindDefinition::Structure(structure) = &type_.definition {
+                for field in &structure.fields {
+                    let name = field
+                        .identifier
+                        .as_ref()
+                        .map(|identifier| format!("{}", Self::translate_identifier(identifier)))
+                        .unwrap_or_default();
+                    let type_ = Self::translate_type(&field.type_);
+                    if name == "_external_url" {
+                        println!("{:#?}", field);
+                    }
+                    if let Visibility::Public = field.visibility {
+                        implementation.writeln(format!("    pub fn {name}(&self) -> {type_} {{"));
+                        implementation.writeln(format!("        self.{name}.clone()"));
+                        implementation.writeln("    }");
+                        implementation.writeln(format!("    pub fn set_{name}(&mut self, {name}: {type_}) {{"));
+                        implementation.writeln(format!("        self.{name} = {name};"));
+                        implementation.writeln("    }");
+                    }                
+
+                }
+            }
+            implementation.writeln("}");
+            implementation.writeln("");
+        }
+        for interface in &visitor.value.interfaces {
+            implementation.writeln(format!("impl {} {{", interface.identifier));
+            for method in &interface.methods {
+                implementation.write(format!("    pub fn {}(&self) ", method.identifier));
+                if let Some(output) = &method.output {
+                    let type_ = Self::translate_type(output);
+                    implementation.write(format!("-> {} ", type_));
+                }
+                implementation.writeln("{");
+                implementation.writeln("        todo!()");
+                implementation.writeln("    }");
+            }
+            for function in &interface.functions {
+                implementation.write(format!("    pub fn {}() ", function.identifier));
+                if let Some(output) = &function.output {
+                    let type_ = Self::translate_type(output);
+                    implementation.write(format!("-> {} ", type_));
+                }
+                implementation.writeln("{");
+                implementation.writeln("        todo!()");
+                implementation.writeln("    }");
+            }
+            implementation.writeln("}");
+            implementation.writeln("");
+        }
+        Ok(())
+    }
+
+    pub fn generate_types(&self, visitor: Rc<Visitor<'_, Module>>, file: &mut File) -> Result<()> {
         let types = file.branch("types");
         for type_ in &visitor.value.types {
             if !type_.definition.is_empty() {
-                types.writeln("#[derive(pyo3::FromPyObject)]");
+                types.writeln("#[derive(pyo3::FromPyObject, Clone)]");
             }
             types.write(format!("pub struct {}", type_.identifier));
             // TODO: Write generics.

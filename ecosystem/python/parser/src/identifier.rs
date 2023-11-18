@@ -1,4 +1,4 @@
-use ligen::ir::{Identifier, Mutability};
+use ligen::ir::{Identifier, Mutability, Visibility};
 use ligen::parser::{Parser, ParserConfig};
 use ligen::parser::universal::identifier::IdentifierParser as InternalParser;
 use crate::prelude::*;
@@ -21,8 +21,12 @@ impl IdentifierParser {
             .parse(input, config)
     }
 
-    pub fn is_private(&self, identifier: &Identifier) -> bool {
-        identifier.name.starts_with('_') && !identifier.name.starts_with("__")
+    pub fn get_visibility(&self, identifier: &Identifier) -> Visibility {
+        if identifier.name.starts_with('_') && !identifier.name.starts_with("__") {
+            Visibility::Private
+        } else {
+            Visibility::Public
+        }
     }
 
     pub fn get_mutability(&self, identifier: &Identifier) -> Mutability {

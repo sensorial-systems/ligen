@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::{ir::{Type, TypeDefinition, Visibility, Path, KindDefinition, Structure, Attribute, Field}, parser::ParserConfig};
+use ligen::{ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Attribute, Field}, parser::ParserConfig};
 use ligen::ir::macro_attributes::Group;
 use ligen::ir::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
@@ -12,12 +12,13 @@ pub struct TypeDefinitionParser {}
 impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
     type Output = TypeDefinition;
     fn parse(&self, input: WithSource<StmtClassDef>, config: &ParserConfig) -> Result<Self::Output> {
-        let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
+        let identifier_parser = IdentifierParser::new();
+        let identifier = identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(TypeDefinition { identifier, ..Default::default() })
         } else {
             let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
-            let visibility = Visibility::Public;
+            let visibility = identifier_parser.get_visibility(&identifier);
             let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
             let definition = self.parse_kind_definition(&input, config)?;
             let generics = Default::default();
@@ -45,10 +46,11 @@ impl TypeDefinitionParser {
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let identifier = IdentifierParser::new().parse(identifier, config)?;
+        let identifier_parser = IdentifierParser::new();
+        let identifier = identifier_parser.parse(identifier, config)?;
+        let visibility = identifier_parser.get_visibility(&identifier);
         let identifier = Some(identifier);
         let type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
-        let visibility = Default::default();
         let attributes = Default::default();
         Ok(Field { identifier, type_, visibility, attributes })
     }
@@ -64,9 +66,9 @@ impl TypeDefinitionParser {
         let parser = IdentifierParser::new();
         let identifier = parser.parse(identifier, config)?;
         if let Mutability::Mutable = parser.get_mutability(&identifier) {
+            let visibility = parser.get_visibility(&identifier);
             let identifier = Some(identifier);
             let type_ = Default::default();
-            let visibility = Default::default();
             let attributes = Default::default();
             Ok(Field { identifier, type_, visibility, attributes })
         } else {
@@ -81,9 +83,9 @@ impl TypeDefinitionParser {
                 let parser = IdentifierParser::new();
                 let identifier = parser.parse(identifier.id.as_str(), config)?;
                 if let Mutability::Mutable = parser.get_mutability(&identifier) {
+                    let visibility = parser.get_visibility(&identifier);
                     let identifier = Some(identifier);
                     let type_ = Default::default();
-                    let visibility = Default::default();
                     let attributes = Default::default();
                     let field = Field { identifier, type_, visibility, attributes };
                     fields.push(field);
