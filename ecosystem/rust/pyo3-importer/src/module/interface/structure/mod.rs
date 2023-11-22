@@ -14,13 +14,13 @@ impl StructureGenerator {
         file.writeln("#[derive(Debug, Clone, pyo3::FromPyObject)]");
         file.writeln("#[pyo3(transparent)]");
         file.writeln(format!("pub struct {} {{", type_definition.identifier.name));
-        file.writeln("    pub object: pyo3::PyObject,");
-        file.writeln("}\n");
+        file.indent().writeln("pub object: pyo3::PyObject,");
+        file.dedent().writeln("}\n");
         file.writeln(format!("impl pyo3::IntoPy<pyo3::PyObject> for {} {{", type_definition.identifier.name));
-        file.writeln("    fn into_py(self, _py: pyo3::Python) -> pyo3::PyObject {");
-        file.writeln("        self.object");
-        file.writeln("    }");
-        file.writeln("}\n");
+        file.indent().writeln("fn into_py(self, _py: pyo3::Python) -> pyo3::PyObject {");
+        file.indent().writeln("self.object");
+        file.dedent().writeln("}");
+        file.dedent().writeln("}\n");
         // if let KindDefinition::Structure(structure) = &type_definition.definition {
         //     for field in &structure.fields {
         //         let name = field

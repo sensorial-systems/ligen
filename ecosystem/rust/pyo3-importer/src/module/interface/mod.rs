@@ -32,18 +32,18 @@ impl InterfaceGenerator {
         let implementation = file.branch("implementation");
 
         implementation.writeln("lazy_static::lazy_static! {");
-        implementation.writeln(format!("    static ref PYO3_{}: pyo3::PyObject = {{", visitor.value.identifier.name.to_uppercase()));
-        implementation.writeln("        pyo3::Python::with_gil(|py| {");
-        implementation.writeln("            PYO3_MODULE");
-        implementation.writeln(format!("                .getattr(py, \"{}\")", visitor.value.identifier));
-        implementation.writeln(format!("                .expect(\"Failed to get {}\")", visitor.value.identifier));
-        implementation.writeln("                .into()");
-        implementation.writeln("        })");
-        implementation.writeln("    };");
-        implementation.writeln("}\n");
+        implementation.indent().writeln(format!("static ref PYO3_{}: pyo3::PyObject = {{", visitor.value.identifier.name.to_uppercase()));
+        implementation.indent().writeln("pyo3::Python::with_gil(|py| {");
+        implementation.indent().writeln("PYO3_MODULE");
+        implementation.indent().writeln(format!(".getattr(py, \"{}\")", visitor.value.identifier));
+        implementation.writeln(format!(".expect(\"Failed to get {}\")", visitor.value.identifier));
+        implementation.writeln(".into()");
+        implementation.dedent().dedent().writeln("})");
+        implementation.dedent().writeln("};");
+        implementation.dedent().writeln("}\n");
 
         for interface in &visitor.value.interfaces {
-            let body = implementation.branch(&interface.identifier.name).branch("body");
+            let body = implementation.branch(&interface.identifier.name).indented_branch("body");
             for method in &interface.methods {
                 self.function_generator.generate_method(body, method)?;
             }

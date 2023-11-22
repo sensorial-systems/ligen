@@ -23,15 +23,15 @@ impl ModuleGenerator {
         let file = file_set.entry(file_path);
         let path = Path::from(library.identifier.clone()).join(Path::from(visitor.path.clone()));
         file.writeln("lazy_static::lazy_static! {");
-        file.writeln("    static ref PYO3_MODULE: pyo3::PyObject = {");
-        file.writeln("        pyo3::Python::with_gil(|py| {");
-        file.writeln("            py");
-        file.writeln(format!("                .import(\"{}\")", path.to_string_with_separator(".")));
-        file.writeln(format!("                .expect(\"Failed to get {}\")", path.to_string_with_separator(".")));
-        file.writeln("                .into()");
-        file.writeln("        })");
-        file.writeln("    };");
-        file.writeln("}\n");
+        file.indent().writeln("static ref PYO3_MODULE: pyo3::PyObject = {");
+        file.indent().writeln("pyo3::Python::with_gil(|py| {");
+        file.indent().writeln("py");
+        file.indent().writeln(format!(".import(\"{}\")", path.to_string_with_separator(".")));
+        file.writeln(format!(".expect(\"Failed to get {}\")", path.to_string_with_separator(".")));
+        file.writeln(".into()");
+        file.dedent().dedent().writeln("})");
+        file.dedent().writeln("};");
+        file.dedent().writeln("}\n");
 
         let modules = file.branch("modules");
         for module in &visitor.value.modules {
