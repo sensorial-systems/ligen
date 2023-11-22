@@ -181,7 +181,28 @@ impl Identifier {
     pub fn string() -> Self {
         "String".into()
     }
+
+    /// Returns a new `Identifier` representing the `root` keyword.
+    pub fn root() -> Self {
+        "root".into()
+    }
+
+    /// Returns a new `Identifier` representing the `super` keyword.
+    pub fn super_() -> Self {
+        "super".into()
+    }
+
+    /// Returns a new `Identifier` representing the `self` keyword.
+    pub fn self_() -> Self {
+        "self".into()
+    }
     
+}
+
+impl PartialEq<&str> for Identifier {
+    fn eq(&self, other: &&str) -> bool {
+        self.name == *other
+    }
 }
 
 impl From<&str> for Identifier {

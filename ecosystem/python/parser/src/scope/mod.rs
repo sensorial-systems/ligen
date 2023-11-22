@@ -1,21 +1,24 @@
+mod import_parser;
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::{ir::{Interface, Object, Function, Method, TypeDefinition}, parser::ParserConfig};
+use ligen::{ir::{Interface, Object, Function, Method, Import, TypeDefinition}, parser::ParserConfig};
 use crate::{prelude::*, parser::PythonParserConfig};
 
+pub use import_parser::*;
 pub use scope_type::*;
 use crate::parser::PythonParser;
 
 impl Parser<WithSource<&[Stmt]>> for PythonParser {
     type Output = Scope;
     fn parse(&self, input: WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Self::Output> {
+        let imports = self.parse_imports(&input, config)?;
         let objects = self.parse_objects(&input, config)?;
         let types = self.parse_types(&input, config)?;
         let functions = self.parse_functions(&input, config)?;
         let interfaces = self.parse_interfaces(&input, config)?;
         let methods = self.parse_methods(&input, config)?;
-        let scope = Scope { objects, types, functions, methods, interfaces };
+        let scope = Scope { imports, objects, types, functions, methods, interfaces };
         let sub_scopes = self.parse_sub_scopes(&input, config)?;
         let scope = self.join_scopes(scope, sub_scopes);
         Ok(scope)
@@ -159,6 +162,26 @@ impl PythonParser {
             }
         }
         Ok(interfaces)
+    }
+
+    fn parse_imports(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Import>> {
+        let mut imports = Vec::new();
+        for statement in statements.ast {
+            match statement {
+                Stmt::Import(import) => {
+                    if let Ok(parsed_imports) = self.parse(statements.sub(import), config) {
+                        imports.extend(parsed_imports);
+                    }
+                },
+                Stmt::ImportFrom(import) => {
+                    if let Ok(parsed_imports) = self.parse(statements.sub(import), config) {
+                        imports.extend(parsed_imports);
+                    }
+                },
+                _ => ()
+            }
+        }
+        Ok(imports)
     }
 
     fn parse_objects(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Object>> {

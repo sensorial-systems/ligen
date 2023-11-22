@@ -1,0 +1,56 @@
+pub mod function;
+pub mod structure;
+pub use function::*;
+pub use structure::*;
+
+use std::rc::Rc;
+
+use is_tree::{Visitor, IsTree};
+use ligen_generator::file_generator::File;
+use ligen_ir::Module;
+
+#[derive(Default)]
+pub struct InterfaceGenerator {
+    pub function_generator: FunctionGenerator,
+    structure_generator: StructureGenerator
+}
+
+impl InterfaceGenerator {
+    pub fn generate(&self, visitor: &Rc<Visitor<'_, Module>>, file: &mut File) -> Result<()> {
+        // TODO: Use template here instead of creating the sections structure manually.
+        for type_ in &visitor.value.types {
+            let implementation = file.branch("implementation").branch(&type_.identifier.name);
+            implementation.branch("begin").writeln(format!("impl {} {{", type_.identifier));
+            implementation.branch("body");
+            implementation.branch("end").writeln("}\n");
+        }
+
+        for type_ in &visitor.value.types {
+            self.structure_generator.generate(file, type_)?;
+        }
+
+        let implementation = file.branch("implementation");
+
+        implementation.writeln("lazy_static::lazy_static! {");
+        implementation.writeln(format!("    static ref PYO3_{}: pyo3::PyObject = {{", visitor.value.identifier.name.to_uppercase()));
+        implementation.writeln("        pyo3::Python::with_gil(|py| {");
+        implementation.writeln("            PYO3_MODULE");
+        implementation.writeln(format!("                .getattr(py, \"{}\")", visitor.value.identifier));
+        implementation.writeln(format!("                .expect(\"Failed to get {}\")", visitor.value.identifier));
+        implementation.writeln("                .into()");
+        implementation.writeln("        })");
+        implementation.writeln("    };");
+        implementation.writeln("}\n");
+
+        for interface in &visitor.value.interfaces {
+            let body = implementation.branch(&interface.identifier.name).branch("body");
+            for method in &interface.methods {
+                self.function_generator.generate_method(body, method)?;
+            }
+            for function in &interface.functions {
+                self.function_generator.generate_function(body, function)?;
+            }
+        }
+        Ok(())
+    }
+}

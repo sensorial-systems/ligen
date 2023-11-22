@@ -22,6 +22,8 @@ impl Default for PythonMapper {
         map.insert("List".into(), Identifier::vector());
         map.insert("list".into(), Identifier::vector());
         map.insert("dict".into(), Identifier::dictionary());
+        map.insert("Dict".into(), Identifier::dictionary());
+        map.insert("tuple".into(), Identifier::tuple());
         Self { map }
     }
 }
@@ -67,6 +69,7 @@ impl Parser<&ExprName> for TypeParser {
             type_.path.last_mut().generics.types.push(Type::opaque());
         }
         let name = type_.path.last().identifier.name.as_str();
+        // TODO: Move it to a validation step. It's hard to find it here.
         if config.get(Path::from("ligen::python::as-opaque").join(name)).is_some() {
             Ok(Type::opaque())
         } else {

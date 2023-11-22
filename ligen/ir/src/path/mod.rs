@@ -17,6 +17,11 @@ pub struct Path {
 }
 
 impl Path {
+    /// Create a new `Path`.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Is empty.
     pub fn is_empty(&self) -> bool {
         self.segments.is_empty()
@@ -169,6 +174,18 @@ impl From<Identifier> for Path {
         let segments = vec![identifier.into()];
         Self { segments }
     }
+}
+
+impl<'a> From<is_tree::Path<'a, Identifier>> for Path {
+    fn from(path: is_tree::Path<'a, Identifier>) -> Self {
+        let segments = path
+            .segments
+            .iter()
+            .map(|segment| segment.clone().into())
+            .collect();
+        Self { segments }
+    }
+
 }
 
 impl std::fmt::Display for Path {
