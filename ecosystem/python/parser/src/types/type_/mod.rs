@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
+pub mod validator;
+pub use validator::*;
+
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant};
-use ligen::{ir::{Path, Type, Identifier}, parser::{ParserConfig, ParserConfigGet}};
+use ligen::{ir::{Type, Identifier}, parser::ParserConfig};
 use crate::prelude::*;
 
 pub struct PythonMapper {
@@ -57,7 +60,7 @@ impl TypeParser {
 
 impl Parser<&ExprName> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: &ExprName, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &ExprName, _config: &ParserConfig) -> Result<Self::Output> {
         let name = input.id.as_str();
         let identifier = self
             .mapper
@@ -68,13 +71,7 @@ impl Parser<&ExprName> for TypeParser {
         if type_.path.last().identifier == Identifier::vector() {
             type_.path.last_mut().generics.types.push(Type::opaque());
         }
-        let name = type_.path.last().identifier.name.as_str();
-        // TODO: Move it to a validation step. It's hard to find it here.
-        if config.get(Path::from("ligen::python::as-opaque").join(name)).is_some() {
-            Ok(Type::opaque())
-        } else {
-            Ok(type_)
-        }
+        Ok(type_)
     }
 }
 

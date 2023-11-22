@@ -13,6 +13,7 @@ ligen.workspace = true
 rustpython-parser = "0.3.0"
 shrinkwraprs.workspace = true
 python-pkginfo = "0.6.0"
+is-tree.workspace = true
 
 [dev-dependencies]
 ligen-ir = { workspace = true, features = ["mocks"]}

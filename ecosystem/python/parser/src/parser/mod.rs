@@ -6,8 +6,11 @@ use crate::types::type_definition::TypeDefinitionParser;
 
 pub mod metadata;
 pub mod config;
+pub mod validator;
+
 pub use config::*;
 pub use metadata::*;
+pub use validator::*;
 
 use ligen::ir::Library;
 use ligen::parser::ParserConfig;
@@ -18,7 +21,8 @@ pub struct PythonParser {
     pub function_parser: FunctionParser,
     pub type_definition_parser: TypeDefinitionParser,
     pub metadata_parser: MetadataParser,
-    pub object_parser: ObjectParser
+    pub object_parser: ObjectParser,
+    pub validator: LibraryValidator
 }
 
 impl PythonParser {
@@ -33,7 +37,9 @@ impl Parser<&std::path::Path> for PythonParser {
         let identifier = self.identifier_parser.parse(input, config)?;
         let metadata = self.metadata_parser.parse(input, config)?;
         let root_module = self.parse(SubPath(input), config)?;
-        Ok(Library { identifier, metadata, root_module })
+        let mut library = Library { identifier, metadata, root_module };
+        self.validator.validate(&mut library, config)?;
+        Ok(library)
     }
     fn name(&self) -> &str {
         "Python"
