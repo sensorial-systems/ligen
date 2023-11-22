@@ -1,3 +1,5 @@
+use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+
 use crate::prelude::*;
 use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Identifier};
 
@@ -32,3 +34,11 @@ impl CountSymbols for Vec<Method> {
     }
 }
 
+impl IntoIterTypeMut<Type> for Method {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        let mut stack = Vec::new();
+        stack.extend(self.inputs.iter_mut().flat_map(|m| m.into_type_iterator()));
+        stack.extend(self.output.iter_mut().flat_map(|m| m.into_type_iterator()));
+        stack.into()
+    }
+}

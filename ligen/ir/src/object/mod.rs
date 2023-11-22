@@ -1,3 +1,5 @@
+use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+
 use crate::{Identifier, Literal, Type, Mutability};
 use crate::prelude::*;
 
@@ -26,5 +28,11 @@ impl CountSymbols for Vec<Object> {
 impl CountSymbols for &Vec<Object> {
     fn count_symbols(&self) -> usize {
         self.len()
+    }
+}
+
+impl IntoIterTypeMut<Type> for Object {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        self.type_.into_type_iterator()
     }
 }

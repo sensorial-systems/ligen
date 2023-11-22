@@ -1,6 +1,8 @@
 use std::fmt::Display;
 
-use crate::{prelude::*, Identifier, Generics};
+use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+
+use crate::{prelude::*, Identifier, Generics, Type};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct PathSegment {
@@ -38,5 +40,11 @@ impl From<Identifier> for PathSegment {
 impl Display for PathSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}{}", self.identifier, self.generics)
+    }
+}
+
+impl IntoIterTypeMut<Type> for PathSegment {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        self.generics.into_type_iterator()
     }
 }

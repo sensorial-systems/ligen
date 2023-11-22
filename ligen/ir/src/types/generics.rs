@@ -1,3 +1,6 @@
+use is_tree::IntoIterTypeMut;
+use is_tree::TypeIteratorMut;
+
 use crate::Type;
 use crate::prelude::*;
 
@@ -38,5 +41,11 @@ impl std::fmt::Display for Generics {
                 .join(", ");
             f.write_str(&format!("<{}>", generics))
         }
+    }
+}
+
+impl IntoIterTypeMut<Type> for Generics {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        self.types.iter_mut().collect::<Vec<_>>().into()
     }
 }

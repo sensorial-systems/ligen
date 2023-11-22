@@ -4,6 +4,8 @@
 pub mod mock;
 
 use std::fmt::{Display, Formatter};
+use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+
 use crate::prelude::*;
 use crate::{Identifier, Type, Attributes, Mutability};
 
@@ -33,5 +35,11 @@ impl Display for Parameter {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let attributes = if self.attributes.is_empty() { "".into() } else { format!(" {}", self.attributes) };
         f.write_str(&format!("{}: {}{}", self.identifier, self.type_, attributes))
+    }
+}
+
+impl IntoIterTypeMut<Type> for Parameter {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        self.type_.into_type_iterator()
     }
 }

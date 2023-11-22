@@ -1,9 +1,12 @@
 pub mod path_segment;
 
 use crate::Identifier;
+use crate::Type;
 use crate::prelude::*;
 use std::path::PathBuf;
 
+use is_tree::IntoIterTypeMut;
+use is_tree::TypeIteratorMut;
 pub use path_segment::*;
 
 #[cfg(any(test, feature = "mocks"))]
@@ -205,5 +208,16 @@ mod test {
             .map(PathSegment::from)
             .collect();
         assert_eq!(path.segments, segments);
+    }
+}
+
+impl IntoIterTypeMut<Type> for Path {
+    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+        self
+            .segments
+            .iter_mut()
+            .flat_map(|segment| segment.into_type_iterator())
+            .collect::<Vec<_>>()
+            .into()
     }
 }
