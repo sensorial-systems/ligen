@@ -2,13 +2,13 @@ use std::rc::Rc;
 
 use crate::{HasIdentifier, Visitor, IsTree};
 
-pub struct TreeIterator<'a, Value>
+pub struct TreeVisitor<'a, Value>
 where Value: HasIdentifier,
 {
     stack: Vec<Rc<Visitor<'a, Value>>>,
 }
 
-impl<'a, Value> TreeIterator<'a, Value>
+impl<'a, Value> TreeVisitor<'a, Value>
 where
     Value: HasIdentifier + IsTree,
 {
@@ -29,7 +29,7 @@ where
     }
 }
 
-impl<'a, Value> Iterator for TreeIterator<'a, Value>
+impl<'a, Value> Iterator for TreeVisitor<'a, Value>
 where Value: HasIdentifier
 {
     type Item = Rc<Visitor<'a, Value>>;

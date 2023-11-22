@@ -1,3 +1,5 @@
+pub mod prelude;
+
 pub mod identifier;
 pub mod path;
 pub mod visitor;
@@ -87,10 +89,10 @@ pub trait IsTree: HasIdentifier {
         }
     }
 
-    fn iter(&self) -> TreeIterator<'_, Self>
+    fn iter(&self) -> TreeVisitor<'_, Self>
     where Self: Sized
     {
-        TreeIterator::new(self)
+        TreeVisitor::new(self)
     }
 }
 
@@ -102,10 +104,13 @@ mod test {
     
     pub struct Module {
         identifier: Identifier,
+        n1: usize,
+        n2: usize,
+        ns: Vec<usize>,
         children: HashMap<Identifier, Module>
     }
 
-    use std::collections::HashMap;
+    use std::{collections::HashMap, vec};
 
 impl IsTree for Module {
     fn add_branch(&mut self, child: impl Into<Self>) -> &mut Self
@@ -153,7 +158,10 @@ impl IsTree for Module {
         fn from(identifier: S) -> Self {
             let identifier = identifier.into();
             let children = Default::default();
-            Self { identifier, children }
+            let n1 = 0;
+            let n2 = 1;
+            let ns = vec![2, 3];
+            Self { identifier, n1, n2, ns, children }
         }
     }
     
@@ -248,5 +256,82 @@ impl IsTree for Module {
 
         let root = leaf.relative([Identifier::root()]).unwrap();
         assert_eq!(root.value.format(), "[root]")
+    }
+
+    impl IntoIterType<usize> for Module {
+        fn into_type_iterator<'a>(&'a self) -> TypeIterator<'a, usize> {
+            let mut references = vec![&self.n1, &self.n2];
+            references.extend(self.ns.iter());
+            references.extend(self.branches().flat_map(|child| child.iter_type::<usize>()));
+            TypeIterator::from(references)
+        }
+    }
+
+    impl IntoIterTypeMut<usize> for Module {
+        fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, usize> {
+            let mut references = vec![&mut self.n1, &mut self.n2];
+            references.extend(self.ns.iter_mut());
+            references.extend(self.children.values_mut().flat_map(|child| child.into_type_iterator()));
+            TypeIteratorMut::from(references)
+        }
+    }
+
+    impl IntoIterType<String> for Module {
+        fn into_type_iterator<'a>(&'a self) -> TypeIterator<'a, String> {
+            let mut references = vec![&self.identifier];
+            references.extend(self.children.values().flat_map(|child| child.iter_type::<String>()));
+            TypeIterator::from(references)
+        }
+    }
+
+    impl IntoIterTypeMut<String> for Module {
+        fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, String> {
+            let mut references = vec![&mut self.identifier];
+            references.extend(self.children.values_mut().flat_map(|child| child.into_type_iterator()));
+            TypeIteratorMut::from(references)
+        }
+    }
+
+    #[test]
+    fn type_iterator() {
+        use crate::IterTypeMut;
+        let mut root = create();
+
+        assert_eq!(root.n1, 0);
+        assert_eq!(root.n2, 1);
+        assert_eq!(root.ns, vec![2, 3]);
+        assert_eq!(root.branch("branch").n1, 0);
+        assert_eq!(root.branch("branch").n2, 1);
+        assert_eq!(root.branch("branch").ns, vec![2, 3]);
+        assert_eq!(root.branch("branch").branch("leaf").n1, 0);
+        assert_eq!(root.branch("branch").branch("leaf").n2, 1);
+        assert_eq!(root.branch("branch").branch("leaf").ns, vec![2, 3]);
+
+        assert_eq!(root.iter_type::<usize>().count(), 12);
+
+        root.iter_type_mut::<usize>().for_each(|n| *n += 1);
+        assert_eq!(root.n1, 1);
+        assert_eq!(root.n2, 2);
+        assert_eq!(root.ns, vec![3, 4]);
+        assert_eq!(root.branch("branch").n1, 1);
+        assert_eq!(root.branch("branch").n2, 2);
+        assert_eq!(root.branch("branch").ns, vec![3, 4]);
+        assert_eq!(root.branch("branch").branch("leaf").n1, 1);
+        assert_eq!(root.branch("branch").branch("leaf").n2, 2);
+        assert_eq!(root.branch("branch").branch("leaf").ns, vec![3, 4]);
+
+        assert_eq!(root.identifier, "root");
+        assert_eq!(root.branch("branch").identifier, "branch");
+        assert_eq!(root.branch("branch").branch("leaf").identifier, "leaf");
+
+        assert_eq!(root.iter_type::<String>().count(), 3);
+        assert_eq!(root.identifier, "root");
+        assert_eq!(root.branch("branch").identifier, "branch");
+        assert_eq!(root.branch("branch").branch("leaf").identifier, "leaf");
+
+        root.iter_type_mut::<String>().for_each(|identifier| *identifier = identifier.to_uppercase());
+        assert_eq!(root.identifier, "ROOT");
+        assert_eq!(root.branch("branch").identifier, "BRANCH");
+        assert_eq!(root.branch("branch").branch("leaf").identifier, "LEAF");
     }
 }
