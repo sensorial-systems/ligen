@@ -15,13 +15,19 @@ pub struct FileSection {
     /// File section name.
     pub name: String,
     /// File section content.
-    pub content: Vec<Box<dyn FileSectionContent>>
+    pub content: Vec<Box<dyn FileSectionContent>>,
+    /// Whether the last content is a new line.
+    is_new_line: bool,
+    /// Indentation level.
+    indentation_level: usize
 }
 
 impl From<String> for FileSection {
     fn from(name: String) -> Self {
         let content = Default::default();
-        Self { name, content }
+        let is_new_line = true;
+        let indentation_level = 0;
+        Self { name, content, is_new_line, indentation_level }
     }
 }
 
@@ -40,6 +46,12 @@ impl FileSection {
         Ok(section)
     }
 
+    /// Gets or creates, if it doesn't exist, an indented branch.
+    pub fn indented_branch(&mut self, name: impl Into<String>) -> &mut Self {
+        let indentation_level = self.indentation_level + 1;
+        self.branch(name).indentation(indentation_level)
+    }
+
     /// Writes the content to the file section at the specified index.
     pub fn indexed_write<S: Into<String>>(&mut self, index: usize, content: S) {
         self.content.insert(index, Box::new(content.into()))
@@ -49,20 +61,36 @@ impl FileSection {
     pub fn indexed_writeln<S: Into<String>>(&mut self, index: usize, content: S) {
         let mut string = content.into();
         string.push('\n');
+        self.is_new_line = true;
         self.indexed_write(index, string);
     }
 
     /// Writes the content to the file buffer.
     pub fn write<S: Into<String>>(&mut self, content: S) {
-        self.content.push(Box::new(content.into()));
+        let content = format!("{}{}", self.get_indentation(), content.into());
+        self.content.push(Box::new(content));
     }
 
     /// Writes the content to the file buffer and adds a new line.
     pub fn writeln<S: Into<String>>(&mut self, content: S) {
-        let mut string = content.into();
-        string.push('\n');
-        self.content.push(Box::new(string));
-    }    
+        let content = format!("{}{}\n", self.get_indentation(), content.into());
+        self.is_new_line = true;
+        self.content.push(Box::new(content));
+    }
+
+    pub fn indentation(&mut self, indentation_level: usize) -> &mut Self {
+        self.indentation_level = indentation_level;
+        self
+    }
+
+    fn get_indentation(&mut self) -> String {
+        if self.is_new_line {
+            self.is_new_line = false;
+            "    ".repeat(self.indentation_level)
+        } else {
+            Default::default()
+        }
+    }
 }
 
 impl HasIdentifier for FileSection {

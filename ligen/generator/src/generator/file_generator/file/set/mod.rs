@@ -126,4 +126,17 @@ mod tests {
         assert_eq!(root.to_string(), "Name: John\nAge: 42 years old\n");
         Ok(())
     }
+
+    #[test]
+    fn indentation() {
+        let mut section = FileSection::new("root");
+        section.writeln("fn main() {");
+        let body = section.indented_branch("body");
+        body.writeln("if true {");
+        let condition_body = body.indented_branch("condition");
+        condition_body.writeln("println!(\"Hello, world!\");");
+        body.writeln("}");
+        section.writeln("}");
+        assert_eq!(section.to_string(), "fn main() {\n    if true {\n        println!(\"Hello, world!\");\n    }\n}\n");
+    }
 }
