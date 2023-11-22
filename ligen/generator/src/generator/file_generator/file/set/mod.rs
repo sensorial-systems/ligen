@@ -128,7 +128,7 @@ mod tests {
     }
 
     #[test]
-    fn indentation() {
+    fn indented_branch() {
         let mut section = FileSection::new("root");
         section.writeln("fn main() {");
         let body = section.indented_branch("body");
@@ -136,6 +136,21 @@ mod tests {
         let condition_body = body.indented_branch("condition");
         condition_body.writeln("println!(\"Hello, world!\");");
         body.writeln("}");
+        section.writeln("}");
+        assert_eq!(section.to_string(), "fn main() {\n    if true {\n        println!(\"Hello, world!\");\n    }\n}\n");
+    }
+
+    #[test]
+    fn indent_dedent() {
+        let mut section = FileSection::new("root");
+        section.writeln("fn main() {");
+        section.indent();
+        section.writeln("if true {");
+        section.indent();
+        section.writeln("println!(\"Hello, world!\");");
+        section.dedent();
+        section.writeln("}");
+        section.dedent();
         section.writeln("}");
         assert_eq!(section.to_string(), "fn main() {\n    if true {\n        println!(\"Hello, world!\");\n    }\n}\n");
     }

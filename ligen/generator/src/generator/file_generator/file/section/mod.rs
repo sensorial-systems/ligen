@@ -78,6 +78,19 @@ impl FileSection {
         self.content.push(Box::new(content));
     }
 
+    /// Increase the indentation level by 1.
+    pub fn indent(&mut self) -> &mut Self {
+        self.indentation_level += 1;
+        self
+    }
+
+    /// Decrease the indentation level by 1.
+    pub fn dedent(&mut self) -> &mut Self {
+        self.indentation_level -= 1;
+        self
+    }
+
+    /// Sets the indentation level.
     pub fn indentation(&mut self, indentation_level: usize) -> &mut Self {
         self.indentation_level = indentation_level;
         self
