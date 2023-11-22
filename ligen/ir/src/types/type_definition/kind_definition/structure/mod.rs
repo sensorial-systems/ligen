@@ -5,7 +5,7 @@ pub mod mock;
 
 pub mod field;
 pub use field::*;
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 
 use crate::{prelude::*, Type};
 
@@ -17,7 +17,7 @@ pub struct Structure {
 }
 
 impl IntoIterTypeMut<Type> for Structure {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
-        self.fields.iter_mut().flat_map(|f| f.into_type_iterator()).collect::<Vec<_>>().into()
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+        self.fields.iter_mut().flat_map(|f| f.type_iterator()).collect::<Vec<_>>().into()
     }
 }

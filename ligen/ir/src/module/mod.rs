@@ -6,7 +6,7 @@ pub mod import;
 pub mod mock;
 
 pub use import::*;
-use is_tree::{IsTree, HasIdentifier, IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IsTree, HasIdentifier, IntoIterTypeMut, TypeIterMut};
 
 use crate::{prelude::*, Type};
 use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
@@ -114,13 +114,13 @@ impl Module {
 }
 
 impl IntoIterTypeMut<Type> for Module {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         let mut stack = Vec::new();
-        stack.extend(self.interfaces.iter_mut().flat_map(|i| i.into_type_iterator()));
-        stack.extend(self.functions.iter_mut().flat_map(|f| f.into_type_iterator()));
-        stack.extend(self.types.iter_mut().flat_map(|t| t.into_type_iterator()));
-        stack.extend(self.objects.iter_mut().flat_map(|o| o.into_type_iterator()));
-        stack.extend(self.modules.iter_mut().flat_map(|m| m.into_type_iterator()));
+        stack.extend(self.interfaces.iter_mut().flat_map(|i| i.type_iterator()));
+        stack.extend(self.functions.iter_mut().flat_map(|f| f.type_iterator()));
+        stack.extend(self.types.iter_mut().flat_map(|t| t.type_iterator()));
+        stack.extend(self.objects.iter_mut().flat_map(|o| o.type_iterator()));
+        stack.extend(self.modules.iter_mut().flat_map(|m| m.type_iterator()));
         stack.into()
     }
 }

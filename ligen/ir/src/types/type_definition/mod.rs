@@ -2,7 +2,7 @@
 
 pub mod kind_definition;
 
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 pub use kind_definition::*;
 
 use crate::{prelude::*, Attributes, Visibility, Path, Generics, Type};
@@ -38,11 +38,11 @@ impl CountSymbols for &Vec<TypeDefinition> {
 }
 
 impl IntoIterTypeMut<Type> for TypeDefinition {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         let mut stack = Vec::new();
-        stack.extend(self.interfaces.iter_mut().flat_map(|m| m.into_type_iterator()));
-        stack.extend(self.definition.into_type_iterator());
-        stack.extend(self.generics.into_type_iterator());
+        stack.extend(self.interfaces.iter_mut().flat_map(|m| m.type_iterator()));
+        stack.extend(self.definition.type_iterator());
+        stack.extend(self.generics.type_iterator());
         stack.into()
     }
 }

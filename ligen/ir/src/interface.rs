@@ -1,4 +1,4 @@
-use is_tree::{IntoIterTypeMut, TypeIteratorMut, IterTypeMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut, IterTypeMut};
 
 use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility, Type};
 use crate::prelude::*;
@@ -50,7 +50,7 @@ impl CountSymbols for Interface {
 }
 
 impl IntoIterTypeMut<Type> for Interface {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         let mut stack = Vec::new();
         stack.extend(self.objects.iter_mut().flat_map(|m| m.iter_type_mut::<Type>()));
         stack.extend(self.functions.iter_mut().flat_map(|m| m.iter_type_mut::<Type>()));

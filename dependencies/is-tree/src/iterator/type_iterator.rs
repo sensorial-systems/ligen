@@ -10,8 +10,8 @@ impl<'a, Value> From<Vec<&'a Value>> for TypeIterator<'a, Value> {
     }
 }
 
-pub trait IntoIterType<Item> {
-    fn into_type_iterator<'a>(&'a self) -> TypeIterator<'a, Item>;
+pub trait TypeIter<Item> {
+    fn type_iterator(&self) -> TypeIterator<'_, Item>;
 }
 
 impl<'a, Value> Iterator for TypeIterator<'a, Value>
@@ -26,23 +26,23 @@ impl<'a, Value> Iterator for TypeIterator<'a, Value>
 
 /// Mutable reference type iterator.
 
-pub struct TypeIteratorMut<'a, Value>
+pub struct TypeIterMut<'a, Value>
 {
     stack: Vec<&'a mut Value>,
 }
 
-impl<'a, Value> From<Vec<&'a mut Value>> for TypeIteratorMut<'a, Value> {
+impl<'a, Value> From<Vec<&'a mut Value>> for TypeIterMut<'a, Value> {
     fn from(stack: Vec<&'a mut Value>) -> Self {
         Self { stack }
     }
 }
 
 pub trait IntoIterTypeMut<Item> {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Item>;
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Item>;
     
 }
 
-impl<'a, Value> Iterator for TypeIteratorMut<'a, Value>
+impl<'a, Value> Iterator for TypeIterMut<'a, Value>
 {
     type Item = &'a mut Value;
 
@@ -53,18 +53,18 @@ impl<'a, Value> Iterator for TypeIteratorMut<'a, Value>
 
 /// Type iterator trait.
 pub trait IterType {
-    fn iter_type<'a, T>(&'a self) -> TypeIterator<'a, T>
-    where Self: IntoIterType<T>
+    fn iter_type<T>(&self) -> TypeIterator<'_, T>
+    where Self: TypeIter<T>
     {
-        self.into_type_iterator()
+        self.type_iterator()
     }
 }
 
 pub trait IterTypeMut {
-    fn iter_type_mut<'a, T>(&'a mut self) -> TypeIteratorMut<'a, T>
+    fn iter_type_mut<T>(&mut self) -> TypeIterMut<'_, T>
     where Self: IntoIterTypeMut<T>
     {
-        self.into_type_iterator()
+        self.type_iterator()
     }
 }
 

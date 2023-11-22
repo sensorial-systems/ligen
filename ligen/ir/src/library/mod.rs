@@ -3,7 +3,7 @@
 pub mod metadata;
 use is_tree::IntoIterTypeMut;
 use is_tree::IterTypeMut;
-use is_tree::TypeIteratorMut;
+use is_tree::TypeIterMut;
 pub use metadata::*;
 
 use crate::Identifier;
@@ -36,7 +36,7 @@ impl Library {
 }
 
 impl IntoIterTypeMut<Type> for Library {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         self.root_module.iter_type_mut::<Type>()
     }
 }

@@ -258,8 +258,8 @@ impl IsTree for Module {
         assert_eq!(root.value.format(), "[root]")
     }
 
-    impl IntoIterType<usize> for Module {
-        fn into_type_iterator<'a>(&'a self) -> TypeIterator<'a, usize> {
+    impl TypeIter<usize> for Module {
+        fn type_iterator(&self) -> TypeIterator<'_, usize> {
             let mut references = vec![&self.n1, &self.n2];
             references.extend(self.ns.iter());
             references.extend(self.branches().flat_map(|child| child.iter_type::<usize>()));
@@ -268,16 +268,16 @@ impl IsTree for Module {
     }
 
     impl IntoIterTypeMut<usize> for Module {
-        fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, usize> {
+        fn type_iterator(&mut self) -> TypeIterMut<'_, usize> {
             let mut references = vec![&mut self.n1, &mut self.n2];
             references.extend(self.ns.iter_mut());
-            references.extend(self.children.values_mut().flat_map(|child| child.into_type_iterator()));
-            TypeIteratorMut::from(references)
+            references.extend(self.children.values_mut().flat_map(|child| child.type_iterator()));
+            TypeIterMut::from(references)
         }
     }
 
-    impl IntoIterType<String> for Module {
-        fn into_type_iterator<'a>(&'a self) -> TypeIterator<'a, String> {
+    impl TypeIter<String> for Module {
+        fn type_iterator(&self) -> TypeIterator<'_, String> {
             let mut references = vec![&self.identifier];
             references.extend(self.children.values().flat_map(|child| child.iter_type::<String>()));
             TypeIterator::from(references)
@@ -285,10 +285,10 @@ impl IsTree for Module {
     }
 
     impl IntoIterTypeMut<String> for Module {
-        fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, String> {
+        fn type_iterator(&mut self) -> TypeIterMut<'_, String> {
             let mut references = vec![&mut self.identifier];
-            references.extend(self.children.values_mut().flat_map(|child| child.into_type_iterator()));
-            TypeIteratorMut::from(references)
+            references.extend(self.children.values_mut().flat_map(|child| child.type_iterator()));
+            TypeIterMut::from(references)
         }
     }
 

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 
 use crate::{prelude::*, Identifier, Generics, Type};
 
@@ -44,7 +44,7 @@ impl Display for PathSegment {
 }
 
 impl IntoIterTypeMut<Type> for PathSegment {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
-        self.generics.into_type_iterator()
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+        self.generics.type_iterator()
     }
 }

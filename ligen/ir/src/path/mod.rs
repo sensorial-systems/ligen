@@ -6,7 +6,7 @@ use crate::prelude::*;
 use std::path::PathBuf;
 
 use is_tree::IntoIterTypeMut;
-use is_tree::TypeIteratorMut;
+use is_tree::TypeIterMut;
 pub use path_segment::*;
 
 #[cfg(any(test, feature = "mocks"))]
@@ -212,11 +212,11 @@ mod test {
 }
 
 impl IntoIterTypeMut<Type> for Path {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         self
             .segments
             .iter_mut()
-            .flat_map(|segment| segment.into_type_iterator())
+            .flat_map(|segment| segment.type_iterator())
             .collect::<Vec<_>>()
             .into()
     }

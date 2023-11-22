@@ -1,4 +1,4 @@
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 
 use crate::{Path, Identifier, PathSegment, Mutability};
 use crate::prelude::*;
@@ -248,11 +248,11 @@ impl std::fmt::Display for Type {
 }
 
 impl IntoIterTypeMut<Type> for Type {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         // FIXME: Is this safe?
         let myself = unsafe { &mut *(self as *mut Self) };
         let mut stack = vec![myself];
-        stack.extend(self.path.into_type_iterator());
+        stack.extend(self.path.type_iterator());
         stack.into()
     }
 }

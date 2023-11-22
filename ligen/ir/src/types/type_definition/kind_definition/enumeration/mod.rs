@@ -4,7 +4,7 @@
 pub mod mock;
 
 pub mod variant;
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 pub use variant::*;
 
 use crate::{prelude::*, Type};
@@ -17,7 +17,7 @@ pub struct Enumeration {
 }
 
 impl IntoIterTypeMut<Type> for Enumeration {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
-        self.variants.iter_mut().flat_map(|m| m.into_type_iterator()).collect::<Vec<_>>().into()
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+        self.variants.iter_mut().flat_map(|m| m.type_iterator()).collect::<Vec<_>>().into()
     }
 }

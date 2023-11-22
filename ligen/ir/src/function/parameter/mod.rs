@@ -4,7 +4,7 @@
 pub mod mock;
 
 use std::fmt::{Display, Formatter};
-use is_tree::{IntoIterTypeMut, TypeIteratorMut};
+use is_tree::{IntoIterTypeMut, TypeIterMut};
 
 use crate::prelude::*;
 use crate::{Identifier, Type, Attributes, Mutability};
@@ -39,7 +39,7 @@ impl Display for Parameter {
 }
 
 impl IntoIterTypeMut<Type> for Parameter {
-    fn into_type_iterator<'a>(&'a mut self) -> TypeIteratorMut<'a, Type> {
-        self.type_.into_type_iterator()
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+        self.type_.type_iterator()
     }
 }
