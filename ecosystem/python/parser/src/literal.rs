@@ -30,7 +30,7 @@ impl Parser<&str> for LiteralParser {
 
 impl Parser<&Constant> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &Constant, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
         match input {
             Constant::Bool(bool) => Ok(Literal::Boolean(*bool)),
             Constant::Float(float) => Ok(Literal::Float(*float)),
@@ -46,7 +46,7 @@ impl Parser<&Constant> for LiteralParser {
             Constant::Tuple(tuple) => {
                 let mut result = Vec::new();
                 for element in tuple {
-                    result.push(self.parse(element, config)?);
+                    result.push(self.parse(element, _config)?);
                 }
                 Ok(Literal::Tuple(result))
             },
