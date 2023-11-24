@@ -208,6 +208,16 @@ impl Type {
         self.is(Self::f32()) || self.is(Self::f64()) || self.is(Self::f128())
     }
 
+    /// Check if the `Type` is `Tuple`.
+    pub fn is_tuple(&self) -> bool {
+        self.path.last().identifier == Identifier::tuple()
+    }
+
+    /// Check if the `Type` is `Vector`.
+    pub fn is_vector(&self) -> bool {
+        self.path.last().identifier == Identifier::vector()
+    }
+
     /// Check if the `Type` is `String`.
     pub fn is_string(&self) -> bool {
         self.is(Self::string())

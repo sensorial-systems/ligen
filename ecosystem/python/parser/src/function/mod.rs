@@ -65,7 +65,7 @@ impl FunctionParser {
     fn parse_inputs(&self, args: Arguments, config: &ParserConfig) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args.args {
-            parameters.push(ParameterParser.parse(arg, config)?);
+            parameters.push(ParameterParser::default().parse(arg, config)?);
         }
         Ok(parameters)
     }

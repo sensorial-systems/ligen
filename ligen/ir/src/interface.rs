@@ -58,3 +58,9 @@ impl IntoIterTypeMut<Type> for Interface {
         stack.into()
     }
 }
+
+impl IntoIterTypeMut<Method> for Interface {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
+        self.methods.iter_mut().collect::<Vec<_>>().into()
+    }
+}

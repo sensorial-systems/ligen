@@ -20,8 +20,14 @@ pub enum Literal {
     UnsignedInteger(u64),
     /// Float variant
     Float(f64),
+    /// Tuple variant
+    Tuple(Vec<Literal>),
+    /// Vector variant
+    Vector(Vec<Literal>),
     /// None variant
-    None
+    None,
+    /// Unknown variant used for language specific literals
+    Unknown // TODO: Implement it as Unknown(String) with the unparsed value so the user can see it
 }
 
 impl Literal {
@@ -34,7 +40,10 @@ impl Literal {
             Literal::Integer(_) => type_.is_integer(),
             Literal::UnsignedInteger(_) => type_.is_unsigned_integer(),
             Literal::Float(_) => type_.is_float(),
-            Literal::None => false
+            Literal::Tuple(_) => type_.is_tuple(),
+            Literal::Vector(_) => type_.is_vector(),
+            Literal::None => false,
+            Literal::Unknown => false
         }
     }
 
@@ -126,7 +135,28 @@ impl std::fmt::Display for Literal {
             Literal::Integer(value) => write!(f, "{}", value),
             Literal::UnsignedInteger(value) => write!(f, "{}", value),
             Literal::Float(value) => write!(f, "{}", value),
-            Literal::None => write!(f, "None")
+            Literal::Tuple(values) => {
+                write!(f, "(")?;
+                for (index, value) in values.iter().enumerate() {
+                    if index > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{}", value)?;
+                }
+                write!(f, ")")
+            },
+            Literal::Vector(values) => {
+                write!(f, "[")?;
+                for (index, value) in values.iter().enumerate() {
+                    if index > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{}", value)?;
+                }
+                write!(f, "]")
+            },
+            Literal::None => write!(f, "None"),
+            Literal::Unknown => write!(f, "Unknown")
         }
     }
 }

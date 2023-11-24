@@ -7,6 +7,8 @@ use is_tree::TypeIterMut;
 pub use metadata::*;
 
 use crate::Identifier;
+use crate::Interface;
+use crate::Method;
 use crate::Module;
 use crate::Type;
 use crate::prelude::*;
@@ -38,5 +40,17 @@ impl Library {
 impl IntoIterTypeMut<Type> for Library {
     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
         self.root_module.iter_type_mut::<Type>()
+    }
+}
+
+impl IntoIterTypeMut<Method> for Library {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
+        self.root_module.iter_type_mut::<Method>()
+    }
+}
+
+impl IntoIterTypeMut<Interface> for Library {
+    fn type_iterator(&mut self) -> TypeIterMut<'_, Interface> {
+        self.root_module.iter_type_mut::<Interface>()
     }
 }

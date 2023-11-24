@@ -49,5 +49,18 @@ impl IntoIterTypeMut<Type> for Function {
     }
 }
 
+impl From<Method> for Function {
+    fn from(method: Method) -> Self {
+        Self {
+            attributes: method.attributes,
+            visibility: method.visibility,
+            synchrony: method.synchrony,
+            identifier: method.identifier,
+            inputs: method.inputs,
+            output: method.output,
+        }
+    }
+}
+
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;

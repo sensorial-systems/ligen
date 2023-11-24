@@ -6,7 +6,7 @@ pub mod mock;
 use std::fmt::{Display, Formatter};
 use is_tree::{IntoIterTypeMut, TypeIterMut};
 
-use crate::prelude::*;
+use crate::{prelude::*, Literal};
 use crate::{Identifier, Type, Attributes, Mutability};
 
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
@@ -18,6 +18,8 @@ pub struct Parameter {
     pub identifier: Identifier,
     /// Type.
     pub type_: Type,
+    /// Default value.
+    pub default_value: Option<Literal>,
 }
 
 impl Parameter {

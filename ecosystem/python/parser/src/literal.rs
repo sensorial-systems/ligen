@@ -22,7 +22,7 @@ impl Parser<&str> for LiteralParser {
             Ok(Literal::Integer(integer))
         } else {
             ExprConstant::parse(input, "<embedded>")
-                .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+                .map_err(|e| Error::Message(format!("Failed to parse literal from ExprConstant: {:?}", e)))
                 .and_then(|constant| self.parse(&constant, config))
         }
     }
@@ -30,12 +30,27 @@ impl Parser<&str> for LiteralParser {
 
 impl Parser<&Constant> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, config: &ParserConfig) -> Result<Self::Output> {
         match input {
             Constant::Bool(bool) => Ok(Literal::Boolean(*bool)),
             Constant::Float(float) => Ok(Literal::Float(*float)),
             Constant::Str(string) => Ok(Literal::String(string.clone())),
-            _ => Err(Error::Message(format!("Failed to parse literal: {:?}", input)))
+            Constant::Int(big_int) => Ok(
+                Literal::Integer(
+                    big_int
+                        .try_into()
+                        .map_err(|_| Error::Message("Failed to convert BigInt to usize".into()))?
+                    )
+                ),
+            Constant::None => Ok(Literal::None),
+            Constant::Tuple(tuple) => {
+                let mut result = Vec::new();
+                for element in tuple {
+                    result.push(self.parse(element, config)?);
+                }
+                Ok(Literal::Tuple(result))
+            },
+            _ => Err(Error::Message(format!("Failed to parse literal from constant: {:?}", input)))
         }
     }
 }
@@ -50,10 +65,16 @@ impl Parser<&ExprConstant> for LiteralParser {
 impl Parser<&Expr> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: &Expr, config: &ParserConfig) -> Result<Self::Output> {
-        if let Expr::Constant(constant) = input {
-                self.parse(constant, config)
-        } else {
-            Err(Error::Message(format!("Failed to parse literal: {:?}", input)))
+        match input {
+            Expr::Constant(constant) => self.parse(constant, config),
+            Expr::List(list) => {
+                let mut result = Vec::new();
+                for element in &list.elts {
+                    result.push(self.parse(element, config)?);
+                }
+                Ok(Literal::Vector(result))
+            },
+            _ => Ok(Literal::Unknown)
         }
     }
 }

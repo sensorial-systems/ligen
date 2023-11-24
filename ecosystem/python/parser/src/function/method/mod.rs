@@ -1,3 +1,5 @@
+pub mod validator;
+
 use ligen::parser::ParserConfig;
 use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Method, Mutability};

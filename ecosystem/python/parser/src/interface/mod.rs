@@ -1,3 +1,5 @@
+pub mod validator;
+
 use crate::prelude::*;
 use ligen::parser::ParserConfig;
 use rustpython_parser::ast::StmtClassDef;

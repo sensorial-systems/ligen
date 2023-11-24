@@ -2,10 +2,14 @@ use ligen::parser::ParserConfig;
 use rustpython_parser::ast::ArgWithDefault;
 use ligen::ir::Parameter;
 use crate::identifier::IdentifierParser;
+use crate::literal::LiteralParser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
-pub struct ParameterParser;
+#[derive(Default)]
+pub struct ParameterParser {
+    literal_parser: LiteralParser,
+}
 
 impl Parser<ArgWithDefault> for ParameterParser {
     type Output = Parameter;
@@ -17,6 +21,11 @@ impl Parser<ArgWithDefault> for ParameterParser {
         } else {
             Default::default()
         };
-        Ok(Parameter { attributes, identifier, type_ })
+        let default_value = if let Some(value) = input.default {
+            Some(self.literal_parser.parse(&*value, config)?)
+        } else {
+            None
+        };
+        Ok(Parameter { attributes, identifier, type_, default_value })
     }
 }
