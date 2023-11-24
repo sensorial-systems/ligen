@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use is_tree::Visitor;
 use ligen::{ir::{Type, Path}, parser::{ParserConfig, ParserConfigGet, Validator}};
 
 #[derive(Default)]
@@ -13,7 +12,7 @@ impl TypeValidator {
 
 impl Validator for TypeValidator {
     type Input = Type;
-    fn validate(&self, type_: &mut Visitor<Type>, config: &ParserConfig) -> Result<()> {
+    fn validate(&self, type_: &mut Type, config: &ParserConfig) -> Result<()> {
         let name = type_.path.last().identifier.name.as_str();
         if config.get(Path::from("ligen::python::as-opaque").join(name)).is_some() {
             println!("{}", type_.path);
