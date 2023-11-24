@@ -64,7 +64,7 @@ impl Parser<WithSource<&Expr>> for AttributesParser {
                 Ok(Group::new(path, attributes).into())
             },
             Expr::Name(expr) => {
-                let path = self.path_parser.parse(&*expr, config)?;
+                let path = self.path_parser.parse(expr, config)?;
                 let attributes = Attributes::default();
                 Ok(Group::new(path, attributes).into())
             },

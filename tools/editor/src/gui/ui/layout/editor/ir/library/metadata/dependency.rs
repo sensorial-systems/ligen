@@ -6,7 +6,7 @@ pub struct Dependency {}
 impl Widget for Dependency {
     type Input = ligen_ir::Dependency;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, input: &mut Self::Input) {
-        Labeled::new(&input.identifier).show(settings, ui, |ui| {
+        Labeled::new(&input.identifier.name).show(settings, ui, |ui| {
             StringField::default().show(settings, ui, &mut input.requirement);
         });
     }
