@@ -13,6 +13,7 @@ pub use visibility::*;
 pub use library::*;
 pub use mutability::*;
 pub use interface::*;
+pub use ecosystem::*;
 
 pub mod prelude;
 
@@ -29,5 +30,6 @@ pub mod path;
 pub mod mutability;
 pub mod source;
 pub mod library;
+pub mod ecosystem;
 
 pub mod symbols;
