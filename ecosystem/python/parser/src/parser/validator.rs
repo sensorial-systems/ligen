@@ -1,6 +1,6 @@
 use crate::{prelude::*, function::method::validator::MethodValidator, interface::validator::InterfaceValidator};
 use is_tree::prelude::*;
-use ligen::{ir::{Library, Type, Method, Interface}, parser::ParserConfig};
+use ligen::{ir::{Library, Type, Method, Interface}, parser::{ParserConfig, Validator}};
 use crate::types::type_::TypeValidator;
 
 #[derive(Default)]

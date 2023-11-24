@@ -11,6 +11,8 @@ use rustpython_parser::ast::{Expr, Keyword};
 #[derive(Default)]
 pub struct AttributesParser {
     path_parser: PathParser,
+    identifier_parser: IdentifierParser,
+    literal_parser: LiteralParser,
 }
 
 impl Parser<WithSource<&Vec<Expr>>> for AttributesParser {
@@ -46,8 +48,8 @@ impl Parser<WithSource<&Keyword>> for AttributesParser {
             .as_ref()
             .map(|arg| arg.to_string())
             .ok_or_else(|| Error::Message("Failed to parse attribute name".to_string()))?;
-        let identifier = IdentifierParser::default().parse(name, config)?;
-        let literal = LiteralParser::default().parse(&input.ast.value, config)?;
+        let identifier = self.identifier_parser.parse(name, config)?;
+        let literal = self.literal_parser.parse(&input.ast.value, config)?;
         Ok(Named::new(identifier, literal).into())
     }
 }
@@ -70,7 +72,7 @@ impl Parser<WithSource<&Expr>> for AttributesParser {
             },
             Expr::Attribute(expr) => {
                 let name = expr.attr.to_string();
-                let identifier = IdentifierParser::default().parse(name, config)?;
+                let identifier = self.identifier_parser.parse(name, config)?;
                 let attributes = Attributes::default();
                 Ok(Group::new(identifier, attributes).into())
             }

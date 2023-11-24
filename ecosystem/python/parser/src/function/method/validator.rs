@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::parser::ParserConfig;
+use ligen::parser::{ParserConfig, Validator};
 use ligen::ir::Method;
 
 #[derive(Default)]
@@ -13,8 +13,9 @@ impl MethodValidator {
     }
 }
 
-impl MethodValidator {
-    pub fn validate(&self, _method: &mut Method, _config: &ParserConfig) -> Result<()> {
+impl Validator for MethodValidator {
+    type Input = Method;
+    fn validate(&self, _method: &mut Method, _config: &ParserConfig) -> Result<()> {
         Ok(())
     }
 }
