@@ -3,8 +3,8 @@ use std::collections::HashMap;
 pub mod validator;
 pub use validator::*;
 
-use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant};
-use ligen::{ir::{Type, Identifier}, parser::ParserConfig};
+use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant, ExprAttribute};
+use ligen::{ir::{Path, Type, Identifier}, parser::ParserConfig};
 use crate::prelude::*;
 
 pub struct PythonMapper {
@@ -155,6 +155,21 @@ impl Parser<&Constant> for TypeParser {
     }
 }
 
+impl Parser<WithSource<&ExprAttribute>> for TypeParser {
+    type Output = Type;
+    fn parse(&self, input: WithSource<&ExprAttribute>, config: &ParserConfig) -> Result<Self::Output> {
+        let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
+        let name = input.ast.attr.as_str();
+        let identifier = self
+            .mapper
+            .to_ligen(&name.into())
+            .cloned()
+            .unwrap_or(Identifier::from(name));
+        type_.path = Path::from(identifier).join(type_.path);
+        Ok(type_)
+    }
+}
+
 impl Parser<WithSource<&Expr>> for TypeParser {
     type Output = Type;
     fn parse(&self, input: WithSource<&Expr>, config: &ParserConfig) -> Result<Self::Output> {
@@ -163,6 +178,7 @@ impl Parser<WithSource<&Expr>> for TypeParser {
             Expr::Subscript(expr) => self.parse(input.sub(expr), config),
             Expr::List(expr) => self.parse(input.sub(expr), config),
             Expr::Constant(expr) => self.parse(input.sub(expr), config),
+            Expr::Attribute(expr) => self.parse(input.sub(expr), config),
             _ => Err(Error::Message(format!("Failed to parse type: {}, {:#?}", &input.source[input.ast.start().to_usize()..input.ast.end().to_usize()], input.ast)))
         }
     }
