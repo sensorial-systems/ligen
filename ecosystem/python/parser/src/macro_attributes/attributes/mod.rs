@@ -2,13 +2,16 @@ pub mod attribute;
 
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
+use crate::path::PathParser;
 use crate::prelude::*;
 use ligen::parser::ParserConfig;
 use ligen::ir::{Attributes, Attribute, macro_attributes::{Group, Named}};
 use rustpython_parser::ast::{Expr, Keyword};
 
 #[derive(Default)]
-pub struct AttributesParser {}
+pub struct AttributesParser {
+    path_parser: PathParser,
+}
 
 impl Parser<WithSource<&Vec<Expr>>> for AttributesParser {
     type Output = Attributes;
@@ -54,18 +57,16 @@ impl Parser<WithSource<&Expr>> for AttributesParser {
     fn parse(&self, input: WithSource<&Expr>, config: &ParserConfig) -> Result<Self::Output> {
         match input.ast {
             Expr::Call(expr) => {
-                let name = expr.func.as_name_expr().map(|value| value.id.to_string()).expect("Failed to parse attribute name");
-                let identifier = IdentifierParser::default().parse(name, config)?;
+                let path = self.path_parser.parse(&*expr.func, config)?;
                 let mut attributes = self.parse(input.sub(&expr.args), config)?;
                 let keywords = self.parse(input.sub(&expr.keywords), config)?;
                 attributes.attributes.extend(keywords.attributes);
-                Ok(Group::new(identifier, attributes).into())
+                Ok(Group::new(path, attributes).into())
             },
             Expr::Name(expr) => {
-                let name = expr.id.to_string();
-                let identifier = IdentifierParser::default().parse(name, config)?;
+                let path = self.path_parser.parse(&*expr, config)?;
                 let attributes = Attributes::default();
-                Ok(Group::new(identifier, attributes).into())
+                Ok(Group::new(path, attributes).into())
             },
             Expr::Attribute(expr) => {
                 let name = expr.attr.to_string();
