@@ -6,7 +6,7 @@ pub mod mock;
 use std::fmt::{Display, Formatter};
 pub use attribute::*;
 
-use crate::{Identifier, Path};
+use crate::Path;
 use crate::Literal;
 use crate::prelude::*;
 
@@ -46,14 +46,14 @@ impl Attributes {
     }
 
     /// Get the group identified by `name`.
-    pub fn get_group<I: Into<Identifier>>(&self, name: I) -> Option<&Attributes> {
+    pub fn get_group<I: Into<Path>>(&self, name: I) -> Option<&Attributes> {
         let name = name.into();
         self
             .attributes
             .iter()
             .find_map(|attribute| {
                 if let Attribute::Group(group) = attribute {
-                    if group.identifier == name {
+                    if group.path == name {
                         Some(&group.attributes)
                     } else {
                         None
@@ -65,14 +65,14 @@ impl Attributes {
     }
 
     /// Get named attribute e.g.: name = "literal"
-    pub fn get_named<I: Into<Identifier>>(&self, name: I) -> Option<&Literal> {
+    pub fn get_named<I: Into<Path>>(&self, name: I) -> Option<&Literal> {
         let name = name.into();
         self
             .attributes
             .iter()
             .find_map(|attribute| {
                 if let Attribute::Named(named) = attribute {
-                    if named.identifier == name {
+                    if named.path == name {
                         Some(&named.literal)
                     } else {
                         None

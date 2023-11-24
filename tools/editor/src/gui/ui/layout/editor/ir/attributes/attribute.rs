@@ -1,6 +1,6 @@
 pub use crate::prelude::*;
 
-use crate::gui::ui::editor::{ir::{Attributes, Identifier, Literal}, widget::Widget, settings::Settings};
+use crate::gui::ui::editor::{ir::{Attributes, Identifier, Literal, Path}, widget::Widget, settings::Settings};
 
 #[derive(Default)]
 pub struct Attribute;
@@ -33,11 +33,11 @@ impl Widget for Attribute {
             match &mut attribute {
                 ligen_ir::Attribute::Literal(literal) => Literal::new().show(settings, ui, literal),
                 ligen_ir::Attribute::Group(group) => {
-                    Identifier::new().show(settings, ui, &mut group.identifier);
+                    Path::new().show(settings, ui, &mut group.path);
                     Attributes::new().show(settings, ui, &mut group.attributes);
                 },
                 ligen_ir::Attribute::Named(named) => {
-                    Identifier::new().show(settings, ui, &mut named.identifier);
+                    Path::new().show(settings, ui, &mut named.path);
                     Literal::new().show(settings, ui, &mut named.literal);
                 }
             }
