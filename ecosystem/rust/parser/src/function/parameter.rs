@@ -20,6 +20,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                         attributes: AttributesParser::default().parse(attrs, config)?,
                         identifier: IdentifierParser::new().parse(ident, config)?,
                         type_: TypeParser.parse(*ty, config)?,
+                        default_value: Default::default(),
                     })
                 } else {
                     Err(Error::Message("Identifier not found".into()))
@@ -41,7 +42,8 @@ impl Parser<syn::FnArg> for ParameterParser {
                         Type::reference(mutability, type_)
                     })
                     .unwrap_or_else(|| Type::from(Identifier::new("Self")));
-                Ok(Self::Output { attributes, identifier, type_ })
+                let default_value = Default::default();
+                Ok(Self::Output { attributes, identifier, type_, default_value })
             },
         }
     }

@@ -12,7 +12,8 @@ pub fn parameter_attribute() -> Parameter {
     Parameter {
         attributes: Group::from("attribute").into(),
         identifier: Identifier::new("integer"),
-        type_: Type::i32()
+        type_: Type::i32(),
+        default_value: Default::default()
     }
 }
 

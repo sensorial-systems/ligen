@@ -21,12 +21,14 @@ pub fn function_input() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("a"),
-                type_: Type::i32()
+                type_: Type::i32(),
+                default_value: Default::default()
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
-                type_: Type::i32()
+                type_: Type::i32(),
+                default_value: Default::default()
             },
         ],
         output: None
@@ -98,17 +100,20 @@ pub fn function_complete() -> Function {
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("a"),
-                type_: Type::string()
+                type_: Type::string(),
+                default_value: Default::default()
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
-                type_: Type::constant_reference(Type::string())
+                type_: Type::constant_reference(Type::string()),
+                default_value: Default::default()
             },
             Parameter {
                 attributes: Default::default(),
                 identifier: Identifier::new("c"),
-                type_: Type::mutable_reference(Type::string())
+                type_: Type::mutable_reference(Type::string()),
+                default_value: Default::default()
             },
         ],
         output: Some(Type::constant_reference(Type::string()))
