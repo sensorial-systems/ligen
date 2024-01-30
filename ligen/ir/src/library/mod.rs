@@ -1,9 +1,6 @@
 //! Library representation.
 
 pub mod metadata;
-use is_tree::IntoIterTypeMut;
-use is_tree::IterTypeMut;
-use is_tree::TypeIterMut;
 pub use metadata::*;
 
 use crate::Identifier;
@@ -37,20 +34,21 @@ impl Library {
     }
 }
 
-impl IntoIterTypeMut<Type> for Library {
-    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-        self.root_module.iter_type_mut::<Type>()
-    }
-}
+// FIXME: Remove this.
+// impl IntoIterTypeMut<Type> for Library {
+//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+//         self.root_module.iter_type_mut::<Type>()
+//     }
+// }
 
-impl IntoIterTypeMut<Method> for Library {
-    fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
-        self.root_module.iter_type_mut::<Method>()
-    }
-}
+// impl IntoIterTypeMut<Method> for Library {
+//     fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
+//         self.root_module.iter_type_mut::<Method>()
+//     }
+// }
 
-impl IntoIterTypeMut<Interface> for Library {
-    fn type_iterator(&mut self) -> TypeIterMut<'_, Interface> {
-        self.root_module.iter_type_mut::<Interface>()
-    }
-}
+// impl IntoIterTypeMut<Interface> for Library {
+//     fn type_iterator(&mut self) -> TypeIterMut<'_, Interface> {
+//         self.root_module.iter_type_mut::<Interface>()
+//     }
+// }

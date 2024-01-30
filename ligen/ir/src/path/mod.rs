@@ -5,9 +5,7 @@ use crate::Type;
 use crate::prelude::*;
 use std::path::PathBuf;
 
-use is_tree::IntoIterTypeMut;
-use is_tree::TypeIterMut;
-pub use path_segment::*;
+pub use path_segment::PathSegment;
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
@@ -179,17 +177,17 @@ impl From<Identifier> for Path {
     }
 }
 
-impl<'a> From<is_tree::Path<'a, Identifier>> for Path {
-    fn from(path: is_tree::Path<'a, Identifier>) -> Self {
-        let segments = path
-            .segments
-            .iter()
-            .map(|segment| segment.clone().into())
-            .collect();
-        Self { segments }
-    }
-
-}
+// FIXME: Remove this.
+// impl<'a> From<is_tree::Path<'a, Identifier>> for Path {
+//     fn from(path: is_tree::Path<'a, Identifier>) -> Self {
+//         let segments = path
+//             .segments
+//             .iter()
+//             .map(|segment| segment.clone().into())
+//             .collect();
+//         Self { segments }
+//     }
+// }
 
 impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -211,13 +209,14 @@ mod test {
     }
 }
 
-impl IntoIterTypeMut<Type> for Path {
-    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-        self
-            .segments
-            .iter_mut()
-            .flat_map(|segment| segment.type_iterator())
-            .collect::<Vec<_>>()
-            .into()
-    }
-}
+// FIXME: Remove this.
+// impl IntoIterTypeMut<Type> for Path {
+//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+//         self
+//             .segments
+//             .iter_mut()
+//             .flat_map(|segment| segment.type_iterator())
+//             .collect::<Vec<_>>()
+//             .into()
+//     }
+// }

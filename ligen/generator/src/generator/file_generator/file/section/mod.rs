@@ -5,7 +5,7 @@ pub mod content;
 pub mod template;
 
 pub use content::*;
-use is_tree::*;
+use ::is_tree::*;
 pub use template::*;
 
 use std::ops::Range;
@@ -106,72 +106,75 @@ impl FileSection {
     }
 }
 
-impl HasIdentifier for FileSection {
-    type Identifier = String;
-    fn identifier(&self) -> &Self::Identifier {
+impl KnowsPathSegment for FileSection {
+    type PathSegment = String;
+}
+
+impl HasPathSegment for FileSection {
+    fn path_segment(&self) -> &Self::PathSegment {
         &self.name
     }
 }
 
-impl IsTree for FileSection {
-    fn add_branch(&mut self, section: impl Into<Self>) -> &mut Self where Self: Sized {
-        self.content.push(Box::new(section.into()));
-        self
-            .content
-            .last_mut()
-            .unwrap()
-            .as_section_mut()
-            .unwrap()
-    }
+// impl IsTree for FileSection {
+//     fn add_branch(&mut self, section: impl Into<Self>) -> &mut Self where Self: Sized {
+//         self.content.push(Box::new(section.into()));
+//         self
+//             .content
+//             .last_mut()
+//             .unwrap()
+//             .as_section_mut()
+//             .unwrap()
+//     }
 
-    fn get<K>(&self, key: K) -> Option<&Self>
-    where K: Into<Self::Identifier>, Self::Identifier: Borrow<Self::Identifier>
-    {
-        let name = key.into();
-        let name = name.borrow();
-        self.content
-            .iter()
-            .find_map(|content| {
-                content
-                    .as_section()
-                    .and_then(|section|
-                        if section.name == name {
-                            Some(section)
-                        } else {
-                            None
-                        }
-                    )
-            })
-    }
+//     fn get<K>(&self, key: K) -> Option<&Self>
+//     where K: Into<Self::PathSegment>, Self::PathSegment: Borrow<Self::PathSegment>
+//     {
+//         let name = key.into();
+//         let name = name.borrow();
+//         self.content
+//             .iter()
+//             .find_map(|content| {
+//                 content
+//                     .as_section()
+//                     .and_then(|section|
+//                         if section.name == name {
+//                             Some(section)
+//                         } else {
+//                             None
+//                         }
+//                     )
+//             })
+//     }
 
-    fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-    where K: Into<Self::Identifier>, Self::Identifier: std::borrow::BorrowMut<Self::Identifier>
-    {
-        let name = key.into();
-        let name = name.borrow();
-        self.content
-            .iter_mut()
-            .find_map(|content| {
-                content
-                    .as_section_mut()
-                    .and_then(|section|
-                        if section.name == name {
-                            Some(section)
-                        } else {
-                            None
-                        }
-                    )
-            })
-    }
+//     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
+//     where K: Into<Self::PathSegment>, Self::PathSegment: std::borrow::BorrowMut<Self::PathSegment>
+//     {
+//         let name = key.into();
+//         let name = name.borrow();
+//         self.content
+//             .iter_mut()
+//             .find_map(|content| {
+//                 content
+//                     .as_section_mut()
+//                     .and_then(|section|
+//                         if section.name == name {
+//                             Some(section)
+//                         } else {
+//                             None
+//                         }
+//                     )
+//             })
+//     }
 
-    fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
-        Box::new(self.content.iter().filter_map(|content| content.as_section()))
-    }
+//     fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
+//         Box::new(self.content.iter().filter_map(|content| content.as_section()))
+//     }
 
-    fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
-        Box::new(self.content.iter_mut().filter_map(|content| content.as_section_mut()))
-    }
-}
+//     fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
+//         Box::new(self.content.iter_mut().filter_map(|content| content.as_section_mut()))
+//     }
+// }
 
 impl FileSection {
     /// Section start.

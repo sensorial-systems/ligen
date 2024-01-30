@@ -1,7 +1,5 @@
 //! Structure field representation.
 
-use is_tree::{IntoIterTypeMut, TypeIterMut};
-
 use crate::prelude::*;
 use crate::{Identifier, Type, Visibility, Attributes};
 
@@ -18,8 +16,9 @@ pub struct Field {
     pub type_: Type
 }
 
-impl IntoIterTypeMut<Type> for Field {
-    fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-        self.type_.type_iterator()
-    }
-}
+// FIXME: Remove this
+// impl IntoIterTypeMut<Type> for Field {
+//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
+//         self.type_.type_iterator()
+//     }
+// }
