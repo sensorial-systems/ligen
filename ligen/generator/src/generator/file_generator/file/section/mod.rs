@@ -49,7 +49,8 @@ impl FileSection {
     /// Gets or creates, if it doesn't exist, an indented branch.
     pub fn indented_branch(&mut self, name: impl Into<String>) -> &mut Self {
         let indentation_level = self.indentation_level + 1;
-        self.branch(name).indentation(indentation_level)
+        todo!("Implement here");
+        // self.branch(name).indentation(indentation_level)
     }
 
     /// Writes the content to the file section at the specified index.
@@ -207,12 +208,13 @@ impl FileSection {
             }
             start = section.end;
             let section = &template.content[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
-            let section = if let Some(template) = template.get(section) {
-                FileSection::from_template(template)?
-            } else {
-                FileSection::new(section)
-            };
-            self.add_branch(section);
+            todo!("Implement here");
+            // let section = if let Some(template) = template.get(section) {
+            //     FileSection::from_template(template)?
+            // } else {
+            //     FileSection::new(section)
+            // };
+            // self.add_branch(section);
         }
         let after = &template.content[start..];
         if !after.is_empty() {

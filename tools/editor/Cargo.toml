@@ -18,6 +18,6 @@ ligen-python-parser.workspace = true
 ligen-traits.workspace = true
 ligen-generator.workspace = true
 ligen-rust-pyo3-importer.workspace = true
-egui_tiles = "0.2.0"
+egui_tiles = "0.7"
 stacker = "0.1.15"
 boolinator = "2.4.0"

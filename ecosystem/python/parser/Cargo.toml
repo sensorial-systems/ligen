@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 ligen.workspace = true
-rustpython-parser = "0.3.0"
+rustpython-parser = { git = "https://github.com/RustPython/Parser" }
 shrinkwraprs.workspace = true
 python-pkginfo = "0.6.0"
 is-tree.workspace = true
