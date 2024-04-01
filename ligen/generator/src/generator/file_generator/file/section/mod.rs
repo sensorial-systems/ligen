@@ -9,9 +9,10 @@ pub use template::*;
 
 use std::ops::Range;
 
-#[derive(Debug)]
+#[derive(Debug, IsTree)]
 pub struct FileSection {
     /// File section name.
+    #[tree(path_segment)]
     pub name: String,
     /// File section content.
     pub content: Vec<Box<dyn FileSectionContent>>,
@@ -162,24 +163,10 @@ impl std::fmt::Display for FileSection {
 
 // Tree implementation
 
-impl HasPathSegment for FileSection {
-    fn path_segment(&self) -> &String {
-        &self.name
-    }
-}
-
-impl<'a> KnowsBranches<'a> for &'a mut FileSection {
-    type Branches = &'a mut FileSection;
-}
-
-impl<'a> KnowsOwned for FileSection {
-    type Owned = FileSection;
-}
-
-impl<'a> AddBranch<'a> for &'a mut FileSection
+impl<'a> AddBranch<'a> for FileSection
 where Self::Branches: KnowsOwned<Owned = FileSection>
 {
-    fn add_branch(self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
+    fn add_branch(&'a mut self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
         where Self::Branches: KnowsOwned
     {
         self.content.push(Box::new(branch.into()));
@@ -189,29 +176,17 @@ where Self::Branches: KnowsOwned<Owned = FileSection>
             .unwrap()
             .as_section_mut()
             .unwrap()
-    }    
+    }
+}
+
+impl<'a> HasBranches<'a> for &'a FileSection {
+    fn branches(self) -> impl Iterator<Item = Self::Branches> {
+        self.content.iter().filter_map(|content| content.as_section())
+    }
 }
 
 impl<'a> HasBranches<'a> for &'a mut FileSection {
     fn branches(self) -> impl Iterator<Item = Self::Branches> {
         self.content.iter_mut().filter_map(|content| content.as_section_mut())
-    }
-}
-
-impl<'a> HasGet<'a> for &'a mut FileSection {}
-
-impl<'a> HasGetOrCreate<'a> for &'a mut FileSection
-where Self::Branches: KnowsOwned<Owned = FileSection>
-{
-    fn branch(self, segment: impl Into<String>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
-    where Self::Branches: KnowsOwned
-    {
-        let segment = segment.into();
-        let self_ = unsafe { &mut *(self as *mut FileSection) }; // FIXME: This is a repetitive safe workaround. is-tree should provide a safe way to do this.
-        if let Some(branch) = self.get(&segment) {
-            branch
-        } else {
-            self_.add_branch(FileSection::new(segment))
-        }
     }
 }
