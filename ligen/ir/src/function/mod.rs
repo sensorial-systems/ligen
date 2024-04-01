@@ -6,7 +6,6 @@ pub mod parameter;
 pub mod method;
 pub mod synchrony;
 
-use ::is_tree::*;
 pub use parameter::*;
 pub use method::*;
 pub use synchrony::*;
@@ -39,16 +38,6 @@ impl CountSymbols for &Vec<Function> {
         self.len()
     }
 }
-
-// FIXME: Remove this
-// impl IntoIterTypeMut<Type> for Function {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         let mut stack = Vec::new();
-//         stack.extend(self.inputs.iter_mut().flat_map(|m| m.type_iterator()));
-//         stack.extend(self.output.iter_mut().flat_map(|m| m.type_iterator()));
-//         stack.into()
-//     }
-// }
 
 impl From<Method> for Function {
     fn from(method: Method) -> Self {

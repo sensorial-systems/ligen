@@ -1,5 +1,4 @@
 use ::is_tree::*;
-use std::borrow::Borrow;
 
 pub struct SectionTemplate {
     pub name: String,
@@ -16,50 +15,68 @@ impl SectionTemplate {
     }
 }
 
-impl KnowsPathSegment for SectionTemplate {
-    type PathSegment = String;
-}
+// Tree implementation
 
 impl HasPathSegment for SectionTemplate {
-    fn path_segment(&self) -> &Self::PathSegment {
+    fn path_segment(&self) -> &String {
         &self.name
     }
 }
 
-// impl IsTree for SectionTemplate {
-//     fn add_branch(&mut self, template: impl Into<Self>) -> &mut Self where Self: Sized {
-//         let template = template.into();
-//         self.children.push(template);
-//         self.children.last_mut().unwrap()
-//     }
+impl<'a> KnowsBranches<'a> for &'a SectionTemplate {
+    type Branches = &'a SectionTemplate;
+}
 
-//     fn get<K>(&self, key: K) -> Option<&Self>
-//     where K: Into<Self::PathSegment>, Self::PathSegment: Borrow<Self::PathSegment>
-//     {
-//         let key = key.into();
-//         let key = key.borrow();
-//         self
-//             .children
-//             .iter()
-//             .find(|section| section.name == key)    
-//     }
+impl<'a> KnowsBranches<'a> for &'a mut SectionTemplate {
+    type Branches = &'a mut SectionTemplate;
+}
 
-//     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-//     where K: Into<Self::PathSegment>, Self::PathSegment: std::borrow::BorrowMut<Self::PathSegment>
-//     {
-//         let key = key.into();
-//         let key = key.borrow();
-//         self
-//             .children
-//             .iter_mut()
-//             .find(|section| section.name == key)    
-//     }
+impl<'a> KnowsOwned for SectionTemplate {
+    type Owned = SectionTemplate;
+}
 
-//     fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
-//         Box::new(self.children.iter())
-//     }
+impl<'a> AddBranch<'a> for &'a mut SectionTemplate
+where Self::Branches: KnowsOwned<Owned = SectionTemplate>
+{
+    fn add_branch(self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
+        where Self::Branches: KnowsOwned
+    {
+        self.children.push(branch.into());
+        self
+            .children
+            .last_mut()
+            .unwrap()
+    }    
+}
 
-//     fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
-//         Box::new(self.children.iter_mut())
-//     }
-// }
+impl<'a> HasBranches<'a> for &'a mut SectionTemplate {
+    fn branches(self) -> impl Iterator<Item = Self::Branches> {
+        self.children.iter_mut()
+    }
+}
+
+impl<'a> HasBranches<'a> for &'a SectionTemplate {
+    fn branches(self) -> impl Iterator<Item = Self::Branches> {
+        self.children.iter()
+    }
+}
+
+impl<'a> HasGet<'a> for &'a SectionTemplate {}
+
+impl<'a> HasGet<'a> for &'a mut SectionTemplate {}
+
+impl<'a> HasGetOrCreate<'a> for &'a mut SectionTemplate
+where Self::Branches: KnowsOwned<Owned = SectionTemplate>
+{
+    fn branch(self, segment: impl Into<String>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
+    where Self::Branches: KnowsOwned
+    {
+        let segment = segment.into();
+        let self_ = unsafe { &mut *(self as *mut SectionTemplate) }; // FIXME: This is a repetitive safe workaround. is-tree should provide a safe way to do this.
+        if let Some(branch) = self.get(&segment) {
+            branch
+        } else {
+            self_.add_branch(SectionTemplate::new(segment, ""))
+        }
+    }
+}

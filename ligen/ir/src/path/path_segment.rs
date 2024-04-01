@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{prelude::*, Identifier, Generics, Type};
+use crate::{prelude::*, Identifier, Generics};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct PathSegment {
@@ -40,10 +40,3 @@ impl Display for PathSegment {
         write!(f, "{}{}", self.identifier, self.generics)
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for PathSegment {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         self.generics.type_iterator()
-//     }
-// }

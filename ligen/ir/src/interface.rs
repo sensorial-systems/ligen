@@ -1,4 +1,4 @@
-use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility, Type};
+use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility};
 use crate::prelude::*;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -46,20 +46,3 @@ impl CountSymbols for Interface {
             + self.methods.count_symbols()
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Interface {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         let mut stack = Vec::new();
-//         stack.extend(self.objects.iter_mut().flat_map(|m| m.iter_type_mut::<Type>()));
-//         stack.extend(self.functions.iter_mut().flat_map(|m| m.iter_type_mut::<Type>()));
-//         stack.extend(self.methods.iter_mut().flat_map(|m| m.iter_type_mut::<Type>()));
-//         stack.into()
-//     }
-// }
-
-// impl IntoIterTypeMut<Method> for Interface {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
-//         self.methods.iter_mut().collect::<Vec<_>>().into()
-//     }
-// }

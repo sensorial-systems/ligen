@@ -4,7 +4,7 @@ pub mod kind_definition;
 
 pub use kind_definition::*;
 
-use crate::{prelude::*, Attributes, Visibility, Path, Generics, Type};
+use crate::{prelude::*, Attributes, Visibility, Path, Generics};
 use crate::Identifier;
 
 /// All the possible ways to define a type.
@@ -35,14 +35,3 @@ impl CountSymbols for &Vec<TypeDefinition> {
         self.len()
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for TypeDefinition {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         let mut stack = Vec::new();
-//         stack.extend(self.interfaces.iter_mut().flat_map(|m| m.type_iterator()));
-//         stack.extend(self.definition.type_iterator());
-//         stack.extend(self.generics.type_iterator());
-//         stack.into()
-//     }
-// }

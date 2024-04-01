@@ -8,7 +8,7 @@ pub mod mock;
 pub use import::*;
 use ::is_tree::*;
 
-use crate::{prelude::*, Type, Method};
+use crate::prelude::*;
 use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
 use crate::interface::Interface;
 
@@ -77,13 +77,9 @@ impl CountSymbols for &Vec<Module> {
     }
 }
 
-impl KnowsPathSegment for Module {
-    type PathSegment = Identifier;
-}
-
 impl HasPathSegment for Module {
-    fn path_segment(&self) -> &Self::PathSegment {
-        &self.identifier
+    fn path_segment(&self) -> &String {
+        &self.identifier.name
     }
 }
 
@@ -105,33 +101,3 @@ impl Module {
             && self.modules.is_empty()
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Module {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         let mut stack = Vec::new();
-//         stack.extend(self.interfaces.iter_mut().flat_map(|i| i.type_iterator()));
-//         stack.extend(self.functions.iter_mut().flat_map(|f| f.type_iterator()));
-//         stack.extend(self.types.iter_mut().flat_map(|t| t.type_iterator()));
-//         stack.extend(self.objects.iter_mut().flat_map(|o| o.type_iterator()));
-//         stack.extend(self.modules.iter_mut().flat_map(|m| m.type_iterator()));
-//         stack.into()
-//     }
-// }
-
-// impl IntoIterTypeMut<Method> for Module {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Method> {
-//         let mut stack = Vec::new();
-//         stack.extend(self.interfaces.iter_mut().flat_map(|i| i.iter_type_mut::<Method>()));
-//         stack.extend(self.modules.iter_mut().flat_map(|m| m.iter_type_mut::<Method>()));
-//         stack.into()
-//     }
-// }
-
-// impl IntoIterTypeMut<Interface> for Module {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Interface> {
-//         let mut stack = self.interfaces.iter_mut().collect::<Vec<_>>();
-//         stack.extend(self.modules.iter_mut().flat_map(|m| m.iter_type_mut::<Interface>()));
-//         stack.into()
-//     }
-// }

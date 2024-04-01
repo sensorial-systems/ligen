@@ -1,7 +1,7 @@
 pub mod structure;
 pub mod enumeration;
 
-use crate::{prelude::*, Type};
+use crate::prelude::*;
 
 pub use structure::{Structure, Field};
 pub use enumeration::{Enumeration, Variant};
@@ -57,13 +57,3 @@ impl From<Enumeration> for KindDefinition {
         Self::Enumeration(enumeration)
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for KindDefinition {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         match self {
-//             Self::Structure(structure) => structure.type_iterator(),
-//             Self::Enumeration(enumeration) => enumeration.type_iterator()
-//         }
-//     }
-// }

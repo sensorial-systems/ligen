@@ -1,6 +1,6 @@
 //! Enumeration variant representation.
 
-use crate::{prelude::*, Type};
+use crate::prelude::*;
 use crate::{Attributes, Identifier};
 
 /// Enumeration representation.
@@ -11,10 +11,3 @@ pub struct Variant {
     /// Variant identifier.
     pub identifier: Identifier
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Variant {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         vec![].into()
-//     }
-// }

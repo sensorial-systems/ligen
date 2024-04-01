@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use std::borrow::Borrow;
 
 pub mod content;
 pub mod template;
@@ -49,8 +48,7 @@ impl FileSection {
     /// Gets or creates, if it doesn't exist, an indented branch.
     pub fn indented_branch(&mut self, name: impl Into<String>) -> &mut Self {
         let indentation_level = self.indentation_level + 1;
-        todo!("Implement here");
-        // self.branch(name).indentation(indentation_level)
+        self.branch(name).indentation(indentation_level)
     }
 
     /// Writes the content to the file section at the specified index.
@@ -107,76 +105,6 @@ impl FileSection {
     }
 }
 
-impl KnowsPathSegment for FileSection {
-    type PathSegment = String;
-}
-
-impl HasPathSegment for FileSection {
-    fn path_segment(&self) -> &Self::PathSegment {
-        &self.name
-    }
-}
-
-// impl IsTree for FileSection {
-//     fn add_branch(&mut self, section: impl Into<Self>) -> &mut Self where Self: Sized {
-//         self.content.push(Box::new(section.into()));
-//         self
-//             .content
-//             .last_mut()
-//             .unwrap()
-//             .as_section_mut()
-//             .unwrap()
-//     }
-
-//     fn get<K>(&self, key: K) -> Option<&Self>
-//     where K: Into<Self::PathSegment>, Self::PathSegment: Borrow<Self::PathSegment>
-//     {
-//         let name = key.into();
-//         let name = name.borrow();
-//         self.content
-//             .iter()
-//             .find_map(|content| {
-//                 content
-//                     .as_section()
-//                     .and_then(|section|
-//                         if section.name == name {
-//                             Some(section)
-//                         } else {
-//                             None
-//                         }
-//                     )
-//             })
-//     }
-
-//     fn get_mut<K>(&mut self, key: K) -> Option<&mut Self>
-//     where K: Into<Self::PathSegment>, Self::PathSegment: std::borrow::BorrowMut<Self::PathSegment>
-//     {
-//         let name = key.into();
-//         let name = name.borrow();
-//         self.content
-//             .iter_mut()
-//             .find_map(|content| {
-//                 content
-//                     .as_section_mut()
-//                     .and_then(|section|
-//                         if section.name == name {
-//                             Some(section)
-//                         } else {
-//                             None
-//                         }
-//                     )
-//             })
-//     }
-
-//     fn branches<'a>(&'a self) -> Box<dyn Iterator<Item = &Self> + 'a> {
-//         Box::new(self.content.iter().filter_map(|content| content.as_section()))
-//     }
-
-//     fn branches_mut<'a>(&'a mut self) -> Box<dyn Iterator<Item = &mut Self> + 'a> {
-//         Box::new(self.content.iter_mut().filter_map(|content| content.as_section_mut()))
-//     }
-// }
-
 impl FileSection {
     /// Section start.
     const SECTION_START: &'static str = "[section(";
@@ -208,13 +136,12 @@ impl FileSection {
             }
             start = section.end;
             let section = &template.content[(section.start + Self::SECTION_START.len())..(section.end - Self::SECTION_END.len())];
-            todo!("Implement here");
-            // let section = if let Some(template) = template.get(section) {
-            //     FileSection::from_template(template)?
-            // } else {
-            //     FileSection::new(section)
-            // };
-            // self.add_branch(section);
+            let section = if let Some(template) = template.get(section) {
+                FileSection::from_template(template)?
+            } else {
+                FileSection::new(section)
+            };
+            self.add_branch(section);
         }
         let after = &template.content[start..];
         if !after.is_empty() {
@@ -230,5 +157,61 @@ impl std::fmt::Display for FileSection {
             write!(f, "{}", file_content)?;
         }
         Ok(())
+    }
+}
+
+// Tree implementation
+
+impl HasPathSegment for FileSection {
+    fn path_segment(&self) -> &String {
+        &self.name
+    }
+}
+
+impl<'a> KnowsBranches<'a> for &'a mut FileSection {
+    type Branches = &'a mut FileSection;
+}
+
+impl<'a> KnowsOwned for FileSection {
+    type Owned = FileSection;
+}
+
+impl<'a> AddBranch<'a> for &'a mut FileSection
+where Self::Branches: KnowsOwned<Owned = FileSection>
+{
+    fn add_branch(self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
+        where Self::Branches: KnowsOwned
+    {
+        self.content.push(Box::new(branch.into()));
+        self
+            .content
+            .last_mut()
+            .unwrap()
+            .as_section_mut()
+            .unwrap()
+    }    
+}
+
+impl<'a> HasBranches<'a> for &'a mut FileSection {
+    fn branches(self) -> impl Iterator<Item = Self::Branches> {
+        self.content.iter_mut().filter_map(|content| content.as_section_mut())
+    }
+}
+
+impl<'a> HasGet<'a> for &'a mut FileSection {}
+
+impl<'a> HasGetOrCreate<'a> for &'a mut FileSection
+where Self::Branches: KnowsOwned<Owned = FileSection>
+{
+    fn branch(self, segment: impl Into<String>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
+    where Self::Branches: KnowsOwned
+    {
+        let segment = segment.into();
+        let self_ = unsafe { &mut *(self as *mut FileSection) }; // FIXME: This is a repetitive safe workaround. is-tree should provide a safe way to do this.
+        if let Some(branch) = self.get(&segment) {
+            branch
+        } else {
+            self_.add_branch(FileSection::new(segment))
+        }
     }
 }

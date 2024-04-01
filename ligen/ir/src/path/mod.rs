@@ -1,7 +1,6 @@
 pub mod path_segment;
 
 use crate::Identifier;
-use crate::Type;
 use crate::prelude::*;
 use std::path::PathBuf;
 
@@ -177,18 +176,6 @@ impl From<Identifier> for Path {
     }
 }
 
-// FIXME: Remove this.
-// impl<'a> From<is_tree::Path<'a, Identifier>> for Path {
-//     fn from(path: is_tree::Path<'a, Identifier>) -> Self {
-//         let segments = path
-//             .segments
-//             .iter()
-//             .map(|segment| segment.clone().into())
-//             .collect();
-//         Self { segments }
-//     }
-// }
-
 impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.to_string_with_separator("::").as_str())
@@ -208,15 +195,3 @@ mod test {
         assert_eq!(path.segments, segments);
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Path {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         self
-//             .segments
-//             .iter_mut()
-//             .flat_map(|segment| segment.type_iterator())
-//             .collect::<Vec<_>>()
-//             .into()
-//     }
-// }
