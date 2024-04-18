@@ -5,6 +5,7 @@ pub struct SectionTemplate {
     #[tree(path_segment)]
     pub name: String,
     pub content: String,
+    #[tree(branch)]
     children: Vec<Self>
 }
 
@@ -36,17 +37,5 @@ where Self::Branches: KnowsOwned<Owned = SectionTemplate>
             .children
             .last_mut()
             .unwrap()
-    }
-}
-
-impl<'a> HasBranches<'a> for &'a mut SectionTemplate {
-    fn branches(self) -> impl Iterator<Item = Self::Branches> {
-        self.children.iter_mut()
-    }
-}
-
-impl<'a> HasBranches<'a> for &'a SectionTemplate {
-    fn branches(self) -> impl Iterator<Item = Self::Branches> {
-        self.children.iter()
     }
 }

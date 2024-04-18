@@ -15,6 +15,7 @@ pub struct FileSection {
     #[tree(path_segment)]
     pub name: String,
     /// File section content.
+    #[tree(branch)]
     pub content: Vec<Box<dyn FileSectionContent>>,
     /// Whether the last content is a new line.
     is_new_line: bool,
@@ -176,17 +177,5 @@ where Self::Branches: KnowsOwned<Owned = FileSection>
             .unwrap()
             .as_section_mut()
             .unwrap()
-    }
-}
-
-impl<'a> HasBranches<'a> for &'a FileSection {
-    fn branches(self) -> impl Iterator<Item = Self::Branches> {
-        self.content.iter().filter_map(|content| content.as_section())
-    }
-}
-
-impl<'a> HasBranches<'a> for &'a mut FileSection {
-    fn branches(self) -> impl Iterator<Item = Self::Branches> {
-        self.content.iter_mut().filter_map(|content| content.as_section_mut())
     }
 }

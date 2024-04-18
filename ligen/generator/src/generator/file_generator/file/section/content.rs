@@ -33,3 +33,23 @@ impl FileSectionContent for FileSection {
         Some(self)
     }
 }
+
+impl<'a> TryFrom<&'a Box<dyn FileSectionContent>> for &'a FileSection {
+    type Error = ();
+
+    fn try_from(value: &'a Box<dyn FileSectionContent>) -> std::result::Result<Self, Self::Error> {
+        value
+            .as_section()
+            .ok_or(())
+    }
+}
+
+impl<'a> TryFrom<&'a mut Box<dyn FileSectionContent>> for &'a mut FileSection {
+    type Error = ();
+
+    fn try_from(value: &'a mut Box<dyn FileSectionContent>) -> std::result::Result<Self, Self::Error> {
+        value
+            .as_section_mut()
+            .ok_or(())
+    }
+}
