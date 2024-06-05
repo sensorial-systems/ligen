@@ -17,8 +17,7 @@ impl LibraryValidator {
 
 impl LibraryValidator {
     pub fn validate(&self, library: &mut Library, config: &ParserConfig) -> Result<()> {
-        todo!("Implement this");
-        // library.iter_type_mut::<Type>().for_each(|type_| {
+        // library.iter_type::<Type>().for_each(|type_| {
         //     self.type_validator.validate(type_, config).unwrap();
         // });
         // library.iter_type_mut::<Interface>().for_each(|interface| {

@@ -15,6 +15,8 @@ pub use mutability::*;
 pub use interface::*;
 pub use ecosystem::*;
 
+pub use visitor::*;
+
 pub mod prelude;
 
 pub mod module;
@@ -33,3 +35,5 @@ pub mod library;
 pub mod ecosystem;
 
 pub mod symbols;
+
+pub mod visitor;

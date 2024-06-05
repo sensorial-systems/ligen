@@ -1,3 +1,5 @@
+// TODO: Replace this with is-tree Path and PathSegment?
+
 pub mod path_segment;
 
 use crate::Identifier;
@@ -14,6 +16,17 @@ pub mod mock;
 pub struct Path {
     /// The path segments.
     pub segments: Vec<PathSegment>
+}
+
+impl From<is_tree::Path> for Path {
+    fn from(path: is_tree::Path) -> Self {
+        let segments = path
+            .segments
+            .iter()
+            .map(|segment| segment.clone().into())
+            .collect();
+        Self { segments }
+    }
 }
 
 impl Path {

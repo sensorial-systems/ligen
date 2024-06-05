@@ -1,6 +1,7 @@
 //! Library representation.
 
 pub mod metadata;
+use is_tree::IsTree;
 pub use metadata::*;
 
 use crate::Identifier;
@@ -9,10 +10,12 @@ use crate::prelude::*;
 
 /// Library representation.
 #[allow(missing_docs)]
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree)]
 pub struct Library {
+    #[tree(path_segment)]
     pub identifier: Identifier,
     pub metadata: Metadata,
+    #[tree(branch)]
     pub root_module: Module,
 }
 

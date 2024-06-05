@@ -6,7 +6,7 @@ pub struct SectionTemplate {
     pub name: String,
     pub content: String,
     #[tree(branch)]
-    children: Vec<Self>
+    children: Vec<SectionTemplate>
 }
 
 impl SectionTemplate {
@@ -26,12 +26,9 @@ impl From<String> for SectionTemplate {
 
 // Tree implementation
 
-impl<'a> AddBranch<'a> for SectionTemplate
-where Self::Branches: KnowsOwned<Owned = SectionTemplate>
+impl AddBranch<SectionTemplate> for SectionTemplate
 {
-    fn add_branch(&'a mut self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
-        where Self::Branches: KnowsOwned
-    {
+    fn add_branch(&mut self, branch: SectionTemplate) -> &mut SectionTemplate {
         self.children.push(branch.into());
         self
             .children

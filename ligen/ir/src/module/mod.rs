@@ -13,13 +13,14 @@ use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition
 use crate::interface::Interface;
 
 /// Module representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree)]
 pub struct Module {
     /// Attributes.
     pub attributes: Attributes,
     /// Visibility.
     pub visibility: Visibility,
     /// Module identifier
+    #[tree(path_segment)]
     pub identifier: Identifier,
     /// Imports.
     pub imports: Vec<Import>,
@@ -32,6 +33,7 @@ pub struct Module {
     /// Interfaces.
     pub interfaces: Vec<Interface>,
     /// Sub-modules.
+    #[tree(branch)]
     pub modules: Vec<Module>,
 }
 
@@ -74,12 +76,6 @@ impl CountSymbols for Vec<Module> {
 impl CountSymbols for &Vec<Module> {
     fn count_symbols(&self) -> usize {
         self.iter().fold(0, |acc, module| acc + module.count_symbols())
-    }
-}
-
-impl HasPathSegment for Module {
-    fn path_segment(&self) -> &String {
-        &self.identifier.name
     }
 }
 

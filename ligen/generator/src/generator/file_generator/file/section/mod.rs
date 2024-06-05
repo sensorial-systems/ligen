@@ -15,12 +15,23 @@ pub struct FileSection {
     #[tree(path_segment)]
     pub name: String,
     /// File section content.
-    #[tree(branch)]
     pub content: Vec<Box<dyn FileSectionContent>>,
     /// Whether the last content is a new line.
     is_new_line: bool,
     /// Indentation level.
     indentation_level: usize
+}
+
+impl<'a> HasBranches<&'a FileSection> for &'a FileSection {
+    fn branches_impl(self) -> impl Iterator<Item = &'a FileSection> {
+        self.content.iter().filter_map(|content| content.as_section())
+    }
+}
+
+impl<'a> HasBranches<&'a mut FileSection> for &'a mut FileSection {
+    fn branches_impl(self) -> impl Iterator<Item = &'a mut FileSection> {
+        self.content.iter_mut().filter_map(|content| content.as_section_mut())
+    }
 }
 
 impl From<String> for FileSection {
@@ -164,13 +175,10 @@ impl std::fmt::Display for FileSection {
 
 // Tree implementation
 
-impl<'a> AddBranch<'a> for FileSection
-where Self::Branches: KnowsOwned<Owned = FileSection>
+impl AddBranch<FileSection> for FileSection
 {
-    fn add_branch(&'a mut self, branch: impl Into<<Self::Branches as KnowsOwned>::Owned>) -> &'a mut <Self::Branches as KnowsOwned>::Owned
-        where Self::Branches: KnowsOwned
-    {
-        self.content.push(Box::new(branch.into()));
+    fn add_branch(&mut self, branch: FileSection) -> &mut FileSection {
+        self.content.push(Box::new(branch));
         self
             .content
             .last_mut()

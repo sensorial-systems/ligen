@@ -41,8 +41,8 @@ mod tests {
     #[test]
     fn order() {
         let mut file = File::new("path");
-        file.branch("b").write("B");
-        file.branch("a").write("A");
+        (*file).branch("b").write("B");
+        (*file).branch("a").write("A");
         assert_eq!(file.to_string(), "BA");
     }
 

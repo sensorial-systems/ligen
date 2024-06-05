@@ -1,3 +1,4 @@
+use is_tree::HasGetAPI;
 use ligen_ir::Library;
 use ligen_generator::file_generator::{FileGenerator, FileSet};
 use ::is_tree::IsTree;
@@ -11,7 +12,7 @@ pub struct CargoGenerator;
 impl FileGenerator for CargoGenerator {
     type Input = Library;
     fn base_path(&self) -> PathBuf {
-        PathBuf::from("rust".to_string())
+        "rust".to_string().into()
     }
 
     fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
@@ -22,8 +23,7 @@ impl FileGenerator for CargoGenerator {
         let path = PathBuf::default();
         let path = path.display().to_string().replace('\\', "/");
         let content = format!(include_str!("Cargo.template.toml"), name = name, version = version, path = path);
-        todo!("Implement here");
-        // file.branch("root").writeln(content);
+        file.section.branch("root").writeln(content);
         Ok(())
     }
 }

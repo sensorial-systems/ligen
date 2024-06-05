@@ -2,6 +2,7 @@
 pub mod mock;
 
 pub mod naming_convention;
+use is_tree::IsPathSegment;
 pub use naming_convention::*;
 
 use crate::path::PathSegment;
@@ -196,6 +197,12 @@ impl Identifier {
         "self".into()
     }
     
+}
+
+impl From<Identifier> for String {
+    fn from(value: Identifier) -> Self {
+        value.name
+    }
 }
 
 impl PartialEq<&str> for Identifier {

@@ -7,10 +7,10 @@ pub mod type_;
 pub use module::*;
 use std::path::PathBuf;
 
-use ligen_ir::Library;
+use ligen_ir::{Library, Visitors};
 
 use ligen_generator::file_generator::{FileGenerator, FileSet, Template};
-use is_tree::IsTree;
+use is_tree::{HasGetAPI, HasRelative, IsTree, TreeIterator};
 
 
 #[derive(Default)]
@@ -31,10 +31,9 @@ impl LibraryGenerator {
     // TODO: Move the module documentation logic to ModuleGenerator. If the documentation isn't present in the module, use library.metadata.description in the root module.
     pub fn generate_lib_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from(library.identifier.to_string()).join("src").join("lib.rs"));
-        todo!("Implement here");
-        // let section = file.section.branch("documentation");
-        // section.writeln(library.metadata.description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
-        // Ok(())
+        let section = file.section.branch("documentation");
+        section.writeln(library.metadata.description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+        Ok(())
     }
 
     pub fn generate_readme(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
@@ -53,13 +52,12 @@ impl FileGenerator for LibraryGenerator {
     fn generate_files(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         self.generate_project_file(library, file_set)?;
         self.generate_lib_file(library, file_set)?;
-        todo!("Implement here");
-        // library
-        //     .root_module
-        //     .iter()
-        //     .try_for_each(|module|
-        //         self.module_generator.generate_module(library, module, file_set)
-        //     )?;
+        let visitor = TreeIterator::<Visitors>::new(library);
+        visitor.for_each(|visitor| {
+            if let Some(visitor) = visitor.as_module() {
+                self.module_generator.generate_module(library, visitor, file_set).ok();
+            }
+        });
         Ok(())
     }
 }
