@@ -3,7 +3,7 @@ pub use interface::*;
 
 use std::path::PathBuf;
 
-use is_tree::{HasGetAPI, Visitor, HasPath};
+use is_tree::{HasGetAPI, HasPath, HasRelative, HasRoot, Visitor};
 use ligen_generator::file_generator::FileSet;
 use ligen_ir::{Identifier, Library, Module, Path, Visibility, Visitors};
 
@@ -13,13 +13,18 @@ pub struct ModuleGenerator {
 }
 
 impl ModuleGenerator {
-    // pub fn generate_module(&self, library: &Library, visitor: Rc<Visitor<'_, Module>>, file_set: &mut FileSet) -> Result<()> {
     pub fn generate_module(&self, library: &Library, visitor: &Visitor<Box<Visitors>, &Module>, file_set: &mut FileSet) -> Result<()> {
-        // todo!("Implement here");
-        let path = if visitor.path().segments.is_empty() {
+        let path = if visitor.parent.is_library() {
             "lib".to_string()
         } else {
-            visitor.path().segments.iter().cloned().collect::<Vec<String>>().join("/")
+            visitor
+                .path()
+                .segments
+                .iter()
+                .skip(2) // We should skip both library and root module segments.
+                .cloned()
+                .collect::<Vec<String>>()
+                .join("/")
         };
         let file_path = PathBuf::from(library.identifier.to_string()).join("src").join(path).with_extension("rs");
         println!("Generating {}", file_path.display());

@@ -25,7 +25,7 @@ pub struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
     println!("{:#?}", args);
-    let parser = PythonParser::default();
+    let parser = PythonParser::default(); // TODO: Use args.parser to select parser
     let mut config = PythonParserConfig::default();
     config.set_class_variables_as_properties(true);
     config.set("ligen::python::as-opaque::HttpUrl", true);
