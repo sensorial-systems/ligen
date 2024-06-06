@@ -5,11 +5,11 @@ use crate::{prelude::*, Library};
 #[allow(missing_docs)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree)]
 #[tree(branches)]
-pub struct Ecosystem {
+pub struct Registry {
     pub libraries: Vec<Library>
 }
 
-impl Ecosystem {
+impl Registry {
     pub fn new() -> Self {
         Self::default()
     }

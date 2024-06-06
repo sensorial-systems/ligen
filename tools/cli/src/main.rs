@@ -47,6 +47,7 @@ fn main() -> Result<()> {
     
     let input = PathBuf::from(&args.input);
     let library = parser.parse(input.as_path(), &config)?;
+    println!("{:#?}", library.metadata.dependencies);
     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
     Ok(())
 }
