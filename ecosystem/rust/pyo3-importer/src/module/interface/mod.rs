@@ -3,9 +3,7 @@ pub mod structure;
 pub use function::*;
 pub use structure::*;
 
-use std::rc::Rc;
-
-use is_tree::{HasGetAPI, IsTree, Visitor};
+use is_tree::{HasBranch, Visitor};
 use ligen_generator::file_generator::File;
 use ligen_ir::{Module, Visitors};
 

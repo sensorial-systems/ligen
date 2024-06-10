@@ -13,7 +13,7 @@ pub use visibility::*;
 pub use library::*;
 pub use mutability::*;
 pub use interface::*;
-pub use ecosystem::*;
+pub use registry::*;
 
 pub use visitor::*;
 
@@ -32,7 +32,7 @@ pub mod path;
 pub mod mutability;
 pub mod source;
 pub mod library;
-pub mod ecosystem;
+pub mod registry;
 
 pub mod symbols;
 

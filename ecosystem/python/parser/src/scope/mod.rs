@@ -5,7 +5,8 @@ use rustpython_parser::ast::{Arguments, Expr, Stmt};
 use ligen::{ir::{Interface, Object, Function, Method, Import, TypeDefinition}, parser::ParserConfig};
 use crate::{prelude::*, parser::PythonParserConfig};
 
-pub use import_parser::*;
+// TODO: REMOVE THIS.
+// pub use import_parser::*;
 pub use scope_type::*;
 use crate::parser::PythonParser;
 

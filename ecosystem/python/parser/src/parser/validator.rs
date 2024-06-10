@@ -1,12 +1,12 @@
 use crate::{prelude::*, function::method::validator::MethodValidator, interface::validator::InterfaceValidator};
-use ligen::{ir::{Library, Type, Method, Interface}, parser::{ParserConfig, Validator}};
+use ligen::{ir::Library, parser::ParserConfig};
 use crate::types::type_::TypeValidator;
 
 #[derive(Default)]
 pub struct LibraryValidator {
-    type_validator: TypeValidator,
-    method_validator: MethodValidator,
-    interface_validator: InterfaceValidator
+    _type_validator: TypeValidator,
+    _method_validator: MethodValidator,
+    _interface_validator: InterfaceValidator
 }
 
 impl LibraryValidator {
@@ -16,7 +16,7 @@ impl LibraryValidator {
 }
 
 impl LibraryValidator {
-    pub fn validate(&self, library: &mut Library, config: &ParserConfig) -> Result<()> {
+    pub fn validate(&self, _library: &mut Library, _config: &ParserConfig) -> Result<()> {
         // library.iter_type::<Type>().for_each(|type_| {
         //     self.type_validator.validate(type_, config).unwrap();
         // });

@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use ligen_ir::{Library, Visitors};
 
 use ligen_generator::file_generator::{FileGenerator, FileSet, Template};
-use is_tree::{HasGetAPI, HasRelative, IsTree, TreeIterator};
+use is_tree::{HasBranch, TreeIterator};
 
 
 #[derive(Default)]

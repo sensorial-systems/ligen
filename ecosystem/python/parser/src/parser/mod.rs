@@ -1,4 +1,4 @@
-use crate::{prelude::*, module::SubPath};
+use crate::prelude::*;
 use crate::object::ObjectParser;
 use crate::function::FunctionParser;
 use crate::identifier::IdentifierParser;
@@ -12,7 +12,7 @@ pub use config::*;
 pub use metadata::*;
 pub use validator::*;
 
-use ligen::ir::Library;
+use ligen::ir::Registry;
 use ligen::parser::ParserConfig;
 
 #[derive(Default)]
@@ -32,14 +32,15 @@ impl PythonParser {
 }
 
 impl Parser<&std::path::Path> for PythonParser {
-    type Output = Library;
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
-        let identifier = self.identifier_parser.parse(input, config)?;
-        let metadata = self.metadata_parser.parse(input, config)?;
-        let root_module = self.parse(SubPath(input), config)?;
-        let mut library = Library { identifier, metadata, root_module };
-        self.validator.validate(&mut library, config)?;
-        Ok(library)
+    type Output = Registry;
+    fn parse(&self, _input: &std::path::Path, _config: &ParserConfig) -> Result<Self::Output> {
+        // let identifier = self.identifier_parser.parse(input, config)?;
+        // let metadata = self.metadata_parser.parse(input, config)?;
+        // let root_module = self.parse(SubPath(input), config)?;
+        // let mut library = Library { identifier, metadata, root_module };
+        // self.validator.validate(&mut library, config)?;
+        // Ok(library)
+        Ok(Default::default())
     }
     fn name(&self) -> &str {
         "Python"

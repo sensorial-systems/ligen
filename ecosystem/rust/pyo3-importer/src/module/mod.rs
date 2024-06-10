@@ -3,7 +3,7 @@ pub use interface::*;
 
 use std::path::PathBuf;
 
-use is_tree::{HasGetAPI, HasPath, HasRelative, HasRoot, Visitor};
+use is_tree::{HasBranch, HasPath, Visitor};
 use ligen_generator::file_generator::FileSet;
 use ligen_ir::{Identifier, Library, Module, Path, Visibility, Visitors};
 

@@ -1,25 +1,13 @@
+// TODO: Is this still used? We replaced it with String (so different types of version strings can be used).
+
 use crate::prelude::*;
 
-#[derive(Shrinkwrap, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Shrinkwrap, Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
 #[shrinkwrap(mutable)]
-pub struct VersionRequirement(pub semver::VersionReq);
+pub struct VersionRequirement(pub String);
 
-impl TryFrom<&str> for VersionRequirement {
-    type Error = Error;
-    fn try_from(value: &str) -> Result<Self> {
-        let value = value
-            .replace("==", "=")
-            .replace(['(', ')'], "");
-        let version =
-            semver::VersionReq::parse(&value)
-                .map_err(|e| Error::Message(format!("Failed to parse version requirement: {}, Reason: {}", value, e)))?;
-        let version = Self(version);
-        Ok(version)
-    }
-}
-
-impl Default for VersionRequirement {
-    fn default() -> Self {
-        Self(semver::VersionReq::parse("*").unwrap())
+impl From<&str> for VersionRequirement {
+    fn from(value: &str) -> Self {
+        Self(value.to_string())
     }
 }

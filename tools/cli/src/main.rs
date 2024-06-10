@@ -1,11 +1,9 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use ligen_generator::Generator;
 use ligen_ir::prelude::*;
 use ligen_parser::{Parser as LigenParser, ParserConfigSet};
 use ligen_python_parser::{PythonParser, PythonParserConfig};
-use ligen_rust_pyo3_importer::LibraryGenerator;
 
 #[derive(Parser, Debug)]
 pub struct Args {
@@ -16,10 +14,10 @@ pub struct Args {
     generator: String,
 
     #[arg(short, long)]
-    input: String,
+    input: PathBuf,
 
     #[arg(short, long)]
-    output: String
+    output: PathBuf
 }
 
 fn main() -> Result<()> {
@@ -28,6 +26,7 @@ fn main() -> Result<()> {
     let parser = PythonParser::default(); // TODO: Use args.parser to select parser
     let mut config = PythonParserConfig::default();
     config.set_class_variables_as_properties(true);
+    // TODO: Remove these. This is just a workaround.
     config.set("ligen::python::as-opaque::HttpUrl", true);
     config.set("ligen::python::as-opaque::FilePath", true);
     config.set("ligen::python::as-opaque::bytes", true);
@@ -45,9 +44,18 @@ fn main() -> Result<()> {
     config.set("ligen::python::as-opaque::TIMELINE_FEED_REASON", true);
     config.set("ligen::python::as-opaque::REELS_TRAY_REASON", true);
     
-    let input = PathBuf::from(&args.input);
-    let library = parser.parse(input.as_path(), &config)?;
-    println!("{:#?}", library.metadata.dependencies);
-    LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
+    let input = args.input;
+    let _registry = parser.parse(input.as_path(), &config)?;
+    println!("PARSOU");
+    // println!("{}", library.metadata.description);
+    // for dependency in library.metadata.dependencies.iter() {
+    //     let path = input.parent().unwrap().join(dependency.identifier.to_string());
+    //     let library = parser.parse(path.as_path(), &config)?;
+    //     registry.libraries.push(library);
+    // }
+    // registry.libraries.push(library);
+    // for library in registry.libraries.iter() {
+    //     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
+    // }
     Ok(())
 }

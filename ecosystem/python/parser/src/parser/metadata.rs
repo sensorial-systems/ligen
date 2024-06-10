@@ -16,7 +16,7 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
     type Output = Metadata;
     fn parse(&self, input: python_pkginfo::Metadata, _config: &ParserConfig) -> Result<Self::Output> {
         let version = Version::try_from(input.version.as_str())?;
-        let requirement = VersionRequirement::try_from(input.requires_python.unwrap_or_default().as_str())?;
+        let requirement = VersionRequirement::from(input.requires_python.unwrap_or_default().as_str());
         let language = Language { name: "Python".into(), requirement };
         let homepage = input.home_page.unwrap_or_default();
         let summary = input.summary.unwrap_or_default();
@@ -49,8 +49,8 @@ impl Parser<&std::path::Path> for MetadataParser {
                     .to_string();
                 file_name.starts_with(&name) && file_name.ends_with(".dist-info")
             });
+        let dist_info_dir = dist_info_dir.ok_or("Failed to find dist-info directory.")?;
         let metadata_file = dist_info_dir
-            .ok_or("Failed to find metadata file.")?
             .path()
             .join("METADATA");
         let content = std::fs::read_to_string(metadata_file)?;

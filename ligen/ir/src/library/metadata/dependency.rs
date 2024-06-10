@@ -12,14 +12,8 @@ impl TryFrom<&str> for Dependency {
         let value = value.trim().split(';').next().unwrap_or(value);
         let mut parts = value.split(' ');
         let identifier = Identifier::from(parts.next().ok_or("Failed to get identifier.")?);
-        let mut requirement = None;
-        for part in parts {
-            if let Ok(parsed) = VersionRequirement::try_from(part) {
-                requirement = Some(parsed);
-                break;
-            }
-        }
-        let requirement = requirement.unwrap_or_default();
+        let rest = parts.collect::<Vec<_>>().join(" ");
+        let requirement = VersionRequirement::from(rest.as_str());
         Ok(Self { identifier, requirement })
     }
 }
