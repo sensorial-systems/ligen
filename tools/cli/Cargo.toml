@@ -16,6 +16,7 @@ ligen-parser.workspace = true
 ligen-traits.workspace = true
 ligen-generator.workspace = true
 
+ligen-rust-parser.workspace = true
 ligen-python-parser.workspace = true
 ligen-rust-pyo3-importer.workspace = true
 

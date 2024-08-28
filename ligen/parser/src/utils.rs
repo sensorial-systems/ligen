@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct WithSource<T> {
     pub source: String,
     pub ast: T

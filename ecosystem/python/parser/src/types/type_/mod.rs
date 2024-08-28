@@ -179,7 +179,9 @@ impl Parser<WithSource<&Expr>> for TypeParser {
             Expr::List(expr) => self.parse(input.sub(expr), config),
             Expr::Constant(expr) => self.parse(input.sub(expr), config),
             Expr::Attribute(expr) => self.parse(input.sub(expr), config),
-            _ => Err(Error::Message(format!("Failed to parse type: {}, {:#?}", &input.source[input.ast.start().to_usize()..input.ast.end().to_usize()], input.ast)))
+            Expr::BinOp(_expr) => Ok(Type::opaque()), // TODO: BinOp (e.g. "int | float") is not supported yet. They can be implemented as enumerations.
+            Expr::Call(_expr) => Ok(Type::opaque()), // TODO: Call (e.g. "Annotated[int, Ge(0)]") is not supported yet. They can be implemented as function types.
+            _ => Err(Error::Message(format!("Failed to parse type: {}, {:?}", &input.source[input.ast.start().to_usize()..input.ast.end().to_usize()], input.ast)))
         }
     }
 }

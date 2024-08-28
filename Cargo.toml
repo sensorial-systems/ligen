@@ -57,6 +57,7 @@ derive_more             = "0.99"
 lazy_static             = "1.4.0"
 pretty_assertions       = "1.4.0"
 syn                     = { version = "1.0.73", features = [ "full" ] }
+regex = "1"
 
 # If you want to use the bleeding edge version of egui and eframe:
 # egui = { git = "https://github.com/emilk/egui", branch = "master" }

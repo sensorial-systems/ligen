@@ -37,6 +37,7 @@ pub(crate) struct SubPath<'a>(pub &'a std::path::Path);
 impl Parser<File<'_>> for PythonParser {
     type Output = Module;
     fn parse(&self, File(input): File<'_>, config: &ParserConfig) -> Result<Self::Output> {
+        println!("Parsing file: {}", input.display());
         let content = std::fs::read_to_string(input)?;
         let module = ModuleParser.parse(content.as_str(), config)?;
         let mut module = self.parse(module, config)?;
@@ -89,6 +90,14 @@ impl Parser<Directory<'_>> for PythonParser {
 impl Parser<SubPath<'_>> for PythonParser {
     type Output = Module;
     fn parse(&self, SubPath(input): SubPath<'_>, config: &ParserConfig) -> Result<Self::Output> {
+        let input = if input.with_extension("py").exists() {
+            input.with_extension("py")
+        } else {
+            input.to_path_buf()
+        };
+
+        let input = input.as_path();
+
         if input.is_dir() {
             self.parse(Directory(input), config)
         } else {

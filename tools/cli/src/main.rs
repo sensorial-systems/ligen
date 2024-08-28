@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 
 use clap::Parser;
-use ligen_ir::prelude::*;
-use ligen_parser::{Parser as LigenParser, ParserConfigSet};
+use ligen_generator::Generator;
+use ligen_ir::{prelude::*, Registry};
+use ligen_parser::{Parser as LigenParser, ParserConfig};
 use ligen_python_parser::{PythonParser, PythonParserConfig};
+use ligen_rust_pyo3_importer::LibraryGenerator;
 
 #[derive(Parser, Debug)]
 pub struct Args {
@@ -23,39 +25,16 @@ pub struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
     println!("{:#?}", args);
-    let parser = PythonParser::default(); // TODO: Use args.parser to select parser
-    let mut config = PythonParserConfig::default();
-    config.set_class_variables_as_properties(true);
-    // TODO: Remove these. This is just a workaround.
-    config.set("ligen::python::as-opaque::HttpUrl", true);
-    config.set("ligen::python::as-opaque::FilePath", true);
-    config.set("ligen::python::as-opaque::bytes", true);
-    config.set("ligen::python::as-opaque::Path", true);
-    config.set("ligen::python::as-opaque::SETTING_VALUE", true);
-    config.set("ligen::python::as-opaque::MUTE_ALL", true);
-    config.set("ligen::python::as-opaque::DATA_ORDERING", true);
-    config.set("ligen::python::as-opaque::TIME_FRAME", true);
-    config.set("ligen::python::as-opaque::POST_TYPE", true);
-    config.set("ligen::python::as-opaque::SEARCH_MODE", true);
-    config.set("ligen::python::as-opaque::SEND_ATTRIBUTES_MEDIA", true);
-    config.set("ligen::python::as-opaque::SEND_ATTRIBUTE", true);
-    config.set("ligen::python::as-opaque::SELECTED_FILTER", true);
-    config.set("ligen::python::as-opaque::BOX", true);
-    config.set("ligen::python::as-opaque::TIMELINE_FEED_REASON", true);
-    config.set("ligen::python::as-opaque::REELS_TRAY_REASON", true);
-    
-    let input = args.input;
-    let _registry = parser.parse(input.as_path(), &config)?;
-    println!("PARSOU");
-    // println!("{}", library.metadata.description);
-    // for dependency in library.metadata.dependencies.iter() {
-    //     let path = input.parent().unwrap().join(dependency.identifier.to_string());
-    //     let library = parser.parse(path.as_path(), &config)?;
-    //     registry.libraries.push(library);
-    // }
-    // registry.libraries.push(library);
-    // for library in registry.libraries.iter() {
-    //     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
-    // }
+    let (parser, config): (Box<dyn LigenParser<&std::path::Path, Output = Registry>>, ParserConfig) = if args.parser.to_lowercase() == "python" {
+        let parser = PythonParser::default();
+        let config = PythonParserConfig::default();
+        (Box::new(parser), config.into())
+    } else {
+        panic!("Parser not found.");
+    };
+    let registry = parser.parse(args.input.as_path(), &config)?;
+    for library in registry.libraries.iter() {
+        LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
+    }
     Ok(())
 }

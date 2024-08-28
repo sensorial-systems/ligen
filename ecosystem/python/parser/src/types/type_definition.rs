@@ -17,7 +17,7 @@ impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
         if config.get_only_parse_symbols() {
             Ok(TypeDefinition { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
+            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config).unwrap_or_default(); // TODO: Maybe we want the signalize the failures.
             let visibility = identifier_parser.get_visibility(&identifier);
             let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
             let definition = self.parse_kind_definition(&input, config)?;
