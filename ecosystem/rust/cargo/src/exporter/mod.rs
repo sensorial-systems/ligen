@@ -1,7 +1,6 @@
-use is_tree::HasGetAPI;
+use is_tree::HasBranch;
 use ligen_ir::Library;
 use ligen_generator::file_generator::{FileGenerator, FileSet};
-use ::is_tree::IsTree;
 use std::path::PathBuf;
 use std::str::FromStr;
 use ligen_traits::prelude::*;

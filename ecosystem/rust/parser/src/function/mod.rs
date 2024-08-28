@@ -11,7 +11,6 @@ mod parameter;
 mod method;
 mod synchrony;
 
-pub use parameter::*;
 pub use method::*;
 pub use synchrony::*;
 use crate::visibility::VisibilityParser;
