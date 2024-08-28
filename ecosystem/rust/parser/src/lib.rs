@@ -10,5 +10,7 @@ pub mod identifier;
 pub mod module;
 pub mod object;
 
+pub mod parser;
+
 extern crate proc_macro;
 extern crate core;

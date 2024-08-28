@@ -1,13 +1,12 @@
 use std::path::PathBuf;
 
-use clap::Parser;
-use ligen_generator::Generator;
+use clap::Parser as Clap;
 use ligen_ir::{prelude::*, Registry};
-use ligen_parser::{Parser as LigenParser, ParserConfig};
-use ligen_python_parser::{PythonParser, PythonParserConfig};
-use ligen_rust_pyo3_importer::LibraryGenerator;
+use ligen_parser::Parser;
+use ligen_python_parser::PythonParser;
+use ligen_rust_parser::parser::RustParser;
 
-#[derive(Parser, Debug)]
+#[derive(Clap, Debug)]
 pub struct Args {
     #[arg(short, long)]
     parser: String,
@@ -24,17 +23,18 @@ pub struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    println!("{:#?}", args);
-    let (parser, config): (Box<dyn LigenParser<&std::path::Path, Output = Registry>>, ParserConfig) = if args.parser.to_lowercase() == "python" {
-        let parser = PythonParser::default();
-        let config = PythonParserConfig::default();
-        (Box::new(parser), config.into())
+    let parser: Box<dyn Parser<&std::path::Path, Output = Registry>> = if args.parser.to_lowercase() == "python" {
+        Box::new(PythonParser::default())
+    } else if args.parser.to_lowercase() == "rust" {
+        Box::new(RustParser::default())
     } else {
         panic!("Parser not found.");
     };
+    let config = parser.config();
     let registry = parser.parse(args.input.as_path(), &config)?;
-    for library in registry.libraries.iter() {
-        LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
-    }
+    println!("{:#?}", registry);
+    // for library in registry.libraries.iter() {
+    //     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
+    // }
     Ok(())
 }
