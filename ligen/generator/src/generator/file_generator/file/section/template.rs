@@ -29,7 +29,7 @@ impl From<String> for SectionTemplate {
 impl AddBranch<SectionTemplate> for SectionTemplate
 {
     fn add_branch(&mut self, branch: SectionTemplate) -> &mut SectionTemplate {
-        self.children.push(branch.into());
+        self.children.push(branch);
         self
             .children
             .last_mut()

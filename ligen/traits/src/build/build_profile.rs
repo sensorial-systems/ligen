@@ -24,8 +24,11 @@ impl Default for BuildProfile {
     }
 }
 
-impl ToString for BuildProfile {
-    fn to_string(&self) -> String {
-        format!("{:#?}", self)
+impl std::fmt::Display for BuildProfile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BuildProfile::Release => write!(f, "Release"),
+            BuildProfile::Debug => write!(f, "Debug"),
+        }
     }
 }

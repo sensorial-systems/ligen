@@ -35,7 +35,7 @@ impl PythonParser {
 impl PythonParser {
     fn parse_library(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Library> {
         // This line replaces "-" with "_" in the file name
-        let input = input.with_file_name(input.file_name().unwrap().to_string_lossy().replace("-", "_").as_str().trim());
+        let input = input.with_file_name(input.file_name().unwrap().to_string_lossy().replace('-', "_").as_str().trim());
         let input = input.as_path();
         println!("Parsing library: {}", input.display());
         let identifier = self.identifier_parser.parse(input, config)?;

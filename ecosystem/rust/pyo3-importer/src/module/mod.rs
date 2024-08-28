@@ -76,7 +76,7 @@ impl ModuleGenerator {
             self.interface_generator.function_generator.generate_function(functions, function)?;
         }
 
-        self.interface_generator.generate(&visitor, file)?;
+        self.interface_generator.generate(visitor, file)?;
         Ok(())
     }
 }
