@@ -9,6 +9,7 @@ pub struct Named {
     /// Path of the attribute.
     pub path: Path,
     /// Literal of the attribute.
+    // TODO: This can be any expression.
     pub literal: Literal,
 }
 

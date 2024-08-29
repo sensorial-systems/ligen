@@ -74,7 +74,7 @@ impl Parser<&Expr> for LiteralParser {
                 }
                 Ok(Literal::Vector(result))
             },
-            _ => Ok(Literal::Unknown)
+            _ => Ok(Literal::Unknown("Unimplemented".into()))
         }
     }
 }

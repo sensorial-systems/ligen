@@ -24,12 +24,13 @@ impl<L: LiteralParser> Parser<String> for AttributesParser<L> {
     }
 }
 
-impl<L: LiteralParser> Parser<&str> for AttributesParser<L> {
+impl<L: LiteralParser> Parser<&str> for AttributesParser<L>
+{
     type Output = Attributes;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
-        syn::parse_str::<syn2::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>>(input)
+        syn::parse_str::<syn2::punctuated::Punctuated<syn::Expr, syn::token::Comma>>(input)
             .map_err(|e| Error::Message(format!("Failed to parse attributes: {:?}. Input: {}", e, input)))
-            .and_then(|nested_metas| self.parse(nested_metas.0, config))
+            .and_then(|input| self.parse(input.0, config))
     }
 }
 
@@ -44,6 +45,19 @@ impl<L: LiteralParser> Parser<Vec<syn::Attribute>> for AttributesParser<L> {
     }
 }
 
+impl<L: LiteralParser> Parser<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>> for AttributesParser<L>
+{
+    type Output = Attributes;
+    fn parse(&self, input: syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, config: &ParserConfig) -> Result<Self::Output> {
+        let attributes = input
+            .into_iter()
+            .map(|input| self.attribute_parser.parse(input, config).expect("Failed to parse nested meta."))
+            .collect();
+        Ok(Self::Output { attributes })
+    }
+}
+
+// TODO: Remove this as NestedMeta doesn't exist in syn 2.0.
 impl<L: LiteralParser> Parser<syn::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>> for AttributesParser<L> {
     type Output = Attributes;
     fn parse(&self, input: syn::punctuated::Punctuated<syn::NestedMeta, syn::token::Comma>, config: &ParserConfig) -> Result<Self::Output> {

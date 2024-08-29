@@ -27,7 +27,7 @@ pub enum Literal {
     /// None variant
     None,
     /// Unknown variant used for language specific literals
-    Unknown // TODO: Implement it as Unknown(String) with the unparsed value so the user can see it
+    Unknown(String)
 }
 
 impl Literal {
@@ -43,7 +43,7 @@ impl Literal {
             Literal::Tuple(_) => type_.is_tuple(),
             Literal::Vector(_) => type_.is_vector(),
             Literal::None => false,
-            Literal::Unknown => false
+            Literal::Unknown(_) => false
         }
     }
 
@@ -156,7 +156,7 @@ impl std::fmt::Display for Literal {
                 write!(f, "]")
             },
             Literal::None => write!(f, "None"),
-            Literal::Unknown => write!(f, "Unknown")
+            Literal::Unknown(s) => write!(f, "Unknown({})", s)
         }
     }
 }

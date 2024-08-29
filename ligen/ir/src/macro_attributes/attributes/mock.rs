@@ -23,7 +23,7 @@ pub fn parse_literals() -> Attributes {
     ).into()
 }
 
-pub fn parse_many_attributes() -> Attributes {
+pub fn parse_expressions() -> Attributes {
     Group::new(
         "error",
         vec![

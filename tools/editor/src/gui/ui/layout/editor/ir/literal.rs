@@ -24,7 +24,7 @@ impl Widget for Literal {
                 ligen_ir::Literal::Character(_) => "Char",
                 ligen_ir::Literal::UnsignedInteger(_) => "Unsigned Integer",
                 ligen_ir::Literal::None => "None",
-                ligen_ir::Literal::Unknown => "Unknown",
+                ligen_ir::Literal::Unknown(_) => "Unknown",
                 ligen_ir::Literal::Tuple(_) => "Tuple",
                 ligen_ir::Literal::Vector(_) => "Vector",
             };
@@ -65,7 +65,7 @@ impl Widget for Literal {
                     ligen_ir::Literal::None => {
                         ui.label("None");
                     },
-                    ligen_ir::Literal::Unknown => {
+                    ligen_ir::Literal::Unknown(_) => {
                         ui.label("Unknown");
                     },
                     // TODO: Tuple and Vector
