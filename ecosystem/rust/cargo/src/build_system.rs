@@ -76,7 +76,7 @@ impl BuildSystem for CargoBuilder {
             for entry in directory {
                 if let Some(file_name) = entry.file_name().to_str() {
                     if entry.file_type()?.is_file() && file_name.contains(&library.identifier.name) {
-                        std::fs::copy(&entry.path(), libraries_dir.join(file_name))?;
+                        std::fs::copy(entry.path(), libraries_dir.join(file_name))?;
                     }
                 }
             }
