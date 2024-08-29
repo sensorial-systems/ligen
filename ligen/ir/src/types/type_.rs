@@ -5,7 +5,10 @@ use crate::prelude::*;
 /// Type structure.
 pub struct Type {
     /// Type path.
-    pub path: Path
+    pub path: Path,
+    /// Type length.
+    // TODO: This is only used for array types. Maybe we should move it to a separate structure?
+    pub length: Option<usize>,
 }
 
 // TODO: Move these constructors to its all structures? Reference, Vector, String, etc... And make them convertable to Type.
@@ -23,6 +26,18 @@ impl Type {
     /// Returns a new `Type` representing a constant reference type.
     pub fn constant_reference(type_: impl Into<Type>) -> Self {
         PathSegment::new(Identifier::constant_reference(), type_.into()).into()
+    }
+
+    /// Returns a new `Type` representing a slice type.
+    pub fn slice(type_: impl Into<Type>) -> Self {
+        PathSegment::new(Identifier::slice(), type_.into()).into()
+    }
+
+    /// Returns a new `Type` representing an array type.
+    pub fn array(type_: impl Into<Type>, length: usize) -> Self {
+        let path = Path::from(PathSegment::new(Identifier::array(), type_.into())).into();
+        let length = Some(length);
+        Self { path, length }
     }
 
     /// Returns a new `Type` representing a vector type.
@@ -224,28 +239,26 @@ impl Type {
 
 impl From<PathSegment> for Type {
     fn from(path_segment: PathSegment) -> Self {
-        let path = path_segment.into();
-        Self { path }
+        Path::from(path_segment).into()
     }
 }
 
 impl From<&str> for Type {
     fn from(value: &str) -> Self {
-        let path = value.into();
-        Self { path }
+        Path::from(value).into()
     }
 }
 
 impl From<Identifier> for Type {
     fn from(identifier: Identifier) -> Self {
-        let path = identifier.into();
-        Self { path }
+        Path::from(identifier).into()
     }
 }
 
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        Self { path }
+        let length = None;
+        Self { path, length }
     }
 }
 
@@ -254,14 +267,3 @@ impl std::fmt::Display for Type {
         f.write_str(&self.path.to_string())
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Type {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         // FIXME: Is this safe?
-//         let myself = unsafe { &mut *(self as *mut Self) };
-//         let mut stack = vec![myself];
-//         stack.extend(self.path.type_iterator());
-//         stack.into()
-//     }
-// }

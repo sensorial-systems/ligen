@@ -16,7 +16,7 @@ impl Parser<syn::Field> for FieldParser {
         let attributes = AttributesParser::default().parse(field.attrs, config)?;
         let visibility = VisibilityParser.parse(field.vis, config)?;
         let identifier = field.ident.map(|identifier| IdentifierParser::new().parse(identifier, config).expect("Failed to parse identifier."));
-        let type_ = TypeParser.parse(field.ty, config)?;
+        let type_ = TypeParser::new().parse(field.ty, config)?;
         Ok(Self::Output { attributes, visibility, identifier, type_ })
     }
 }

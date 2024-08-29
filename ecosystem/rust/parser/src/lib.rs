@@ -4,6 +4,7 @@ pub mod function;
 pub mod macro_attributes;
 pub mod types;
 pub mod visibility;
+pub mod mutability;
 pub mod path;
 pub mod literal;
 pub mod identifier;

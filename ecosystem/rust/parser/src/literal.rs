@@ -30,6 +30,23 @@ impl Parser<syn::Ident> for LiteralParser {
     }
 }
 
+impl Parser<syn::Expr> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: syn::Expr, config: &ParserConfig) -> Result<Self::Output> {
+        match input {
+            syn::Expr::Lit(lit) => self.parse(lit, config),
+            _ => Err(Error::Message("Failed to parse literal from expression".into())),
+        }
+    }
+}
+
+impl Parser<syn::ExprLit> for LiteralParser {
+    type Output = Literal;
+    fn parse(&self, input: syn::ExprLit, config: &ParserConfig) -> Result<Self::Output> {
+        self.parse(input.lit, config)
+    }
+}
+
 impl Parser<proc_macro::TokenStream> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {

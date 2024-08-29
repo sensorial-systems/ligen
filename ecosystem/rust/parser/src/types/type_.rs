@@ -1,9 +1,20 @@
-use ligen::{ir::{Mutability, Type}, parser::ParserConfig};
-use crate::prelude::*;
+use ligen::{ir::Type, parser::ParserConfig};
+use syn::{TypeArray, TypeSlice};
+use crate::{literal::LiteralParser, mutability::MutabilityParser, prelude::*};
 use ligen::parser::Parser;
 use crate::path::PathParser;
 
-pub struct TypeParser;
+#[derive(Default)]
+pub struct TypeParser {
+    pub mutability_parser: MutabilityParser,
+    pub literal_parser: LiteralParser
+}
+
+impl TypeParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
 
 impl Parser<syn::Ident> for TypeParser {
     type Output = Type;
@@ -46,25 +57,24 @@ impl Parser<syn::Type> for TypeParser {
         if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
             Ok(self.parse(path, config)?)
         } else {
-            let reference = match &syn_type {
-                syn::Type::Reference(syn::TypeReference {
-                                         elem, mutability, ..
-                                     }) => Some((elem, mutability)),
-                syn::Type::Ptr(syn::TypePtr {
-                                   elem, mutability, ..
-                               }) => Some((elem, mutability)),
-                _ => None,
-            };
-            if let Some((elem, mutability)) = reference {
-                if let syn::Type::Path(syn::TypePath { path, .. }) = *elem.clone() {
-                    let mutability = if mutability.is_none() { Mutability::Constant } else { Mutability::Mutable };
-                    let type_ = TypeParser.parse(path, config)?;
-                    Ok(Self::Output::reference(mutability, type_))
-                } else {
-                    Err(Error::Message("Couldn't find path".into()))
-                }
-            } else {
-                Err(Error::Message("Only Path, Reference and Ptr Types are currently supported".into()))
+            match syn_type {
+                syn::Type::Reference(syn::TypeReference { elem, mutability, .. }) |
+                syn::Type::Ptr(syn::TypePtr { elem, mutability, .. })                 => {
+                    let mutability = self.mutability_parser.parse(mutability, config)?;
+                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    Ok(Type::reference(mutability, type_))
+                },
+                syn::Type::Slice(TypeSlice { elem, .. }) => {
+                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    Ok(Type::slice(type_))
+                },
+                syn::Type::Array(TypeArray { elem, len, .. }) => {
+                    let len = self.literal_parser.parse(len, config)?;
+                    let len = len.into_integer().map_err(|_| Error::Message("Array length literal isn't an integer.".into()))? as usize;
+                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    Ok(Type::array(type_, len))
+                },
+                _ => Err(Error::Message("Only Path, Reference and Ptr Types are currently supported".into())),
             }
         }
     }
@@ -95,71 +105,61 @@ mod test {
 
     // FIXME: Update this tests to use the mock module.
 
-    #[test]
-    fn types_integer() {
-        let vec: Vec<Type> = vec![
-            quote! { u8 },
-            quote! { u16 },
-            quote! { u32 },
-            quote! { u64 },
-            quote! { u128 },
-            quote! { usize },
-            quote! { i8 },
-            quote! { i16 },
-            quote! { i32 },
-            quote! { i64 },
-            quote! { i128 },
-            quote! { isize },
-        ]
-            .into_iter()
-            .map(|x| {
-                TypeParser.parse(x, &Default::default()).expect("Failed to convert from syn::Type")
-            })
-            .collect();
-        let expected: Vec<Type> = vec![
-            Type::u8(),
-            Type::u16(),
-            Type::u32(),
-            Type::u64(),
-            Type::u128(),
-            Type::usize(),
-            Type::i8(),
-            Type::i16(),
-            Type::i32(),
-            Type::i64(),
-            Type::i128(),
-            Type::isize(),
-        ]
-            .into_iter()
-            .collect();
-
-        for (value, expected_value) in vec.iter().zip(expected.iter()) {
+    fn test_pairs(input: Vec<(proc_macro2::TokenStream, Type)>) {
+        let v: Vec<(Type, Type)> = input.into_iter().map(|(input, expected)| {
+            (TypeParser::new().parse(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
+        }).collect();
+        for (value, expected_value) in v {
             assert_eq!(value, expected_value);
         }
     }
 
     #[test]
-    fn types_float() {
-        let vec: Vec<Type> = vec![quote! { f32 }, quote! { f64 }]
-            .into_iter()
-            .map(|x| {
-                TypeParser.parse(x, &Default::default()).expect("Failed to convert from syn::Type")
-            })
-            .collect();
-        let expected: Vec<Type> = vec![Type::f32(), Type::f64()]
-            .into_iter()
-            .collect();
+    fn types_array() {
+        test_pairs(vec![
+            (quote! { [u8; 4] }, Type::array(Type::u8(), 4)),
+            (quote! { [u8] }, Type::slice(Type::u8()))
+        ]);
+    }
 
-        for (value, expected_value) in vec.iter().zip(expected.iter()) {
-            assert_eq!(value, expected_value);
-        }
+    #[test]
+    fn types_map() {
+        test_pairs(vec![
+            // (quote! { Vec<u8> }, Type::vector(Type::u8())),
+        ]);
+    }
+
+    #[test]
+    fn types_integer() {
+        test_pairs(vec![
+            (quote! { u8 }, Type::u8()),
+            (quote! { u16 }, Type::u16()),
+            (quote! { u32 }, Type::u32()),
+            (quote! { u64 }, Type::u64()),
+            (quote! { u128 }, Type::u128()),
+            (quote! { usize }, Type::usize()),
+            (quote! { i8 }, Type::i8()),
+            (quote! { i16 }, Type::i16()),
+            (quote! { i32 }, Type::i32()),
+            (quote! { i64 }, Type::i64()),
+            (quote! { i128 }, Type::i128()),
+            (quote! { isize }, Type::isize()),
+        ]);
+    }
+
+    #[test]
+    fn types_float() {
+        test_pairs(vec![
+            (quote! { f32 }, Type::f32()),
+            (quote! { f64 }, Type::f64()),
+        ]);
     }
 
     #[test]
     fn types_boolean() -> Result<()> {
         assert_eq!(
             Type::boolean(),
-            TypeParser.parse(quote! {bool}, &Default::default())?
+            TypeParser::new().parse(quote! {bool}, &Default::default())?
         );
         Ok(())
     }
@@ -168,7 +168,7 @@ mod test {
     fn types_character() -> Result<()> {
         assert_eq!(
             Type::character(),
-            TypeParser.parse(quote! {char}, &Default::default())?
+            TypeParser::new().parse(quote! {char}, &Default::default())?
         );
         Ok(())
     }
@@ -177,7 +177,7 @@ mod test {
     fn types_borrow_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser.parse(quote! {&i32}, &Default::default())?
+            TypeParser::new().parse(quote! {&i32}, &Default::default())?
         );
         Ok(())
     }
@@ -186,7 +186,7 @@ mod test {
     fn types_borrow_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser.parse(quote! {&mut i32}, &Default::default())?
+            TypeParser::new().parse(quote! {&mut i32}, &Default::default())?
         );
         Ok(())
     }
@@ -195,7 +195,7 @@ mod test {
     fn types_pointer_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser.parse(quote! {*const i32}, &Default::default())?
+            TypeParser::new().parse(quote! {*const i32}, &Default::default())?
         );
         Ok(())
     }
@@ -204,7 +204,7 @@ mod test {
     fn types_pointer_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser.parse(quote! {*mut i32}, &Default::default())?
+            TypeParser::new().parse(quote! {*mut i32}, &Default::default())?
         );
         Ok(())
     }

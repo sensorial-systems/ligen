@@ -16,9 +16,9 @@ members = [
     "ecosystem/rust/parser",
 #    "ecosystem/c/cmake",
 #    "ecosystem/c/generator",
-    # "tools/editor/dependencies/gui-runtime",
+    "tools/editor/dependencies/gui-runtime",
     "tools/cli",
-    # "tools/editor",
+    "tools/editor",
 ]
 resolver = "2"
 
@@ -47,7 +47,7 @@ ligen-rust-pyo3-importer    = { path = "ecosystem/rust/pyo3-importer" }
 #ligen-rust-exporter    = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
 ligen-cargo             = { path = "ecosystem/rust/cargo" }
-# ligen-gui-runtime       = { path = "tools/editor/dependencies/gui-runtime" }
+ligen-gui-runtime       = { path = "tools/editor/dependencies/gui-runtime" }
 is-tree                 = "0.9.7"
 serde                   = { version = "1", features = ["derive"] }
 enum-as-inner           = "0.6.0"

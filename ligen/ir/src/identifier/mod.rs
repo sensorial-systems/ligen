@@ -67,6 +67,16 @@ impl Identifier {
         "Dictionary".into()
     }
 
+    /// Returns a new `Identifier` representing a slice type.
+    pub fn slice() -> Self {
+        "Slice".into()
+    }
+
+    /// Returns a new `Identifier` representing an array type.
+    pub fn array() -> Self {
+        "Array".into()
+    }
+
     /// Returns a new `Identifier` representing a vector type.
     pub fn vector() -> Self {
         "Vector".into()

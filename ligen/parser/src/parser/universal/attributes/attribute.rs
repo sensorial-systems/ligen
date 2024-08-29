@@ -106,7 +106,7 @@ impl<T: LiteralParser> Parser<syn::Attribute> for AttributeParser<T> {
     fn parse(&self, attribute: syn::Attribute, config: &ParserConfig) -> Result<Self::Output> {
         attribute
             .parse_meta()
-            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, attribute.to_token_stream().to_string())))
             .and_then(|attribute| self.parse(attribute, config))
     }
 }
@@ -122,7 +122,7 @@ impl<T: LiteralParser> Parser<&str> for AttributeParser<T> {
     type Output = Attribute;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
         syn::parse_str::<syn::NestedMeta>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, input)))
             .and_then(|attribute| self.parse(attribute, config))
     }
 }

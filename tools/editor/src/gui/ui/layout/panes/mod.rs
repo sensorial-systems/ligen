@@ -1,3 +1,4 @@
+use egui::Id;
 use egui_tiles::{Container, Tile};
 use crate::prelude::*;
 
@@ -9,9 +10,15 @@ pub trait Pane {
     fn show(&mut self, ui: &mut egui::Ui, panes: &mut PaneManager) -> egui_tiles::UiResponse;
 }
 
-#[derive(Default)]
 pub struct Panes {
     tree: egui_tiles::Tree<Box<dyn Pane>>
+}
+
+impl Default for Panes {
+    fn default() -> Self {
+        let tree = egui_tiles::Tree::empty(Id::new(12345));
+        Self { tree }
+    }
 }
 
 impl Panes {

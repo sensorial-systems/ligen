@@ -21,7 +21,7 @@ impl Parser<syn::PathArguments> for GenericsParser {
                     .args
                     .into_iter()
                     .filter_map(|generic| match generic {
-                        syn::GenericArgument::Type(type_) => Some(TypeParser.parse(type_, config).expect("Failed to parse generic type.")),
+                        syn::GenericArgument::Type(type_) => Some(TypeParser::new().parse(type_, config).expect("Failed to parse generic type.")),
                         _ => None
                     })
                     .collect()
@@ -38,7 +38,7 @@ impl Parser<syn::Generics> for GenericsParser {
         let mut generics = Generics::default();
         for generic in input.params {
             if let syn::GenericParam::Type(type_) = generic {
-                generics.types.push(TypeParser.parse(type_.ident, config)?);
+                generics.types.push(TypeParser::new().parse(type_.ident, config)?);
             }
         }
         Ok(generics)

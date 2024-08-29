@@ -21,4 +21,10 @@ mod test {
     fn parse_attributes() -> Result<()> {
         assert_eq(AttributesParser::default(), mock::parse_attributes(), "c(int = \"sized\")")
     }
+
+    // TODO: Finish this test
+    // #[test]
+    // fn parse_many_attributes() -> Result<()> {
+    //     assert_eq(AttributesParser::default(), mock::parse_many_attributes(), "error(\"the {} field name: '{}' is invalid, path: {:?}\", .0.field_type, .0.field_name, .0.path)")
+    // }
 }

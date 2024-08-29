@@ -13,7 +13,7 @@ impl Parser<syn::ImplItemConst> for ObjectParser {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             let mutability = Mutability::Constant;
             let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
-            let type_ = TypeParser.parse(item_const.ty, config)?;
+            let type_ = TypeParser::new().parse(item_const.ty, config)?;
             let literal = LiteralParser.parse(lit, config)?;
             Ok(Self::Output { mutability, identifier, type_, literal })
         } else {
@@ -28,7 +28,7 @@ impl Parser<syn::ItemConst> for ObjectParser {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             let mutability = Mutability::Constant;
             let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
-            let type_ = TypeParser.parse(*item_const.ty, config)?;
+            let type_ = TypeParser::new().parse(*item_const.ty, config)?;
             let literal = LiteralParser.parse(lit, config)?;
             Ok(Self::Output { mutability, identifier, type_, literal })
         } else {

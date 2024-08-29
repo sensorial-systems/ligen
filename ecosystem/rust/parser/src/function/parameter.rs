@@ -19,7 +19,7 @@ impl Parser<syn::FnArg> for ParameterParser {
                     Ok(Self::Output {
                         attributes: AttributesParser::default().parse(attrs, config)?,
                         identifier: IdentifierParser::new().parse(ident, config)?,
-                        type_: TypeParser.parse(*ty, config)?,
+                        type_: TypeParser::new().parse(*ty, config)?,
                         default_value: Default::default(),
                     })
                 } else {

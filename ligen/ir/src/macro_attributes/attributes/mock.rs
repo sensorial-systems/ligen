@@ -22,3 +22,15 @@ pub fn parse_literals() -> Attributes {
         ]
     ).into()
 }
+
+pub fn parse_many_attributes() -> Attributes {
+    Group::new(
+        "error",
+        vec![
+            Attribute::Literal("the {} field name: '{}' is invalid, path: {:?}".into()),
+            Attribute::Group(".0.field_type".into()),
+            Attribute::Group(".0.field_name".into()),
+            Attribute::Group(".0.path".into())
+        ]
+    ).into()
+}

@@ -37,7 +37,7 @@ impl Parser<syn::ImplItemMethod> for MethodParser {
         let output: Option<Type> = match output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_x, y) => {
-                Some(TypeParser.parse(*y, config)?)
+                Some(TypeParser::new().parse(*y, config)?)
             }
         };
         Ok(Self::Output {
