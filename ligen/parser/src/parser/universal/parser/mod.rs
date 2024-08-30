@@ -1,6 +1,8 @@
-use ligen::ir::{Path, PathSegment};
-use ligen::parser::{Parser, ParserConfig};
-use crate::identifier::IdentifierParser;
+// FIXME: This is duplicated from Rust's parser.
+
+use ligen_ir::{Path, PathSegment};
+use crate::{Parser, ParserConfig};
+use crate::universal::identifier::IdentifierParser;
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -43,29 +45,13 @@ impl Parser<&str> for PathParser {
     }
 }
 
-impl Parser<proc_macro::TokenStream> for PathParser {
-    type Output = Path;
-    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input), config)
-    }
-}
-
-impl Parser<proc_macro2::TokenStream> for PathParser {
-    type Output = Path;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
-        syn::parse2::<syn::Path>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
-            .and_then(|path| self.parse(path, config))
-    }
-}
-
 #[cfg(test)]
 mod test {
-    use crate::path::PathParser;
+    use super::PathParser;
     use crate::prelude::*;
 
-    use ligen::parser::assert::*;
-    use ligen::ir::path::mock;
+    use crate::assert::*;
+    use ligen_ir::path::mock;
 
     #[test]
     fn identifier_as_path() -> Result<()> {

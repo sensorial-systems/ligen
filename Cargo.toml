@@ -56,7 +56,7 @@ shrinkwraprs            = "0.3"
 derive_more             = "0.99"
 lazy_static             = "1.4.0"
 pretty_assertions       = "1.4.0"
-syn                     = { version = "1.0.73", features = [ "full" ] }
+syn                     = { version = "2.0.76", features = [ "full" ] }
 regex = "1"
 
 # If you want to use the bleeding edge version of egui and eframe:

@@ -30,19 +30,18 @@ impl Parser<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>> for Va
 
 #[cfg(test)]
 mod tests {
-    use quote::quote;
-    use syn::parse_quote::parse;
+    use syn::parse_quote;
     use ligen::ir::Variant;
     use ligen::parser::Parser;
     use crate::types::type_definition::enumeration::variant::VariantParser;
 
     #[test]
     fn parameter_primitive() {
-        let enumeration = parse::<syn::ItemEnum>(quote! {
+        let enumeration: syn::ItemEnum = parse_quote! {
             enum Enumeration {
                 Integer
             }
-        });
+        };
         let variant = enumeration.variants.into_iter().next().expect("Couldn't get field.");
         assert_eq!(
             VariantParser.parse(variant, &Default::default()).expect("Failed to convert field."),

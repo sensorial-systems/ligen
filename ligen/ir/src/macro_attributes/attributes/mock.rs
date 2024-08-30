@@ -28,9 +28,9 @@ pub fn parse_expressions() -> Attributes {
         "error",
         vec![
             Attribute::Literal("the {} field name: '{}' is invalid, path: {:?}".into()),
-            Attribute::Group(".0.field_type".into()),
-            Attribute::Group(".0.field_name".into()),
-            Attribute::Group(".0.path".into())
+            Attribute::from(Literal::Unknown("self.0.field_type".into())),
+            Attribute::from(Literal::Unknown("self.0.field_name".into())),
+            Attribute::from(Literal::Unknown("self.0.path".into()))
         ]
     ).into()
 }

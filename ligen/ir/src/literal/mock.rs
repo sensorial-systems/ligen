@@ -27,3 +27,7 @@ pub fn literal_integer() -> Literal {
 pub fn literal_float() -> Literal {
     Literal::Float(3.5)
 }
+
+pub fn literal_unknown() -> Literal {
+    Literal::Unknown(".0".into())
+}

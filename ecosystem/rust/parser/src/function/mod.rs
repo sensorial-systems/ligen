@@ -31,9 +31,9 @@ impl Parser<syn::ItemFn> for FunctionParser {
     }
 }
 
-impl Parser<syn::ImplItemMethod> for FunctionParser {
+impl Parser<syn::ImplItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, method: syn::ImplItemMethod, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, method: syn::ImplItemFn, config: &ParserConfig) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(method.attrs, config)?;
         let visibility = VisibilityParser.parse(method.vis, config)?;
         let synchrony = SynchronyParser.parse(method.sig.asyncness, config)?;

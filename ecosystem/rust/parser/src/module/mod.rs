@@ -58,8 +58,9 @@ impl Parser<&std::path::Path> for ModuleParser {
         let semi = Default::default();
         let mod_token = Default::default();
         let content = Some((Default::default(), module.items));
-        let vis = syn::Visibility::Public(syn::VisPublic { pub_token });
-        let module = syn::ItemMod { attrs, vis, mod_token, ident, semi, content };
+        let vis = syn::Visibility::Public(pub_token);
+        let unsafety = Default::default();
+        let module = syn::ItemMod { unsafety, attrs, vis, mod_token, ident, semi, content };
         self.parse(module, config)
     }
 }

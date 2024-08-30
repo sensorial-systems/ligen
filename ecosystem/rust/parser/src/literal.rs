@@ -19,6 +19,8 @@ impl Parser<syn::Lit> for LiteralParser {
             syn::Lit::Int(litint) => Self::Output::Integer(litint.base10_parse().unwrap()),
             syn::Lit::Float(litfloat) => Self::Output::Float(litfloat.base10_parse().unwrap()),
             syn::Lit::Bool(litbool) => Self::Output::Boolean(litbool.value),
+            syn::Lit::CStr(litcstr) => Self::Output::String(litcstr.value().to_str().unwrap().to_string()),
+            _ => return Err(Error::Message("Failed to parse literal".into())),
         })
     }
 }
@@ -73,9 +75,11 @@ impl Parser<String> for LiteralParser {
 impl Parser<&str> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
-        syn::parse_str::<syn::Lit>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
-            .and_then(|literal| self.parse(literal, config))
+        if let Ok(lit) = syn::parse_str::<syn::Lit>(input) {
+            Ok(self.parse(lit, config)?)
+        } else {
+            Ok(Literal::Unknown(input.to_string()))
+        }
     }
 }
 
@@ -124,5 +128,10 @@ mod test {
     #[test]
     fn literal_float() -> Result<()> {
         assert_eq(LiteralParser, mock::literal_float(), "3.5")
+    }
+
+    #[test]
+    fn literal_unknown() -> Result<()> {
+        assert_eq(LiteralParser, mock::literal_unknown(), ".0") // FIXME: This is actually an expression.
     }
 }

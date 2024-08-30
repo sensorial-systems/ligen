@@ -34,18 +34,18 @@ impl Parser<syn::Fields> for FieldParser {
 
 #[cfg(test)]
 mod tests {
-    use syn::parse_quote::parse;
+    use syn::parse_quote;
     use ligen::ir::{Field, Visibility, Path};
     use crate::types::structure::FieldParser;
     use crate::prelude::*;
 
     #[test]
     fn field() -> Result<()> {
-        let structure = parse::<syn::ItemStruct>(quote! {
+        let structure: syn::ItemStruct = parse_quote! {
             struct Structure {
                 instant: std::time::Instant
             }
-        });
+        };
         let field = structure.fields.into_iter().next().expect("Couldn't get field.");
         assert_eq!(
             FieldParser.parse(field, &Default::default())?,
