@@ -15,7 +15,6 @@ impl Validator for TypeValidator {
     fn validate(&self, type_: &mut Type, config: &ParserConfig) -> Result<()> {
         let name = type_.path.last().identifier.name.as_str();
         if config.get(Path::from("ligen::python::as-opaque").join(name)).is_some() {
-            println!("{}", type_.path);
             *type_ = Type::opaque();
         }
         Ok(())

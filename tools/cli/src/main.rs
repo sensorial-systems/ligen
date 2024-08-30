@@ -31,8 +31,7 @@ fn main() -> Result<()> {
         panic!("Parser not found.");
     };
     let config = parser.config();
-    let registry = parser.parse(args.input.as_path(), &config)?;
-    println!("{:#?}", registry);
+    let _registry = parser.parse(args.input.as_path(), &config)?;
     // for library in registry.libraries.iter() {
     //     LibraryGenerator::default().generate(&library, PathBuf::from(&args.output).as_path())?;
     // }

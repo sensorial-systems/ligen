@@ -29,7 +29,6 @@ impl<L: LiteralParser> Parser<&str> for AttributesParser<L>
 {
     type Output = Attributes;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
-        println!("{}", input);
         syn::parse_str::<syn2::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>>(input)
             .map_err(|e| Error::Message(format!("Failed to parse attributes: {}. Input: {}", e, input)))
             .and_then(|input| self.parse(input.0, config))
@@ -51,7 +50,6 @@ impl<L: LiteralParser> Parser<syn::punctuated::Punctuated<IntermediaryAttribute,
 {
     type Output = Attributes;
     fn parse(&self, input: syn::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>, config: &ParserConfig) -> Result<Self::Output> {
-        println!("??");
         let mut attributes = Vec::new();
         for attribute in input {
             attributes.push(self.attribute_parser.parse(attribute, config)?);

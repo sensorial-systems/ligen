@@ -39,7 +39,6 @@ impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {
 impl<T: LiteralParser> Parser<syn::MetaList> for AttributeParser<T> {
     type Output = Attribute;
     fn parse(&self, meta_list: syn::MetaList, config: &ParserConfig) -> Result<Self::Output> {
-        println!("4");
         let path = PathParser::default().parse(meta_list.path.clone(), config)?;
         let inner = meta_list.tokens.into_iter().map(|token| token.to_string()).collect::<Vec<_>>().join("");
         let attributes = AttributesParser::<T>::default().parse(inner.as_str(), config)?;
@@ -126,7 +125,6 @@ impl<T: LiteralParser> Parser<syn::MetaNameValue> for AttributeParser<T> {
 impl<T: LiteralParser> Parser<syn::Meta> for AttributeParser<T> {
     type Output = Attribute;
     fn parse(&self, meta: syn::Meta, config: &ParserConfig) -> Result<Self::Output> {
-        println!("3");
         match meta {
             syn::Meta::Path(path) => self.parse(path, config),
             syn::Meta::List(list) => self.parse(list, config),
@@ -152,7 +150,6 @@ impl<T: LiteralParser> Parser<String> for AttributeParser<T> {
 impl<T: LiteralParser> Parser<IntermediaryAttribute> for AttributeParser<T> {
     type Output = Attribute;
     fn parse(&self, input: IntermediaryAttribute, config: &ParserConfig) -> Result<Self::Output> {
-        println!("2", );
         match input {
             IntermediaryAttribute::Meta(meta) => self.parse(meta, config),
             IntermediaryAttribute::Lit(lit) => self.parse(lit, config),

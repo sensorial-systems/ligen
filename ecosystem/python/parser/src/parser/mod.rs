@@ -37,7 +37,6 @@ impl PythonParser {
         // This line replaces "-" with "_" in the file name
         let input = input.with_file_name(input.file_name().unwrap().to_string_lossy().replace('-', "_").as_str().trim());
         let input = input.as_path();
-        println!("Parsing library: {}", input.display());
         let identifier = self.identifier_parser.parse(input, config)?;
         let metadata = self.metadata_parser.parse(input, config)?;
         let root_module = self.parse(SubPath(input), config)?;
@@ -50,7 +49,6 @@ impl PythonParser {
 impl Parser<&std::path::Path> for PythonParser {
     type Output = Registry;
     fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
-        println!("Parsing: {}", input.display());
         let mut registry = Registry::new();
         let library = self.parse_library(input, config)?;
         for dependency in library.metadata.dependencies.iter().filter(|dependency| dependency.feature.is_none()) { // TODO: We need to support features.

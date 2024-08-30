@@ -7,7 +7,6 @@ pub(crate) enum IntermediaryAttribute {
 
 impl syn::parse::Parse for IntermediaryAttribute {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        println!("{}", input);
         if input.peek(syn::Lit) {
             input.parse().map(IntermediaryAttribute::Lit)
         } else {

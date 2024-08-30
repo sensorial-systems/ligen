@@ -146,7 +146,7 @@ impl PythonParser {
             if let Stmt::ClassDef(class) = statement {
                 match self.type_definition_parser.parse(statements.sub(class.clone()), config) {
                     Ok(type_definition) => types.push(type_definition),
-                    Err(error) => println!("Failed to parse type definition: {:?}", error)
+                    Err(error) => todo!("Failed to parse type definition: {:?}", error)
                 }
             }
         }
