@@ -15,8 +15,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macOS-latest, ubuntu-latest] # 
+        os: [windows-latest, macOS-latest]
     steps:
+      - uses: actions/checkout@v2
+      - name: All targets checks
+        run: cargo check --workspace --all-targets
+      - name: Clippy checks
+        run: cargo clippy --workspace --all-targets --all-features --  -D warnings -W clippy::all
+      - name: Documentation tests
+        run: cargo test --workspace --doc
+      - name: All features for all targets tests
+        run: cargo test --workspace --all-targets --all-features
+  ubuntu-test:
+    name: Test on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libatk1.0-dev librust-atk-dev
       - uses: actions/checkout@v2
       - name: All targets checks
         run: cargo check --workspace --all-targets
