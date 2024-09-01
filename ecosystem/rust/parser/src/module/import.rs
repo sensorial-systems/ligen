@@ -15,13 +15,18 @@ struct ImportsBuilder {
     pub tree: syn::UseTree
 }
 
-pub struct ImportsParser;
+#[derive(Default)]
+pub struct ImportsParser {
+    attributes_parser: AttributesParser,
+    visibility_parser: VisibilityParser
+}
+
 
 impl Parser<syn::ItemUse> for ImportsParser {
     type Output = Vec<Import>;
     fn parse(&self, import: syn::ItemUse, config: &ParserConfig) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(import.attrs, config)?;
-        let visibility = VisibilityParser.parse(import.vis, config)?;
+        let attributes = self.attributes_parser.parse(import.attrs, config)?;
+        let visibility = self.visibility_parser.parse(import.vis, config)?;
         let path = Path::default();
         let tree = import.tree;
         self.parse(ImportsBuilder { attributes, visibility, path, tree }, config)
@@ -103,7 +108,7 @@ mod tests {
 
     #[test]
     fn import() -> Result<()> {
-        assert_eq(ImportsParser, mock::import(), quote! {
+        assert_eq(ImportsParser::default(), mock::import(), quote! {
             #[custom(attribute)]
             pub use std::collections::HashMap;
         })
@@ -111,7 +116,7 @@ mod tests {
 
     #[test]
     fn glob_import() -> Result<()> {
-        assert_eq(ImportsParser, mock::glob_import(), quote! {
+        assert_eq(ImportsParser::default(), mock::glob_import(), quote! {
             #[custom(attribute)]
             pub use std::collections::*;
         })
@@ -119,7 +124,7 @@ mod tests {
 
     #[test]
     fn renamed_import() -> Result<()> {
-        assert_eq(ImportsParser, mock::renamed_import(), quote !{
+        assert_eq(ImportsParser::default(), mock::renamed_import(), quote !{
             #[custom(attribute)]
             pub use std::collections::HashMap as Map;
         })
@@ -127,7 +132,7 @@ mod tests {
 
     #[test]
     fn group_import() -> Result<()> {
-        assert_eq(ImportsParser, mock::group_import(), quote! {
+        assert_eq(ImportsParser::default(), mock::group_import(), quote! {
             #[custom(attribute)]
             pub use std::{
                 collections::{

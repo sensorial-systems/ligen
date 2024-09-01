@@ -10,6 +10,7 @@ pub mod literal;
 pub mod identifier;
 pub mod module;
 pub mod object;
+pub mod interface;
 
 pub mod parser;
 

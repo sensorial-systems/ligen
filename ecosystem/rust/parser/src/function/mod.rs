@@ -18,6 +18,12 @@ use crate::visibility::VisibilityParser;
 #[derive(Default)]
 pub struct FunctionParser;
 
+impl FunctionParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
 impl Parser<syn::ItemFn> for FunctionParser {
     type Output = Function;
     fn parse(&self, item_fn: syn::ItemFn, config: &ParserConfig) -> Result<Self::Output> {
@@ -33,14 +39,18 @@ impl Parser<syn::ItemFn> for FunctionParser {
 
 impl Parser<syn::ImplItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, method: syn::ImplItemFn, config: &ParserConfig) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(method.attrs, config)?;
-        let visibility = VisibilityParser.parse(method.vis, config)?;
-        let synchrony = SynchronyParser.parse(method.sig.asyncness, config)?;
-        let identifier = IdentifierParser::new().parse(method.sig.ident, config)?;
-        let inputs = self.parse_inputs(method.sig.inputs, config)?;
-        let output = self.parse_output(method.sig.output, config)?;
-        Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })
+    fn parse(&self, function: syn::ImplItemFn, config: &ParserConfig) -> Result<Self::Output> {
+        if function.sig.receiver().is_some() {
+            Err(Error::Message("Function is not a method.".to_string()))
+        } else {
+            let attributes = AttributesParser::default().parse(function.attrs, config)?;
+            let visibility = VisibilityParser.parse(function.vis, config)?;
+            let synchrony = SynchronyParser.parse(function.sig.asyncness, config)?;
+            let identifier = IdentifierParser::new().parse(function.sig.ident, config)?;
+            let inputs = self.parse_inputs(function.sig.inputs, config)?;
+            let output = self.parse_output(function.sig.output, config)?;
+            Ok(Self::Output { attributes, visibility, synchrony, identifier, inputs, output })    
+        }
     }
 }
 

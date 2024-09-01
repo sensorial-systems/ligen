@@ -28,7 +28,7 @@ impl Parser<&std::path::Path> for LibraryParser {
         let library_path = directory.join(library.path.unwrap_or("src/lib.rs".into()));
 
         let identifier = Identifier::from(package.name.as_str());
-        let mut root_module = ModuleParser.parse(library_path.as_path(), config)?;
+        let mut root_module = ModuleParser::new().parse(library_path.as_path(), config)?;
         root_module.identifier = identifier.clone();
         let metadata = Default::default();
         Ok(Self::Output { identifier, metadata, root_module })

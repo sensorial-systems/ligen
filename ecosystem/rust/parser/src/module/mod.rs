@@ -5,6 +5,7 @@ mod import;
 use syn::spanned::Spanned;
 use ligen::ir::Object;
 use ligen::parser::{Parser, ParserConfig};
+use crate::interface::InterfaceParser;
 use crate::prelude::*;
 use crate::types::type_alias::TypeAliasParser;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
@@ -17,7 +18,34 @@ use crate::types::enumeration::EnumerationParser;
 use crate::types::structure::StructureParser;
 use crate::visibility::VisibilityParser;
 
-pub struct ModuleParser;
+#[derive(Default)]
+pub struct ModuleParser {
+    interface_parser: InterfaceParser,
+    object_parser: ObjectParser,
+    visibility_parser: VisibilityParser,
+    function_parser: FunctionParser,
+    identifier_parser: IdentifierParser,
+    attributes_parser: AttributesParser,
+    type_alias_parser: TypeAliasParser,
+    enumeration_parser: EnumerationParser,
+    structure_parser: StructureParser,
+    imports_parser: ImportsParser,
+}
+
+impl ModuleParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
+impl Parser<&str> for ModuleParser {
+    type Output = Module;
+    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+        syn::parse_str::<syn::ItemMod>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
+            .and_then(|module| self.parse(module, config))
+    }
+}
 
 impl Parser<proc_macro2::TokenStream> for ModuleParser {
     type Output = Module;
@@ -35,9 +63,9 @@ impl Parser<syn::ItemMod> for ModuleParser {
             .content
             .map(|(_, items)| items)
             .ok_or("Module file isn't loaded.")?;
-        let attributes = AttributesParser::default().parse(module.attrs, config)?;
-        let visibility = VisibilityParser.parse(module.vis, config)?;
-        let identifier = IdentifierParser::new().parse(module.ident, config)?;
+        let attributes = self.attributes_parser.parse(module.attrs, config)?;
+        let visibility = self.visibility_parser.parse(module.vis, config)?;
+        let identifier = self.identifier_parser.parse(module.ident, config)?;
 
         let imports = self.extract_imports(items.as_slice(), config)?;
         let functions = self.extract_functions(items.as_slice(), config)?;
@@ -67,19 +95,27 @@ impl Parser<&std::path::Path> for ModuleParser {
 }
 
 impl ModuleParser {
-    fn extract_interfaces(&self, _items: &[syn::Item]) -> Result<Vec<Interface>> {
-        Ok(Default::default())
+    fn extract_interfaces(&self, items: &[syn::Item]) -> Result<Vec<Interface>> {
+        let mut interfaces = Vec::new();
+        for item in items {
+            if let syn::Item::Impl(impl_) = item {
+                if let Ok(interface) = self.interface_parser.parse(impl_.clone(), &ParserConfig::default()) {
+                    interfaces.push(interface);
+                }
+            }
+        }
+        Ok(interfaces)
     }
     fn extract_types(&self, items: &[syn::Item], config: &ParserConfig) -> Result<Vec<TypeDefinition>> {
         let mut types = Vec::new();
         for item in items {
             match item {
                 syn::Item::Enum(enumeration) =>
-                    types.push(EnumerationParser::new().parse(enumeration.clone(), config)?),
+                    types.push(self.enumeration_parser.parse(enumeration.clone(), config)?),
                 syn::Item::Struct(structure) =>
-                    types.push(StructureParser::new().parse(structure.clone(), config)?),
+                    types.push(self.structure_parser.parse(structure.clone(), config)?),
                 syn::Item::Type(type_) => {
-                    types.push(TypeAliasParser::new().parse(type_.clone(), config)?);
+                    types.push(self.type_alias_parser.parse(type_.clone(), config)?);
                 },
                 syn::Item::Union(_union) => {
                     todo!("Union object isn't implemented yet.")
@@ -94,7 +130,7 @@ impl ModuleParser {
         let mut imports: Vec<Import> = Default::default();
         for item in items {
             if let syn::Item::Use(import) = item {
-                imports.append(&mut ImportsParser.parse(import.clone(), config)?);
+                imports.append(&mut self.imports_parser.parse(import.clone(), config)?);
             }
         }
         Ok(imports)
@@ -103,7 +139,7 @@ impl ModuleParser {
         let mut functions = Vec::new();
         for item in items {
             if let syn::Item::Fn(function) = item {
-                functions.push(FunctionParser.parse(function.clone(), config)?);
+                functions.push(self.function_parser.parse(function.clone(), config)?);
             }
         }
         Ok(functions)
@@ -130,7 +166,7 @@ impl ModuleParser {
         let mut objects = Vec::new();
         for item in items {
             if let syn::Item::Const(constant) = item {
-                objects.push(ObjectParser.parse(constant.clone(), config)?);
+                objects.push(self.object_parser.parse(constant.clone(), config)?);
             }
         }
         Ok(objects)
@@ -148,12 +184,12 @@ mod tests {
 
     #[test]
     fn module_file() -> Result<()> {
-        assert_failure(ModuleParser, quote! { mod module; })
+        assert_failure(ModuleParser::default(), "mod module;")
     }
 
     #[test]
     fn sub_modules() -> Result<()> {
-        assert_eq(ModuleParser, mock::sub_modules(), quote! {
+        assert_eq(ModuleParser::default(), mock::sub_modules(), quote! {
             pub mod root {
                 pub mod branch {
                     pub mod leaf {}
@@ -164,7 +200,7 @@ mod tests {
 
     #[test]
     fn module_types() -> Result<()> {
-        assert_eq(ModuleParser, mock::module_types(), quote! {
+        assert_eq(ModuleParser::default(), mock::module_types(), quote! {
             pub mod types {
                 pub struct Structure;
                 pub enum Enumeration {}

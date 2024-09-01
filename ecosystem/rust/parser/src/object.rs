@@ -5,7 +5,14 @@ use crate::literal::LiteralParser;
 use crate::prelude::*;
 use crate::types::TypeParser;
 
+#[derive(Default)]
 pub struct ObjectParser;
+
+impl ObjectParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
 
 impl Parser<syn::ImplItemConst> for ObjectParser {
     type Output = Object;

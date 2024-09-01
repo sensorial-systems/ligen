@@ -1,4 +1,5 @@
 use ligen::{ir::Type, parser::ParserConfig};
+use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
 use crate::{literal::LiteralParser, mutability::MutabilityParser, prelude::*};
 use ligen::parser::Parser;
@@ -59,7 +60,7 @@ impl Parser<syn::Type> for TypeParser {
         } else {
             match syn_type {
                 syn::Type::Reference(syn::TypeReference { elem, mutability, .. }) |
-                syn::Type::Ptr(syn::TypePtr { elem, mutability, .. })                 => {
+                syn::Type::Ptr(syn::TypePtr { elem, mutability, .. }) => {
                     let mutability = self.mutability_parser.parse(mutability, config)?;
                     let type_ = TypeParser::new().parse(*elem, config)?;
                     Ok(Type::reference(mutability, type_))
@@ -74,7 +75,7 @@ impl Parser<syn::Type> for TypeParser {
                     let type_ = TypeParser::new().parse(*elem, config)?;
                     Ok(Type::array(type_, len))
                 },
-                _ => Err(Error::Message("Only Path, Reference and Ptr Types are currently supported".into())),
+                _ => Err(Error::Message(format!("\"{}\" not supported. Only Path, Reference and Ptr Types are currently supported", syn_type.to_token_stream()))),
             }
         }
     }
