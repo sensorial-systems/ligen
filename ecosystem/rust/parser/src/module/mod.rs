@@ -6,6 +6,7 @@ use syn::spanned::Spanned;
 use ligen::ir::Object;
 use ligen::parser::{Parser, ParserConfig};
 use crate::prelude::*;
+use crate::types::type_alias::TypeAliasParser;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
 use crate::object::ObjectParser;
 use crate::function::FunctionParser;
@@ -77,8 +78,8 @@ impl ModuleParser {
                     types.push(EnumerationParser::new().parse(enumeration.clone(), config)?),
                 syn::Item::Struct(structure) =>
                     types.push(StructureParser::new().parse(structure.clone(), config)?),
-                syn::Item::Type(_type) => {
-                    todo!("Type object isn't implemented yet.")
+                syn::Item::Type(type_) => {
+                    types.push(TypeAliasParser::new().parse(type_.clone(), config)?);
                 },
                 syn::Item::Union(_union) => {
                     todo!("Union object isn't implemented yet.")

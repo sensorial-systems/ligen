@@ -1,16 +1,19 @@
 pub mod structure;
 pub mod enumeration;
+pub mod type_alias;
 
 use crate::prelude::*;
 
 pub use structure::{Structure, Field};
 pub use enumeration::{Enumeration, Variant};
+pub use type_alias::TypeAlias;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[allow(missing_docs)]
 pub enum KindDefinition {
     Structure(Structure),
-    Enumeration(Enumeration)
+    Enumeration(Enumeration),
+    TypeAlias(TypeAlias)
 }
 
 impl KindDefinition {
@@ -18,7 +21,8 @@ impl KindDefinition {
     pub fn kind_name(&self) -> &'static str {
         match self {
             Self::Structure(_) => "Structure",
-            Self::Enumeration(_) => "Enumeration"
+            Self::Enumeration(_) => "Enumeration",
+            Self::TypeAlias(_) => "TypeAlias"
         }
     }
 
@@ -26,7 +30,8 @@ impl KindDefinition {
     pub fn is_empty(&self) -> bool {
         match self {
             Self::Structure(structure) => structure.fields.is_empty(),
-            Self::Enumeration(enumeration) => enumeration.variants.is_empty()
+            Self::Enumeration(enumeration) => enumeration.variants.is_empty(),
+            Self::TypeAlias(_) => false
         }
     }
 
@@ -34,7 +39,8 @@ impl KindDefinition {
     pub fn count(&self) -> usize {
         match self {
             Self::Structure(structure) => structure.fields.len(),
-            Self::Enumeration(enumeration) => enumeration.variants.len()
+            Self::Enumeration(enumeration) => enumeration.variants.len(),
+            Self::TypeAlias(_) => 0
         }
     
     }
@@ -55,5 +61,11 @@ impl From<Structure> for KindDefinition {
 impl From<Enumeration> for KindDefinition {
     fn from(enumeration: Enumeration) -> Self {
         Self::Enumeration(enumeration)
+    }
+}
+
+impl From<TypeAlias> for KindDefinition {
+    fn from(value: TypeAlias) -> Self {
+        Self::TypeAlias(value)
     }
 }

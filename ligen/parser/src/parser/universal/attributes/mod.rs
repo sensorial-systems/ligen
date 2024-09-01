@@ -3,7 +3,7 @@ pub mod attribute;
 use crate::prelude::*;
 use crate::parser::{Parser, ParserConfig};
 use attribute::intermediary_attribute::IntermediaryAttribute;
-use ligen_ir::Attributes;
+use ligen_ir::{Attribute, Attributes, Literal};
 use attribute::AttributeParser;
 use crate::parser::universal::literal::LiteralParser;
 
@@ -29,9 +29,14 @@ impl<L: LiteralParser> Parser<&str> for AttributesParser<L>
 {
     type Output = Attributes;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
-        syn::parse_str::<syn2::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>>(input)
+        let attributes = syn::parse_str::<syn2::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>>(input)
             .map_err(|e| Error::Message(format!("Failed to parse attributes: {}. Input: {}", e, input)))
-            .and_then(|input| self.parse(input.0, config))
+            .and_then(|input| self.parse(input.0, config));
+        if let Ok(attributes) = attributes {
+            Ok(attributes)
+        } else {
+            Ok(Attributes::from(Attribute::from(Literal::from(input))))
+        }
     }
 }
 
