@@ -88,7 +88,7 @@ impl Pane for Editor {
             ui.label("Filter");
             ui.text_edit_singleline(&mut self.filter);
         });
-        List::new("Symbols").show(ui, &mut self.symbols.symbols.iter_mut().filter(|symbol| symbol.to_string().contains(self.filter.as_str())), |ui, symbol| {
+        List::new("Symbols").show(ui, self.symbols.symbols.iter_mut().filter(|symbol| symbol.to_string().contains(self.filter.as_str())), |ui, symbol| {
             ui.label(symbol.to_string());
         });
         UiResponse::None

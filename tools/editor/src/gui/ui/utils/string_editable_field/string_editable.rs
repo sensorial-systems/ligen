@@ -14,12 +14,8 @@ impl StringEditable for PathBuf {
     }
 
     fn update(&mut self, string: impl AsRef<str>) -> bool {
-        if let Ok(path_buf) = PathBuf::try_from(string.as_ref()) {
-            *self = path_buf;
-            true
-        } else {
-            false
-        }
+        *self = PathBuf::from(string.as_ref());
+        true
     }
 }
 
@@ -55,12 +51,8 @@ impl StringEditable for VersionRequirement {
     }
 
     fn update(&mut self, string: impl AsRef<str>) -> bool {
-        if let Ok(version) = VersionRequirement::try_from(string.as_ref()) {
-            *self = version;
-            true
-        } else {
-            false
-        }
+        *self = VersionRequirement::from(string.as_ref());
+        true
     }
 }
 

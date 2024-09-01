@@ -35,7 +35,7 @@ impl Type {
 
     /// Returns a new `Type` representing an array type.
     pub fn array(type_: impl Into<Type>, length: usize) -> Self {
-        let path = Path::from(PathSegment::new(Identifier::array(), type_.into())).into();
+        let path = Path::from(PathSegment::new(Identifier::array(), type_.into()));
         let length = Some(length);
         Self { path, length }
     }
