@@ -11,7 +11,7 @@ members = [
     "ecosystem/rust/pyo3-importer",
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
-#    "ecosystem/rust/exporter",
+    "ecosystem/rust/exporter",
 #    "ecosystem/rust/runtime",
     "ecosystem/rust/parser",
 #    "ecosystem/c/cmake",

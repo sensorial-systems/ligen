@@ -1,5 +1,5 @@
-use ligen_generator::file_generator::FileSection;
-use ligen_ir::TypeDefinition;
+use ligen::generator::file_generator::FileSection;
+use ligen::ir::TypeDefinition;
 
 pub use crate::prelude::*;
 

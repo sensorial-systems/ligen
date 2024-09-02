@@ -1,4 +1,4 @@
-use ligen_ir::Type;
+use ligen::ir::Type;
 
 use crate::identifier::IdentifierGenerator;
 

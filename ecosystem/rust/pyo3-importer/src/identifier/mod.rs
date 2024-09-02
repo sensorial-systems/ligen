@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use ligen_ir::Identifier;
-use ligen_utils::mapper::LanguageMap;
+use ligen::ir::Identifier;
+use ligen::utils::mapper::LanguageMap;
 
 pub struct IdentifierGenerator {
     map: LanguageMap<Identifier>,

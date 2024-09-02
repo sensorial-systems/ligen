@@ -4,8 +4,8 @@ pub use interface::*;
 use std::path::PathBuf;
 
 use is_tree::{HasBranch, HasPath, Visitor};
-use ligen_generator::file_generator::FileSet;
-use ligen_ir::{Identifier, Library, Module, Path, Visibility, Visitors};
+use ligen::generator::file_generator::FileSet;
+use ligen::ir::{Identifier, Library, Module, Path, Visibility, Visitors};
 
 #[derive(Default)]
 pub struct ModuleGenerator {
