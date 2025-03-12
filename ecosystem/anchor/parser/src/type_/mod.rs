@@ -10,7 +10,7 @@ pub struct TypeParser {
 impl Parser<IdlType> for TypeParser {
     type Output = Type;
 
-    fn parse(&self, input: IdlType, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: IdlType, _config: &ParserConfig) -> Result<Self::Output> {
         match input {
             IdlType::Bool => Ok(Type::boolean()),
             IdlType::U8 => Ok(Type::u8()),
@@ -30,14 +30,14 @@ impl Parser<IdlType> for TypeParser {
             IdlType::String => Ok(Type::string()),
             IdlType::Bytes => Ok(Type::slice(Type::u8())),
             IdlType::Pubkey => Ok(Identifier::new("Pubkey").into()),
-            IdlType::Option(inner) => Ok(Type::option(self.parse(*inner, config)?)),
-            IdlType::Vec(inner) => Ok(Type::vector(self.parse(*inner, config)?)),
+            IdlType::Option(inner) => Ok(Type::option(self.parse(*inner, _config)?)),
+            IdlType::Vec(inner) => Ok(Type::vector(self.parse(*inner, _config)?)),
             IdlType::Array(inner, len) => {
                 let length = match len {
                     IdlArrayLen::Generic(name) => name.parse::<usize>().map_err(|e| Error::Message(e.to_string()))?,
                     IdlArrayLen::Value(value) => value,
                 };
-                Ok(Type::array(self.parse(*inner, config)?, length))
+                Ok(Type::array(self.parse(*inner, _config)?, length))
             },
             IdlType::Defined { name, .. } => Ok(Identifier::new(name).into()),
             IdlType::Generic(name) => Ok(Identifier::new(name).into()),
