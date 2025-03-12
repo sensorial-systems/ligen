@@ -19,6 +19,18 @@ pub struct Attributes {
 }
 
 impl Attributes {
+    /// Get documentation from the attributes.
+    pub fn get_documentation(&self) -> Vec<String> {
+        self
+            .iter()
+            .filter_map(|attr| attr.as_named())
+            .filter(|named| named.path.segments.last().is_some())
+            .filter(|named| named.path.segments.last().unwrap().identifier == "doc")
+            .filter_map(|named| named.literal.as_string())
+            .map(|doc| doc.trim().to_string())
+            .collect::<Vec<_>>()
+    }
+
     /// Get the group identified by `path`.
     pub fn get_subgroup<P: Into<Path>>(&self, path: P) -> Option<&Attributes> {
         let path = path.into();

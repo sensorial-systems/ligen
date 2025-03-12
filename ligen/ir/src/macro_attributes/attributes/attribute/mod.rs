@@ -15,7 +15,7 @@ pub use group::*;
 pub use named::*;
 
 /// Attribute enueration.
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner)]
 pub enum Attribute {
     /// Literal Variant
     Literal(Literal),
