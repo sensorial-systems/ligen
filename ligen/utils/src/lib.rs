@@ -1,3 +1,5 @@
+#![allow(clippy::large_enum_variant)]
+
 //! Ligen Utils
 
 pub mod fs;
