@@ -1,0 +1,15 @@
+[package]
+name = "ligen-anchor-parser"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+documentation.workspace = true
+readme.workspace = true
+
+[dependencies]
+anchor-lang-idl-spec = "0.1.0"
+serde_json.workspace = true
+ligen-ir.workspace = true
+ligen-parser.workspace = true

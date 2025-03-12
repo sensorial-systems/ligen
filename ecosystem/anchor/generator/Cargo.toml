@@ -1,0 +1,11 @@
+[package]
+name = "ligen-anchor-generator"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+documentation.workspace = true
+readme.workspace = true
+
+[dependencies]

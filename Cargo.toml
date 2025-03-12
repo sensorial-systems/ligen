@@ -12,6 +12,7 @@ members = [
     "ecosystem/rust/cargo",
     "ecosystem/rust/example",
     "ecosystem/rust/exporter",
+    "ecosystem/anchor/*",
 #    "ecosystem/rust/runtime",
     "ecosystem/rust/parser",
 #    "ecosystem/c/cmake",

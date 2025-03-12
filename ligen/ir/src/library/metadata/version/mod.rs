@@ -13,6 +13,13 @@ impl Default for Version {
     }
 }
 
+impl TryFrom<String> for Version {
+    type Error = Error;
+    fn try_from(value: String) -> Result<Self> {
+        Self::try_from(value.as_str())
+    }
+}
+
 impl TryFrom<&str> for Version {
     type Error = Error;
     fn try_from(value: &str) -> Result<Self> {

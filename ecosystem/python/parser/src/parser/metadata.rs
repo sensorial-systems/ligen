@@ -23,7 +23,7 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
         let description = input.description.unwrap_or_default();
         let keywords = input.keywords.unwrap_or_default().split(',').map(String::from).collect();
         let authors = vec![Author::new(input.author.unwrap_or_default(), input.author_email.unwrap_or_default())];
-        let license = input.license.unwrap_or_default();
+        let license = Some(input.license.unwrap_or_default());
         let mut dependencies = Vec::new();
         for requirement in input.requires_dist {
             let requirement = Dependency::try_from(requirement.as_str())?;

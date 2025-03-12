@@ -20,5 +20,5 @@ pub struct Metadata {
     pub authors: Vec<Author>,
     pub dependencies: Vec<Dependency>,
     pub keywords: Vec<String>,
-    pub license: String,
+    pub license: Option<String>,
 }

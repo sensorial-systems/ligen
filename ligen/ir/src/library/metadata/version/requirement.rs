@@ -6,8 +6,14 @@ use crate::prelude::*;
 #[shrinkwrap(mutable)]
 pub struct VersionRequirement(pub String);
 
+impl From<String> for VersionRequirement {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
 impl From<&str> for VersionRequirement {
     fn from(value: &str) -> Self {
-        Self(value.to_string())
+        Self::from(value.to_string())
     }
 }
