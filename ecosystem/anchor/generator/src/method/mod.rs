@@ -26,7 +26,6 @@ impl Generator<ligen_ir::Method> for AnchorMethodGenerator {
         let mut accounts = Vec::new();
         let mut args = Vec::new();
 
-        eprintln!("{}", method.inputs.len());
         for input in method.inputs.iter() {
             let (type_, optional) = if input.type_.is_option() {
                 let ty = input.type_.path.last().generics.types.get(0).context("Expected a type in the option")?;
