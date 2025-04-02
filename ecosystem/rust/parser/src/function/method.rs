@@ -28,7 +28,7 @@ impl Parser<syn::ImplItemFn> for MethodParser {
             let inputs: Vec<Parameter> = inputs
                 .clone()
                 .into_iter()
-                .filter(|input| matches!(input, syn::FnArg::Receiver(_)))
+                .filter(|input| !matches!(input, syn::FnArg::Receiver(_)))
                 .map(|x| ParameterParser.parse(x, config).expect("Failed to convert Parameter"))
                 .collect();
             let output: Option<Type> = match output {

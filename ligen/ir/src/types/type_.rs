@@ -191,6 +191,11 @@ impl Type {
         self.path.last().identifier == Identifier::mutable_reference()
     }
 
+    /// Check if the `Type` is `ConstantReference`
+    pub fn is_constant_reference(&self) -> bool {
+        self.path.last().identifier == Identifier::constant_reference()
+    }
+
     /// Check if the `Type` is `Boolean`.
     pub fn is_boolean(&self) -> bool {
         self.is(Self::boolean())
@@ -229,6 +234,11 @@ impl Type {
     /// Check if the `Type` is `Vector`.
     pub fn is_vector(&self) -> bool {
         self.path.last().identifier == Identifier::vector()
+    }
+
+    /// Check if the `Type` is `Option`.
+    pub fn is_option(&self) -> bool {
+        self.path.last().identifier == Identifier::option()
     }
 
     /// Check if the `Type` is `String`.

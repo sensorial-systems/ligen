@@ -18,6 +18,8 @@ pub mod cargo;
 mod parser;
 
 pub use parser::*;
+pub use interface::*;
+pub use types::*;
 
 extern crate proc_macro;
 extern crate core;

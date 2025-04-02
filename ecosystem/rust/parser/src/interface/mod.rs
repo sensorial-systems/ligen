@@ -9,15 +9,15 @@ use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
 
 
 #[derive(Default)]
-pub struct InterfaceParser {}
+pub struct RustInterfaceParser {}
 
-impl InterfaceParser {
+impl RustInterfaceParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Parser<syn::ItemImpl> for InterfaceParser {
+impl Parser<syn::ItemImpl> for RustInterfaceParser {
     type Output = Interface;
     fn parse(&self, input: syn::ItemImpl, config: &ParserConfig) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(input.attrs, config)?;
@@ -35,7 +35,7 @@ impl Parser<syn::ItemImpl> for InterfaceParser {
     }
 }
 
-impl InterfaceParser {
+impl RustInterfaceParser {
     fn extract_interfaces(&self, _items: &[syn::ImplItem], _config: &ParserConfig) -> Result<Vec<Path>> {
         Ok(Default::default())
     }

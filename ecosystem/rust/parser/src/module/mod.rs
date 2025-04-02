@@ -5,7 +5,7 @@ mod import;
 use syn::spanned::Spanned;
 use ligen::ir::Object;
 use ligen::parser::{Parser, ParserConfig};
-use crate::interface::InterfaceParser;
+use crate::interface::RustInterfaceParser;
 use crate::prelude::*;
 use crate::types::type_alias::TypeAliasParser;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
@@ -20,7 +20,7 @@ use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
 pub struct ModuleParser {
-    interface_parser: InterfaceParser,
+    interface_parser: RustInterfaceParser,
     object_parser: ObjectParser,
     visibility_parser: VisibilityParser,
     function_parser: FunctionParser,

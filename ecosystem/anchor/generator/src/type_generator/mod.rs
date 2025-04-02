@@ -44,7 +44,7 @@ impl Generator<ligen_ir::Type> for AnchorTypeGenerator {
         } else if *type_ == Type::boolean() {
             IdlType::Bool
         } else {
-            IdlType::Bytes
+            return Err(anyhow::anyhow!("Unsupported type: {}", type_).into());
         };
         Ok(result)
     }

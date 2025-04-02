@@ -40,10 +40,3 @@ impl std::fmt::Display for Generics {
         }
     }
 }
-
-// FIXME: Remove this.
-// impl IntoIterTypeMut<Type> for Generics {
-//     fn type_iterator(&mut self) -> TypeIterMut<'_, Type> {
-//         self.types.iter_mut().collect::<Vec<_>>().into()
-//     }
-// }
