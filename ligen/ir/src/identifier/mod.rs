@@ -24,8 +24,8 @@ impl PartialEq<Identifier> for &str {
 
 impl Identifier {
     /// Create a new Identifier
-    pub fn new<S: AsRef<str>>(name: S) -> Self {
-        let name = String::from(name.as_ref());
+    pub fn new(name: impl Into<String>) -> Self {
+        let name = name.into();
         Self { name }
     }
 

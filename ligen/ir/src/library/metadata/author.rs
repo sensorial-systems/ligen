@@ -16,12 +16,37 @@ impl Author {
     }
 }
 
+impl From<String> for Author {
+    fn from(value: String) -> Self {
+        Self::from(&value)
+    }
+}
+
+impl From<&String> for Author {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_str())
+    }
+}
+
+impl From<&str> for Author {
+    fn from(value: &str) -> Self {
+        let (name, email) = if let Some((name, email)) = value.split_once('<') {
+            let name = name.trim();
+            let email = email.strip_suffix('>').unwrap_or(&email).trim();
+            (name.to_string(), email.to_string())
+        } else {
+            (value.to_string(), "".to_string())
+        };
+        Self::new(name, email)
+    }
+}
+
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.email.is_empty() {
-            write!(f, "\"{}\"", self.name)
+            write!(f, "{}", self.name)
         } else {
-            write!(f, "\"{} <{}>\"", self.name, self.email)
+            write!(f, "{} <{}>", self.name, self.email)
         }
     }
 }

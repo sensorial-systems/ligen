@@ -13,6 +13,12 @@ impl Default for Version {
     }
 }
 
+impl Version {
+    pub fn new(major: u64, minor: u64, patch: u64) -> Self {
+        Self(semver::Version::new(major, minor, patch))
+    }
+}
+
 impl TryFrom<String> for Version {
     type Error = Error;
     fn try_from(value: String) -> Result<Self> {

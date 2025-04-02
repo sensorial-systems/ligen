@@ -1,15 +1,15 @@
-use ligen_cargo::parser::library;
+use ligen_generator::GeneratorConfig;
 
 use crate::prelude::*;
 use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 
 pub struct Generator {
-    generator: Box<dyn ligen_generator::Generator<Input = ligen_ir::Library>>,
+    generator: Box<dyn ligen_generator::Generator<ligen_ir::Library, Output = ()>>,
     result: String
 }
 
 impl Generator {
-    pub fn new<T: ligen_generator::Generator<Input = ligen_ir::Library> + 'static>(generator: T) -> Self {
+    pub fn new<T: ligen_generator::Generator<ligen_ir::Library, Output = ()> + 'static>(generator: T) -> Self {
         let generator = Box::new(generator);
         let result = Default::default();
         Self { generator, result }
@@ -24,7 +24,10 @@ impl Widget for Generator {
             let entry = rfd::FileDialog::new()
             .pick_folder();
             if let Some(entry) = entry {
-                match self.generator.generate(input, &entry) {
+                let config = GeneratorConfig {
+                    path: entry
+                };
+                match self.generator.generate(input, &config) {
                     Ok(_) => self.result = "Success".to_string(),
                     Err(error) => self.result = format!("Error: {:?}", error)
                 };

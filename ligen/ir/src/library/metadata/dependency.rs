@@ -6,7 +6,7 @@ use crate::{prelude::*, VersionRequirement, Identifier};
 pub struct Dependency {
     pub identifier: Identifier,
     pub requirement: VersionRequirement,
-    pub feature: Option<Identifier>,
+    pub features: Vec<Identifier>,
 }
 
 // TODO: This has become Python-centric. We need to move it to a parser logic.
@@ -22,11 +22,12 @@ impl TryFrom<&str> for Dependency {
                 .captures(v)
                 .map(|c| Identifier::from(c.get(1).unwrap().as_str()))
         });
+        let features = feature.into_iter().collect::<Vec<_>>();
         let regex = regex::Regex::new(r"(==|>=|<=|>|<)").map_err(|e| format!("{:?}", e))?;
         let mut parts = regex.split(value);
         let identifier = Identifier::from(parts.next().ok_or("Failed to get identifier.")?);
         let rest = parts.collect::<Vec<_>>().join(" ");
         let requirement = VersionRequirement::from(rest.as_str());
-        Ok(Self { identifier, requirement, feature })
+        Ok(Self { identifier, requirement, features })
     }
 }

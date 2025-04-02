@@ -21,7 +21,8 @@ impl Widget for Language {
                     StringField::default().show(settings, ui, &mut input.name);
                 });
                 Labeled::new("Requirement").show(settings, ui, |ui| {
-                    StringField::default().show(settings, ui, &mut input.requirement);
+                    // TODO: Add a requirement field.
+                    // StringField::default().show(settings, ui, &mut input.requirement);
                 });        
             });
     }

@@ -4,7 +4,7 @@ pub use function::*;
 pub use structure::*;
 
 use is_tree::{HasBranch, Visitor};
-use ligen::generator::file_generator::File;
+use ligen::generator::File;
 use ligen::ir::{Module, Visitors};
 
 #[derive(Default)]

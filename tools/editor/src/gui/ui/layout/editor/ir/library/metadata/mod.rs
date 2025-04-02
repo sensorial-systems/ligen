@@ -30,7 +30,8 @@ impl Widget for Metadata {
                         StringField::default().show(settings, ui, &mut input.version);    
                     });
                     Labeled::new("Homepage").show(settings, ui, |ui| {
-                        StringField::default().show(settings, ui, &mut input.homepage);
+                        // TODO: Add a homepage field.
+                        // StringField::default().show(settings, ui, &mut input.homepage);
                     });
                     Labeled::new("Summary").show(settings, ui, |ui| {
                         StringField::default().show(settings, ui, &mut input.summary);
@@ -39,7 +40,8 @@ impl Widget for Metadata {
                     SubWidgets::new("Author").show(settings, ui, &mut input.authors);
                     SubWidgets::new_irregular("Dependency", "Dependencies").show(settings, ui, &mut input.dependencies);
                     CollapsingHeader::new("Description").show(ui, |ui| {
-                        StringField::default().show(settings, ui, &mut input.description);
+                        // TODO: Add a description field.
+                        // StringField::default().show(settings, ui, &mut input.description);
                     });
             });
     }

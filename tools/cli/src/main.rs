@@ -4,7 +4,7 @@ use clap::Parser as Clap;
 use ligen_ir::{prelude::*, Registry};
 use ligen_parser::Parser;
 use ligen_python_parser::PythonParser;
-use ligen_rust_parser::parser::RustParser;
+use ligen_rust_parser::RustParser;
 
 #[derive(Clap, Debug)]
 pub struct Args {

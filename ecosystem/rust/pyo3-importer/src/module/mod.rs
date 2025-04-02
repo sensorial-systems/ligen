@@ -4,7 +4,7 @@ pub use interface::*;
 use std::path::PathBuf;
 
 use is_tree::{HasBranch, HasPath, Visitor};
-use ligen::generator::file_generator::FileSet;
+use ligen::generator::FileSet;
 use ligen::ir::{Identifier, Library, Module, Path, Visibility, Visitors};
 
 #[derive(Default)]

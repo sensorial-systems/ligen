@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 pub mod language;
@@ -15,10 +17,11 @@ pub struct Metadata {
     pub version: Version,
     pub language: Language,
     pub summary: String,
-    pub description: String,
-    pub homepage: String,
+    pub description: Option<String>,
+    pub homepage: Option<String>,
     pub authors: Vec<Author>,
     pub dependencies: Vec<Dependency>,
     pub keywords: Vec<String>,
     pub license: Option<String>,
+    pub table: HashMap<String, String>,
 }

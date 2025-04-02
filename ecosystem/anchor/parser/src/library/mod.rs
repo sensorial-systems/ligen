@@ -41,12 +41,12 @@ impl Parser<anchor_lang_idl_spec::Idl> for LibraryParser {
             .collect();
         let language = Language {
             name: "Anchor IDL".to_string(),
-            requirement: VersionRequirement::from(input.metadata.spec.clone()),
+            requirement: Some(VersionRequirement::from(input.metadata.spec.clone())),
         };
         let version = Version::try_from(input.metadata.version.clone())?;
         let summary = Default::default();
-        let description = input.metadata.description.clone().unwrap_or_default();
-        let homepage = input.metadata.repository.clone().unwrap_or_default();
+        let description = input.metadata.description.clone();
+        let homepage = input.metadata.repository.clone();
         let dependencies = input
             .metadata
             .dependencies
@@ -54,12 +54,13 @@ impl Parser<anchor_lang_idl_spec::Idl> for LibraryParser {
             .map(|dependency| Dependency {
                 identifier: Identifier::new(dependency.name.clone()),
                 requirement: VersionRequirement::from(dependency.version.clone()),
-                feature: Default::default(),
+                features: Default::default(),
             })
             .collect();
         let keywords = Default::default();
         let license = Default::default();
-        let metadata = Metadata { authors, version, language, summary, description, homepage, dependencies, keywords, license };
+        let table = [("address".to_string(), input.address.clone())].into_iter().collect();
+        let metadata = Metadata { authors, version, language, summary, description, homepage, dependencies, keywords, license, table };
         let root_module = self.module_parser.parse(input, config)?;
         let library = Library { identifier, metadata, root_module };
         Ok(library)

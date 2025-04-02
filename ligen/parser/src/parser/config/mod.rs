@@ -5,6 +5,7 @@ use crate::prelude::*;
 
 use ligen_ir::{Literal, Path};
 
+// TODO: Base this on Config (which will be also available in GeneratorConfig)
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ParserConfig {
     #[serde(flatten)]

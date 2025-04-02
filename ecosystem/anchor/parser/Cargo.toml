@@ -9,7 +9,7 @@ documentation.workspace = true
 readme.workspace = true
 
 [dependencies]
-anchor-lang-idl-spec = "0.1.0"
+anchor-lang-idl-spec.workspace = true
 serde_json.workspace = true
 ligen-ir.workspace = true
 ligen-parser.workspace = true

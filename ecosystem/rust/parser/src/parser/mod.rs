@@ -3,7 +3,12 @@ use ligen::parser::{Parser, ParserConfig};
 use ligen::ir::Registry;
 
 #[derive(Default)]
-pub struct RustParser {
+pub struct RustParser;
+
+impl RustParser {
+    pub fn new() -> Self {
+        Default::default()
+    }
 }
 
 impl Parser<&std::path::Path> for RustParser {

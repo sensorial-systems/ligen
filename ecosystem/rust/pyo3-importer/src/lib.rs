@@ -9,7 +9,7 @@ use std::path::PathBuf;
 
 use ligen::ir::{Library, Visitors};
 
-use ligen::generator::file_generator::{FileGenerator, FileSet, Template};
+use ligen::generator::{FileGenerator, FileSet, Template};
 use is_tree::{HasBranch, TreeIterator};
 
 
@@ -32,19 +32,22 @@ impl LibraryGenerator {
     pub fn generate_lib_file(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from(library.identifier.to_string()).join("src").join("lib.rs"));
         let section = file.section.branch("documentation");
-        section.writeln(library.metadata.description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+        if let Some(description) = &library.metadata.description {
+            section.writeln(description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+        }
         Ok(())
     }
 
     pub fn generate_readme(&self, library: &Library, file_set: &mut FileSet) -> Result<()> {
         let file = file_set.entry(PathBuf::from(library.identifier.to_string()).join("README.md"));
-        file.write(&library.metadata.description);
+        if let Some(description) = &library.metadata.description {
+            file.write(description);
+        }
         Ok(())
     }
 }
 
-impl FileGenerator for LibraryGenerator {
-    type Input = Library;
+impl FileGenerator<Library> for LibraryGenerator {
     fn base_path(&self) -> PathBuf {
         PathBuf::from("rust".to_string())
     }

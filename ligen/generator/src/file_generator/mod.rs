@@ -7,20 +7,20 @@ pub use file::*;
 pub use template_based::*;
 
 use crate::prelude::*;
-use crate::generator::Generator;
 
 use ligen_utils::fs::write_file;
 use std::path::PathBuf;
 
+use super::{generator::Generator, generator_config::GeneratorConfig};
+
 /// File generator.
-pub trait FileGenerator {
-    type Input;
+pub trait FileGenerator<Input> {
     // TODO: Fetch this from the generator configuration instead and possibly default to something if it doesn't exist.
     /// Generation base path.
     fn base_path(&self) -> PathBuf;
 
     /// Generate files.
-    fn generate_files(&self, input: &Self::Input, file_set: &mut FileSet) -> Result<()>;
+    fn generate_files(&self, input: &Input, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
     fn save_file_set(&self, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
@@ -36,12 +36,13 @@ pub trait FileGenerator {
     }
 }
 
-impl <I, T: FileGenerator<Input = I>> Generator for T {
-    type Input = I;
-    fn generate(&self, input: &Self::Input, folder: &std::path::Path) -> Result<()> {
-        let mut file_set = FileSet::default();
-        self.generate_files(input, &mut file_set)?;
-        self.save_file_set(file_set, folder)?;
-        Ok(())
+impl <I, T: FileGenerator<I>> Generator<I> for T {
+    type Output = ();
+    fn generate(&self, _input: &I, _config: &GeneratorConfig) -> Result<Self::Output> {
+        todo!("File generator not implemented yet.");
+        // let mut file_set = FileSet::default();
+        // self.generate_files(input, &mut file_set)?;
+        // self.save_file_set(file_set, folder)?;
+        // Ok(())
     }
 }

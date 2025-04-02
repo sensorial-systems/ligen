@@ -51,7 +51,7 @@ impl Parser<&std::path::Path> for PythonParser {
     fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
         let mut registry = Registry::new();
         let library = self.parse_library(input, config)?;
-        for dependency in library.metadata.dependencies.iter().filter(|dependency| dependency.feature.is_none()) { // TODO: We need to support features.
+        for dependency in library.metadata.dependencies.iter().filter(|dependency| dependency.features.is_empty()) { // TODO: We need to support features.
             let dependency_path = input.parent().unwrap().join(dependency.identifier.to_string());
             let mut dependency_library = self.parse(dependency_path.as_path(), config)?;
             registry.libraries.append(&mut dependency_library.libraries);

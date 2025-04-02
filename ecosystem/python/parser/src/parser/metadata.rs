@@ -17,10 +17,11 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
     fn parse(&self, input: python_pkginfo::Metadata, _config: &ParserConfig) -> Result<Self::Output> {
         let version = Version::try_from(input.version.as_str())?;
         let requirement = VersionRequirement::from(input.requires_python.unwrap_or_default().as_str());
+        let requirement = Some(requirement);
         let language = Language { name: "Python".into(), requirement };
-        let homepage = input.home_page.unwrap_or_default();
+        let homepage = input.home_page;
         let summary = input.summary.unwrap_or_default();
-        let description = input.description.unwrap_or_default();
+        let description = input.description;
         let keywords = input.keywords.unwrap_or_default().split(',').map(String::from).collect();
         let authors = vec![Author::new(input.author.unwrap_or_default(), input.author_email.unwrap_or_default())];
         let license = Some(input.license.unwrap_or_default());
@@ -29,7 +30,8 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
             let requirement = Dependency::try_from(requirement.as_str())?;
             dependencies.push(requirement);
         }
-        Ok(Self::Output { version, authors, dependencies, keywords, description, language, homepage, summary, license })
+        let table = Default::default();
+        Ok(Self::Output { version, authors, dependencies, keywords, description, language, homepage, summary, license, table })
     }
 }
 

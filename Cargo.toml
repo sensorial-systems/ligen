@@ -9,7 +9,6 @@ members = [
     "ligen/traits",
     "ecosystem/python/parser",
     "ecosystem/rust/pyo3-importer",
-    "ecosystem/rust/cargo",
     "ecosystem/rust/example",
     "ecosystem/rust/exporter",
     "ecosystem/anchor/*",
@@ -47,7 +46,6 @@ ligen-python-parser    = { path = "ecosystem/python/parser" }
 ligen-rust-pyo3-importer    = { path = "ecosystem/rust/pyo3-importer" }
 #ligen-rust-exporter    = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
-ligen-cargo             = { path = "ecosystem/rust/cargo" }
 ligen-gui-runtime       = { path = "tools/editor/dependencies/gui-runtime" }
 is-tree                 = "0.9.7"
 serde                   = { version = "1", features = ["derive"] }
@@ -57,8 +55,19 @@ shrinkwraprs            = "0.3"
 derive_more             = "0.99"
 lazy_static             = "1.4.0"
 pretty_assertions       = "1.4.0"
-syn                     = { version = "2.0.77", features = [ "full" ] }
 regex = "1"
+thiserror = "2.0.12"
+anyhow = "1.0.97"
+
+# Rust
+proc-macro2     = "1"
+quote           = "1.0.9"
+cargo_toml = "0.16.0"
+syn        = { version = "2.0.77", features = [ "full" ] }
+project-root = "0.2.2"
+
+# Anchor
+anchor-lang-idl-spec = "0.1.0"
 
 # If you want to use the bleeding edge version of egui and eframe:
 # egui = { git = "https://github.com/emilk/egui", branch = "master" }

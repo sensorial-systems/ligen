@@ -8,7 +8,6 @@ license.workspace = true
 [features]
 bindings = [
     "ligen",
-    "ligen-cargo",
     "ligen-rust-parser",
 ]
 
@@ -20,5 +19,4 @@ ligen-macro.workspace = true
 
 [build-dependencies]
 ligen               = { workspace = true, optional = true }
-ligen-cargo         = { workspace = true, optional = true }
 ligen-rust-parser   = { workspace = true, optional = true }

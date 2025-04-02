@@ -9,3 +9,7 @@ documentation.workspace = true
 readme.workspace = true
 
 [dependencies]
+ligen-ir.workspace = true
+ligen-generator.workspace = true
+anchor-lang-idl-spec.workspace = true
+anyhow.workspace = true

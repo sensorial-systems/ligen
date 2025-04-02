@@ -1,5 +1,5 @@
 
-use ligen::generator::file_generator::FileSection;
+use ligen::generator::FileSection;
 use ligen::ir::{Function, Method, Identifier};
 
 use crate::{prelude::*, type_::TypeGenerator, identifier::IdentifierGenerator};
