@@ -42,14 +42,14 @@ impl Cargo {
         let package = self.manifest.package.as_ref().context("Package not found in Cargo.toml.")?.authors.as_ref();
         let workspace_package = self.workspace.as_ref().and_then(|workspace| workspace.package.as_ref()).and_then(|package| package.authors.as_ref());
         let authors = Self::get_from_package_or_workspace(package, workspace_package)?;
-        Ok(authors.into_iter().map(|author| Author::from(author)).collect())
+        Ok(authors.iter().map(Author::from).collect())
     }
 
     pub fn get_keywords(&self) -> Result<Vec<String>> {
         let package = self.manifest.package.as_ref().context("Package not found in Cargo.toml.")?.keywords.as_ref();
         let workspace_package = self.workspace.as_ref().and_then(|workspace| workspace.package.as_ref()).and_then(|package| package.keywords.as_ref());
         let keywords = Self::get_from_package_or_workspace(package, workspace_package)?;
-        Ok(keywords.into_iter().map(|keyword| keyword.clone()).collect())
+        Ok(keywords.to_vec())
     }
 
     pub fn get_license(&self) -> Result<Option<String>> {
@@ -69,7 +69,7 @@ impl Cargo {
         let package = self.manifest.package.as_ref().context("Package not found in Cargo.toml.")?.version.as_ref();
         let workspace_package = self.workspace.as_ref().and_then(|workspace| workspace.package.as_ref()).and_then(|package| package.version.as_ref());
         let version = Self::get_from_package_or_workspace(package, workspace_package)?;
-        Ok(Version::try_from(version.clone())?)
+        Version::try_from(version.clone())
     }
 
     pub fn get_description(&self) -> Result<Option<String>> {
@@ -129,7 +129,7 @@ impl Cargo {
                     todo!("Inherited dependencies are not supported yet.")
                 }
             };
-            let features = features.into_iter().map(|feature| Identifier::from(feature)).collect();
+            let features = features.into_iter().map(Identifier::from).collect();
             let dependency = Dependency { identifier, requirement, features };
             dependencies.push(dependency);
         }
@@ -138,17 +138,15 @@ impl Cargo {
 
     pub fn get_project_root_from_path(path: impl AsRef<std::path::Path>) -> Result<std::path::PathBuf> {
         let path = path.as_ref();
-        let mut path_ancestors = path.ancestors();
 
         let mut cargo_toml = None;
 
-        while let Some(p) = path_ancestors.next() {
+        for p in path.ancestors() {
             let has_cargo =
                 std::fs::read_dir(p)?
-                    .into_iter()
                     .any(|p|
                         p.map(|p|
-                            p.file_name() == std::ffi::OsString::from("Cargo.toml")
+                            p.file_name() == *"Cargo.toml"
                         ).unwrap_or(false)
                     );
             if has_cargo {

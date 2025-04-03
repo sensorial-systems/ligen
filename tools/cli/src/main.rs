@@ -26,7 +26,7 @@ fn main() -> Result<()> {
     let parser: Box<dyn Parser<&std::path::Path, Output = Registry>> = if args.parser.to_lowercase() == "python" {
         Box::new(PythonParser::default())
     } else if args.parser.to_lowercase() == "rust" {
-        Box::new(RustParser::default())
+        Box::new(RustParser)
     } else {
         panic!("Parser not found.");
     };

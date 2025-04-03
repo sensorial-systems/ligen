@@ -32,7 +32,7 @@ impl From<&str> for Author {
     fn from(value: &str) -> Self {
         let (name, email) = if let Some((name, email)) = value.split_once('<') {
             let name = name.trim();
-            let email = email.strip_suffix('>').unwrap_or(&email).trim();
+            let email = email.strip_suffix('>').unwrap_or(email).trim();
             (name.to_string(), email.to_string())
         } else {
             (value.to_string(), "".to_string())

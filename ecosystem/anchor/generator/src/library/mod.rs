@@ -35,8 +35,7 @@ impl Generator<ligen_ir::Library> for AnchorGenerator {
             .interfaces
             .iter()
             .filter(|interface| interface.attributes.contains("program"))
-            .map(|interface| &interface.methods)
-            .flatten()
+            .flat_map(|interface| &interface.methods)
             .filter_map(|method| {
                 (method.identifier != "process_instruction")
                     .then(|| self.method_generator.generate(method, config).ok())

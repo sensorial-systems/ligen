@@ -22,13 +22,13 @@ impl Generator<ligen_ir::Method> for AnchorMethodGenerator {
         let name = method.identifier.to_string();
         let docs = method.attributes.get_documentation();
         let discriminator = Sha256::digest(format!("global:{}", name).as_bytes())[..8].to_vec();
-        let returns = method.output.as_ref().and_then(|output| self.type_generator.generate(&output, &GeneratorConfig::default()).ok());
+        let returns = method.output.as_ref().and_then(|output| self.type_generator.generate(output, &GeneratorConfig::default()).ok());
         let mut accounts = Vec::new();
         let mut args = Vec::new();
 
         for input in method.inputs.iter() {
             let (type_, optional) = if input.type_.is_option() {
-                let ty = input.type_.path.last().generics.types.get(0).context("Expected a type in the option")?;
+                let ty = input.type_.path.last().generics.types.first().context("Expected a type in the option")?;
                 (ty, true)
             } else {
                 (&input.type_, false)
@@ -42,7 +42,7 @@ impl Generator<ligen_ir::Method> for AnchorMethodGenerator {
             };
             if let Some(writable) = account {
                 let name = input.identifier.to_string();
-                let type_ = type_.path.last().generics.types.get(0).context("Expected a type in the reference")?;
+                let type_ = type_.path.last().generics.types.first().context("Expected a type in the reference")?;
                 let signer = type_.is("Signer");
                 let docs = input.attributes.get_documentation();
                 let address = Default::default();
