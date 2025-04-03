@@ -1,4 +1,5 @@
 use anchor_lang_idl_spec::{IdlDefinedFields, IdlField, IdlSerialization, IdlTypeDef, IdlTypeDefTy};
+use anyhow::Context;
 use ligen_generator::prelude::*;
 use ligen_generator::{Generator, GeneratorConfig};
 use ligen_ir::KindDefinition;
@@ -21,6 +22,10 @@ impl Generator<ligen_ir::TypeDefinition> for AnchorTypeDefinitionGenerator {
     fn generate(&self, input: &ligen_ir::TypeDefinition, config: &GeneratorConfig) -> Result<Self::Output> {
         let name = input.identifier.to_string();
 
+        if !input.attributes.contains("account") {
+            return Err(anyhow::anyhow!("Type definition is not an account: {}", name).into());
+        }
+
         let docs = input.attributes.get_documentation();
 
         let serialization = IdlSerialization::Borsh;
@@ -35,7 +40,7 @@ impl Generator<ligen_ir::TypeDefinition> for AnchorTypeDefinitionGenerator {
                 if let Some(identifier) = &field.identifier {
                     let name = identifier.to_string();
                     let docs = field.attributes.get_documentation();
-                    let ty = self.type_generator.generate(&field.type_, config)?;
+                    let ty = self.type_generator.generate(&field.type_, config).context("Failed to generate type for named field")?;
 
                     named_fields.push(IdlField {
                         docs,
@@ -43,7 +48,7 @@ impl Generator<ligen_ir::TypeDefinition> for AnchorTypeDefinitionGenerator {
                         ty,
                     });
                 } else {
-                    let ty = self.type_generator.generate(&field.type_, config)?;
+                    let ty = self.type_generator.generate(&field.type_, config).context("Failed to generate type for tuple field")?;
                     tuple_fields.push(ty);
                 }
             }

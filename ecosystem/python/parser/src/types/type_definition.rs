@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::{ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Attribute, Field}, parser::ParserConfig};
-use ligen::ir::macro_attributes::Group;
+use ligen::{ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Field}, parser::ParserConfig};
 use ligen::ir::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
@@ -120,7 +119,7 @@ impl TypeDefinitionParser {
                 },
                 Stmt::FunctionDef(function_def) => {
                     let function = FunctionParser::default().parse(input.sub(function_def.clone()), config)?;
-                    if function.attributes.contains(&Attribute::Group(Group::from("property"))) {
+                    if function.attributes.contains("property") {
                         let identifier = Some(function.identifier);
                         let type_ = function.output.unwrap_or_default();
                         let field = Field { identifier, type_, ..Default::default() };

@@ -43,6 +43,12 @@ impl From<Group> for Attribute {
     }
 }
 
+impl From<&str> for Attribute {
+    fn from(value: &str) -> Self {
+        Self::Group(value.into())
+    }
+}
+
 impl Default for Attribute {
     fn default() -> Self {
         Self::Literal(Literal::default())

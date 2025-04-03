@@ -96,16 +96,17 @@ impl Attributes {
     }
 
     /// Check if `Attributes` contains the specified `attribute`.
-    pub fn contains(&self, attribute: &Attribute) -> bool {
+    pub fn contains(&self, attribute: impl Into<Attribute>) -> bool {
+        let attribute = attribute.into();
         self
             .attributes
             .iter()
-            .any(|inner_attribute| *inner_attribute == *attribute)
+            .any(|inner_attribute| *inner_attribute == attribute)
     }
 
     /// Check if the attributes list has an ignore attribute.
     pub fn has_ignore_attribute(&self) -> bool {
-        self.contains(&Attribute::Group(Group::new("ligen", Group::from("ignore"))))
+        self.contains(Attribute::Group(Group::new("ligen", Group::from("ignore"))))
     }
 }
 
