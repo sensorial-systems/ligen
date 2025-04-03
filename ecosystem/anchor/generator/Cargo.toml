@@ -14,3 +14,4 @@ ligen-generator.workspace = true
 anchor-lang-idl-spec.workspace = true
 anyhow.workspace = true
 sha2.workspace = true
+is-tree.workspace = true

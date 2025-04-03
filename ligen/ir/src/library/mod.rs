@@ -11,11 +11,11 @@ use crate::prelude::*;
 /// Library representation.
 #[allow(missing_docs)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree)]
+#[tree(branches)]
 pub struct Library {
     #[tree(path_segment)]
     pub identifier: Identifier,
     pub metadata: Metadata,
-    #[tree(branch)]
     pub root_module: Module,
 }
 

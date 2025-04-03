@@ -1,3 +1,4 @@
+use is_tree::HasBranchesAPIV2;
 use ligen_generator::prelude::*;
 use ligen_generator::{Generator, GeneratorConfig};
 use anyhow::Context;
@@ -31,9 +32,8 @@ impl Generator<ligen_ir::Library> for AnchorGenerator {
         let constants = vec![];
 
         let instructions = input
-            .root_module
-            .interfaces
-            .iter()
+            .all_branches::<&ligen_ir::Module>()
+            .flat_map(|module| module.interfaces.iter())
             .filter(|interface| interface.attributes.contains("program"))
             .flat_map(|interface| &interface.methods)
             .filter_map(|method| {
@@ -43,9 +43,8 @@ impl Generator<ligen_ir::Library> for AnchorGenerator {
             }).collect::<Vec<_>>();
 
         let types = input
-            .root_module
-            .types
-            .iter()
+            .all_branches::<&ligen_ir::Module>()
+            .flat_map(|module| module.types.iter())
             .filter_map(|type_def| self.type_definition_generator.generate(type_def, config).ok())
             .collect::<Vec<_>>();
 

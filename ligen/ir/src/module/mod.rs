@@ -14,6 +14,7 @@ use crate::interface::Interface;
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree)]
+#[tree(branches)]
 pub struct Module {
     /// Attributes.
     pub attributes: Attributes,
@@ -33,7 +34,6 @@ pub struct Module {
     /// Interfaces.
     pub interfaces: Vec<Interface>,
     /// Sub-modules.
-    #[tree(branch)]
     pub modules: Vec<Module>,
 }
 
