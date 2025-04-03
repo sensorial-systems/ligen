@@ -47,7 +47,7 @@ ligen-rust-pyo3-importer    = { path = "ecosystem/rust/pyo3-importer" }
 #ligen-rust-exporter    = { path = "ecosystem/rust/exporter" }
 ligen-rust-parser       = { path = "ecosystem/rust/parser" }
 ligen-gui-runtime       = { path = "tools/editor/dependencies/gui-runtime" }
-is-tree                 = "0.9.8"
+is-tree                 = "0.9.9"
 serde                   = { version = "1", features = ["derive"] }
 enum-as-inner           = "0.6.0"
 serde_json              = "1"
