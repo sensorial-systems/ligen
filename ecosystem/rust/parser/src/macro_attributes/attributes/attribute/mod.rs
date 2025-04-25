@@ -1,24 +1,25 @@
 //! Attribute enumeration.
 
-use intermediary_attribute::IntermediaryAttribute;
-use ligen_ir::macro_attributes::{Named, Group};
-use syn::__private::ToTokens;
-use crate::prelude::*;
-use crate::universal::parser::PathParser;
-use ligen_ir::{Attribute, Literal};
-use crate::parser::{Parser, ParserConfig};
-use crate::parser::universal::identifier::IdentifierParser;
-use crate::parser::universal::attributes::AttributesParser;
-use crate::parser::universal::literal::LiteralParser;
-
 pub(crate) mod intermediary_attribute;
 
+use intermediary_attribute::IntermediaryAttribute;
+use ligen::ir::macro_attributes::{Named, Group};
+use syn::__private::ToTokens;
+use crate::literal::LiteralParser;
+use crate::prelude::*;
+use ligen::parser::universal::{PathParser, IdentifierParser};
+use ligen::ir::{Attribute, Literal};
+use ligen::parser::{Parser, ParserConfig};
+
+use super::AttributesParser;
+
+
 #[derive(Default)]
-pub struct AttributeParser<T: LiteralParser> {
-    literal_parser: T
+pub struct AttributeParser {
+    literal_parser: LiteralParser,
 }
 
-impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {
+impl Parser<syn::ItemMacro> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, call: syn::ItemMacro, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = call
@@ -30,31 +31,31 @@ impl<T: LiteralParser> Parser<syn::ItemMacro> for AttributeParser<T> {
             .ident
             .clone();
         let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let attributes = AttributesParser::<T>::default().parse(call.mac.tokens.to_string().as_str(), config)?;
+        let attributes = AttributesParser::default().parse(call.mac.tokens.to_string().as_str(), config)?;
         let group = Group::new(identifier, attributes).into();
         Ok(group)
     }
 }
 
-impl<T: LiteralParser> Parser<syn::MetaList> for AttributeParser<T> {
+impl Parser<syn::MetaList> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, meta_list: syn::MetaList, config: &ParserConfig) -> Result<Self::Output> {
         let path = PathParser::default().parse(meta_list.path.clone(), config)?;
         let inner = meta_list.tokens.into_iter().map(|token| token.to_string()).collect::<Vec<_>>().join("");
-        let attributes = AttributesParser::<T>::default().parse(inner.as_str(), config)?;
+        let attributes = AttributesParser::default().parse(inner.as_str(), config)?;
         let group = Group::new(path, attributes);
         Ok(group.into())
     }
 }
 
-impl<T: LiteralParser> Parser<syn::Lit> for AttributeParser<T> {
+impl Parser<syn::Lit> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, lit: syn::Lit, config: &ParserConfig) -> Result<Self::Output> {
         self.literal_parser.parse(lit.to_token_stream().to_string(), config).map(Attribute::Literal)
     }
 }
 
-impl<T: LiteralParser> Parser<syn::ExprCall> for AttributeParser<T> {
+impl Parser<syn::ExprCall> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, expr_call: syn::ExprCall, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = expr_call
@@ -62,13 +63,13 @@ impl<T: LiteralParser> Parser<syn::ExprCall> for AttributeParser<T> {
             .to_token_stream()
             .to_string();
         let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let attributes = AttributesParser::<T>::default().parse(expr_call.args, config)?;
+        let attributes = AttributesParser::default().parse(expr_call.args, config)?;
         let group = Group::new(identifier, attributes);
         Ok(group.into())
     }
 }
 
-impl<T: LiteralParser> Parser<syn::ExprAssign> for AttributeParser<T> {
+impl Parser<syn::ExprAssign> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, expr_assign: syn::ExprAssign, config: &ParserConfig) -> Result<Self::Output> {
         let identifier = expr_assign
@@ -82,7 +83,7 @@ impl<T: LiteralParser> Parser<syn::ExprAssign> for AttributeParser<T> {
     }
 }
 
-impl<T: LiteralParser> Parser<syn::Expr> for AttributeParser<T> {
+impl Parser<syn::Expr> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, expr: syn::Expr, config: &ParserConfig) -> Result<Self::Output> {
         match expr {
@@ -95,14 +96,14 @@ impl<T: LiteralParser> Parser<syn::Expr> for AttributeParser<T> {
     }
 }
 
-impl<T: LiteralParser> Parser<syn::ExprPath> for AttributeParser<T> {
+impl Parser<syn::ExprPath> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, input: syn::ExprPath, config: &ParserConfig) -> Result<Self::Output> {
         self.parse(input.path, config)
     }
 }
 
-impl<T: LiteralParser> Parser<syn::Path> for AttributeParser<T> {
+impl Parser<syn::Path> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, path: syn::Path, config: &ParserConfig) -> Result<Self::Output> {
         let path = PathParser::default().parse(path, config)?;
@@ -112,7 +113,7 @@ impl<T: LiteralParser> Parser<syn::Path> for AttributeParser<T> {
 }
 
 
-impl<T: LiteralParser> Parser<syn::MetaNameValue> for AttributeParser<T> {
+impl Parser<syn::MetaNameValue> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, meta_name_value: syn::MetaNameValue, config: &ParserConfig) -> Result<Self::Output> {
         let path = PathParser::default().parse(meta_name_value.path, config)?;
@@ -122,7 +123,7 @@ impl<T: LiteralParser> Parser<syn::MetaNameValue> for AttributeParser<T> {
     }
 }
 
-impl<T: LiteralParser> Parser<syn::Meta> for AttributeParser<T> {
+impl Parser<syn::Meta> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, meta: syn::Meta, config: &ParserConfig) -> Result<Self::Output> {
         match meta {
@@ -133,21 +134,21 @@ impl<T: LiteralParser> Parser<syn::Meta> for AttributeParser<T> {
     }
 }
 
-impl<T: LiteralParser> Parser<syn::Attribute> for AttributeParser<T> {
+impl Parser<syn::Attribute> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, attribute: syn::Attribute, config: &ParserConfig) -> Result<Self::Output> {
         self.parse(attribute.meta, config)
     }
 }
 
-impl<T: LiteralParser> Parser<String> for AttributeParser<T> {
+impl Parser<String> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, input: String, config: &ParserConfig) -> Result<Self::Output> {
         self.parse(input.as_str(), config)
     }
 }
 
-impl<T: LiteralParser> Parser<IntermediaryAttribute> for AttributeParser<T> {
+impl Parser<IntermediaryAttribute> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, input: IntermediaryAttribute, config: &ParserConfig) -> Result<Self::Output> {
         match input {
@@ -159,11 +160,41 @@ impl<T: LiteralParser> Parser<IntermediaryAttribute> for AttributeParser<T> {
     }
 }
 
-impl<T: LiteralParser> Parser<&str> for AttributeParser<T> {
+impl Parser<&str> for AttributeParser {
     type Output = Attribute;
     fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
         let attribute = syn::parse_str::<IntermediaryAttribute>(input)
             .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, input)))?;
         self.parse(attribute, config)
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use crate::prelude::*;
+    use super::*;
+    use ligen::parser::assert::assert_eq;
+    use ligen::ir::attribute::mock;
+
+    #[test]
+    fn attribute_literal() -> Result<()> {
+        assert_eq(AttributeParser::default(), mock::attribute_literal(), "\"c\"")
+    }
+
+    #[test]
+    fn attribute_named() -> Result<()> {
+        assert_eq(AttributeParser::default(), mock::attribute_named(), "int = \"sized\"")
+    }
+
+    #[test]
+    fn attribute_group() -> Result<()> {
+        assert_eq(AttributeParser::default(), mock::attribute_group(), "c(int = \"sized\")")
+    }
+
+    #[test]
+    fn attribute_empty_group() -> Result<()> {
+        assert_eq(AttributeParser::default(), mock::attribute_empty_group(), "c()")?;
+        assert_eq(AttributeParser::default(), mock::attribute_empty_group(), "c")
     }
 }

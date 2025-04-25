@@ -6,8 +6,6 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct LiteralParser {}
 
-impl ligen::parser::universal::literal::LiteralParser for LiteralParser {}
-
 impl Parser<String> for LiteralParser {
     type Output = Literal;
     fn parse(&self, input: String, config: &ParserConfig) -> Result<Self::Output> {

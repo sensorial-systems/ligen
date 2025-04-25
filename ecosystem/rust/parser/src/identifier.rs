@@ -1,1 +1,1 @@
-pub type IdentifierParser = ligen::parser::universal::identifier::IdentifierParser;
+pub type IdentifierParser = ligen::parser::universal::IdentifierParser;
