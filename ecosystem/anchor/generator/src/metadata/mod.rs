@@ -1,4 +1,4 @@
-use ligen_generator::{Generator, GeneratorConfig};
+use ligen_generator::prelude::*;
 use ligen_ir::prelude::Result;
 
 #[derive(Debug, Default)]
@@ -12,7 +12,7 @@ impl AnchorMetadataGenerator {
 
 impl Generator<ligen_ir::Metadata> for AnchorMetadataGenerator {
     type Output = anchor_lang_idl_spec::IdlMetadata;
-    fn generate(&self, input: &ligen_ir::Metadata, _config: &GeneratorConfig) -> Result<Self::Output> {
+    fn generate(&self, input: &ligen_ir::Metadata, _config: &Config) -> Result<Self::Output> {
         let name = Default::default();
         let contact = if input.authors.is_empty() {
             None

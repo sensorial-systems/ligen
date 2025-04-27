@@ -1,6 +1,5 @@
 use is_tree::HasBranchesAPIV2;
 use ligen_generator::prelude::*;
-use ligen_generator::{Generator, GeneratorConfig};
 use anyhow::Context;
 
 use crate::{AnchorMetadataGenerator, AnchorMethodGenerator, AnchorTypeDefinitionGenerator};
@@ -20,7 +19,7 @@ impl AnchorGenerator {
 
 impl Generator<ligen_ir::Library> for AnchorGenerator {
     type Output = anchor_lang_idl_spec::Idl;
-    fn generate(&self, input: &ligen_ir::Library, config: &GeneratorConfig) -> Result<Self::Output> {
+    fn generate(&self, input: &ligen_ir::Library, config: &Config) -> Result<Self::Output> {
         let mut metadata = self.metadata_generator.generate(&input.metadata, config)?;
         metadata.name = input.identifier.to_string();
 

@@ -6,10 +6,13 @@ edition = "2024"
 [dependencies]
 ligen-ir.workspace     = true
 ligen-common.workspace = true
+ligen-utils.workspace = true
 serde.workspace = true
 toml.workspace = true
 pretty_assertions.workspace = true
 syn.workspace = true
-
+is-tree.workspace = true
+serde_json.workspace = true
+handlebars.workspace = true
 [dev-dependencies]
 ligen-ir = { workspace = true, features = ["mocks"] }

@@ -1,6 +1,5 @@
 use anyhow::Context;
 pub use ligen_generator::prelude::*;
-use ligen_generator::{Generator, GeneratorConfig};
 use ligen_ir::Type;
 
 use crate::RustPathGenerator;
@@ -14,7 +13,7 @@ pub struct RustTypeGenerator {
 
 impl Generator<Type> for RustTypeGenerator {
     type Output = syn::Type;
-    fn generate(&self, type_: &Type, _config: &GeneratorConfig) -> Result<syn::Type> {
+    fn generate(&self, type_: &Type, _config: &Config) -> Result<syn::Type> {
         if type_.is_mutable_reference() || type_.is_constant_reference() {
             let and_token = syn::token::And::default();
             let lifetime = Default::default();

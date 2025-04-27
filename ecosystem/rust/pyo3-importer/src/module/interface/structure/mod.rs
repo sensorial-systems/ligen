@@ -1,4 +1,3 @@
-use ligen::generator::FileSection;
 use ligen::ir::TypeDefinition;
 
 pub use crate::prelude::*;

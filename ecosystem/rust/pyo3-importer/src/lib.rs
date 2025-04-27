@@ -9,7 +9,6 @@ use std::path::PathBuf;
 
 use ligen::ir::{Library, Visitors};
 
-use ligen::generator::{FileGenerator, FileSet, Template};
 use is_tree::{HasBranch, TreeIterator};
 
 

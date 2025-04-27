@@ -1,6 +1,5 @@
 use anchor_lang_idl_spec::IdlType;
 use ligen_generator::prelude::*;
-use ligen_generator::{Generator, GeneratorConfig};
 use ligen_ir::Type;
 
 #[derive(Debug, Default)]
@@ -14,7 +13,7 @@ impl AnchorTypeGenerator {
 
 impl Generator<ligen_ir::Type> for AnchorTypeGenerator {
     type Output = anchor_lang_idl_spec::IdlType;
-    fn generate(&self, type_: &ligen_ir::Type, _config: &GeneratorConfig) -> Result<Self::Output> {
+    fn generate(&self, type_: &ligen_ir::Type, _config: &Config) -> Result<Self::Output> {
         let result = if *type_ == Type::u8() {
             IdlType::U8
         } else if *type_ == Type::u16() {

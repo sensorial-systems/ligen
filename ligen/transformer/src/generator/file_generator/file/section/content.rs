@@ -1,4 +1,4 @@
-use crate::file_generator::file::section::FileSection;
+use crate::generator::file_generator::file::section::FileSection;
 use std::fmt::{Debug, Display};
 
 pub trait FileSectionContent: Display + Debug {

@@ -11,7 +11,7 @@ use crate::prelude::*;
 use ligen_utils::fs::write_file;
 use std::path::PathBuf;
 
-use super::{generator::Generator, generator_config::GeneratorConfig};
+use crate::generator::Generator;
 
 /// File generator.
 pub trait FileGenerator<Input> {
@@ -38,7 +38,7 @@ pub trait FileGenerator<Input> {
 
 impl <I, T: FileGenerator<I>> Generator<I> for T {
     type Output = ();
-    fn generate(&self, _input: &I, _config: &GeneratorConfig) -> Result<Self::Output> {
+    fn generate(&self, _input: &I, _config: &Config) -> Result<Self::Output> {
         todo!("File generator not implemented yet.");
         // let mut file_set = FileSet::default();
         // self.generate_files(input, &mut file_set)?;

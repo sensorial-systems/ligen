@@ -1,5 +1,4 @@
 use ligen_generator::prelude::*;
-use ligen_generator::{Generator, GeneratorConfig};
 use ligen_ir::Path;
 
 use crate::RustIdentifierGenerator;
@@ -11,7 +10,7 @@ pub struct RustPathGenerator {
 
 impl Generator<Path> for RustPathGenerator {
     type Output = syn::Path;
-    fn generate(&self, path: &Path, _config: &GeneratorConfig) -> Result<syn::Path> {
+    fn generate(&self, path: &Path, _config: &Config) -> Result<syn::Path> {
         let segments = path.segments.iter().map(|segment| {
             let ident = self.identifier_generator.generate(&segment.identifier, _config)?;
             Ok(syn::PathSegment::from(ident))

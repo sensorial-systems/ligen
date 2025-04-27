@@ -34,7 +34,7 @@ mod tests {
     use ::is_tree::*;
 
     use crate::prelude::*;
-    use crate::file_generator::{FileSection, SectionTemplate};
+    use crate::generator::file_generator::{FileSection, SectionTemplate};
 
     use super::File;
 

@@ -1,7 +1,6 @@
 use anchor_lang_idl_spec::{IdlDefinedFields, IdlField, IdlSerialization, IdlTypeDef, IdlTypeDefTy};
 use anyhow::Context;
 use ligen_generator::prelude::*;
-use ligen_generator::{Generator, GeneratorConfig};
 use ligen_ir::KindDefinition;
 
 use crate::AnchorTypeGenerator;
@@ -19,7 +18,7 @@ impl AnchorTypeDefinitionGenerator {
 
 impl Generator<ligen_ir::TypeDefinition> for AnchorTypeDefinitionGenerator {
     type Output = anchor_lang_idl_spec::IdlTypeDef;
-    fn generate(&self, input: &ligen_ir::TypeDefinition, config: &GeneratorConfig) -> Result<Self::Output> {
+    fn generate(&self, input: &ligen_ir::TypeDefinition, config: &Config) -> Result<Self::Output> {
         let name = input.identifier.to_string();
 
         if !input.attributes.contains("account") {

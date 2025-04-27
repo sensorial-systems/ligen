@@ -1,4 +1,4 @@
-use ligen_generator::GeneratorConfig;
+use ligen_generator::prelude::*;
 
 use crate::prelude::*;
 use crate::gui::ui::editor::{widget::Widget, settings::Settings};
@@ -24,9 +24,8 @@ impl Widget for Generator {
             let entry = rfd::FileDialog::new()
             .pick_folder();
             if let Some(entry) = entry {
-                let config = GeneratorConfig {
-                    path: entry
-                };
+                let mut config = Config::default();
+                config.set("path", entry.to_string_lossy().to_string());
                 match self.generator.generate(input, &config) {
                     Ok(_) => self.result = "Success".to_string(),
                     Err(error) => self.result = format!("Error: {:?}", error)
