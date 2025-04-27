@@ -17,7 +17,8 @@ impl<T: TypeDescriptor> GeneralLlmParser<T> {
     pub fn new() -> Result<Self> {
         let api_key = dotenv::var("OPENAI_API_KEY").context("OPENAI_API_KEY is not set")?;
 
-        let schema = JsonSchema::new::<T>()?;
+        let mut schema = JsonSchema::new::<T>()?;
+        schema.enforce_openai_subset();
 
         let structured_output = StructuredOutputFormat {
             description: Some(T::description()),
