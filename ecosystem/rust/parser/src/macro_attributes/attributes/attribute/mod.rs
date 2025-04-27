@@ -7,7 +7,7 @@ use ligen::ir::macro_attributes::{Named, Group};
 use syn::__private::ToTokens;
 use crate::literal::LiteralParser;
 use crate::prelude::*;
-use ligen::transformer::parser::universal::{PathParser, IdentifierParser};
+use ligen::parser::universal::{PathParser, IdentifierParser};
 use ligen::ir::{Attribute, Literal};
 use super::AttributesParser;
 
