@@ -6,9 +6,8 @@ pub struct LlmLibraryParser {
     
 }
 
-impl Parser<&std::path::Path> for LlmLibraryParser {
-    type Output = Library;
-    fn parse(&self, _input: &std::path::Path, _config: &Config) -> Result<Library> {
+impl Transformer<&std::path::Path, Library> for LlmLibraryParser {
+    fn transform(&self, _input: &std::path::Path, _config: &Config) -> Result<Library> {
         Ok(Library::default())
     }
 }

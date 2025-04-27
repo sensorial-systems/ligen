@@ -9,7 +9,13 @@ use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
 
 
 #[derive(Default)]
-pub struct RustInterfaceParser {}
+pub struct RustInterfaceParser {
+    type_parser: TypeParser,
+    function_parser: FunctionParser,
+    method_parser: MethodParser,
+    object_parser: ObjectParser,
+    attributes_parser: AttributesParser,
+}
 
 impl RustInterfaceParser {
     pub fn new() -> Self {
@@ -17,14 +23,13 @@ impl RustInterfaceParser {
     }
 }
 
-impl Parser<syn::ItemImpl> for RustInterfaceParser {
-    type Output = Interface;
-    fn parse(&self, input: syn::ItemImpl, config: &Config) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(input.attrs, config)?;
+impl Transformer<syn::ItemImpl, Interface> for RustInterfaceParser {
+    fn transform(&self, input: syn::ItemImpl, config: &Config) -> Result<Interface> {
+        let attributes = self.attributes_parser.transform(input.attrs, config)?;
         let visibility = Visibility::Public;
 
         // TODO: What should we do with the self type?
-        let type_ = TypeParser::new().parse(*input.self_ty, config)?;
+        let type_ = self.type_parser.transform(*input.self_ty, config)?;
         let identifier = type_.path.last().clone().into(); // TODO: Fix this
 
         let functions = self.extract_functions(input.items.as_slice(), config)?;
@@ -44,7 +49,7 @@ impl RustInterfaceParser {
         let mut methods = Vec::new();
         for item in items {
             if let syn::ImplItem::Fn(method) = item {
-                if let Ok(method) = MethodParser::new().parse(method.clone(), config) {
+                if let Ok(method) = self.method_parser.transform(method.clone(), config) {
                     methods.push(method);
                 }
             }
@@ -56,7 +61,7 @@ impl RustInterfaceParser {
         let mut objects = Vec::new();
         for item in items {
             if let syn::ImplItem::Const(object) = item {
-                objects.push(ObjectParser::new().parse(object.clone(), config)?);
+                objects.push(self.object_parser.transform(object.clone(), config)?);
             }
         }
         Ok(objects)
@@ -66,7 +71,7 @@ impl RustInterfaceParser {
         let mut functions = Vec::new();
         for item in items {
             if let syn::ImplItem::Fn(function) = item {
-                if let Ok(function) = FunctionParser::new().parse(function.clone(), config) {
+                if let Ok(function) = self.function_parser.transform(function.clone(), config) {
                     functions.push(function);
                 }
             }

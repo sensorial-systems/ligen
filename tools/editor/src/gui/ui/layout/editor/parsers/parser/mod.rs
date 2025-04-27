@@ -9,14 +9,14 @@ use ligen_parser::{self, prelude::{Parser as ParserTrait, ConfigSet, ConfigGet, 
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 pub struct Parser {
-    parser: Box<dyn for<'a> ligen_parser::Parser<&'a Path, Output = ligen_ir::Library>>,
+    parser: Box<dyn for<'a> ligen_parser::prelude::Transformer<&'a Path, ligen_ir::Library>>,
     config: Config,
     result: String
 }
 
 impl Parser {
     pub fn new<T>(parser: T) -> Self
-    where T: for<'a> ligen_parser::Parser<&'a Path, Output = ligen_ir::Library> + 'static
+    where T: for<'a> ligen_parser::prelude::Transformer<&'a Path, ligen_ir::Library> + 'static
     {
         let config = parser.config();
         let parser = Box::new(parser);
@@ -37,7 +37,7 @@ impl Widget for Parser {
                         .pick_folder();
                     if let Some(entry) = entry {
                         stacker::grow(1024 * 1024 * 10, || {
-                            match self.parser.parse(entry.as_path(), &self.config) {
+                            match self.parser.transform(entry.as_path(), &self.config) {
                                 Ok(library) => pane_manager.new_pane(Box::new(Editor::new(library))),
                                 Err(error) => {
                                     self.result = format!("{:?}", error);

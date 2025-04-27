@@ -6,23 +6,25 @@ use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
-pub struct VariantParser;
+#[derive(Default)]
+pub struct VariantParser {
+    identifier_parser: IdentifierParser,
+    attributes_parser: AttributesParser,
+}
 
-impl Parser<syn::Variant> for VariantParser {
-    type Output = Variant;
-    fn parse(&self, variant: syn::Variant, config: &Config) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(variant.attrs, config)?;
-        let identifier = IdentifierParser::new().parse(variant.ident, config)?;
-        Ok(Self::Output { attributes, identifier })
+impl Transformer<syn::Variant, Variant> for VariantParser {
+    fn transform(&self, variant: syn::Variant, config: &Config) -> Result<Variant> {
+        let attributes = self.attributes_parser.transform(variant.attrs, config)?;
+        let identifier = self.identifier_parser.transform(variant.ident, config)?;
+        Ok(Variant { attributes, identifier })
     }
 }
 
-impl Parser<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>> for VariantParser {
-    type Output = Vec<Variant>;
-    fn parse(&self, input: syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, Vec<Variant>> for VariantParser {
+    fn transform(&self, input: syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, config: &Config) -> Result<Vec<Variant>> {
         let mut variants = Vec::new();
         for variant in input {
-            variants.push(self.parse(variant, config)?);
+            variants.push(self.transform(variant, config)?);
         }
         Ok(variants)
     }
@@ -30,9 +32,9 @@ impl Parser<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>> for Va
 
 #[cfg(test)]
 mod tests {
+    use ligen::parser::prelude::*;
     use syn::parse_quote;
     use ligen::ir::Variant;
-    use ligen::parser::Parser;
     use crate::types::type_definition::enumeration::variant::VariantParser;
 
     #[test]
@@ -44,7 +46,7 @@ mod tests {
         };
         let variant = enumeration.variants.into_iter().next().expect("Couldn't get field.");
         assert_eq!(
-            VariantParser.parse(variant, &Default::default()).expect("Failed to convert field."),
+            VariantParser::default().transform(variant, &Default::default()).expect("Failed to convert field."),
             Variant {
                 attributes: Default::default(),
                 identifier: "Integer".into(),

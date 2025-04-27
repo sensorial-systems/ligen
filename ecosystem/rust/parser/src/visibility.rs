@@ -12,12 +12,11 @@ impl VisibilityParser {
     }
 }
 
-impl Parser<syn::Visibility> for VisibilityParser {
-    type Output = Visibility;
-    fn parse(&self, visibility: syn::Visibility, _config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Visibility, Visibility> for VisibilityParser {
+    fn transform(&self, visibility: syn::Visibility, _config: &Config) -> Result<Visibility> {
         Ok(match visibility {
-            syn::Visibility::Public(_) => Self::Output::Public,
-            _ => Self::Output::Private
+            syn::Visibility::Public(_) => Visibility::Public,
+            _ => Visibility::Private
         })
     }
 }

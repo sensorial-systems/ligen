@@ -11,9 +11,8 @@ impl MetadataParser {
     }
 }
 
-impl Parser<python_pkginfo::Metadata> for MetadataParser {
-    type Output = Metadata;
-    fn parse(&self, input: python_pkginfo::Metadata, _config: &Config) -> Result<Self::Output> {
+impl Transformer<python_pkginfo::Metadata, Metadata> for MetadataParser {
+    fn transform(&self, input: python_pkginfo::Metadata, _config: &Config) -> Result<Metadata> {
         let version = Version::try_from(input.version.as_str())?;
         let requirement = VersionRequirement::from(input.requires_python.unwrap_or_default().as_str());
         let requirement = Some(requirement);
@@ -30,13 +29,12 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
             dependencies.push(requirement);
         }
         let table = Default::default();
-        Ok(Self::Output { version, authors, dependencies, keywords, description, language, homepage, summary, license, table })
+        Ok(Metadata { version, authors, dependencies, keywords, description, language, homepage, summary, license, table })
     }
 }
 
-impl Parser<&std::path::Path> for MetadataParser {
-    type Output = Metadata;
-    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
+impl Transformer<&std::path::Path, Metadata> for MetadataParser {
+    fn transform(&self, input: &std::path::Path, config: &Config) -> Result<Metadata> {
         let name = input.file_name().ok_or("Failed to get file name.")?;
         let name = name.to_string_lossy().to_string();
         let input = input.parent().ok_or("Failed to get parent.")?;
@@ -57,6 +55,6 @@ impl Parser<&std::path::Path> for MetadataParser {
         let content = std::fs::read_to_string(metadata_file)?;
         let metadata = python_pkginfo::Metadata::parse(content.as_bytes())
             .map_err(|e| Error::Message(format!("Failed to parse metadata: {}", e)))?;
-        self.parse(metadata, config)
+        self.transform(metadata, config)
     }
 }

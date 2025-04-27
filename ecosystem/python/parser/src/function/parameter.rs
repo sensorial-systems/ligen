@@ -8,20 +8,21 @@ use crate::types::type_::TypeParser;
 #[derive(Default)]
 pub struct ParameterParser {
     literal_parser: LiteralParser,
+    type_parser: TypeParser,
+    identifier_parser: IdentifierParser,
 }
 
-impl Parser<ArgWithDefault> for ParameterParser {
-    type Output = Parameter;
-    fn parse(&self, input: ArgWithDefault, config: &Config) -> Result<Self::Output> {
+impl Transformer<ArgWithDefault, Parameter> for ParameterParser {
+    fn transform(&self, input: ArgWithDefault, config: &Config) -> Result<Parameter> {
         let attributes = Default::default();
-        let identifier = IdentifierParser::new().parse(input.def.arg.as_str(), config)?;
+        let identifier = self.identifier_parser.transform(input.def.arg.as_str(), config)?;
         let type_ = if let Some(value) = input.def.annotation.and_then(|annotation| annotation.name_expr()) {
-            TypeParser::default().parse(&value, config)?
+            self.type_parser.transform(&value, config)?
         } else {
             Default::default()
         };
         let default_value = if let Some(value) = input.default {
-            Some(self.literal_parser.parse(&*value, config)?)
+            Some(self.literal_parser.transform(&*value, config)?)
         } else {
             None
         };

@@ -13,16 +13,14 @@ pub struct ParameterParser {
     type_parser: TypeParser,
 }
 
-impl Parser<IdlInstructionAccountItem> for ParameterParser {
-    type Output = Parameter;
-
-    fn parse(&self, input: IdlInstructionAccountItem, config: &Config) -> Result<Self::Output> {
+impl Transformer<IdlInstructionAccountItem, Parameter> for ParameterParser {
+    fn transform(&self, input: IdlInstructionAccountItem, config: &Config) -> Result<Parameter> {
         match input {
             IdlInstructionAccountItem::Composite(_) => {
                 todo!("Composite accounts not supported yet")
             }
             IdlInstructionAccountItem::Single(account) => {
-                let attributes = self.doc_parser.parse(account.docs.clone(), config)?;
+                let attributes = self.doc_parser.transform(account.docs.clone(), config)?;
                 let identifier = Identifier::new(account.name.clone());
                 let type_name = if account.signer {
                     "Signer"
@@ -62,13 +60,11 @@ impl Parser<IdlInstructionAccountItem> for ParameterParser {
     }
 }
 
-impl Parser<IdlField> for ParameterParser {
-    type Output = Parameter;
-
-    fn parse(&self, input: IdlField, config: &Config) -> Result<Self::Output> {
-        let attributes = self.doc_parser.parse(input.docs.clone(), config)?;
+impl Transformer<IdlField, Parameter> for ParameterParser {
+    fn transform(&self, input: IdlField, config: &Config) -> Result<Parameter> {
+        let attributes = self.doc_parser.transform(input.docs.clone(), config)?;
         let identifier = Identifier::new(input.name.clone());
-        let type_ = self.type_parser.parse(input.ty.clone(), config)?;
+        let type_ = self.type_parser.transform(input.ty.clone(), config)?;
         let default_value = None;
         let parameter = Parameter {
             attributes,

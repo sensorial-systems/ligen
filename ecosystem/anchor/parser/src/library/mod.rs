@@ -10,13 +10,11 @@ pub struct LibraryParser {
     module_parser: ModuleParser,
 }
 
-impl Parser<&std::path::Path> for LibraryParser {
-    type Output = Library;
-
-    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
+impl Transformer<&std::path::Path, Library> for LibraryParser {
+    fn transform(&self, input: &std::path::Path, config: &Config) -> Result<Library> {
         let input = std::fs::read_to_string(input)?;
         let input = serde_json::from_str::<Idl>(&input)?;
-        self.parse(input, config)
+        self.transform(input, config)
     }
 
     fn name(&self) -> &str {
@@ -24,10 +22,8 @@ impl Parser<&std::path::Path> for LibraryParser {
     }
 }
 
-impl Parser<anchor_lang_idl_spec::Idl> for LibraryParser {
-    type Output = Library;
-    
-    fn parse(&self, input: Idl, config: &Config) -> Result<Self::Output> {
+impl Transformer<anchor_lang_idl_spec::Idl, Library> for LibraryParser {
+    fn transform(&self, input: Idl, config: &Config) -> Result<Library> {
         let identifier = Identifier::new(input.metadata.name.clone());
         let authors = input
             .metadata
@@ -61,7 +57,7 @@ impl Parser<anchor_lang_idl_spec::Idl> for LibraryParser {
         let license = Default::default();
         let table = [("address".to_string(), input.address.clone())].into_iter().collect();
         let metadata = Metadata { authors, version, language, summary, description, homepage, dependencies, keywords, license, table };
-        let root_module = self.module_parser.parse(input, config)?;
+        let root_module = self.module_parser.transform(input, config)?;
         let library = Library { identifier, metadata, root_module };
         Ok(library)
     }

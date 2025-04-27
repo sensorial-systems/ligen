@@ -12,23 +12,21 @@ pub struct FunctionParser {
     parameter_parser: ParameterParser,
 }
 
-impl Parser<IdlInstruction> for FunctionParser {
-    type Output = Function;
-
-    fn parse(&self, input: IdlInstruction, config: &Config) -> Result<Self::Output> {
+impl Transformer<IdlInstruction, Function> for FunctionParser {
+    fn transform(&self, input: IdlInstruction, config: &Config) -> Result<Function> {
         let accounts = input
             .accounts
             .iter()
-            .map(|account| self.parameter_parser.parse(account.clone(), config))
+            .map(|account| self.parameter_parser.transform(account.clone(), config))
             .collect::<Result<Vec<_>>>()?;
         let args = input
             .args
             .iter()
-            .map(|arg| self.parameter_parser.parse(arg.clone(), config))
+            .map(|arg| self.parameter_parser.transform(arg.clone(), config))
             .collect::<Result<Vec<_>>>()?;
         let inputs = [accounts, args].concat();
-        let attributes = self.doc_parser.parse(input.docs.clone(), config)?;
-        let output = input.returns.map(|ty| self.type_parser.parse(ty.clone(), config)).transpose()?;
+        let attributes = self.doc_parser.transform(input.docs.clone(), config)?;
+        let output = input.returns.map(|ty| self.type_parser.transform(ty.clone(), config)).transpose()?;
         let synchrony = Synchrony::Synchronous;
         let visibility = Visibility::Public;
         let identifier = Identifier::new(input.name.clone());

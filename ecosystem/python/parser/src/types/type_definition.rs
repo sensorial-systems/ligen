@@ -6,18 +6,21 @@ use ligen::ir::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
 #[derive(Default)]
-pub struct TypeDefinitionParser {}
+pub struct TypeDefinitionParser {
+    identifier_parser: IdentifierParser,
+    attributes_parser: AttributesParser,
+    type_parser: TypeParser,
+    function_parser: FunctionParser,
+}
 
-impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
-    type Output = TypeDefinition;
-    fn parse(&self, input: WithSource<StmtClassDef>, config: &Config) -> Result<Self::Output> {
-        let identifier_parser = IdentifierParser::new();
-        let identifier = identifier_parser.parse(input.ast.name.as_str(), config)?;
+impl Transformer<WithSource<StmtClassDef>, TypeDefinition> for TypeDefinitionParser {
+    fn transform(&self, input: WithSource<StmtClassDef>, config: &Config) -> Result<TypeDefinition> {
+        let identifier = self.identifier_parser.transform(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(TypeDefinition { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config).unwrap_or_default(); // TODO: Maybe we want the signalize the failures.
-            let visibility = identifier_parser.get_visibility(&identifier);
+            let attributes = self.attributes_parser.transform(input.sub(&input.ast.decorator_list), config).unwrap_or_default(); // TODO: Maybe we want the signalize the failures.
+            let visibility = self.identifier_parser.get_visibility(&identifier);
             let interfaces = self.parse_interfaces(&input.ast.bases, config)?;
             let definition = self.parse_kind_definition(&input, config)?;
             let generics = Default::default();
@@ -45,11 +48,10 @@ impl TypeDefinitionParser {
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let identifier_parser = IdentifierParser::new();
-        let identifier = identifier_parser.parse(identifier, config)?;
-        let visibility = identifier_parser.get_visibility(&identifier);
+        let identifier = self.identifier_parser.transform(identifier, config)?;
+        let visibility = self.identifier_parser.get_visibility(&identifier);
         let identifier = Some(identifier);
-        let type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
+        let type_ = self.type_parser.transform(input.sub(&*input.ast.annotation), config)?;
         let attributes = Default::default();
         Ok(Field { identifier, type_, visibility, attributes })
     }
@@ -62,10 +64,9 @@ impl TypeDefinitionParser {
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let parser = IdentifierParser::new();
-        let identifier = parser.parse(identifier, config)?;
-        if let Mutability::Mutable = parser.get_mutability(&identifier) {
-            let visibility = parser.get_visibility(&identifier);
+        let identifier = self.identifier_parser.transform(identifier, config)?;
+        if let Mutability::Mutable = self.identifier_parser.get_mutability(&identifier) {
+            let visibility = self.identifier_parser.get_visibility(&identifier);
             let identifier = Some(identifier);
             let type_ = Default::default();
             let attributes = Default::default();
@@ -79,10 +80,9 @@ impl TypeDefinitionParser {
         let mut fields = Vec::new();
         for target in &input.ast.targets {
             if let Some(identifier) = target.as_name_expr() {
-                let parser = IdentifierParser::new();
-                let identifier = parser.parse(identifier.id.as_str(), config)?;
-                if let Mutability::Mutable = parser.get_mutability(&identifier) {
-                    let visibility = parser.get_visibility(&identifier);
+                let identifier = self.identifier_parser.transform(identifier.id.as_str(), config)?;
+                if let Mutability::Mutable = self.identifier_parser.get_mutability(&identifier) {
+                    let visibility = self.identifier_parser.get_visibility(&identifier);
                     let identifier = Some(identifier);
                     let type_ = Default::default();
                     let attributes = Default::default();
@@ -118,7 +118,7 @@ impl TypeDefinitionParser {
                     }
                 },
                 Stmt::FunctionDef(function_def) => {
-                    let function = FunctionParser::default().parse(input.sub(function_def.clone()), config)?;
+                    let function = self.function_parser.transform(input.sub(function_def.clone()), config)?;
                     if function.attributes.contains("property") {
                         let identifier = Some(function.identifier);
                         let type_ = function.output.unwrap_or_default();

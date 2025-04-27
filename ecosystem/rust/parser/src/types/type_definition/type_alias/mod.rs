@@ -9,7 +9,13 @@ use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
-pub struct TypeAliasParser;
+pub struct TypeAliasParser {
+    identifier_parser: IdentifierParser,
+    visibility_parser: VisibilityParser,
+    attributes_parser: AttributesParser,
+    generics_parser: GenericsParser,
+    type_parser: TypeParser,
+}
 
 impl TypeAliasParser {
     pub fn new() -> Self {
@@ -17,33 +23,30 @@ impl TypeAliasParser {
     }
 }
 
-impl Parser<proc_macro::TokenStream> for TypeAliasParser {
-    type Output = TypeDefinition;
-    fn parse(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(token_stream), config)
+impl Transformer<proc_macro::TokenStream, TypeDefinition> for TypeAliasParser {
+    fn transform(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<TypeDefinition> {
+        self.transform(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
-impl Parser<proc_macro2::TokenStream> for TypeAliasParser {
-    type Output = TypeDefinition;
-    fn parse(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
+impl Transformer<proc_macro2::TokenStream, TypeDefinition> for TypeAliasParser {
+    fn transform(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<TypeDefinition> {
         syn::parse2::<syn::ItemType>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
-            .and_then(|structure| self.parse(structure, config))
+            .and_then(|structure| self.transform(structure, config))
     }
 }
 
-impl Parser<syn::ItemType> for TypeAliasParser {
-    type Output = TypeDefinition;
-    fn parse(&self, type_alias: syn::ItemType, config: &Config) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(type_alias.attrs, config)?;
-        let identifier = IdentifierParser::new().parse(type_alias.ident, config)?;
-        let visibility = VisibilityParser::new().parse(type_alias.vis, config)?;
+impl Transformer<syn::ItemType, TypeDefinition> for TypeAliasParser {
+    fn transform(&self, type_alias: syn::ItemType, config: &Config) -> Result<TypeDefinition> {
+        let attributes = self.attributes_parser.transform(type_alias.attrs, config)?;
+        let identifier = self.identifier_parser.transform(type_alias.ident, config)?;
+        let visibility = self.visibility_parser.transform(type_alias.vis, config)?;
         let interfaces = Default::default();
-        let type_ = TypeParser::default().parse(*type_alias.ty, config)?;
+        let type_ = self.type_parser.transform(*type_alias.ty, config)?;
         let definition = TypeAlias { type_ }.into();
-        let generics = GenericsParser::default().parse(type_alias.generics, config)?;
-        Ok(Self::Output { attributes, visibility, identifier, generics, interfaces, definition })
+        let generics = self.generics_parser.transform(type_alias.generics, config)?;
+        Ok(TypeDefinition { attributes, visibility, identifier, generics, interfaces, definition })
     }
 }
 
@@ -58,7 +61,7 @@ mod tests {
 
     #[test]
     fn type_alias() -> Result<()> {
-        assert_eq(TypeAliasParser, mock::type_alias(), quote! {
+        assert_eq(TypeAliasParser::default(), mock::type_alias(), quote! {
             pub type Integer = i32;
         })
     }

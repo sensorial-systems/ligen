@@ -18,50 +18,47 @@ struct ImportsBuilder {
 #[derive(Default)]
 pub struct ImportsParser {
     attributes_parser: AttributesParser,
-    visibility_parser: VisibilityParser
+    visibility_parser: VisibilityParser,
+    identifier_parser: IdentifierParser
 }
 
 
-impl Parser<syn::ItemUse> for ImportsParser {
-    type Output = Vec<Import>;
-    fn parse(&self, import: syn::ItemUse, config: &Config) -> Result<Self::Output> {
-        let attributes = self.attributes_parser.parse(import.attrs, config)?;
-        let visibility = self.visibility_parser.parse(import.vis, config)?;
+impl Transformer<syn::ItemUse, Vec<Import>> for ImportsParser {
+    fn transform(&self, import: syn::ItemUse, config: &Config) -> Result<Vec<Import>> {
+        let attributes = self.attributes_parser.transform(import.attrs, config)?;
+        let visibility = self.visibility_parser.transform(import.vis, config)?;
         let path = Path::default();
         let tree = import.tree;
-        self.parse(ImportsBuilder { attributes, visibility, path, tree }, config)
+        self.transform(ImportsBuilder { attributes, visibility, path, tree }, config)
     }
 }
 
-impl Parser<proc_macro::TokenStream> for ImportsParser {
-    type Output = Vec<Import>;
-    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input), config)
+impl Transformer<proc_macro::TokenStream, Vec<Import>> for ImportsParser {
+    fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Vec<Import>> {
+        self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Parser<proc_macro2::TokenStream> for ImportsParser {
-    type Output = Vec<Import>;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
+impl Transformer<proc_macro2::TokenStream, Vec<Import>> for ImportsParser {
+    fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Vec<Import>> {
         syn::parse2::<syn::ItemUse>(input)
             .map_err(|e| Error::Message(format!("Failed to parse imports: {:?}", e)))
-            .and_then(|imports| self.parse(imports, config))
+            .and_then(|imports| self.transform(imports, config))
     }
 }
 
 
-impl Parser<ImportsBuilder> for ImportsParser {
-    type Output = Vec<Import>;
-    fn parse(&self, builder: ImportsBuilder, config: &Config) -> Result<Self::Output> {
+impl Transformer<ImportsBuilder, Vec<Import>> for ImportsParser {
+    fn transform(&self, builder: ImportsBuilder, config: &Config) -> Result<Vec<Import>> {
         let mut builder = builder;
         match builder.tree {
             syn::UseTree::Path(use_path) => {
-                builder.path = builder.path.join(IdentifierParser::new().parse(use_path.ident, config)?);
+                builder.path = builder.path.join(self.identifier_parser.transform(use_path.ident, config)?);
                 builder.tree = (*use_path.tree).clone();
-                self.parse(builder, config)
+                self.transform(builder, config)
             },
             syn::UseTree::Name(name) => {
-                builder.path = builder.path.join(IdentifierParser::new().parse(name.ident, config)?);
+                builder.path = builder.path.join(self.identifier_parser.transform(name.ident, config)?);
                 Ok(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
@@ -70,12 +67,12 @@ impl Parser<ImportsBuilder> for ImportsParser {
                 }])
             },
             syn::UseTree::Rename(rename) => {
-                builder.path = builder.path.join(IdentifierParser::new().parse(rename.ident, config)?);
+                builder.path = builder.path.join(self.identifier_parser.transform(rename.ident, config)?);
                 Ok(vec![Import {
                     attributes: builder.attributes,
                     visibility: builder.visibility,
                     path: builder.path,
-                    renaming: Some(IdentifierParser::new().parse(rename.rename, config)?)
+                    renaming: Some(self.identifier_parser.transform(rename.rename, config)?)
                 }])
             },
             syn::UseTree::Glob(_) => {
@@ -91,7 +88,7 @@ impl Parser<ImportsBuilder> for ImportsParser {
                 let mut imports: Vec<Import> = Default::default();
                 for tree in group.items {
                     builder.tree = tree;
-                    let mut child_imports = self.parse(builder.clone(), config)?;
+                    let mut child_imports = self.transform(builder.clone(), config)?;
                     imports.append(&mut child_imports);
                 }
                 Ok(imports)

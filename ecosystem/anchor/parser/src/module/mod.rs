@@ -11,10 +11,8 @@ pub struct ModuleParser {
     function_parser: FunctionParser,
 }
 
-impl Parser<Idl> for ModuleParser {
-    type Output = Module;
-
-    fn parse(&self, input: Idl, config: &Config) -> Result<Self::Output> {
+impl Transformer<Idl, Module> for ModuleParser {
+    fn transform(&self, input: Idl, config: &Config) -> Result<Module> {
         let attributes = Named::new("Address", input.address).into();
         let visibility = Visibility::Public;
         let identifier = Identifier::new(input.metadata.name.clone());
@@ -24,14 +22,14 @@ impl Parser<Idl> for ModuleParser {
             .map(|constant| Ok(Object {
                 mutability: Mutability::Constant,
                 identifier: Identifier::new(constant.name.clone()),
-                type_: self.type_parser.parse(constant.ty.clone(), config)?,
+                type_: self.type_parser.transform(constant.ty.clone(), config)?,
                 literal: Literal::String(constant.value.clone()),
             }))
             .collect::<Result<Vec<_>>>()?;
         let functions = input
             .instructions
             .iter()
-            .map(|instruction| self.function_parser.parse(instruction.clone(), config))
+            .map(|instruction| self.function_parser.transform(instruction.clone(), config))
             .collect::<Result<Vec<_>>>()?;
         let types = Default::default();
         let imports = Default::default();

@@ -19,9 +19,8 @@ pub struct AttributeParser {
     literal_parser: LiteralParser,
 }
 
-impl Parser<syn::ItemMacro> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, call: syn::ItemMacro, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ItemMacro, Attribute> for AttributeParser {
+    fn transform(&self, call: syn::ItemMacro, config: &Config) -> Result<Attribute> {
         let identifier = call
             .mac
             .path
@@ -30,145 +29,126 @@ impl Parser<syn::ItemMacro> for AttributeParser {
             .ok_or(Error::Message("Failed to get identifier from syn::ItemMacro".to_string()))?
             .ident
             .clone();
-        let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let attributes = AttributesParser::default().parse(call.mac.tokens.to_string().as_str(), config)?;
+        let identifier = IdentifierParser::new().transform(identifier, config)?;
+        let attributes = AttributesParser::default().transform(call.mac.tokens.to_string().as_str(), config)?;
         let group = Group::new(identifier, attributes).into();
         Ok(group)
     }
 }
 
-impl Parser<syn::MetaList> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, meta_list: syn::MetaList, config: &Config) -> Result<Self::Output> {
-        let path = PathParser::default().parse(meta_list.path.clone(), config)?;
+impl Transformer<syn::MetaList, Attribute> for AttributeParser {
+    fn transform(&self, meta_list: syn::MetaList, config: &Config) -> Result<Attribute> {
+        let path = PathParser::default().transform(meta_list.path.clone(), config)?;
         let inner = meta_list.tokens.into_iter().map(|token| token.to_string()).collect::<Vec<_>>().join("");
-        let attributes = AttributesParser::default().parse(inner.as_str(), config)?;
+        let attributes = AttributesParser::default().transform(inner.as_str(), config)?;
         let group = Group::new(path, attributes);
         Ok(group.into())
     }
 }
 
-impl Parser<syn::Lit> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, lit: syn::Lit, config: &Config) -> Result<Self::Output> {
-        self.literal_parser.parse(lit.to_token_stream().to_string(), config).map(Attribute::Literal)
+impl Transformer<syn::Lit, Attribute> for AttributeParser {
+    fn transform(&self, lit: syn::Lit, config: &Config) -> Result<Attribute> {
+        self.literal_parser.transform(lit.to_token_stream().to_string(), config).map(Attribute::Literal)
     }
 }
 
-impl Parser<syn::ExprCall> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, expr_call: syn::ExprCall, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ExprCall, Attribute> for AttributeParser {
+    fn transform(&self, expr_call: syn::ExprCall, config: &Config) -> Result<Attribute> {
         let identifier = expr_call
             .func
             .to_token_stream()
             .to_string();
-        let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let attributes = AttributesParser::default().parse(expr_call.args, config)?;
+        let identifier = IdentifierParser::new().transform(identifier, config)?;
+        let attributes = AttributesParser::default().transform(expr_call.args, config)?;
         let group = Group::new(identifier, attributes);
         Ok(group.into())
     }
 }
 
-impl Parser<syn::ExprAssign> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, expr_assign: syn::ExprAssign, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ExprAssign, Attribute> for AttributeParser {
+    fn transform(&self, expr_assign: syn::ExprAssign, config: &Config) -> Result<Attribute> {
         let identifier = expr_assign
             .left
             .to_token_stream()
             .to_string();
-        let identifier = IdentifierParser::new().parse(identifier, config)?;
-        let literal = self.literal_parser.parse(expr_assign.right.to_token_stream().to_string(), config)?;
+        let identifier = IdentifierParser::new().transform(identifier, config)?;
+        let literal = self.literal_parser.transform(expr_assign.right.to_token_stream().to_string(), config)?;
         let group = Named::new(identifier, literal);
         Ok(group.into())
     }
 }
 
-impl Parser<syn::Expr> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, expr: syn::Expr, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Expr, Attribute> for AttributeParser {
+    fn transform(&self, expr: syn::Expr, config: &Config) -> Result<Attribute> {
         match expr {
-            syn::Expr::Path(expr) => self.parse(expr, config),
-            syn::Expr::Lit(expr) => self.literal_parser.parse(expr.to_token_stream().to_string(), config).map(Attribute::Literal),
-            syn::Expr::Call(expr) => self.parse(expr, config),
-            syn::Expr::Assign(expr) => self.parse(expr, config),
+            syn::Expr::Path(expr) => self.transform(expr, config),
+            syn::Expr::Lit(expr) => self.literal_parser.transform(expr.to_token_stream().to_string(), config).map(Attribute::Literal),
+            syn::Expr::Call(expr) => self.transform(expr, config),
+            syn::Expr::Assign(expr) => self.transform(expr, config),
             _ => Ok(Attribute::Literal(Literal::Unknown(expr.to_token_stream().into_iter().map(|token| token.to_string()).collect::<Vec<_>>().join("")))),
         }
     }
 }
 
-impl Parser<syn::ExprPath> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, input: syn::ExprPath, config: &Config) -> Result<Self::Output> {
-        self.parse(input.path, config)
+impl Transformer<syn::ExprPath, Attribute> for AttributeParser {
+    fn transform(&self, input: syn::ExprPath, config: &Config) -> Result<Attribute> {
+        self.transform(input.path, config)
     }
 }
 
-impl Parser<syn::Path> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, path: syn::Path, config: &Config) -> Result<Self::Output> {
-        let path = PathParser::default().parse(path, config)?;
+impl Transformer<syn::Path, Attribute> for AttributeParser {
+    fn transform(&self, path: syn::Path, config: &Config) -> Result<Attribute> {
+        let path = PathParser::default().transform(path, config)?;
         let attribute = Group::from(path).into();
         Ok(attribute)
     }
 }
 
 
-impl Parser<syn::MetaNameValue> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, meta_name_value: syn::MetaNameValue, config: &Config) -> Result<Self::Output> {
-        let path = PathParser::default().parse(meta_name_value.path, config)?;
-        let literal = self.literal_parser.parse(meta_name_value.value.to_token_stream().to_string(), config)?;
+impl Transformer<syn::MetaNameValue, Attribute> for AttributeParser {
+    fn transform(&self, meta_name_value: syn::MetaNameValue, config: &Config) -> Result<Attribute> {
+        let path = PathParser::default().transform(meta_name_value.path, config)?;
+        let literal = self.literal_parser.transform(meta_name_value.value.to_token_stream().to_string(), config)?;
         let attribute = Named::new(path, literal).into();
         Ok(attribute)
     }
 }
 
-impl Parser<syn::Meta> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, meta: syn::Meta, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Meta, Attribute> for AttributeParser {
+    fn transform(&self, meta: syn::Meta, config: &Config) -> Result<Attribute> {
         match meta {
-            syn::Meta::Path(path) => self.parse(path, config),
-            syn::Meta::List(list) => self.parse(list, config),
-            syn::Meta::NameValue(name_value) => self.parse(name_value, config),
+            syn::Meta::Path(path) => self.transform(path, config),
+            syn::Meta::List(list) => self.transform(list, config),
+            syn::Meta::NameValue(name_value) => self.transform(name_value, config),
         }
     }
 }
 
-impl Parser<syn::Attribute> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, attribute: syn::Attribute, config: &Config) -> Result<Self::Output> {
-        self.parse(attribute.meta, config)
+impl Transformer<syn::Attribute, Attribute> for AttributeParser {
+    fn transform(&self, attribute: syn::Attribute, config: &Config) -> Result<Attribute> {
+        self.transform(attribute.meta, config)
     }
 }
 
-impl Parser<String> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
-        self.parse(input.as_str(), config)
+impl Parser<Attribute> for AttributeParser {
+    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Attribute> {
+        let input = input.as_ref();
+        let attribute = syn::parse_str::<IntermediaryAttribute>(input)
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, input)))?;
+        self.transform(attribute, config)
     }
 }
 
-impl Parser<IntermediaryAttribute> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, input: IntermediaryAttribute, config: &Config) -> Result<Self::Output> {
+impl Transformer<IntermediaryAttribute, Attribute> for AttributeParser {
+    fn transform(&self, input: IntermediaryAttribute, config: &Config) -> Result<Attribute> {
         match input {
-            IntermediaryAttribute::Meta(meta) => self.parse(meta, config),
-            IntermediaryAttribute::Lit(lit) => self.parse(lit, config),
-            IntermediaryAttribute::Expr(expr) => self.parse(expr, config),
+            IntermediaryAttribute::Meta(meta) => self.transform(meta, config),
+            IntermediaryAttribute::Lit(lit) => self.transform(lit, config),
+            IntermediaryAttribute::Expr(expr) => self.transform(expr, config),
             IntermediaryAttribute::Unknown(unknown) => Ok(Attribute::Literal(Literal::Unknown(unknown))),
         }
     }
 }
-
-impl Parser<&str> for AttributeParser {
-    type Output = Attribute;
-    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
-        let attribute = syn::parse_str::<IntermediaryAttribute>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, input)))?;
-        self.parse(attribute, config)
-    }
-}
-
 
 #[cfg(test)]
 mod test {

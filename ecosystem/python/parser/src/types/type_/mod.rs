@@ -58,9 +58,8 @@ impl TypeParser {
     }
 }
 
-impl Parser<&ExprName> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: &ExprName, _config: &Config) -> Result<Self::Output> {
+impl Transformer<&ExprName, Type> for TypeParser {
+    fn transform(&self, input: &ExprName, _config: &Config) -> Result<Type> {
         let name = input.id.as_str();
         let identifier = self
             .mapper
@@ -75,16 +74,15 @@ impl Parser<&ExprName> for TypeParser {
     }
 }
 
-impl Parser<WithSource<&ExprSubscript>> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: WithSource<&ExprSubscript>, config: &Config) -> Result<Self::Output> {
-        let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
+impl Transformer<WithSource<&ExprSubscript>, Type> for TypeParser {
+    fn transform(&self, input: WithSource<&ExprSubscript>, config: &Config) -> Result<Type> {
+        let mut type_ = self.transform(input.sub(&*input.ast.value), config)?;
         let path = &mut type_.path;
         if let Expr::Tuple(expr) = &*input.ast.slice {
             let types = &mut path.last_mut().generics.types;
-            types.extend(self.parse(input.sub(expr), config)?);
+            types.extend(self.transform(input.sub(expr), config)?);
         } else {
-            let type_ = self.parse(input.sub(&*input.ast.slice), config)?;
+            let type_ = self.transform(input.sub(&*input.ast.slice), config)?;
             let last = path.last_mut();
             if last.identifier == Identifier::vector() {
                 last.generics.types[0] = type_;
@@ -96,26 +94,24 @@ impl Parser<WithSource<&ExprSubscript>> for TypeParser {
     }
 }
 
-impl Parser<WithSource<&ExprTuple>> for TypeParser {
-    type Output = Vec<Type>;
-    fn parse(&self, input: WithSource<&ExprTuple>, config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&ExprTuple>, Vec<Type>> for TypeParser {
+    fn transform(&self, input: WithSource<&ExprTuple>, config: &Config) -> Result<Vec<Type>> {
         let mut types = Vec::new();
         for expr in &input.ast.elts {
-            types.push(self.parse(input.sub(expr), config)?);
+            types.push(self.transform(input.sub(expr), config)?);
         }
         Ok(types)
     }
 }
 
-impl Parser<WithSource<&ExprList>> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: WithSource<&ExprList>, config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&ExprList>, Type> for TypeParser {
+    fn transform(&self, input: WithSource<&ExprList>, config: &Config) -> Result<Type> {
         let types = input
             .ast
             .elts
             .iter()
             .map(|expr| 
-                self.parse(input.sub(expr), config)
+                self.transform(input.sub(expr), config)
             ).collect::<Result<Vec<Type>>>()?;
         if types.len() == 1 {
             Ok(types.into_iter().next().unwrap())
@@ -125,16 +121,14 @@ impl Parser<WithSource<&ExprList>> for TypeParser {
     }
 }
 
-impl Parser<WithSource<&ExprConstant>> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: WithSource<&ExprConstant>, config: &Config) -> Result<Self::Output> {
-        self.parse(&input.ast.value, config)
+impl Transformer<WithSource<&ExprConstant>, Type> for TypeParser {
+    fn transform(&self, input: WithSource<&ExprConstant>, config: &Config) -> Result<Type> {
+        self.transform(&input.ast.value, config)
     }
 }
 
-impl Parser<&Constant> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: &Constant, _config: &Config) -> Result<Self::Output> {
+impl Transformer<&Constant, Type> for TypeParser {
+    fn transform(&self, input: &Constant, _config: &Config) -> Result<Type> {
         match &input {
             Constant::Ellipsis => Ok(Type::variadic(Type::opaque())),
             Constant::Str(_) => Ok(Type::string()),
@@ -146,7 +140,7 @@ impl Parser<&Constant> for TypeParser {
             Constant::Tuple(values) => {
                 let types = values
                     .iter()
-                    .map(|expr| self.parse(expr, _config))
+                    .map(|expr| self.transform(expr, _config))
                     .collect::<Result<Vec<Type>>>()?;
                 Ok(Type::tuple(types))
             },
@@ -155,10 +149,9 @@ impl Parser<&Constant> for TypeParser {
     }
 }
 
-impl Parser<WithSource<&ExprAttribute>> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: WithSource<&ExprAttribute>, config: &Config) -> Result<Self::Output> {
-        let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
+impl Transformer<WithSource<&ExprAttribute>, Type> for TypeParser {
+    fn transform(&self, input: WithSource<&ExprAttribute>, config: &Config) -> Result<Type> {
+        let mut type_ = self.transform(input.sub(&*input.ast.value), config)?;
         let name = input.ast.attr.as_str();
         let identifier = self
             .mapper
@@ -170,15 +163,14 @@ impl Parser<WithSource<&ExprAttribute>> for TypeParser {
     }
 }
 
-impl Parser<WithSource<&Expr>> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: WithSource<&Expr>, config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&Expr>, Type> for TypeParser {
+    fn transform(&self, input: WithSource<&Expr>, config: &Config) -> Result<Type> {
         match &input.ast {
-            Expr::Name(expr) => self.parse(expr, config),
-            Expr::Subscript(expr) => self.parse(input.sub(expr), config),
-            Expr::List(expr) => self.parse(input.sub(expr), config),
-            Expr::Constant(expr) => self.parse(input.sub(expr), config),
-            Expr::Attribute(expr) => self.parse(input.sub(expr), config),
+            Expr::Name(expr) => self.transform(expr, config),
+            Expr::Subscript(expr) => self.transform(input.sub(expr), config),
+            Expr::List(expr) => self.transform(input.sub(expr), config),
+            Expr::Constant(expr) => self.transform(input.sub(expr), config),
+            Expr::Attribute(expr) => self.transform(input.sub(expr), config),
             Expr::BinOp(_expr) => Ok(Type::opaque()), // TODO: BinOp (e.g. "int | float") is not supported yet. They can be implemented as enumerations.
             Expr::Call(_expr) => Ok(Type::opaque()), // TODO: Call (e.g. "Annotated[int, Ge(0)]") is not supported yet. They can be implemented as function types.
             _ => Err(Error::Message(format!("Failed to parse type: {}, {:?}", &input.source[input.ast.start().to_usize()..input.ast.end().to_usize()], input.ast)))

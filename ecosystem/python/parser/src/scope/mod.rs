@@ -11,9 +11,8 @@ use ligen::parser::prelude::*;
 pub use scope_type::*;
 use crate::parser::PythonParser;
 
-impl Parser<WithSource<&[Stmt]>> for PythonParser {
-    type Output = Scope;
-    fn parse(&self, input: WithSource<&[Stmt]>, config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&[Stmt]>, Scope> for PythonParser {
+    fn transform(&self, input: WithSource<&[Stmt]>, config: &Config) -> Result<Scope> {
         let imports = self.parse_imports(&input, config)?;
         let objects = self.parse_objects(&input, config)?;
         let types = self.parse_types(&input, config)?;
@@ -51,13 +50,13 @@ impl PythonParser {
         for statement in statements.ast {
             match statement {
                 Stmt::If(ast) => {
-                    sub_scopes.push(self.parse(statements.sub( ast.body.as_slice()), config)?);
-                    sub_scopes.push(self.parse(statements.sub(ast.orelse.as_slice()), config)?);
+                    sub_scopes.push(self.transform(statements.sub( ast.body.as_slice()), config)?);
+                    sub_scopes.push(self.transform(statements.sub(ast.orelse.as_slice()), config)?);
                 },
                 Stmt::Try(ast) => {
-                    sub_scopes.push(self.parse(statements.sub(ast.body.as_slice()), config)?);
-                    sub_scopes.push(self.parse(statements.sub(ast.orelse.as_slice()), config)?);
-                    sub_scopes.push(self.parse(statements.sub(ast.finalbody.as_slice()), config)?);
+                    sub_scopes.push(self.transform(statements.sub(ast.body.as_slice()), config)?);
+                    sub_scopes.push(self.transform(statements.sub(ast.orelse.as_slice()), config)?);
+                    sub_scopes.push(self.transform(statements.sub(ast.finalbody.as_slice()), config)?);
                 },
                 _ => ()
             }
@@ -103,12 +102,12 @@ impl PythonParser {
             if self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
-                        if let Ok(function) = self.function_parser.parse(statements.sub(function.clone()), config) {
+                        if let Ok(function) = self.function_parser.transform(statements.sub(function.clone()), config) {
                             functions.push(function)
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
-                        if let Ok(function) = self.function_parser.parse(statements.sub(function.clone()), config) {
+                        if let Ok(function) = self.function_parser.transform(statements.sub(function.clone()), config) {
                             functions.push(function)
                         }
                     },
@@ -125,12 +124,12 @@ impl PythonParser {
             if !self.is_static_method(statements.sub(statement)) {
                 match statement {
                     Stmt::FunctionDef(function) => {
-                        if let Ok(function) = self.parse(statements.sub(function.clone()), config) {
+                        if let Ok(function) = self.transform(statements.sub(function.clone()), config) {
                             methods.push(function)
                         }
                     },
                     Stmt::AsyncFunctionDef(function) => {
-                        if let Ok(function) = self.parse(statements.sub(function.clone()), config) {
+                        if let Ok(function) = self.transform(statements.sub(function.clone()), config) {
                             methods.push(function)
                         }
                     },
@@ -145,7 +144,7 @@ impl PythonParser {
         let mut types = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                match self.type_definition_parser.parse(statements.sub(class.clone()), config) {
+                match self.type_definition_parser.transform(statements.sub(class.clone()), config) {
                     Ok(type_definition) => types.push(type_definition),
                     Err(error) => todo!("Failed to parse type definition: {:?}", error)
                 }
@@ -158,7 +157,7 @@ impl PythonParser {
         let mut interfaces = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
-                if let Ok(interface) = self.parse(WithSource::new(&statements.source, class), config) {
+                if let Ok(interface) = self.transform(WithSource::new(&statements.source, class), config) {
                     interfaces.push(interface)
                 }
             }
@@ -171,12 +170,12 @@ impl PythonParser {
         for statement in statements.ast {
             match statement {
                 Stmt::Import(import) => {
-                    if let Ok(parsed_imports) = self.parse(statements.sub(import), config) {
+                    if let Ok(parsed_imports) = self.transform(statements.sub(import), config) {
                         imports.extend(parsed_imports);
                     }
                 },
                 Stmt::ImportFrom(import) => {
-                    if let Ok(parsed_imports) = self.parse(statements.sub(import), config) {
+                    if let Ok(parsed_imports) = self.transform(statements.sub(import), config) {
                         imports.extend(parsed_imports);
                     }
                 },
@@ -193,17 +192,17 @@ impl PythonParser {
             for statement in statements.ast {
                 match statement {
                     Stmt::Assign(assign) => {
-                        if let Ok(more_objects) = self.object_parser.parse(assign, config) {
+                        if let Ok(more_objects) = self.object_parser.transform(assign, config) {
                             objects.extend(more_objects)
                         }
                     },
                     Stmt::AnnAssign(assign) => {
-                        if let Ok(object) = self.object_parser.parse(statements.sub(assign), config) {
+                        if let Ok(object) = self.object_parser.transform(statements.sub(assign), config) {
                             objects.push(object)
                         }
                     },
                     Stmt::AugAssign(assign) => {
-                        if let Ok(object) = self.object_parser.parse(assign, config) {
+                        if let Ok(object) = self.object_parser.transform(assign, config) {
                             objects.push(object)
                         }
                     },

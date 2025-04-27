@@ -6,9 +6,9 @@ use crate::parser::PythonParser;
 #[derive(Default)]
 pub struct ModuleParser;
 
-impl Parser<&str> for ModuleParser {
-    type Output = WithSource<ModModule>;
-    fn parse(&self, input: &str, _config: &Config) -> Result<Self::Output> {
+impl Parser<WithSource<ModModule>> for ModuleParser {
+    fn parse(&self, input: impl AsRef<str>, _config: &Config) -> Result<WithSource<ModModule>> {
+        let input = input.as_ref();
         let module = parse(input, Mode::Module, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
             .module()
@@ -17,10 +17,9 @@ impl Parser<&str> for ModuleParser {
     }
 }
 
-impl Parser<WithSource<ModModule>> for PythonParser {
-    type Output = Module;
-    fn parse(&self, input: WithSource<ModModule>, config: &Config) -> Result<Self::Output> {
-        let scope = self.parse(input.sub(input.ast.body.as_slice()), config)?;
+impl Transformer<WithSource<ModModule>, Module> for PythonParser {
+    fn transform(&self, input: WithSource<ModModule>, config: &Config) -> Result<Module> {
+        let scope = self.transform(input.sub(input.ast.body.as_slice()), config)?;
         let imports = scope.imports;
         let objects = scope.objects;
         let types = scope.types;
@@ -34,21 +33,19 @@ pub(crate) struct Directory<'a>(pub &'a std::path::Path);
 pub(crate) struct File<'a>(pub &'a std::path::Path);
 pub(crate) struct SubPath<'a>(pub &'a std::path::Path);
 
-impl Parser<File<'_>> for PythonParser {
-    type Output = Module;
-    fn parse(&self, File(input): File<'_>, config: &Config) -> Result<Self::Output> {
+impl Transformer<File<'_>, Module> for PythonParser {
+    fn transform(&self, File(input): File<'_>, config: &Config) -> Result<Module> {
         let content = std::fs::read_to_string(input)?;
         let module = ModuleParser.parse(content.as_str(), config)?;
-        let mut module = self.parse(module, config)?;
-        module.identifier = self.identifier_parser.parse(input, config)?;
+        let mut module: Module = self.transform(module, config)?;
+        module.identifier = self.identifier_parser.transform(input, config)?;
         Ok(module)
     }
 }
 
-impl Parser<Directory<'_>> for PythonParser {
-    type Output = Module;
-    fn parse(&self, Directory(input): Directory<'_>, config: &Config) -> Result<Self::Output> {
-        let identifier = self.identifier_parser.parse(input, config)?;
+impl Transformer<Directory<'_>, Module> for PythonParser {
+    fn transform(&self, Directory(input): Directory<'_>, config: &Config) -> Result<Module> {
+        let identifier = self.identifier_parser.transform(input, config)?;
         let mut module = Module { identifier, .. Default::default() };
         let mut modules: Vec<Module> = Vec::new();
         for entry in input.read_dir()? {
@@ -60,7 +57,7 @@ impl Parser<Directory<'_>> for PythonParser {
                 .map(String::from)
                 .unwrap_or_default();
             if extension == "py" || extension == "pyi" || path.is_dir() {
-                if let Ok(module) = self.parse(SubPath(path.as_path()), config) {
+                if let Ok(module) = self.transform(SubPath(path.as_path()), config) {
                     if let Some(existing) = modules
                         .iter_mut()
                         .find(|existing| existing.identifier == module.identifier)
@@ -86,9 +83,8 @@ impl Parser<Directory<'_>> for PythonParser {
     }
 }
 
-impl Parser<SubPath<'_>> for PythonParser {
-    type Output = Module;
-    fn parse(&self, SubPath(input): SubPath<'_>, config: &Config) -> Result<Self::Output> {
+impl Transformer<SubPath<'_>, Module> for PythonParser {
+    fn transform(&self, SubPath(input): SubPath<'_>, config: &Config) -> Result<Module> {
         let input = if input.with_extension("py").exists() {
             input.with_extension("py")
         } else {
@@ -98,9 +94,9 @@ impl Parser<SubPath<'_>> for PythonParser {
         let input = input.as_path();
 
         if input.is_dir() {
-            self.parse(Directory(input), config)
+            self.transform(Directory(input), config)
         } else {
-            self.parse(File(input), config)
+            self.transform(File(input), config)
                 .map_err(|error| Error::Message(format!("Failed to read {}. Cause: {:?}", input.display(), error)))
         }        
     }

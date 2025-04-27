@@ -2,7 +2,6 @@ use ligen::{ir::Type, parser::prelude::*};
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
 use crate::{literal::LiteralParser, mutability::MutabilityParser};
-use ligen::parser::Parser;
 use crate::path::PathParser;
 
 #[derive(Default)]
@@ -17,17 +16,15 @@ impl TypeParser {
     }
 }
 
-impl Parser<syn::Ident> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: syn::Ident, config: &Config) -> Result<Self::Output> {
-        Ok(PathParser::default().parse(input, config)?.into())
+impl Transformer<syn::Ident, Type> for TypeParser {
+    fn transform(&self, input: syn::Ident, config: &Config) -> Result<Type> {
+        Ok(PathParser::default().transform(input, config)?.into())
     }
 }
 
-impl Parser<syn::Path> for TypeParser {
-    type Output = Type;
-    fn parse(&self, path: syn::Path, config: &Config) -> Result<Self::Output> {
-        let mut path = PathParser::default().parse(path, config)?;
+impl Transformer<syn::Path, Type> for TypeParser {
+    fn transform(&self, path: syn::Path, config: &Config) -> Result<Type> {
+        let mut path = PathParser::default().transform(path, config)?;
         if path.segments.len() == 1 {
             let segment = path.first_mut();
             match segment.identifier.name.as_str() {
@@ -52,27 +49,26 @@ impl Parser<syn::Path> for TypeParser {
     }
 }
 
-impl Parser<syn::Type> for TypeParser {
-    type Output = Type;
-    fn parse(&self, syn_type: syn::Type, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Type, Type> for TypeParser {
+    fn transform(&self, syn_type: syn::Type, config: &Config) -> Result<Type> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
-            Ok(self.parse(path, config)?)
+            Ok(self.transform(path, config)?)
         } else {
             match syn_type {
                 syn::Type::Reference(syn::TypeReference { elem, mutability, .. }) |
                 syn::Type::Ptr(syn::TypePtr { elem, mutability, .. }) => {
-                    let mutability = self.mutability_parser.parse(mutability, config)?;
-                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    let mutability = self.mutability_parser.transform(mutability, config)?;
+                    let type_ = TypeParser::new().transform(*elem, config)?;
                     Ok(Type::reference(mutability, type_))
                 },
                 syn::Type::Slice(TypeSlice { elem, .. }) => {
-                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    let type_ = TypeParser::new().transform(*elem, config)?;
                     Ok(Type::slice(type_))
                 },
                 syn::Type::Array(TypeArray { elem, len, .. }) => {
-                    let len = self.literal_parser.parse(len, config)?;
+                    let len = self.literal_parser.transform(len, config)?;
                     let len = len.into_integer().map_err(|_| Error::Message("Array length literal isn't an integer.".into()))? as usize;
-                    let type_ = TypeParser::new().parse(*elem, config)?;
+                    let type_ = TypeParser::new().transform(*elem, config)?;
                     Ok(Type::array(type_, len))
                 },
                 _ => Err(Error::Message(format!("\"{}\" not supported. Only Path, Reference and Ptr Types are currently supported", syn_type.to_token_stream()))),
@@ -81,25 +77,22 @@ impl Parser<syn::Type> for TypeParser {
     }
 }
 
-impl Parser<proc_macro::TokenStream> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input), config)
+impl Transformer<proc_macro::TokenStream, Type> for TypeParser {
+    fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Type> {
+        self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Parser<proc_macro2::TokenStream> for TypeParser {
-    type Output = Type;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
+impl Transformer<proc_macro2::TokenStream, Type> for TypeParser {
+    fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Type> {
         syn::parse2::<syn::Type>(input)
             .map_err(|e| Error::Message(format!("Failed to parse type: {}", e)))
-            .and_then(|syn_type| self.parse(syn_type, config))
+            .and_then(|syn_type| self.transform(syn_type, config))
     }
 }
 
 #[cfg(test)]
 mod test {
-    use ligen::parser::Parser;
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
     use super::*;
@@ -108,7 +101,7 @@ mod test {
 
     fn test_pairs(input: Vec<(proc_macro2::TokenStream, Type)>) {
         let v: Vec<(Type, Type)> = input.into_iter().map(|(input, expected)| {
-            (TypeParser::new().parse(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
+            (TypeParser::new().transform(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
         }).collect();
         for (value, expected_value) in v {
             assert_eq!(value, expected_value);
@@ -160,7 +153,7 @@ mod test {
     fn types_boolean() -> Result<()> {
         assert_eq!(
             Type::boolean(),
-            TypeParser::new().parse(quote! {bool}, &Default::default())?
+            TypeParser::new().transform(quote! {bool}, &Default::default())?
         );
         Ok(())
     }
@@ -169,7 +162,7 @@ mod test {
     fn types_character() -> Result<()> {
         assert_eq!(
             Type::character(),
-            TypeParser::new().parse(quote! {char}, &Default::default())?
+            TypeParser::new().transform(quote! {char}, &Default::default())?
         );
         Ok(())
     }
@@ -178,7 +171,7 @@ mod test {
     fn types_borrow_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser::new().parse(quote! {&i32}, &Default::default())?
+            TypeParser::new().transform(quote! {&i32}, &Default::default())?
         );
         Ok(())
     }
@@ -187,7 +180,7 @@ mod test {
     fn types_borrow_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser::new().parse(quote! {&mut i32}, &Default::default())?
+            TypeParser::new().transform(quote! {&mut i32}, &Default::default())?
         );
         Ok(())
     }
@@ -196,7 +189,7 @@ mod test {
     fn types_pointer_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser::new().parse(quote! {*const i32}, &Default::default())?
+            TypeParser::new().transform(quote! {*const i32}, &Default::default())?
         );
         Ok(())
     }
@@ -205,7 +198,7 @@ mod test {
     fn types_pointer_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser::new().parse(quote! {*mut i32}, &Default::default())?
+            TypeParser::new().transform(quote! {*mut i32}, &Default::default())?
         );
         Ok(())
     }

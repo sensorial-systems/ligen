@@ -5,7 +5,11 @@ use crate::literal::LiteralParser;
 use crate::types::TypeParser;
 
 #[derive(Default)]
-pub struct ObjectParser;
+pub struct ObjectParser {
+    identifier_parser: IdentifierParser,
+    type_parser: TypeParser,
+    literal_parser: LiteralParser,
+}
 
 impl ObjectParser {
     pub fn new() -> Self {
@@ -13,49 +17,45 @@ impl ObjectParser {
     }
 }
 
-impl Parser<syn::ImplItemConst> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, item_const: syn::ImplItemConst, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ImplItemConst, Object> for ObjectParser {
+    fn transform(&self, item_const: syn::ImplItemConst, config: &Config) -> Result<Object> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
             let mutability = Mutability::Constant;
-            let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
-            let type_ = TypeParser::new().parse(item_const.ty, config)?;
-            let literal = LiteralParser.parse(lit, config)?;
-            Ok(Self::Output { mutability, identifier, type_, literal })
+            let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+            let type_ = self.type_parser.transform(item_const.ty, config)?;
+            let literal = self.literal_parser.transform(lit, config)?;
+            Ok(Object { mutability, identifier, type_, literal })
         } else {
             Err("Undefined Constant inside Impl block".into())
         }
     }
 }
 
-impl Parser<syn::ItemConst> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, item_const: syn::ItemConst, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ItemConst, Object> for ObjectParser {
+    fn transform(&self, item_const: syn::ItemConst, config: &Config) -> Result<Object> {
         if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
             let mutability = Mutability::Constant;
-            let identifier = IdentifierParser::new().parse(item_const.ident.clone(), config)?;
-            let type_ = TypeParser::new().parse(*item_const.ty, config)?;
-            let literal = LiteralParser.parse(lit, config)?;
-            Ok(Self::Output { mutability, identifier, type_, literal })
+            let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+            let type_ = self.type_parser.transform(*item_const.ty, config)?;
+            let literal = self.literal_parser.transform(lit, config)?;
+            Ok(Object { mutability, identifier, type_, literal })
         } else {
             Err("Undefined Constant".into())
         }
     }
 }
 
-impl Parser<proc_macro::TokenStream> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input), config)
+impl Transformer<proc_macro::TokenStream, Object> for ObjectParser {
+    fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Object> {
+        self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Parser<proc_macro2::TokenStream> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
+impl Transformer<proc_macro2::TokenStream, Object> for ObjectParser {
+    fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Object> {
         syn::parse2::<syn::ItemConst>(input)
             .map_err(|e| Error::Message(format!("Failed to parse constant: {:?}", e)))
-            .and_then(|constant| self.parse(constant, config))
+            .and_then(|constant| self.transform(constant, config))
     }
 }
 
@@ -70,7 +70,7 @@ mod test {
     
     #[test]
     fn constant() -> Result<()> {
-        assert_eq(ObjectParser, mock::constant(), quote! {
+        assert_eq(ObjectParser::default(), mock::constant(), quote! {
             const CONSTANT: bool = false;
         })
     }

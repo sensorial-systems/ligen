@@ -17,9 +17,8 @@ impl RustLibraryParser {
     }
 }
 
-impl Parser<&std::path::Path> for RustLibraryParser {
-    type Output = Library;
-    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
+impl Transformer<&std::path::Path, Library> for RustLibraryParser {
+    fn transform(&self, input: &std::path::Path, config: &Config) -> Result<Library> {
         let cargo = Cargo::new(input).context("Failed to create Cargo instance")?;
         let identifier = Identifier::from(cargo.get_name()?.clone());
         let authors = cargo.get_authors()?;
@@ -33,7 +32,7 @@ impl Parser<&std::path::Path> for RustLibraryParser {
         let homepage = cargo.get_homepage()?;
         let table = Default::default();
         let metadata = Metadata { authors, dependencies, keywords, license, version, language, summary, description, homepage, table };
-        let root_module = self.module_parser.parse(cargo.folder.join("src").join("lib.rs").as_path(), config)?;
+        let root_module = self.module_parser.transform(cargo.folder.join("src").join("lib.rs").as_path(), config)?;
         let library = Library { identifier, metadata, root_module };
         Ok(library)
     }

@@ -8,25 +8,29 @@ use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
 use crate::visibility::VisibilityParser;
 
-pub struct FieldParser;
+#[derive(Default)]
+pub struct FieldParser {
+    identifier_parser: IdentifierParser,
+    visibility_parser: VisibilityParser,
+    attributes_parser: AttributesParser,
+    type_parser: TypeParser,
+}
 
-impl Parser<syn::Field> for FieldParser {
-    type Output = Field;
-    fn parse(&self, field: syn::Field, config: &Config) -> Result<Self::Output> {
-        let attributes = AttributesParser::default().parse(field.attrs, config)?;
-        let visibility = VisibilityParser.parse(field.vis, config)?;
-        let identifier = field.ident.map(|identifier| IdentifierParser::new().parse(identifier, config).expect("Failed to parse identifier."));
-        let type_ = TypeParser::new().parse(field.ty, config)?;
-        Ok(Self::Output { attributes, visibility, identifier, type_ })
+impl Transformer<syn::Field, Field> for FieldParser {
+    fn transform(&self, field: syn::Field, config: &Config) -> Result<Field> {
+        let attributes = self.attributes_parser.transform(field.attrs, config)?;
+        let visibility = self.visibility_parser.transform(field.vis, config)?;
+        let identifier = field.ident.map(|identifier| self.identifier_parser.transform(identifier, config)).transpose()?;
+        let type_ = self.type_parser.transform(field.ty, config)?;
+        Ok(Field { attributes, visibility, identifier, type_ })
     }
 }
 
-impl Parser<syn::Fields> for FieldParser {
-    type Output = Vec<Field>;
-    fn parse(&self, input: syn::Fields, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Fields, Vec<Field>> for FieldParser {
+    fn transform(&self, input: syn::Fields, config: &Config) -> Result<Vec<Field>> {
         let mut fields = Vec::new();
         for field in input {
-            fields.push(self.parse(field, config)?);
+            fields.push(self.transform(field, config)?);
         }
         Ok(fields)
     }
@@ -34,6 +38,7 @@ impl Parser<syn::Fields> for FieldParser {
 
 #[cfg(test)]
 mod tests {
+    use ligen::parser::prelude::Transformer;
     use syn::parse_quote;
     use ligen::ir::{Field, Visibility, Path};
     use crate::types::structure::FieldParser;
@@ -48,7 +53,7 @@ mod tests {
         };
         let field = structure.fields.into_iter().next().expect("Couldn't get field.");
         assert_eq!(
-            FieldParser.parse(field, &Default::default())?,
+            FieldParser::default().transform(field, &Default::default())?,
             Field {
                 attributes: Default::default(),
                 visibility: Visibility::Private,

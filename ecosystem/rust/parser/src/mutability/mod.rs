@@ -12,9 +12,8 @@ impl MutabilityParser {
     }
 }
 
-impl Parser<Option<syn::token::Mut>> for MutabilityParser {
-    type Output = Mutability;
-    fn parse(&self, mutability: Option<syn::token::Mut>, _config: &Config) -> Result<Self::Output> {
+impl Transformer<Option<syn::token::Mut>, Mutability> for MutabilityParser {
+    fn transform(&self, mutability: Option<syn::token::Mut>, _config: &Config) -> Result<Mutability> {
         if mutability.is_some() {
             Ok(Mutability::Mutable)
         } else {

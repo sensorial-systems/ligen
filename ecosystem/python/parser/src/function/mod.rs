@@ -12,29 +12,33 @@ use crate::types::type_::TypeParser;
 
 
 #[derive(Default)]
-pub struct FunctionParser {}
+pub struct FunctionParser {
+    attributes_parser: AttributesParser,
+    parameter_parser: ParameterParser,
+    type_parser: TypeParser,
+    identifier_parser: IdentifierParser,
+}
 
-impl Parser<&str> for FunctionParser {
-    type Output = Function;
-    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
+impl Parser<Function> for FunctionParser {
+    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Function> {
+        let input = input.as_ref();
         let statement = Stmt::parse(input, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse statement: {}", error)))?;
         match statement {
-            Stmt::FunctionDef(function) => self.parse(WithSource::new(input, function), config),
-            Stmt::AsyncFunctionDef(function) => self.parse(WithSource::new(input, function), config),
+            Stmt::FunctionDef(function) => self.transform(WithSource::new(input, function), config),
+            Stmt::AsyncFunctionDef(function) => self.transform(WithSource::new(input, function), config),
             _ => Err(Error::Message("No function found".into()))
         }
     }
 }
 
-impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
-    type Output = Function;
-    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Self::Output> {
-        let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
+impl Transformer<WithSource<StmtFunctionDef>, Function> for FunctionParser {
+    fn transform(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Function> {
+        let identifier = self.identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
+            let attributes = self.attributes_parser.transform(input.sub(&input.ast.decorator_list), config)?;
             let visibility = Visibility::Public;
             let synchrony = Synchrony::Synchronous;
             let inputs = self.parse_inputs(*input.ast.args, config)?;
@@ -44,14 +48,13 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     }
 }
 
-impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
-    type Output = Function;
-    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Self::Output> {
-        let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
+impl Transformer<WithSource<StmtAsyncFunctionDef>, Function> for FunctionParser {
+    fn transform(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Function> {
+        let identifier = self.identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
         } else {
-            let attributes = AttributesParser::default().parse(input.sub(&input.ast.decorator_list), config)?;
+            let attributes = self.attributes_parser.transform(input.sub(&input.ast.decorator_list), config)?;
             let visibility = Visibility::Public;
             let synchrony = Synchrony::Asynchronous;
             let inputs = self.parse_inputs(*input.ast.args, config)?;
@@ -65,14 +68,14 @@ impl FunctionParser {
     fn parse_inputs(&self, args: Arguments, config: &Config) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args.args {
-            parameters.push(ParameterParser::default().parse(arg, config)?);
+            parameters.push(self.parameter_parser.transform(arg, config)?);
         }
         Ok(parameters)
     }
 
     fn parse_output(&self, output: Option<Box<Expr>>, config: &Config) -> Result<Option<Type>> {
         if let Some(expr) = output.and_then(|expr| expr.name_expr()) {
-            Ok(Some(TypeParser::default().parse(&expr, config)?))
+            Ok(Some(self.type_parser.transform(&expr, config)?))
         } else {
             Ok(None)
         }

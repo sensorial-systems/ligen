@@ -11,9 +11,8 @@ impl RustParser {
     }
 }
 
-impl Parser<&std::path::Path> for RustParser {
-    type Output = Registry;
-    fn parse(&self, _input: &std::path::Path, _config: &Config) -> Result<Self::Output> {
+impl Transformer<&std::path::Path, Registry> for RustParser {
+    fn transform(&self, _input: &std::path::Path, _config: &Config) -> Result<Registry> {
         let registry = Registry::new();
 
         Ok(registry)

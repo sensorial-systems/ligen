@@ -6,29 +6,21 @@ use crate::prelude::*;
 #[derive(Default)]
 pub struct LiteralParser {}
 
-impl Parser<String> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
-        self.parse(input.as_str(), config)
-    }
-}
-
-impl Parser<&str> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
+impl Parser<Literal> for LiteralParser {
+    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Literal> {
+        let input = input.as_ref();
         if let Ok(integer) = input.parse::<i64>() {
             Ok(Literal::Integer(integer))
         } else {
             ExprConstant::parse(input, "<embedded>")
                 .map_err(|e| Error::Message(format!("Failed to parse literal from ExprConstant: {:?}", e)))
-                .and_then(|constant| self.parse(&constant, config))
+                .and_then(|constant| self.transform(&constant, config))
         }
     }
 }
 
-impl Parser<&Constant> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: &Constant, _config: &Config) -> Result<Self::Output> {
+impl Transformer<&Constant, Literal> for LiteralParser {
+    fn transform(&self, input: &Constant, _config: &Config) -> Result<Literal> {
         match input {
             Constant::Bool(bool) => Ok(Literal::Boolean(*bool)),
             Constant::Float(float) => Ok(Literal::Float(*float)),
@@ -44,7 +36,7 @@ impl Parser<&Constant> for LiteralParser {
             Constant::Tuple(tuple) => {
                 let mut result = Vec::new();
                 for element in tuple {
-                    result.push(self.parse(element, _config)?);
+                    result.push(self.transform(element, _config)?);
                 }
                 Ok(Literal::Tuple(result))
             },
@@ -53,22 +45,20 @@ impl Parser<&Constant> for LiteralParser {
     }
 }
 
-impl Parser<&ExprConstant> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: &ExprConstant, config: &Config) -> Result<Self::Output> {
-        self.parse(&input.value, config)
+impl Transformer<&ExprConstant, Literal> for LiteralParser {
+    fn transform(&self, input: &ExprConstant, config: &Config) -> Result<Literal> {
+        self.transform(&input.value, config)
     }
 }
 
-impl Parser<&Expr> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: &Expr, config: &Config) -> Result<Self::Output> {
+impl Transformer<&Expr, Literal> for LiteralParser {
+    fn transform(&self, input: &Expr, config: &Config) -> Result<Literal> {
         match input {
-            Expr::Constant(constant) => self.parse(constant, config),
+            Expr::Constant(constant) => self.transform(constant, config),
             Expr::List(list) => {
                 let mut result = Vec::new();
                 for element in &list.elts {
-                    result.push(self.parse(element, config)?);
+                    result.push(self.transform(element, config)?);
                 }
                 Ok(Literal::Vector(result))
             },

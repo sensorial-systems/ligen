@@ -6,40 +6,39 @@ use crate::prelude::*;
 use crate::types::type_::TypeParser;
 
 #[derive(Default)]
-pub struct ObjectParser;
+pub struct ObjectParser {
+    identifier_parser: IdentifierParser,
+    type_parser: TypeParser,
+}
 
-impl Parser<WithSource<&StmtAnnAssign>> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, input: WithSource<&StmtAnnAssign>, config: &Config) -> Result<Self::Output> {
-        let mut object = self.parse(input.ast.target.as_ref(), config)?;
+impl Transformer<WithSource<&StmtAnnAssign>, Object> for ObjectParser {
+    fn transform(&self, input: WithSource<&StmtAnnAssign>, config: &Config) -> Result<Object> {
+        let mut object = self.transform(input.ast.target.as_ref(), config)?;
         if !config.get_only_parse_symbols() {
-            object.type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
+            object.type_ = self.type_parser.transform(input.sub(&*input.ast.annotation), config)?;
         }
         Ok(object)
     }
 }
 
-impl Parser<&StmtAugAssign> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, input: &StmtAugAssign, config: &Config) -> Result<Self::Output> {
-        self.parse(input.target.as_ref(), config)
+impl Transformer<&StmtAugAssign, Object> for ObjectParser {
+    fn transform(&self, input: &StmtAugAssign, config: &Config) -> Result<Object> {
+        self.transform(input.target.as_ref(), config)
     }
 }
 
-impl Parser<&Expr> for ObjectParser {
-    type Output = Object;
-    fn parse(&self, expr: &Expr, config: &Config) -> Result<Self::Output> {
+impl Transformer<&Expr, Object> for ObjectParser {
+    fn transform(&self, expr: &Expr, config: &Config) -> Result<Object> {
         let identifier = expr
             .as_name_expr()
             .ok_or(Error::Message("Expected identifier".into()))?
             .id
             .as_str();
-        let identifier_parser = IdentifierParser::new();
-        let identifier = identifier_parser.parse(identifier, config)?;
+        let identifier = self.identifier_parser.transform(identifier, config)?;
         if config.get_only_parse_symbols() {
             Ok(Object { identifier, ..Default::default() })
         } else {
-            let mutability = identifier_parser.get_mutability(&identifier);
+            let mutability = self.identifier_parser.get_mutability(&identifier);
             let type_ = Default::default();
             let literal = Default::default();
             Ok(Object { identifier, mutability, literal, type_ })
@@ -47,12 +46,11 @@ impl Parser<&Expr> for ObjectParser {
     }
 }
 
-impl Parser<&StmtAssign> for ObjectParser {
-    type Output = Vec<Object>;
-    fn parse(&self, input: &StmtAssign, config: &Config) -> Result<Self::Output> {
+impl Transformer<&StmtAssign, Vec<Object>> for ObjectParser {
+    fn transform(&self, input: &StmtAssign, config: &Config) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
         for target in &input.targets {
-            if let Ok(object) = self.parse(target, config) {
+            if let Ok(object) = self.transform(target, config) {
                 objects.push(object);
             }
         }

@@ -14,34 +14,31 @@ impl PathParser {
     }
 }
 
-impl Parser<syn::Path> for PathParser {
-    type Output = Path;
-    fn parse(&self, path: syn::Path, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Path, Path> for PathParser {
+    fn transform(&self, path: syn::Path, config: &Config) -> Result<Path> {
         let segments = path
             .segments
             .iter()
             // FIXME: This isn't parsing generics, just the identifiers.
-            .map(|segment| IdentifierParser::new().parse(segment.ident.clone(), config).expect("Failed to parse segment.")) // FIXME: Remove this expect.
+            .map(|segment| IdentifierParser::new().transform(segment.ident.clone(), config).expect("Failed to parse segment.")) // FIXME: Remove this expect.
             .map(PathSegment::from)
             .collect();
-        Ok(Self::Output { segments })
+        Ok(Path { segments })
     }
 }
 
-impl Parser<syn::Ident> for PathParser {
-    type Output = Path;
-    fn parse(&self, identifier: syn::Ident, config: &Config) -> Result<Self::Output> {
-        let segments = vec![IdentifierParser::new().parse(identifier, config)?.into()];
-        Ok(Self::Output { segments })
+impl Transformer<syn::Ident, Path> for PathParser {
+    fn transform(&self, identifier: syn::Ident, config: &Config) -> Result<Path> {
+        let segments = vec![IdentifierParser::new().transform(identifier, config)?.into()];
+        Ok(Path { segments })
     }
 }
 
-impl Parser<&str> for PathParser {
-    type Output = Path;
-    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
+impl Transformer<&str, Path> for PathParser {
+    fn transform(&self, input: &str, config: &Config) -> Result<Path> {
         syn::parse_str::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
-            .and_then(|path| self.parse(path, config))
+            .and_then(|path| self.transform(path, config))
     }
 }
 

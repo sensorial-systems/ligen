@@ -12,12 +12,16 @@ impl IdentifierParser {
         Default::default()
     }
 
-    pub fn parse<T>(&self, input: T, config: &Config) -> Result<Identifier>
-    where InternalParser: Parser<T, Output = Identifier>
+    pub fn transform<T>(&self, input: T, config: &Config) -> Result<Identifier>
+    where InternalParser: Transformer<T, Identifier>
     {
         self
             .parser
-            .parse(input, config)
+            .transform(input, config)
+    }
+
+    pub fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Identifier> {
+        self.parser.parse(input, config)
     }
 
     pub fn get_visibility(&self, identifier: &Identifier) -> Visibility {

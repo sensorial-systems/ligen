@@ -4,76 +4,63 @@ use ligen::parser::prelude::*;
 #[derive(Default)]
 pub struct LiteralParser;
 
-impl Parser<syn::Lit> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, lit: syn::Lit, _config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Lit, Literal> for LiteralParser {
+    fn transform(&self, lit: syn::Lit, _config: &Config) -> Result<Literal> {
         Ok(match lit {
-            syn::Lit::Str(litstr) => Self::Output::String(litstr.value()),
-            syn::Lit::Verbatim(litverb) => Self::Output::String(litverb.to_string()),
-            syn::Lit::ByteStr(litbytestr) => Self::Output::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
-            syn::Lit::Byte(litbyte) => Self::Output::UnsignedInteger(litbyte.value() as u64),
-            syn::Lit::Char(litchar) => Self::Output::Character(litchar.value()),
-            syn::Lit::Int(litint) => Self::Output::Integer(litint.base10_parse().unwrap()),
-            syn::Lit::Float(litfloat) => Self::Output::Float(litfloat.base10_parse().unwrap()),
-            syn::Lit::Bool(litbool) => Self::Output::Boolean(litbool.value),
-            syn::Lit::CStr(litcstr) => Self::Output::String(litcstr.value().to_str().unwrap().to_string()),
+            syn::Lit::Str(litstr) => Literal::String(litstr.value()),
+            syn::Lit::Verbatim(litverb) => Literal::String(litverb.to_string()),
+            syn::Lit::ByteStr(litbytestr) => Literal::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
+            syn::Lit::Byte(litbyte) => Literal::UnsignedInteger(litbyte.value() as u64),
+            syn::Lit::Char(litchar) => Literal::Character(litchar.value()),
+            syn::Lit::Int(litint) => Literal::Integer(litint.base10_parse().unwrap()),
+            syn::Lit::Float(litfloat) => Literal::Float(litfloat.base10_parse().unwrap()),
+            syn::Lit::Bool(litbool) => Literal::Boolean(litbool.value),
+            syn::Lit::CStr(litcstr) => Literal::String(litcstr.value().to_str().unwrap().to_string()),
             _ => return Err(Error::Message("Failed to parse literal".into())),
         })
     }
 }
 
-impl Parser<syn::Ident> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: syn::Ident, _config: &Config) -> Result<Self::Output> {
-        Ok(Self::Output::String(input.to_string()))
+impl Transformer<syn::Ident, Literal> for LiteralParser {
+    fn transform(&self, input: syn::Ident, _config: &Config) -> Result<Literal> {
+        Ok(Literal::String(input.to_string()))
     }
 }
 
-impl Parser<syn::Expr> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: syn::Expr, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Expr, Literal> for LiteralParser {
+    fn transform(&self, input: syn::Expr, config: &Config) -> Result<Literal> {
         match input {
-            syn::Expr::Lit(lit) => self.parse(lit, config),
+            syn::Expr::Lit(lit) => self.transform(lit, config),
             _ => Err(Error::Message("Failed to parse literal from expression".into())),
         }
     }
 }
 
-impl Parser<syn::ExprLit> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: syn::ExprLit, config: &Config) -> Result<Self::Output> {
-        self.parse(input.lit, config)
+impl Transformer<syn::ExprLit, Literal> for LiteralParser {
+    fn transform(&self, input: syn::ExprLit, config: &Config) -> Result<Literal> {
+        self.transform(input.lit, config)
     }
 }
 
-impl Parser<proc_macro::TokenStream> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
-        self.parse(proc_macro2::TokenStream::from(input), config)
+impl Transformer<proc_macro::TokenStream, Literal> for LiteralParser {
+    fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Literal> {
+        self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Parser<proc_macro2::TokenStream> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
+impl Transformer<proc_macro2::TokenStream, Literal> for LiteralParser {
+    fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Literal> {
         syn::parse2::<syn::Lit>(input)
             .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
-            .and_then(|literal| self.parse(literal, config))
+            .and_then(|literal| self.transform(literal, config))
     }
 }
 
-impl Parser<String> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
-        self.parse(input.as_str(), config)
-    }
-}
-
-impl Parser<&str> for LiteralParser {
-    type Output = Literal;
-    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
+impl Parser<Literal> for LiteralParser {
+    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Literal> {
+        let input = input.as_ref();
         if let Ok(lit) = syn::parse_str::<syn::Lit>(input) {
-            Ok(self.parse(lit, config)?)
+            Ok(self.transform(lit, config)?)
         } else {
             Ok(Literal::Unknown(input.to_string()))
         }

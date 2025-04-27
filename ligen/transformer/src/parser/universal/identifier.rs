@@ -12,25 +12,16 @@ impl IdentifierParser {
     }
 }
 
-impl Parser<String> for IdentifierParser {
-    type Output = Identifier;
-    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
-        self.parse(input.as_str(), config)
-    }
-}
-
-impl Parser<&str> for IdentifierParser {
-    type Output = Identifier;
-    fn parse(&self, input: &str, _config: &Config) -> Result<Self::Output> {
+impl Parser<Identifier> for IdentifierParser {
+    fn parse(&self, input: impl AsRef<str>, _config: &Config) -> Result<Identifier> {
         // TODO: check if ident is valid identifier.
-        let name = input.into();
+        let name = input.as_ref().into();
         Ok(Identifier { name })
     }
 }
 
-impl Parser<&std::path::Path> for IdentifierParser {
-    type Output = Identifier;
-    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
+impl Transformer<&std::path::Path, Identifier> for IdentifierParser {
+    fn transform(&self, input: &std::path::Path, config: &Config) -> Result<Identifier> {
         let identifier = input
             .file_stem()
             .ok_or(Error::Message(format!("Failed to parse file stem from path: {}", input.display())))?
@@ -41,11 +32,10 @@ impl Parser<&std::path::Path> for IdentifierParser {
     }
 }
 
-impl Parser<syn::Ident> for IdentifierParser {
-    type Output = Identifier;
-    fn parse(&self, ident: syn::Ident, _config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::Ident, Identifier> for IdentifierParser {
+    fn transform(&self, ident: syn::Ident, _config: &Config) -> Result<Identifier> {
         let name = ident.to_string();
-        Ok(Self::Output { name })
+        Ok(Identifier { name })
     }
 }
 

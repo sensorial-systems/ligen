@@ -11,7 +11,14 @@ use crate::types::TypeParser;
 use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
-pub struct MethodParser;
+pub struct MethodParser {
+    identifier_parser: IdentifierParser,
+    visibility_parser: VisibilityParser,
+    synchrony_parser: SynchronyParser,
+    parameter_parser: ParameterParser,
+    type_parser: TypeParser,
+    attribute_parser: AttributeParser,
+}
 
 impl MethodParser {
     pub fn new() -> Self {
@@ -19,9 +26,8 @@ impl MethodParser {
     }
 }
 
-impl Parser<syn::ImplItemFn> for MethodParser {
-    type Output = Method;
-    fn parse(&self, method: syn::ImplItemFn, config: &Config) -> Result<Self::Output> {
+impl Transformer<syn::ImplItemFn, Method> for MethodParser {
+    fn transform(&self, method: syn::ImplItemFn, config: &Config) -> Result<Method> {
         if let Some(receiver) = method.sig.receiver() {
             let mutability = if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant };
             let syn::Signature { asyncness, ident, inputs, output, .. } = method.sig;
@@ -29,26 +35,26 @@ impl Parser<syn::ImplItemFn> for MethodParser {
                 .clone()
                 .into_iter()
                 .filter(|input| !matches!(input, syn::FnArg::Receiver(_)))
-                .map(|x| ParameterParser.parse(x, config).expect("Failed to convert Parameter"))
+                .map(|x| self.parameter_parser.transform(x, config).expect("Failed to convert Parameter"))
                 .collect();
             let output: Option<Type> = match output {
                 syn::ReturnType::Default => None,
                 syn::ReturnType::Type(_x, y) => {
-                    Some(TypeParser::new().parse(*y, config)?)
+                    Some(self.type_parser.transform(*y, config)?)
                 }
             };
-            Ok(Self::Output {
+            Ok(Method {
                 mutability,
                 attributes: Attributes {
                     attributes: method
                         .attrs
                         .into_iter()
-                        .map(|attribute| AttributeParser::default().parse(attribute, config).expect("Failed to parse meta."))
+                        .map(|attribute| self.attribute_parser.transform(attribute, config).expect("Failed to parse meta."))
                         .collect(),
                 },
-                visibility: VisibilityParser.parse(method.vis, config)?,
-                synchrony: SynchronyParser.parse(asyncness, config)?,
-                identifier: IdentifierParser::new().parse(ident, config)?,
+                visibility: self.visibility_parser.transform(method.vis, config)?,
+                synchrony: self.synchrony_parser.transform(asyncness, config)?,
+                identifier: self.identifier_parser.transform(ident, config)?,
                 inputs,
                 output,
             })

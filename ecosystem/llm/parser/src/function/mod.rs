@@ -31,10 +31,8 @@ impl LlmFunctionParser {
     }
 }
 
-impl Parser<&str> for LlmFunctionParser {
-    type Output = Function;
-
-    fn parse(&self, _input: &str, _config: &Config) -> Result<Function> {
+impl Parser<Function> for LlmFunctionParser {
+    fn parse(&self, _input: impl AsRef<str>, _config: &Config) -> Result<Function> {
         // Prepare conversation history with example messages
         // let messages = vec![
         //     ChatMessage::user()

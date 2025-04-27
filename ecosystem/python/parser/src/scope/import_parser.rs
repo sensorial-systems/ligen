@@ -1,24 +1,22 @@
 use ligen::parser::prelude::*;
-use ligen::parser::{Parser, utils::WithSource};
+use ligen::parser::utils::WithSource;
 use ligen::ir::{Import, Path, Identifier, PathSegment};
 use rustpython_parser::ast::{StmtImport, StmtImportFrom, Alias};
 
 use crate::PythonParser;
 
-impl Parser<WithSource<&StmtImport>> for PythonParser {
-    type Output = Vec<Import>;
-    fn parse(&self, input: WithSource<&StmtImport>, _config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&StmtImport>, Vec<Import>> for PythonParser {
+    fn transform(&self, input: WithSource<&StmtImport>, _config: &Config) -> Result<Vec<Import>> {
         let mut imports = Vec::new();
         for import in &input.ast.names {
-            imports.push(self.parse(input.sub(import), _config)?);
+            imports.push(self.transform(input.sub(import), _config)?);
         }
         Ok(imports)
     }
 }
 
-impl Parser<WithSource<&Alias>> for PythonParser {
-    type Output = Import;
-    fn parse(&self, input: WithSource<&Alias>, _config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&Alias>, Import> for PythonParser {
+    fn transform(&self, input: WithSource<&Alias>, _config: &Config) -> Result<Import> {
         let visibility = Default::default();
         let attributes = Default::default();
         let renaming = input
@@ -35,9 +33,8 @@ impl Parser<WithSource<&Alias>> for PythonParser {
     }
 }
 
-impl Parser<WithSource<&StmtImportFrom>> for PythonParser {
-    type Output = Vec<Import>;
-    fn parse(&self, input: WithSource<&StmtImportFrom>, _config: &Config) -> Result<Self::Output> {
+impl Transformer<WithSource<&StmtImportFrom>, Vec<Import>> for PythonParser {
+    fn transform(&self, input: WithSource<&StmtImportFrom>, _config: &Config) -> Result<Vec<Import>> {
         let mut imports = Vec::new();
         let levels = input
             .ast
@@ -59,7 +56,7 @@ impl Parser<WithSource<&StmtImportFrom>> for PythonParser {
             }).unwrap_or(Path::from(Identifier::self_()));
         let path = path.join(module_path);
         for name in &input.ast.names {
-            let mut import = self.parse(input.sub(name), _config)?;
+            let mut import = self.transform(input.sub(name), _config)?;
             import.path = path.clone().join(import.path);
             imports.push(import)
         }
