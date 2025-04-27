@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use ligen::parser::prelude::*;
 use ligen::ir::Method;
 
 #[derive(Default)]

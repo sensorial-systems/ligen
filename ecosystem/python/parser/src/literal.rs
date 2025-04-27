@@ -1,6 +1,6 @@
 use rustpython_parser::ast::{Constant, ExprConstant, Expr};
 use ligen::ir::Literal;
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -72,7 +72,7 @@ mod test {
     use crate::literal::LiteralParser;
     use crate::prelude::*;
     use ligen::ir::literal::mock;
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
 
     #[test]
     fn literal_string() -> Result<()> {

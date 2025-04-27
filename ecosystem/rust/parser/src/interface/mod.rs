@@ -4,7 +4,6 @@ use crate::object::ObjectParser;
 use crate::prelude::*;
 use crate::types::TypeParser;
 
-use ligen::parser::prelude::*;
 use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
 
 

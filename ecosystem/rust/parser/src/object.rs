@@ -1,5 +1,5 @@
 use ligen::ir::{Object, Mutability};
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::types::TypeParser;
@@ -65,7 +65,7 @@ mod test {
     use crate::object::ObjectParser;
     use crate::prelude::*;
     
-    use ligen::parser::assert::assert_eq;
+    use ligen::transformer::assert::assert_eq;
     use ligen::ir::object::mock;
     
     #[test]

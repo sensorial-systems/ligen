@@ -3,7 +3,6 @@ use rustpython_parser::ast::{ExprAttribute, Expr, Identifier, ExprName};
 use crate::{prelude::*, identifier::IdentifierParser};
 
 use ligen::ir::Path;
-use ligen::parser::prelude::*;
 
 #[derive(Default)]
 pub struct PathParser {

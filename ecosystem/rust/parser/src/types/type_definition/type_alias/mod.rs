@@ -3,7 +3,6 @@
 use crate::prelude::*;
 use crate::types::{GenericsParser, TypeParser};
 use ligen::ir::{TypeAlias, TypeDefinition};
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -54,7 +53,7 @@ impl Transformer<syn::ItemType, TypeDefinition> for TypeAliasParser {
 mod tests {
     use crate::prelude::*;
 
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
     use ligen::ir::type_alias::mock;
 
     use super::TypeAliasParser;

@@ -1,7 +1,6 @@
 use crate::cargo::Cargo;
 use crate::prelude::*;
 use anyhow::Context;
-use ligen::parser::prelude::*;
 use ligen::ir::{Identifier, Language, Library, Metadata};
 
 use crate::module::ModuleParser;

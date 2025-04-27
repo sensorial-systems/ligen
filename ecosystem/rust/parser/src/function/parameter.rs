@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 use ligen::ir::{Identifier, Type, Mutability, Parameter};
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -80,7 +79,7 @@ mod test {
     use crate::prelude::*;
 
     use ligen::ir::function::parameter::mock;
-    use ligen::parser::assert::assert_eq;
+    use ligen::transformer::assert::assert_eq;
 
     #[test]
     fn primitive_parameter() -> Result<()> {

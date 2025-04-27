@@ -1,5 +1,5 @@
 use is_tree::HasBranchesAPIV2;
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 use anyhow::Context;
 
 use crate::{AnchorMetadataGenerator, AnchorMethodGenerator, AnchorTypeDefinitionGenerator};

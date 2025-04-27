@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 use ligen::ir::Variant;
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
@@ -32,7 +31,7 @@ impl Transformer<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, V
 
 #[cfg(test)]
 mod tests {
-    use ligen::parser::prelude::*;
+    use ligen::transformer::prelude::*;
     use syn::parse_quote;
     use ligen::ir::Variant;
     use crate::types::type_definition::enumeration::variant::VariantParser;

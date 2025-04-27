@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::{ir::{Type, Path}, parser::prelude::*};
+use ligen::ir::{Type, Path};
 
 #[derive(Default)]
 pub struct TypeValidator {}

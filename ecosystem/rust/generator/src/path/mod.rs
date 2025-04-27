@@ -1,4 +1,4 @@
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 use ligen_ir::Path;
 
 use crate::RustIdentifierGenerator;

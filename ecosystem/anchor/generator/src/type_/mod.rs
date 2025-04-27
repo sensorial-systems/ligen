@@ -1,5 +1,5 @@
 use anchor_lang_idl_spec::IdlType;
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 use ligen_ir::Type;
 
 #[derive(Debug, Default)]

@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 ligen-ir.workspace = true
-ligen-generator.workspace = true
+ligen-transformer.workspace = true
 anchor-lang-idl-spec.workspace = true
 anyhow.workspace = true
 sha2.workspace = true

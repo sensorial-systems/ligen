@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 use ligen::ir::{Path, Attributes, Visibility, Import};
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -100,7 +99,7 @@ impl Transformer<ImportsBuilder, Vec<Import>> for ImportsParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
     use ligen::ir::module::import::mock;
 
     #[test]

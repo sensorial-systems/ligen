@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::Idl;
 use ligen_ir::{prelude::Result, Author, Dependency, Identifier, Language, Library, Metadata, Version, VersionRequirement};
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 
 use crate::module::ModuleParser;
 

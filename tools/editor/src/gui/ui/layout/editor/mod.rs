@@ -1,4 +1,4 @@
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 use self::ir::Editor;

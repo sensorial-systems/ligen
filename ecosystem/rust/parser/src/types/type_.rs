@@ -1,4 +1,5 @@
-use ligen::{ir::Type, parser::prelude::*};
+use ligen::prelude::*;
+use ligen::ir::Type;
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
 use crate::{literal::LiteralParser, mutability::MutabilityParser};

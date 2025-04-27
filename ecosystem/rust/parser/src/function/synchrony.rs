@@ -1,5 +1,5 @@
 use ligen::ir::Synchrony;
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 
 #[derive(Default)]
 pub struct SynchronyParser;

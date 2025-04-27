@@ -1,5 +1,5 @@
 use ligen_ir::{attribute::Named, prelude::Result, Attribute, Attributes};
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 
 #[derive(Default)]
 pub struct DocParser;

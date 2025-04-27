@@ -1,5 +1,5 @@
 use anyhow::Context;
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 use sha2::{Sha256, Digest};
 
 use crate::AnchorTypeGenerator;

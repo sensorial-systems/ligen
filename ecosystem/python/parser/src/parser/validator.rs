@@ -1,7 +1,6 @@
 use crate::{prelude::*, function::method::validator::MethodValidator, interface::validator::InterfaceValidator};
 use ligen::ir::Library;
 use crate::types::type_::TypeValidator;
-use ligen::parser::prelude::*;
 
 #[derive(Default)]
 pub struct LibraryValidator {

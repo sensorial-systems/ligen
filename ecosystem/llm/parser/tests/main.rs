@@ -1,5 +1,5 @@
 use ligen_llm_parser::LlmFunctionParser;
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 
 #[tokio::test]
 async fn main() -> Result<()> {

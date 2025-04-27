@@ -1,5 +1,5 @@
 use anyhow::Context;
-pub use ligen_generator::prelude::*;
+pub use ligen_transformer::prelude::*;
 use ligen_ir::Type;
 
 use crate::RustPathGenerator;

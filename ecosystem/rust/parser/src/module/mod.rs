@@ -4,7 +4,7 @@ mod import;
 
 use syn::spanned::Spanned;
 use ligen::ir::Object;
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 use crate::interface::RustInterfaceParser;
 use crate::prelude::*;
 use crate::types::type_alias::TypeAliasParser;
@@ -176,7 +176,7 @@ mod tests {
     use super::*;
     use quote::quote;
     use ligen::ir::module::mock;
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
 
     #[test]
     fn module_file() -> Result<()> {

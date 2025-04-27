@@ -7,10 +7,8 @@ use ligen::ir::macro_attributes::{Named, Group};
 use syn::__private::ToTokens;
 use crate::literal::LiteralParser;
 use crate::prelude::*;
-use ligen::parser::universal::{PathParser, IdentifierParser};
+use ligen::transformer::parser::universal::{PathParser, IdentifierParser};
 use ligen::ir::{Attribute, Literal};
-use ligen::parser::prelude::*;
-
 use super::AttributesParser;
 
 
@@ -154,7 +152,7 @@ impl Transformer<IntermediaryAttribute, Attribute> for AttributeParser {
 mod test {
     use crate::prelude::*;
     use super::*;
-    use ligen::parser::assert::assert_eq;
+    use ligen::transformer::assert::assert_eq;
     use ligen::ir::attribute::mock;
 
     #[test]

@@ -4,19 +4,19 @@ use ligen_gui_runtime::egui::{CollapsingHeader, Color32};
 
 use crate::{prelude::*, gui::ui::{editor::{widget::Widget, settings::Settings, ir::Editor}, panes::PaneManager}};
 use std::path::Path;
-use ligen_parser::{self, prelude::{Parser as ParserTrait, ConfigSet, ConfigGet, Config}};
+use ligen_transformer::prelude::*;
 
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 pub struct Parser {
-    parser: Box<dyn for<'a> ligen_parser::prelude::Transformer<&'a Path, ligen_ir::Library>>,
-    config: Config,
+    parser: Box<dyn for<'a> Transformer<&'a Path, ligen_ir::Library>>,
+    config: ligen_transformer::prelude::Config,
     result: String
 }
 
 impl Parser {
     pub fn new<T>(parser: T) -> Self
-    where T: for<'a> ligen_parser::prelude::Transformer<&'a Path, ligen_ir::Library> + 'static
+    where T: for<'a> Transformer<&'a Path, ligen_ir::Library> + 'static
     {
         let config = parser.config();
         let parser = Box::new(parser);
@@ -31,7 +31,7 @@ impl Widget for Parser {
         CollapsingHeader::new(self.parser.name())
             .default_open(false)
             .show(ui, |ui| {
-                config::ParserConfig::new().show(settings, ui, &mut self.config);
+                config::Config::new().show(settings, ui, &mut self.config);
                 if ui.button("Parse").clicked() {
                     let entry = rfd::FileDialog::new()
                         .pick_folder();

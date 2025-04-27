@@ -1,7 +1,7 @@
 
 use anchor_lang_idl_spec::IdlInstruction;
 use ligen_ir::{prelude::Result, Function, Identifier, Synchrony, Visibility};
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 
 use crate::{doc::DocParser, parameter::ParameterParser, type_::TypeParser};
 

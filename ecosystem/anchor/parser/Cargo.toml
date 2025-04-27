@@ -12,4 +12,4 @@ readme.workspace = true
 anchor-lang-idl-spec.workspace = true
 serde_json.workspace = true
 ligen-ir.workspace = true
-ligen-parser.workspace = true
+ligen-transformer.workspace = true

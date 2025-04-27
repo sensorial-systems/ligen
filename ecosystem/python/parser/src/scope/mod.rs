@@ -4,7 +4,6 @@ mod scope_type;
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
 use ligen::ir::{Interface, Object, Function, Method, Import, TypeDefinition};
 use crate::{prelude::*, parser::PythonParserConfig};
-use ligen::parser::prelude::*;
 
 // TODO: REMOVE THIS.
 // pub use import_parser::*;

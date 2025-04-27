@@ -1,16 +1,16 @@
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 
 use crate::prelude::*;
 use crate::gui::ui::editor::{widget::Widget, settings::Settings};
 
 pub struct Generator {
-    generator: Box<dyn for<'a> ligen_generator::Generator<&'a ligen_ir::Library, ()>>,
+    generator: Box<dyn for<'a> ligen_transformer::generator::Generator<&'a ligen_ir::Library, ()>>,
     result: String
 }
 
 impl Generator {
     pub fn new<T>(generator: T) -> Self
-    where T: for<'a> ligen_generator::Generator<&'a ligen_ir::Library, ()> + 'static
+    where T: for<'a> ligen_transformer::generator::Generator<&'a ligen_ir::Library, ()> + 'static
     {
         let generator = Box::new(generator);
         let result = Default::default();

@@ -4,8 +4,6 @@ members = [
     "ligen/common",
     "ligen/ir",
     "ligen/transformer",
-    "ligen/parser",
-    "ligen/generator",
     "ligen/utils",
     "ligen/traits",
     "ecosystem/python/parser",
@@ -40,8 +38,6 @@ ligen-common           = { path = "ligen/common" }
 ligen-ir               = { path = "ligen/ir" }
 ligen-macro            = { path = "ligen/macro" }
 ligen-transformer      = { path = "ligen/transformer" }
-ligen-parser           = { path = "ligen/parser" }
-ligen-generator        = { path = "ligen/generator" }
 ligen-traits           = { path = "ligen/traits" }
 ligen-utils            = { path = "ligen/utils" }
 #ligen-c                = { path = "ecosystem/c/generator" }

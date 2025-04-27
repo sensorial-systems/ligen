@@ -9,7 +9,7 @@ documentation.workspace = true
 readme.workspace = true
 
 [dependencies]
-ligen-parser.workspace = true
+ligen-transformer.workspace = true
 ligen-ir.workspace = true
 llm.workspace = true
 tokio.workspace = true

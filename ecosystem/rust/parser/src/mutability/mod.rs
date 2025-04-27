@@ -1,7 +1,7 @@
 //! Mutability enumeration.
 
 use crate::prelude::*;
-use ligen::{ir::Mutability, parser::prelude::*};
+use ligen::ir::Mutability;
 
 #[derive(Default)]
 pub struct MutabilityParser;

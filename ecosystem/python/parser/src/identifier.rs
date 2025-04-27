@@ -1,6 +1,6 @@
 use ligen::ir::{Identifier, Mutability, Visibility};
-use ligen::parser::prelude::*;
-use ligen::parser::universal::IdentifierParser as InternalParser;
+use ligen::transformer::prelude::*;
+use ligen::transformer::parser::universal::IdentifierParser as InternalParser;
 
 #[derive(Default)]
 pub struct IdentifierParser {

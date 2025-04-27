@@ -7,7 +7,6 @@ pub use field::*;
 use crate::prelude::*;
 use crate::types::GenericsParser;
 use ligen::ir::{Structure, TypeDefinition};
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -59,7 +58,7 @@ mod tests {
     use crate::types::structure::StructureParser;
     use crate::prelude::*;
 
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
     use ligen::ir::structure::mock;
 
     #[test]

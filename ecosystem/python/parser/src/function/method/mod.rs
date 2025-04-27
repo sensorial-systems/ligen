@@ -1,6 +1,6 @@
 pub mod validator;
 
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Method, Mutability};
 use crate::parser::PythonParser;

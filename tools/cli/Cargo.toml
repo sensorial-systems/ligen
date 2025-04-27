@@ -12,9 +12,8 @@ readme.workspace = true
 
 [dependencies]
 ligen-ir.workspace = true
-ligen-parser.workspace = true
 ligen-traits.workspace = true
-ligen-generator.workspace = true
+ligen-transformer.workspace = true
 
 ligen-rust-parser.workspace = true
 ligen-python-parser.workspace = true

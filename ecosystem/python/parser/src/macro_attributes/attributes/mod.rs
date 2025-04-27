@@ -4,7 +4,6 @@ use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::path::PathParser;
 use crate::prelude::*;
-use ligen::parser::prelude::*;
 use ligen::ir::{Attributes, Attribute, macro_attributes::{Group, Named}};
 use rustpython_parser::ast::{Expr, Keyword, Ranged};
 

@@ -2,7 +2,6 @@
 
 use crate::prelude::*;
 use ligen::ir::Field;
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -38,7 +37,6 @@ impl Transformer<syn::Fields, Vec<Field>> for FieldParser {
 
 #[cfg(test)]
 mod tests {
-    use ligen::parser::prelude::Transformer;
     use syn::parse_quote;
     use ligen::ir::{Field, Visibility, Path};
     use crate::types::structure::FieldParser;

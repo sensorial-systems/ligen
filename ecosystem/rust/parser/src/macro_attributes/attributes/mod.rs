@@ -2,7 +2,6 @@ mod attribute;
 pub use attribute::*;
 
 use crate::prelude::*;
-use ligen::parser::prelude::*;
 use attribute::intermediary_attribute::IntermediaryAttribute;
 use ligen::ir::{Attribute, Attributes, Literal};
 
@@ -71,7 +70,7 @@ mod test {
     use crate::prelude::*;
     use super::*;
     use ligen::ir::attributes::mock;
-    use ligen::parser::assert::assert_eq;
+    use ligen::transformer::assert::assert_eq;
 
     #[test]
     fn parse_literals() -> Result<()> {

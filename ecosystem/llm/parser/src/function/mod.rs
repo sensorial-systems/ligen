@@ -1,7 +1,6 @@
 use ligen_ir::prelude::anyhow::Context;
 use ligen_ir::Function;
-use ligen_parser::Parser;
-use ligen_parser::prelude::*;
+use ligen_transformer::prelude::*;
 
 use llm::builder::{LLMBackend, LLMBuilder};
 use llm::LLMProvider;

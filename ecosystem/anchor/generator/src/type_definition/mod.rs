@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::{IdlDefinedFields, IdlField, IdlSerialization, IdlTypeDef, IdlTypeDefTy};
 use anyhow::Context;
-use ligen_generator::prelude::*;
+use ligen_transformer::prelude::*;
 use ligen_ir::KindDefinition;
 
 use crate::AnchorTypeGenerator;

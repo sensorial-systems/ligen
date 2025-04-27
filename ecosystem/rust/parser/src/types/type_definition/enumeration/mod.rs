@@ -5,7 +5,6 @@ pub mod variant;
 use crate::prelude::*;
 use crate::types::GenericsParser;
 use ligen::ir::{Enumeration, TypeDefinition};
-use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::type_definition::enumeration::variant::VariantParser;
@@ -57,7 +56,7 @@ impl Transformer<proc_macro2::TokenStream, TypeDefinition> for EnumerationParser
 mod tests {
     use super::*;
     use ligen::ir::enumeration::mock;
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
 
     #[test]
     fn enumeration() -> Result<()> {

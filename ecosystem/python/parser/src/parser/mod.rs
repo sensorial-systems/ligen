@@ -14,7 +14,6 @@ pub use metadata::*;
 pub use validator::*;
 
 use ligen::ir::{Registry, Library};
-use ligen::parser::prelude::*;
 
 #[derive(Default)]
 pub struct PythonParser {

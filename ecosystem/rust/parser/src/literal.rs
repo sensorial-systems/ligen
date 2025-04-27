@@ -1,5 +1,5 @@
 use ligen::ir::Literal;
-use ligen::parser::prelude::*;
+use ligen::transformer::prelude::*;
 
 #[derive(Default)]
 pub struct LiteralParser;
@@ -72,7 +72,7 @@ mod test {
     use crate::literal::LiteralParser;
     use crate::prelude::*;
     use ligen::ir::literal::mock;
-    use ligen::parser::assert::*;
+    use ligen::transformer::assert::*;
 
     #[test]
     fn literal_verbatim() -> Result<()> {
