@@ -6,9 +6,6 @@ use crate::prelude::*;
 pub struct Type {
     /// Type path.
     pub path: Path,
-    /// Type length.
-    // TODO: This is only used for array types. Maybe we should move it to a separate structure?
-    pub length: Option<usize>,
 }
 
 // TODO: Move these constructors to its all structures? Reference, Vector, String, etc... And make them convertable to Type.
@@ -33,11 +30,10 @@ impl Type {
         PathSegment::new(Identifier::slice(), type_.into()).into()
     }
 
+    // TODO: Add length parameter. (type, length) Example: Array<i32, 10>
     /// Returns a new `Type` representing an array type.
-    pub fn array(type_: impl Into<Type>, length: usize) -> Self {
-        let path = Path::from(PathSegment::new(Identifier::array(), type_.into()));
-        let length = Some(length);
-        Self { path, length }
+    pub fn array(type_: impl Into<Type>) -> Self {
+        PathSegment::new(Identifier::array(), type_.into()).into()
     }
 
     /// Returns a new `Type` representing a vector type.
@@ -267,8 +263,7 @@ impl From<Identifier> for Type {
 
 impl From<Path> for Type {
     fn from(path: Path) -> Self {
-        let length = None;
-        Self { path, length }
+        Self { path }
     }
 }
 

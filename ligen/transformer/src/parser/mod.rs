@@ -24,3 +24,16 @@ impl<Output, P: Parser<Output>> Transformer<&str, Output> for P {
         self.parse(input, config)
     }
 }
+
+#[async_trait]
+pub trait AsyncParser<Output> {
+    async fn parse(&self, input: &str, config: &Config) -> Result<Output>;
+
+    fn name(&self) -> &str {
+        "Async Parser"
+    }
+
+    fn config(&self) -> Config {
+        Default::default()
+    }
+}

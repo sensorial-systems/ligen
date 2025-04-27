@@ -60,6 +60,7 @@ thiserror = "2.0.12"
 anyhow = "1.0.97"
 sha2 = "0.10.8"
 toml = "0.8.6"
+async-trait = "0.1.88"
 
 # Rust
 proc-macro2     = "1"
@@ -67,7 +68,6 @@ quote           = "1.0.9"
 cargo_toml = "0.16.0"
 syn        = { version = "2.0.77", features = [ "full" ] }
 project-root = "0.2.2"
-
 
 # Tokio
 tokio = { version = "1.44.2", features = [ "full" ] }

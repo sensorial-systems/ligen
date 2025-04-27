@@ -14,3 +14,5 @@ ligen-ir.workspace = true
 llm.workspace = true
 tokio.workspace = true
 dotenv.workspace = true
+serde_json.workspace = true
+schemars.workspace = true

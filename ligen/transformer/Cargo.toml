@@ -14,5 +14,7 @@ syn.workspace = true
 is-tree.workspace = true
 serde_json.workspace = true
 handlebars.workspace = true
+async-trait.workspace = true
+
 [dev-dependencies]
 ligen-ir = { workspace = true, features = ["mocks"] }
