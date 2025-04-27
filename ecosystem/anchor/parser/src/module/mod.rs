@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::Idl;
 use ligen_ir::{attribute::Named, prelude::Result, Identifier, Literal, Module, Mutability, Object, Visibility};
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 use crate::type_::TypeParser;
 use crate::function::FunctionParser;
@@ -14,7 +14,7 @@ pub struct ModuleParser {
 impl Parser<Idl> for ModuleParser {
     type Output = Module;
 
-    fn parse(&self, input: Idl, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: Idl, config: &Config) -> Result<Self::Output> {
         let attributes = Named::new("Address", input.address).into();
         let visibility = Visibility::Public;
         let identifier = Identifier::new(input.metadata.name.clone());

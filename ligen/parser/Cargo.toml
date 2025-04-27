@@ -11,9 +11,9 @@ readme.workspace        = true
 [dependencies]
 ligen-ir.workspace     = true
 ligen-common.workspace = true
+ligen-transformer.workspace = true
 pretty_assertions.workspace = true
 syn.workspace = true
-toml = "0.8.6"
 serde.workspace = true
 
 [dev-dependencies]

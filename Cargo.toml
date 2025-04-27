@@ -3,6 +3,7 @@ members = [
     "ligen",
     "ligen/common",
     "ligen/ir",
+    "ligen/transformer",
     "ligen/parser",
     "ligen/generator",
     "ligen/utils",
@@ -38,6 +39,7 @@ ligen                  = { path = "ligen" }
 ligen-common           = { path = "ligen/common" }
 ligen-ir               = { path = "ligen/ir" }
 ligen-macro            = { path = "ligen/macro" }
+ligen-transformer      = { path = "ligen/transformer" }
 ligen-parser           = { path = "ligen/parser" }
 ligen-generator        = { path = "ligen/generator" }
 ligen-traits           = { path = "ligen/traits" }
@@ -61,6 +63,7 @@ regex = "1"
 thiserror = "2.0.12"
 anyhow = "1.0.97"
 sha2 = "0.10.8"
+toml = "0.8.6"
 
 # Rust
 proc-macro2     = "1"
@@ -68,6 +71,7 @@ quote           = "1.0.9"
 cargo_toml = "0.16.0"
 syn        = { version = "2.0.77", features = [ "full" ] }
 project-root = "0.2.2"
+
 
 # Tokio
 tokio = { version = "1.44.2", features = [ "full" ] }

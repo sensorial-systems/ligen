@@ -4,7 +4,7 @@ pub mod validator;
 pub use validator::*;
 
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant, ExprAttribute};
-use ligen::{ir::{Path, Type, Identifier}, parser::ParserConfig};
+use ligen::{ir::{Path, Type, Identifier}, parser::prelude::*};
 use crate::prelude::*;
 
 pub struct PythonMapper {
@@ -60,7 +60,7 @@ impl TypeParser {
 
 impl Parser<&ExprName> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: &ExprName, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &ExprName, _config: &Config) -> Result<Self::Output> {
         let name = input.id.as_str();
         let identifier = self
             .mapper
@@ -77,7 +77,7 @@ impl Parser<&ExprName> for TypeParser {
 
 impl Parser<WithSource<&ExprSubscript>> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: WithSource<&ExprSubscript>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&ExprSubscript>, config: &Config) -> Result<Self::Output> {
         let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
         let path = &mut type_.path;
         if let Expr::Tuple(expr) = &*input.ast.slice {
@@ -98,7 +98,7 @@ impl Parser<WithSource<&ExprSubscript>> for TypeParser {
 
 impl Parser<WithSource<&ExprTuple>> for TypeParser {
     type Output = Vec<Type>;
-    fn parse(&self, input: WithSource<&ExprTuple>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&ExprTuple>, config: &Config) -> Result<Self::Output> {
         let mut types = Vec::new();
         for expr in &input.ast.elts {
             types.push(self.parse(input.sub(expr), config)?);
@@ -109,7 +109,7 @@ impl Parser<WithSource<&ExprTuple>> for TypeParser {
 
 impl Parser<WithSource<&ExprList>> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: WithSource<&ExprList>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&ExprList>, config: &Config) -> Result<Self::Output> {
         let types = input
             .ast
             .elts
@@ -127,14 +127,14 @@ impl Parser<WithSource<&ExprList>> for TypeParser {
 
 impl Parser<WithSource<&ExprConstant>> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: WithSource<&ExprConstant>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&ExprConstant>, config: &Config) -> Result<Self::Output> {
         self.parse(&input.ast.value, config)
     }
 }
 
 impl Parser<&Constant> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, _config: &Config) -> Result<Self::Output> {
         match &input {
             Constant::Ellipsis => Ok(Type::variadic(Type::opaque())),
             Constant::Str(_) => Ok(Type::string()),
@@ -157,7 +157,7 @@ impl Parser<&Constant> for TypeParser {
 
 impl Parser<WithSource<&ExprAttribute>> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: WithSource<&ExprAttribute>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&ExprAttribute>, config: &Config) -> Result<Self::Output> {
         let mut type_ = self.parse(input.sub(&*input.ast.value), config)?;
         let name = input.ast.attr.as_str();
         let identifier = self
@@ -172,7 +172,7 @@ impl Parser<WithSource<&ExprAttribute>> for TypeParser {
 
 impl Parser<WithSource<&Expr>> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: WithSource<&Expr>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Expr>, config: &Config) -> Result<Self::Output> {
         match &input.ast {
             Expr::Name(expr) => self.parse(expr, config),
             Expr::Subscript(expr) => self.parse(input.sub(expr), config),

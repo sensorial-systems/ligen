@@ -1,7 +1,7 @@
 use crate::cargo::Cargo;
 use crate::prelude::*;
 use anyhow::Context;
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use ligen::ir::{Identifier, Language, Library, Metadata};
 
 use crate::module::ModuleParser;
@@ -19,7 +19,7 @@ impl RustLibraryParser {
 
 impl Parser<&std::path::Path> for RustLibraryParser {
     type Output = Library;
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
         let cargo = Cargo::new(input).context("Failed to create Cargo instance")?;
         let identifier = Identifier::from(cargo.get_name()?.clone());
         let authors = cargo.get_authors()?;

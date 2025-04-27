@@ -1,14 +1,13 @@
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use ligen::parser::{Parser, utils::WithSource};
 use ligen::ir::{Import, Path, Identifier, PathSegment};
 use rustpython_parser::ast::{StmtImport, StmtImportFrom, Alias};
 
-use crate::prelude::*;
 use crate::PythonParser;
 
 impl Parser<WithSource<&StmtImport>> for PythonParser {
     type Output = Vec<Import>;
-    fn parse(&self, input: WithSource<&StmtImport>, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&StmtImport>, _config: &Config) -> Result<Self::Output> {
         let mut imports = Vec::new();
         for import in &input.ast.names {
             imports.push(self.parse(input.sub(import), _config)?);
@@ -19,7 +18,7 @@ impl Parser<WithSource<&StmtImport>> for PythonParser {
 
 impl Parser<WithSource<&Alias>> for PythonParser {
     type Output = Import;
-    fn parse(&self, input: WithSource<&Alias>, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Alias>, _config: &Config) -> Result<Self::Output> {
         let visibility = Default::default();
         let attributes = Default::default();
         let renaming = input
@@ -38,7 +37,7 @@ impl Parser<WithSource<&Alias>> for PythonParser {
 
 impl Parser<WithSource<&StmtImportFrom>> for PythonParser {
     type Output = Vec<Import>;
-    fn parse(&self, input: WithSource<&StmtImportFrom>, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&StmtImportFrom>, _config: &Config) -> Result<Self::Output> {
         let mut imports = Vec::new();
         let levels = input
             .ast

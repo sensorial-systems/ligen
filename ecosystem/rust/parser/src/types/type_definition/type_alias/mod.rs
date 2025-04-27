@@ -3,7 +3,7 @@
 use crate::prelude::*;
 use crate::types::{GenericsParser, TypeParser};
 use ligen::ir::{TypeAlias, TypeDefinition};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -19,14 +19,14 @@ impl TypeAliasParser {
 
 impl Parser<proc_macro::TokenStream> for TypeAliasParser {
     type Output = TypeDefinition;
-    fn parse(&self, token_stream: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for TypeAliasParser {
     type Output = TypeDefinition;
-    fn parse(&self, tokenstream: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
         syn::parse2::<syn::ItemType>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
             .and_then(|structure| self.parse(structure, config))
@@ -35,7 +35,7 @@ impl Parser<proc_macro2::TokenStream> for TypeAliasParser {
 
 impl Parser<syn::ItemType> for TypeAliasParser {
     type Output = TypeDefinition;
-    fn parse(&self, type_alias: syn::ItemType, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, type_alias: syn::ItemType, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(type_alias.attrs, config)?;
         let identifier = IdentifierParser::new().parse(type_alias.ident, config)?;
         let visibility = VisibilityParser::new().parse(type_alias.vis, config)?;

@@ -1,7 +1,6 @@
 use ligen::ir::{Identifier, Mutability, Visibility};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use ligen::parser::universal::IdentifierParser as InternalParser;
-use crate::prelude::*;
 
 #[derive(Default)]
 pub struct IdentifierParser {
@@ -13,7 +12,7 @@ impl IdentifierParser {
         Default::default()
     }
 
-    pub fn parse<T>(&self, input: T, config: &ParserConfig) -> Result<Identifier>
+    pub fn parse<T>(&self, input: T, config: &Config) -> Result<Identifier>
     where InternalParser: Parser<T, Output = Identifier>
     {
         self

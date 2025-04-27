@@ -1,7 +1,7 @@
 
 use anchor_lang_idl_spec::IdlInstruction;
 use ligen_ir::{prelude::Result, Function, Identifier, Synchrony, Visibility};
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 use crate::{doc::DocParser, parameter::ParameterParser, type_::TypeParser};
 
@@ -15,7 +15,7 @@ pub struct FunctionParser {
 impl Parser<IdlInstruction> for FunctionParser {
     type Output = Function;
 
-    fn parse(&self, input: IdlInstruction, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: IdlInstruction, config: &Config) -> Result<Self::Output> {
         let accounts = input
             .accounts
             .iter()

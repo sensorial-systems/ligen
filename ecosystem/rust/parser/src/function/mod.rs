@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use ligen::ir::{Function, Parameter, Type};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::function::parameter::ParameterParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
@@ -26,7 +26,7 @@ impl FunctionParser {
 
 impl Parser<syn::ItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, item_fn: syn::ItemFn, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, item_fn: syn::ItemFn, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(item_fn.attrs, config)?;
         let visibility = VisibilityParser.parse(item_fn.vis, config)?;
         let synchrony = SynchronyParser.parse(item_fn.sig.asyncness, config)?;
@@ -39,7 +39,7 @@ impl Parser<syn::ItemFn> for FunctionParser {
 
 impl Parser<syn::ImplItemFn> for FunctionParser {
     type Output = Function;
-    fn parse(&self, function: syn::ImplItemFn, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, function: syn::ImplItemFn, config: &Config) -> Result<Self::Output> {
         if function.sig.receiver().is_some() {
             Err(Error::Message("Function is not a method.".to_string()))
         } else {
@@ -55,7 +55,7 @@ impl Parser<syn::ImplItemFn> for FunctionParser {
 }
 
 impl FunctionParser {
-    fn parse_output(&self, output: syn::ReturnType, config: &ParserConfig) -> Result<Option<Type>> {
+    fn parse_output(&self, output: syn::ReturnType, config: &Config) -> Result<Option<Type>> {
         Ok(match output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_x, y) => {
@@ -63,7 +63,7 @@ impl FunctionParser {
             }
         })
     }
-    fn parse_inputs(&self, args: syn::punctuated::Punctuated<syn::FnArg, syn::token::Comma>, config: &ParserConfig) -> Result<Vec<Parameter>> {
+    fn parse_inputs(&self, args: syn::punctuated::Punctuated<syn::FnArg, syn::token::Comma>, config: &Config) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args {
             parameters.push(ParameterParser.parse(arg, config)?);
@@ -74,14 +74,14 @@ impl FunctionParser {
 
 impl Parser<proc_macro::TokenStream> for FunctionParser {
     type Output = Function;
-    fn parse(&self, token_stream: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for FunctionParser {
     type Output = Function;
-    fn parse(&self, token_stream: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
         syn::parse2::<syn::ItemFn>(token_stream)
             .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
             .and_then(|function| self.parse(function, config))
@@ -90,7 +90,7 @@ impl Parser<proc_macro2::TokenStream> for FunctionParser {
 
 impl Parser<&str> for FunctionParser {
     type Output = Function;
-    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
         syn::parse_str::<syn::ItemFn>(input)
             .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
             .and_then(|function| self.parse(function, config))

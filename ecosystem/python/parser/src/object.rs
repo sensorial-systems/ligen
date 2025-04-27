@@ -1,4 +1,4 @@
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
 use ligen::ir::Object;
 use crate::identifier::IdentifierParser;
@@ -10,7 +10,7 @@ pub struct ObjectParser;
 
 impl Parser<WithSource<&StmtAnnAssign>> for ObjectParser {
     type Output = Object;
-    fn parse(&self, input: WithSource<&StmtAnnAssign>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&StmtAnnAssign>, config: &Config) -> Result<Self::Output> {
         let mut object = self.parse(input.ast.target.as_ref(), config)?;
         if !config.get_only_parse_symbols() {
             object.type_ = TypeParser::new().parse(input.sub(&*input.ast.annotation), config)?;
@@ -21,14 +21,14 @@ impl Parser<WithSource<&StmtAnnAssign>> for ObjectParser {
 
 impl Parser<&StmtAugAssign> for ObjectParser {
     type Output = Object;
-    fn parse(&self, input: &StmtAugAssign, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &StmtAugAssign, config: &Config) -> Result<Self::Output> {
         self.parse(input.target.as_ref(), config)
     }
 }
 
 impl Parser<&Expr> for ObjectParser {
     type Output = Object;
-    fn parse(&self, expr: &Expr, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, expr: &Expr, config: &Config) -> Result<Self::Output> {
         let identifier = expr
             .as_name_expr()
             .ok_or(Error::Message("Expected identifier".into()))?
@@ -49,7 +49,7 @@ impl Parser<&Expr> for ObjectParser {
 
 impl Parser<&StmtAssign> for ObjectParser {
     type Output = Vec<Object>;
-    fn parse(&self, input: &StmtAssign, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &StmtAssign, config: &Config) -> Result<Self::Output> {
         let mut objects = Vec::new();
         for target in &input.targets {
             if let Ok(object) = self.parse(target, config) {

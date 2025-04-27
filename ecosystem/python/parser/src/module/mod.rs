@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::{ir::Module, parser::ParserConfig};
+use ligen::{ir::Module, parser::prelude::*};
 use rustpython_parser::ast::ModModule;
 use crate::parser::PythonParser;
 
@@ -8,7 +8,7 @@ pub struct ModuleParser;
 
 impl Parser<&str> for ModuleParser {
     type Output = WithSource<ModModule>;
-    fn parse(&self, input: &str, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, _config: &Config) -> Result<Self::Output> {
         let module = parse(input, Mode::Module, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
             .module()
@@ -19,7 +19,7 @@ impl Parser<&str> for ModuleParser {
 
 impl Parser<WithSource<ModModule>> for PythonParser {
     type Output = Module;
-    fn parse(&self, input: WithSource<ModModule>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<ModModule>, config: &Config) -> Result<Self::Output> {
         let scope = self.parse(input.sub(input.ast.body.as_slice()), config)?;
         let imports = scope.imports;
         let objects = scope.objects;
@@ -36,7 +36,7 @@ pub(crate) struct SubPath<'a>(pub &'a std::path::Path);
 
 impl Parser<File<'_>> for PythonParser {
     type Output = Module;
-    fn parse(&self, File(input): File<'_>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, File(input): File<'_>, config: &Config) -> Result<Self::Output> {
         let content = std::fs::read_to_string(input)?;
         let module = ModuleParser.parse(content.as_str(), config)?;
         let mut module = self.parse(module, config)?;
@@ -47,7 +47,7 @@ impl Parser<File<'_>> for PythonParser {
 
 impl Parser<Directory<'_>> for PythonParser {
     type Output = Module;
-    fn parse(&self, Directory(input): Directory<'_>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, Directory(input): Directory<'_>, config: &Config) -> Result<Self::Output> {
         let identifier = self.identifier_parser.parse(input, config)?;
         let mut module = Module { identifier, .. Default::default() };
         let mut modules: Vec<Module> = Vec::new();
@@ -88,7 +88,7 @@ impl Parser<Directory<'_>> for PythonParser {
 
 impl Parser<SubPath<'_>> for PythonParser {
     type Output = Module;
-    fn parse(&self, SubPath(input): SubPath<'_>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, SubPath(input): SubPath<'_>, config: &Config) -> Result<Self::Output> {
         let input = if input.with_extension("py").exists() {
             input.with_extension("py")
         } else {

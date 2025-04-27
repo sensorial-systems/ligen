@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::{Path, Attributes, Visibility, Import};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -24,7 +24,7 @@ pub struct ImportsParser {
 
 impl Parser<syn::ItemUse> for ImportsParser {
     type Output = Vec<Import>;
-    fn parse(&self, import: syn::ItemUse, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, import: syn::ItemUse, config: &Config) -> Result<Self::Output> {
         let attributes = self.attributes_parser.parse(import.attrs, config)?;
         let visibility = self.visibility_parser.parse(import.vis, config)?;
         let path = Path::default();
@@ -35,14 +35,14 @@ impl Parser<syn::ItemUse> for ImportsParser {
 
 impl Parser<proc_macro::TokenStream> for ImportsParser {
     type Output = Vec<Import>;
-    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(input), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for ImportsParser {
     type Output = Vec<Import>;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
         syn::parse2::<syn::ItemUse>(input)
             .map_err(|e| Error::Message(format!("Failed to parse imports: {:?}", e)))
             .and_then(|imports| self.parse(imports, config))
@@ -52,7 +52,7 @@ impl Parser<proc_macro2::TokenStream> for ImportsParser {
 
 impl Parser<ImportsBuilder> for ImportsParser {
     type Output = Vec<Import>;
-    fn parse(&self, builder: ImportsBuilder, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, builder: ImportsBuilder, config: &Config) -> Result<Self::Output> {
         let mut builder = builder;
         match builder.tree {
             syn::UseTree::Path(use_path) => {

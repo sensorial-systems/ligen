@@ -4,12 +4,13 @@ use ligen_gui_runtime::egui::{CollapsingHeader, Color32};
 
 use crate::{prelude::*, gui::ui::{editor::{widget::Widget, settings::Settings, ir::Editor}, panes::PaneManager}};
 use std::path::Path;
-use ligen_parser::{self, Parser as ParserTrait, ParserConfigSet, ParserConfig, ParserConfigGet};
+use ligen_parser::{self, prelude::{Parser as ParserTrait, ConfigSet, ConfigGet, Config}};
+
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 pub struct Parser {
     parser: Box<dyn for<'a> ligen_parser::Parser<&'a Path, Output = ligen_ir::Library>>,
-    config: ParserConfig,
+    config: Config,
     result: String
 }
 

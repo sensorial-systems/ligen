@@ -1,9 +1,9 @@
 // FIXME: This is duplicated from Rust's parser.
 
-use ligen_ir::{Path, PathSegment};
-use crate::{Parser, ParserConfig};
-use crate::universal::identifier::IdentifierParser;
 use crate::prelude::*;
+
+use ligen_ir::{Path, PathSegment};
+use crate::universal::identifier::IdentifierParser;
 
 #[derive(Default)]
 pub struct PathParser {}
@@ -16,7 +16,7 @@ impl PathParser {
 
 impl Parser<syn::Path> for PathParser {
     type Output = Path;
-    fn parse(&self, path: syn::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, path: syn::Path, config: &Config) -> Result<Self::Output> {
         let segments = path
             .segments
             .iter()
@@ -30,7 +30,7 @@ impl Parser<syn::Path> for PathParser {
 
 impl Parser<syn::Ident> for PathParser {
     type Output = Path;
-    fn parse(&self, identifier: syn::Ident, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, identifier: syn::Ident, config: &Config) -> Result<Self::Output> {
         let segments = vec![IdentifierParser::new().parse(identifier, config)?.into()];
         Ok(Self::Output { segments })
     }
@@ -38,7 +38,7 @@ impl Parser<syn::Ident> for PathParser {
 
 impl Parser<&str> for PathParser {
     type Output = Path;
-    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
         syn::parse_str::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
             .and_then(|path| self.parse(path, config))

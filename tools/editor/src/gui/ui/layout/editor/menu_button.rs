@@ -5,7 +5,7 @@ use crate::prelude::*;
 use crate::gui::ui::editor::ir::Editor;
 use crate::gui::ui::menu::MenuButton;
 use crate::gui::ui::panes::Panes;
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 pub struct EditorMenuButton;
 impl MenuButton for EditorMenuButton {

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::{ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Field}, parser::ParserConfig};
+use ligen::{ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Field}, parser::prelude::*};
 use ligen::ir::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
@@ -10,7 +10,7 @@ pub struct TypeDefinitionParser {}
 
 impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
     type Output = TypeDefinition;
-    fn parse(&self, input: WithSource<StmtClassDef>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<StmtClassDef>, config: &Config) -> Result<Self::Output> {
         let identifier_parser = IdentifierParser::new();
         let identifier = identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
@@ -27,7 +27,7 @@ impl Parser<WithSource<StmtClassDef>> for TypeDefinitionParser {
 }
 
 impl TypeDefinitionParser {
-    fn parse_interfaces(&self, input: &Vec<Expr>, config: &ParserConfig) -> Result<Vec<Path>> {
+    fn parse_interfaces(&self, input: &Vec<Expr>, config: &Config) -> Result<Vec<Path>> {
         let mut interfaces = Vec::new();
         for expr in input {
             if let Some(expr) = expr.as_name_expr() {
@@ -37,7 +37,7 @@ impl TypeDefinitionParser {
         Ok(interfaces)
     }
 
-    fn parse_field_from_ann_assign(&self, input: &WithSource<&StmtAnnAssign>, config: &ParserConfig) -> Result<Field> {
+    fn parse_field_from_ann_assign(&self, input: &WithSource<&StmtAnnAssign>, config: &Config) -> Result<Field> {
         let identifier = input
             .ast
             .target
@@ -54,7 +54,7 @@ impl TypeDefinitionParser {
         Ok(Field { identifier, type_, visibility, attributes })
     }
 
-    fn parse_field_from_aug_assign(&self, input: &WithSource<&StmtAugAssign>, config: &ParserConfig) -> Result<Field> {
+    fn parse_field_from_aug_assign(&self, input: &WithSource<&StmtAugAssign>, config: &Config) -> Result<Field> {
         let identifier = input
             .ast
             .target
@@ -75,7 +75,7 @@ impl TypeDefinitionParser {
         }
     }
 
-    fn parse_fields_from_assign(&self, input: &WithSource<&StmtAssign>, config: &ParserConfig) -> Result<Vec<Field>> {
+    fn parse_fields_from_assign(&self, input: &WithSource<&StmtAssign>, config: &Config) -> Result<Vec<Field>> {
         let mut fields = Vec::new();
         for target in &input.ast.targets {
             if let Some(identifier) = target.as_name_expr() {
@@ -94,7 +94,7 @@ impl TypeDefinitionParser {
         Ok(fields)
     }
 
-    fn parse_kind_definition(&self, input: &WithSource<StmtClassDef>, config: &ParserConfig) -> Result<KindDefinition> {
+    fn parse_kind_definition(&self, input: &WithSource<StmtClassDef>, config: &Config) -> Result<KindDefinition> {
         let mut fields = Vec::new();
         let class_variables_as_properties = PythonParserConfig::from(config).get_class_variables_as_properties();
         for stmt in &input.ast.body {

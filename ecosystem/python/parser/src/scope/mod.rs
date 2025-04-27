@@ -2,8 +2,9 @@ mod import_parser;
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::{ir::{Interface, Object, Function, Method, Import, TypeDefinition}, parser::ParserConfig};
+use ligen::ir::{Interface, Object, Function, Method, Import, TypeDefinition};
 use crate::{prelude::*, parser::PythonParserConfig};
+use ligen::parser::prelude::*;
 
 // TODO: REMOVE THIS.
 // pub use import_parser::*;
@@ -12,7 +13,7 @@ use crate::parser::PythonParser;
 
 impl Parser<WithSource<&[Stmt]>> for PythonParser {
     type Output = Scope;
-    fn parse(&self, input: WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&[Stmt]>, config: &Config) -> Result<Self::Output> {
         let imports = self.parse_imports(&input, config)?;
         let objects = self.parse_objects(&input, config)?;
         let types = self.parse_types(&input, config)?;
@@ -45,7 +46,7 @@ impl PythonParser {
         deduplicated_objects
     }
 
-    fn parse_sub_scopes(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Scope>> {
+    fn parse_sub_scopes(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Scope>> {
         let mut sub_scopes = Vec::new();
         for statement in statements.ast {
             match statement {
@@ -96,7 +97,7 @@ impl PythonParser {
         }
     }
 
-    fn parse_functions(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Function>> {
+    fn parse_functions(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
         for statement in statements.ast {
             if self.is_static_method(statements.sub(statement)) {
@@ -118,7 +119,7 @@ impl PythonParser {
         Ok(functions)
     }
 
-    fn parse_methods(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Method>> {
+    fn parse_methods(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Method>> {
         let mut methods = Vec::new();
         for statement in statements.ast {
             if !self.is_static_method(statements.sub(statement)) {
@@ -140,7 +141,7 @@ impl PythonParser {
         Ok(methods)
     }
 
-    fn parse_types(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<TypeDefinition>> {
+    fn parse_types(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<TypeDefinition>> {
         let mut types = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
@@ -153,7 +154,7 @@ impl PythonParser {
         Ok(types)
     }
 
-    fn parse_interfaces(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Interface>> {
+    fn parse_interfaces(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Interface>> {
         let mut interfaces = Vec::new();
         for statement in statements.ast {
             if let Stmt::ClassDef(class) = statement {
@@ -165,7 +166,7 @@ impl PythonParser {
         Ok(interfaces)
     }
 
-    fn parse_imports(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Import>> {
+    fn parse_imports(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Import>> {
         let mut imports = Vec::new();
         for statement in statements.ast {
             match statement {
@@ -185,7 +186,7 @@ impl PythonParser {
         Ok(imports)
     }
 
-    fn parse_objects(&self, statements: &WithSource<&[Stmt]>, config: &ParserConfig) -> Result<Vec<Object>> {
+    fn parse_objects(&self, statements: &WithSource<&[Stmt]>, config: &Config) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
         let class_variables_as_properties = PythonParserConfig::from(config).get_class_variables_as_properties();
         if !class_variables_as_properties {

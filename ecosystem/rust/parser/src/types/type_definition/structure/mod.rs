@@ -7,7 +7,7 @@ pub use field::*;
 use crate::prelude::*;
 use crate::types::GenericsParser;
 use ligen::ir::{Structure, TypeDefinition};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::visibility::VisibilityParser;
@@ -23,14 +23,14 @@ impl StructureParser {
 
 impl Parser<proc_macro::TokenStream> for StructureParser {
     type Output = TypeDefinition;
-    fn parse(&self, token_stream: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for StructureParser {
     type Output = TypeDefinition;
-    fn parse(&self, tokenstream: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
         syn::parse2::<syn::ItemStruct>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
             .and_then(|structure| self.parse(structure, config))
@@ -39,7 +39,7 @@ impl Parser<proc_macro2::TokenStream> for StructureParser {
 
 impl Parser<syn::ItemStruct> for StructureParser {
     type Output = TypeDefinition;
-    fn parse(&self, structure: syn::ItemStruct, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, structure: syn::ItemStruct, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(structure.attrs, config)?;
         let identifier = IdentifierParser::new().parse(structure.ident, config)?;
         let visibility = VisibilityParser::new().parse(structure.vis, config)?;

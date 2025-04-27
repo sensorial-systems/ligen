@@ -1,5 +1,5 @@
 use ligen::prelude::*;
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use ligen::ir::Registry;
 
 #[derive(Default)]
@@ -13,7 +13,7 @@ impl RustParser {
 
 impl Parser<&std::path::Path> for RustParser {
     type Output = Registry;
-    fn parse(&self, _input: &std::path::Path, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, _input: &std::path::Path, _config: &Config) -> Result<Self::Output> {
         let registry = Registry::new();
 
         Ok(registry)
@@ -23,7 +23,7 @@ impl Parser<&std::path::Path> for RustParser {
         "Rust"
     }
 
-    fn config(&self) -> ParserConfig {
+    fn config(&self) -> Config {
         Default::default()
     }
 }

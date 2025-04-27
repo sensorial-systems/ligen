@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::{IdlField, IdlInstructionAccountItem};
 use ligen_ir::{prelude::Result, Identifier, Parameter, Type};
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 use crate::{doc::DocParser, type_::TypeParser};
 
@@ -16,7 +16,7 @@ pub struct ParameterParser {
 impl Parser<IdlInstructionAccountItem> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, input: IdlInstructionAccountItem, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: IdlInstructionAccountItem, config: &Config) -> Result<Self::Output> {
         match input {
             IdlInstructionAccountItem::Composite(_) => {
                 todo!("Composite accounts not supported yet")
@@ -65,7 +65,7 @@ impl Parser<IdlInstructionAccountItem> for ParameterParser {
 impl Parser<IdlField> for ParameterParser {
     type Output = Parameter;
 
-    fn parse(&self, input: IdlField, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: IdlField, config: &Config) -> Result<Self::Output> {
         let attributes = self.doc_parser.parse(input.docs.clone(), config)?;
         let identifier = Identifier::new(input.name.clone());
         let type_ = self.type_parser.parse(input.ty.clone(), config)?;

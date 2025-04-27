@@ -2,7 +2,7 @@ use ligen::ir::Mutability;
 use crate::prelude::*;
 
 use ligen::ir::{Attributes, Method, Parameter, Type};
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::function::parameter::ParameterParser;
 use crate::function::SynchronyParser;
 use crate::identifier::IdentifierParser;
@@ -21,7 +21,7 @@ impl MethodParser {
 
 impl Parser<syn::ImplItemFn> for MethodParser {
     type Output = Method;
-    fn parse(&self, method: syn::ImplItemFn, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, method: syn::ImplItemFn, config: &Config) -> Result<Self::Output> {
         if let Some(receiver) = method.sig.receiver() {
             let mutability = if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant };
             let syn::Signature { asyncness, ident, inputs, output, .. } = method.sig;

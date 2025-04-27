@@ -2,7 +2,7 @@ pub mod parameter;
 pub mod method;
 
 use crate::prelude::*;
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use rustpython_parser::ast::{Arguments, Expr, Stmt, StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Function, Synchrony, Visibility, Parameter, Type};
 use crate::function::parameter::ParameterParser;
@@ -16,7 +16,7 @@ pub struct FunctionParser {}
 
 impl Parser<&str> for FunctionParser {
     type Output = Function;
-    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
         let statement = Stmt::parse(input, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse statement: {}", error)))?;
         match statement {
@@ -29,7 +29,7 @@ impl Parser<&str> for FunctionParser {
 
 impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
     type Output = Function;
-    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Self::Output> {
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
@@ -46,7 +46,7 @@ impl Parser<WithSource<StmtFunctionDef>> for FunctionParser {
 
 impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
     type Output = Function;
-    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Self::Output> {
         let identifier = IdentifierParser::new().parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
@@ -62,7 +62,7 @@ impl Parser<WithSource<StmtAsyncFunctionDef>> for FunctionParser {
 }
 
 impl FunctionParser {
-    fn parse_inputs(&self, args: Arguments, config: &ParserConfig) -> Result<Vec<Parameter>> {
+    fn parse_inputs(&self, args: Arguments, config: &Config) -> Result<Vec<Parameter>> {
         let mut parameters = Vec::new();
         for arg in args.args {
             parameters.push(ParameterParser::default().parse(arg, config)?);
@@ -70,7 +70,7 @@ impl FunctionParser {
         Ok(parameters)
     }
 
-    fn parse_output(&self, output: Option<Box<Expr>>, config: &ParserConfig) -> Result<Option<Type>> {
+    fn parse_output(&self, output: Option<Box<Expr>>, config: &Config) -> Result<Option<Type>> {
         if let Some(expr) = output.and_then(|expr| expr.name_expr()) {
             Ok(Some(TypeParser::default().parse(&expr, config)?))
         } else {

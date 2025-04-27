@@ -1,7 +1,6 @@
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use ligen::ir::{Metadata, Version, VersionRequirement, Author, Dependency, Language};
 
-use crate::prelude::*;
 
 #[derive(Default)]
 pub struct MetadataParser {}
@@ -14,7 +13,7 @@ impl MetadataParser {
 
 impl Parser<python_pkginfo::Metadata> for MetadataParser {
     type Output = Metadata;
-    fn parse(&self, input: python_pkginfo::Metadata, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: python_pkginfo::Metadata, _config: &Config) -> Result<Self::Output> {
         let version = Version::try_from(input.version.as_str())?;
         let requirement = VersionRequirement::from(input.requires_python.unwrap_or_default().as_str());
         let requirement = Some(requirement);
@@ -37,7 +36,7 @@ impl Parser<python_pkginfo::Metadata> for MetadataParser {
 
 impl Parser<&std::path::Path> for MetadataParser {
     type Output = Metadata;
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
         let name = input.file_name().ok_or("Failed to get file name.")?;
         let name = name.to_string_lossy().to_string();
         let input = input.parent().ok_or("Failed to get parent.")?;

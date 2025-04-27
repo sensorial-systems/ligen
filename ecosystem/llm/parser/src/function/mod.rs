@@ -2,7 +2,6 @@ use ligen_ir::prelude::anyhow::Context;
 use ligen_ir::Function;
 use ligen_parser::Parser;
 use ligen_parser::prelude::*;
-use ligen_parser::ParserConfig;
 
 use llm::builder::{LLMBackend, LLMBuilder};
 use llm::LLMProvider;
@@ -35,7 +34,7 @@ impl LlmFunctionParser {
 impl Parser<&str> for LlmFunctionParser {
     type Output = Function;
 
-    fn parse(&self, _input: &str, _config: &ParserConfig) -> Result<Function> {
+    fn parse(&self, _input: &str, _config: &Config) -> Result<Function> {
         // Prepare conversation history with example messages
         // let messages = vec![
         //     ChatMessage::user()

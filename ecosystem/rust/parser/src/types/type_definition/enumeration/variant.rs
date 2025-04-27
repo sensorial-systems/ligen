@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::Variant;
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 
@@ -10,7 +10,7 @@ pub struct VariantParser;
 
 impl Parser<syn::Variant> for VariantParser {
     type Output = Variant;
-    fn parse(&self, variant: syn::Variant, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, variant: syn::Variant, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(variant.attrs, config)?;
         let identifier = IdentifierParser::new().parse(variant.ident, config)?;
         Ok(Self::Output { attributes, identifier })
@@ -19,7 +19,7 @@ impl Parser<syn::Variant> for VariantParser {
 
 impl Parser<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>> for VariantParser {
     type Output = Vec<Variant>;
-    fn parse(&self, input: syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, config: &Config) -> Result<Self::Output> {
         let mut variants = Vec::new();
         for variant in input {
             variants.push(self.parse(variant, config)?);

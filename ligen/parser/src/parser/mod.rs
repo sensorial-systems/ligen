@@ -1,17 +1,15 @@
 pub mod universal;
-pub mod config;
 
-pub use config::*;
-
-use ligen_common::Result;
+use crate::prelude::*;
 
 pub trait Parser<Input> {
     type Output;
-    fn parse(&self, input: Input, config: &ParserConfig) -> Result<Self::Output>;
+    fn parse(&self, input: Input, config: &Config) -> Result<Self::Output>;
     fn name(&self) -> &str {
         "Parser"
     }
-    fn config(&self) -> ParserConfig {
+
+    fn config(&self) -> Config {
         Default::default()
     }
 }

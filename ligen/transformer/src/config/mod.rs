@@ -5,14 +5,13 @@ use crate::prelude::*;
 
 use ligen_ir::{Literal, Path};
 
-// TODO: Base this on Config (which will be also available in GeneratorConfig)
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ParserConfig {
+pub struct Config {
     #[serde(flatten)]
     map: Group
 }
 
-impl Default for ParserConfig {
+impl Default for Config {
     fn default() -> Self {
         let map = Default::default();
         let mut config = Self { map };
@@ -21,7 +20,7 @@ impl Default for ParserConfig {
     }
 }
 
-impl ParserConfig {
+impl Config {
     pub fn iter(&self) -> impl Iterator<Item = (Path, Literal)> {
         self.map.iter()
     }
@@ -40,59 +39,59 @@ impl ParserConfig {
     }
 }
 
-pub trait ParserConfigGet {
+pub trait ConfigGet {
     /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal>;
 }
 
-pub trait ParserConfigSet {    
+pub trait ConfigSet {    
     /// Sets the value at the given path.
     fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L);    
 }
 
-impl ParserConfig {
+impl Config {
     /// Creates a new parser config.
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl ParserConfigGet for ParserConfig {
+impl ConfigGet for Config {
     /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         self.map.get(path)
     }
 }
 
-impl ParserConfigGet for &ParserConfig {
+impl ConfigGet for &Config {
     /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         self.map.get(path)
     }
 }
 
-impl ParserConfigGet for &mut ParserConfig {
+impl ConfigGet for &mut Config {
     /// Gets the value at the given path.
     fn get<P: Into<Path>>(&self, path: P) -> Option<&Literal> {
         self.map.get(path)
     }
 }
 
-impl ParserConfigSet for ParserConfig {
+impl ConfigSet for Config {
     /// Sets the value at the given path.
     fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L) {
         self.map.set(path, value);
     }
 }
 
-impl ParserConfigSet for &mut ParserConfig {
+impl ConfigSet for &mut Config {
     /// Sets the value at the given path.
     fn set<P: Into<Path>, L: Into<Literal>>(&mut self, path: P, value: L) {
         self.map.set(path, value);
     }
 }
 
-impl TryFrom<&str> for ParserConfig {
+impl TryFrom<&str> for Config {
     type Error = toml::de::Error;
     fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
         toml::from_str(value)
@@ -103,8 +102,8 @@ impl TryFrom<&str> for ParserConfig {
 mod tests {
     use super::*;
 
-    fn config() -> ParserConfig {
-        let mut config = ParserConfig::try_from(r#"
+    fn config() -> Config {
+        let mut config = Config::try_from(r#"
             [ligen]
             parse-all = false"#
         ).unwrap();

@@ -4,7 +4,7 @@ use crate::object::ObjectParser;
 use crate::prelude::*;
 use crate::types::TypeParser;
 
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
 
 
@@ -19,7 +19,7 @@ impl RustInterfaceParser {
 
 impl Parser<syn::ItemImpl> for RustInterfaceParser {
     type Output = Interface;
-    fn parse(&self, input: syn::ItemImpl, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::ItemImpl, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(input.attrs, config)?;
         let visibility = Visibility::Public;
 
@@ -36,11 +36,11 @@ impl Parser<syn::ItemImpl> for RustInterfaceParser {
 }
 
 impl RustInterfaceParser {
-    fn extract_interfaces(&self, _items: &[syn::ImplItem], _config: &ParserConfig) -> Result<Vec<Path>> {
+    fn extract_interfaces(&self, _items: &[syn::ImplItem], _config: &Config) -> Result<Vec<Path>> {
         Ok(Default::default())
     }
 
-    fn extract_methods(&self, items: &[syn::ImplItem], config: &ParserConfig) -> Result<Vec<Method>> {
+    fn extract_methods(&self, items: &[syn::ImplItem], config: &Config) -> Result<Vec<Method>> {
         let mut methods = Vec::new();
         for item in items {
             if let syn::ImplItem::Fn(method) = item {
@@ -52,7 +52,7 @@ impl RustInterfaceParser {
         Ok(methods)
     }
 
-    fn extract_objects(&self, items: &[syn::ImplItem], config: &ParserConfig) -> Result<Vec<Object>> {
+    fn extract_objects(&self, items: &[syn::ImplItem], config: &Config) -> Result<Vec<Object>> {
         let mut objects = Vec::new();
         for item in items {
             if let syn::ImplItem::Const(object) = item {
@@ -62,7 +62,7 @@ impl RustInterfaceParser {
         Ok(objects)
     }
 
-    fn extract_functions(&self, items: &[syn::ImplItem], config: &ParserConfig) -> Result<Vec<Function>> {
+    fn extract_functions(&self, items: &[syn::ImplItem], config: &Config) -> Result<Vec<Function>> {
         let mut functions = Vec::new();
         for item in items {
             if let syn::ImplItem::Fn(function) = item {

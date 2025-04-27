@@ -1,6 +1,5 @@
 use ligen::ir::Generics;
-use ligen::parser::{Parser, ParserConfig};
-use crate::prelude::*;
+use ligen::parser::prelude::*;
 use crate::types::type_::TypeParser;
 
 #[derive(Default)]
@@ -14,7 +13,7 @@ impl GenericsParser {
 
 impl Parser<syn::PathArguments> for GenericsParser {
     type Output = Generics;
-    fn parse(&self, input: syn::PathArguments, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::PathArguments, config: &Config) -> Result<Self::Output> {
         let types = match input {
             syn::PathArguments::AngleBracketed(arguments) => {
                 arguments
@@ -34,7 +33,7 @@ impl Parser<syn::PathArguments> for GenericsParser {
 
 impl Parser<syn::Generics> for GenericsParser {
     type Output = Generics;
-    fn parse(&self, input: syn::Generics, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Generics, config: &Config) -> Result<Self::Output> {
         let mut generics = Generics::default();
         for generic in input.params {
             if let syn::GenericParam::Type(type_) = generic {

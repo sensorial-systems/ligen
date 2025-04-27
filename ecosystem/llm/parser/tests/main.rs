@@ -1,11 +1,11 @@
 use ligen_llm_parser::LlmFunctionParser;
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 #[tokio::test]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     let parser = LlmFunctionParser::new()?;
 
-    let function = parser.parse("fn add(a: i32, b: i32) -> i32 { a + b }", &ParserConfig::default())?;
+    let function = parser.parse("fn add(a: i32, b: i32) -> i32 { a + b }", &Config::default())?;
     println!("{:#?}", function);
 
     Ok(())

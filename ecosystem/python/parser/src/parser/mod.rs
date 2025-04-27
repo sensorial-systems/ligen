@@ -14,7 +14,7 @@ pub use metadata::*;
 pub use validator::*;
 
 use ligen::ir::{Registry, Library};
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 
 #[derive(Default)]
 pub struct PythonParser {
@@ -33,7 +33,7 @@ impl PythonParser {
 }
 
 impl PythonParser {
-    fn parse_library(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Library> {
+    fn parse_library(&self, input: &std::path::Path, config: &Config) -> Result<Library> {
         // This line replaces "-" with "_" in the file name
         let input = input.with_file_name(input.file_name().unwrap().to_string_lossy().replace('-', "_").as_str().trim());
         let input = input.as_path();
@@ -48,7 +48,7 @@ impl PythonParser {
 
 impl Parser<&std::path::Path> for PythonParser {
     type Output = Registry;
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
         let mut registry = Registry::new();
         let library = self.parse_library(input, config)?;
         for dependency in library.metadata.dependencies.iter().filter(|dependency| dependency.features.is_empty()) { // TODO: We need to support features.
@@ -62,7 +62,7 @@ impl Parser<&std::path::Path> for PythonParser {
     fn name(&self) -> &str {
         "Python"
     }
-    fn config(&self) -> ParserConfig {
+    fn config(&self) -> Config {
         PythonParserConfig::default().into()
     }
 }

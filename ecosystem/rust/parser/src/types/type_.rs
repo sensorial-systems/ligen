@@ -1,7 +1,7 @@
-use ligen::{ir::Type, parser::ParserConfig};
+use ligen::{ir::Type, parser::prelude::*};
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
-use crate::{literal::LiteralParser, mutability::MutabilityParser, prelude::*};
+use crate::{literal::LiteralParser, mutability::MutabilityParser};
 use ligen::parser::Parser;
 use crate::path::PathParser;
 
@@ -19,14 +19,14 @@ impl TypeParser {
 
 impl Parser<syn::Ident> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: syn::Ident, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Ident, config: &Config) -> Result<Self::Output> {
         Ok(PathParser::default().parse(input, config)?.into())
     }
 }
 
 impl Parser<syn::Path> for TypeParser {
     type Output = Type;
-    fn parse(&self, path: syn::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, path: syn::Path, config: &Config) -> Result<Self::Output> {
         let mut path = PathParser::default().parse(path, config)?;
         if path.segments.len() == 1 {
             let segment = path.first_mut();
@@ -54,7 +54,7 @@ impl Parser<syn::Path> for TypeParser {
 
 impl Parser<syn::Type> for TypeParser {
     type Output = Type;
-    fn parse(&self, syn_type: syn::Type, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, syn_type: syn::Type, config: &Config) -> Result<Self::Output> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
             Ok(self.parse(path, config)?)
         } else {
@@ -83,14 +83,14 @@ impl Parser<syn::Type> for TypeParser {
 
 impl Parser<proc_macro::TokenStream> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: proc_macro::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Self::Output> {
         self.parse(proc_macro2::TokenStream::from(input), config)
     }
 }
 
 impl Parser<proc_macro2::TokenStream> for TypeParser {
     type Output = Type;
-    fn parse(&self, input: proc_macro2::TokenStream, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Self::Output> {
         syn::parse2::<syn::Type>(input)
             .map_err(|e| Error::Message(format!("Failed to parse type: {}", e)))
             .and_then(|syn_type| self.parse(syn_type, config))

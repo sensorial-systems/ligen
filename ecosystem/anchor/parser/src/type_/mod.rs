@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::{IdlArrayLen, IdlType};
 use ligen_ir::{prelude::{Error, Result}, Identifier, Type};
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 #[derive(Default)]
 pub struct TypeParser {
@@ -10,7 +10,7 @@ pub struct TypeParser {
 impl Parser<IdlType> for TypeParser {
     type Output = Type;
 
-    fn parse(&self, input: IdlType, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: IdlType, _config: &Config) -> Result<Self::Output> {
         match input {
             IdlType::Bool => Ok(Type::boolean()),
             IdlType::U8 => Ok(Type::u8()),

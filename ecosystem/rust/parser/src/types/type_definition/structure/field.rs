@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::Field;
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::types::TypeParser;
@@ -12,7 +12,7 @@ pub struct FieldParser;
 
 impl Parser<syn::Field> for FieldParser {
     type Output = Field;
-    fn parse(&self, field: syn::Field, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, field: syn::Field, config: &Config) -> Result<Self::Output> {
         let attributes = AttributesParser::default().parse(field.attrs, config)?;
         let visibility = VisibilityParser.parse(field.vis, config)?;
         let identifier = field.ident.map(|identifier| IdentifierParser::new().parse(identifier, config).expect("Failed to parse identifier."));
@@ -23,7 +23,7 @@ impl Parser<syn::Field> for FieldParser {
 
 impl Parser<syn::Fields> for FieldParser {
     type Output = Vec<Field>;
-    fn parse(&self, input: syn::Fields, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: syn::Fields, config: &Config) -> Result<Self::Output> {
         let mut fields = Vec::new();
         for field in input {
             fields.push(self.parse(field, config)?);

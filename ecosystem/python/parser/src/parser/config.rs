@@ -1,6 +1,5 @@
-use ligen::parser::{ParserConfigSet, ParserConfigGet, ParserConfig};
+use ligen::parser::prelude::*;
 
-use crate::prelude::*;
 
 #[derive(Shrinkwrap, Clone)]
 #[shrinkwrap(mutable)]
@@ -14,7 +13,7 @@ impl<T> From<T> for PythonParserConfig<T> {
     }
 }
 
-impl Default for PythonParserConfig<ParserConfig> {
+impl Default for PythonParserConfig<Config> {
     fn default() -> Self {
         let config = Default::default();
         let mut config = Self { config };
@@ -23,27 +22,27 @@ impl Default for PythonParserConfig<ParserConfig> {
     }
 }
 
-impl From<PythonParserConfig<ParserConfig>> for ParserConfig {
-    fn from(config: PythonParserConfig<ParserConfig>) -> Self {
+impl From<PythonParserConfig<Config>> for Config {
+    fn from(config: PythonParserConfig<Config>) -> Self {
         config.config
     }
 }
 
-impl PythonParserConfig<ParserConfig> {
-    pub fn new() -> PythonParserConfig<ParserConfig> {
+impl PythonParserConfig<Config> {
+    pub fn new() -> PythonParserConfig<Config> {
         Default::default()
     }
 }
 
 impl<T> PythonParserConfig<T> {
     pub fn set_class_variables_as_properties(&mut self, value: bool)
-    where T: ParserConfigSet
+    where T: ConfigSet
     {
         self.config.set("ligen::python::class_variables_as_properties", value);
     }
 
     pub fn get_class_variables_as_properties(&self) -> bool
-    where T: ParserConfigGet
+    where T: ConfigGet
     {
         self.config
             .get("ligen::python::class_variables_as_properties")

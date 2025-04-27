@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use ligen::ir::{Interface, Function, Identifier};
-use ligen::parser::{ParserConfig, Validator};
+use ligen::parser::prelude::*;
 
 #[derive(Default)]
 pub struct InterfaceValidator {}
@@ -10,7 +10,7 @@ impl InterfaceValidator {
         Default::default()
     }
 
-    fn validate_constructor(&self, interface: &mut Interface, _config: &ParserConfig) -> Result<()> {
+    fn validate_constructor(&self, interface: &mut Interface, _config: &Config) -> Result<()> {
         let indices = interface.methods.iter().enumerate().filter_map(|(i, method)| {
             if method.identifier == "__init__" {
                 Some(i)
@@ -32,7 +32,7 @@ impl InterfaceValidator {
 
 impl Validator for InterfaceValidator {
     type Input = Interface;
-    fn validate(&self, interface: &mut Interface, config: &ParserConfig) -> Result<()> {
+    fn validate(&self, interface: &mut Interface, config: &Config) -> Result<()> {
         self.validate_constructor(interface, config)?;
         Ok(())
     }

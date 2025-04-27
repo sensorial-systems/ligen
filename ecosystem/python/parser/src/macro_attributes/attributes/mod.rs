@@ -4,7 +4,7 @@ use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::path::PathParser;
 use crate::prelude::*;
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use ligen::ir::{Attributes, Attribute, macro_attributes::{Group, Named}};
 use rustpython_parser::ast::{Expr, Keyword, Ranged};
 
@@ -17,7 +17,7 @@ pub struct AttributesParser {
 
 impl Parser<WithSource<&Vec<Expr>>> for AttributesParser {
     type Output = Attributes;
-    fn parse(&self, input: WithSource<&Vec<Expr>>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Vec<Expr>>, config: &Config) -> Result<Self::Output> {
         let mut attributes = Attributes::default();
         for expr in input.ast {
             let attribute = self.parse(input.sub(expr), config)?;
@@ -29,7 +29,7 @@ impl Parser<WithSource<&Vec<Expr>>> for AttributesParser {
 
 impl Parser<WithSource<&Vec<Keyword>>> for AttributesParser {
     type Output = Attributes;
-    fn parse(&self, input: WithSource<&Vec<Keyword>>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Vec<Keyword>>, config: &Config) -> Result<Self::Output> {
         let mut attributes = Attributes::default();
         for keyword in input.ast {
             let attribute = self.parse(input.sub(keyword), config)?;
@@ -41,7 +41,7 @@ impl Parser<WithSource<&Vec<Keyword>>> for AttributesParser {
 
 impl Parser<WithSource<&Keyword>> for AttributesParser {
     type Output = Attribute;
-    fn parse(&self, input: WithSource<&Keyword>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Keyword>, config: &Config) -> Result<Self::Output> {
         let name = input
             .ast
             .arg
@@ -56,7 +56,7 @@ impl Parser<WithSource<&Keyword>> for AttributesParser {
 
 impl Parser<WithSource<&Expr>> for AttributesParser {
     type Output = Attribute;
-    fn parse(&self, input: WithSource<&Expr>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<&Expr>, config: &Config) -> Result<Self::Output> {
         match input.ast {
             Expr::Call(expr) => {
                 let path = self.path_parser.parse(&*expr.func, config)?;

@@ -1,4 +1,4 @@
-use crate::{prelude::*, parser::ParserConfig};
+use crate::prelude::*;
 
 use ligen_ir::Identifier;
 use crate::parser::Parser;
@@ -14,14 +14,14 @@ impl IdentifierParser {
 
 impl Parser<String> for IdentifierParser {
     type Output = Identifier;
-    fn parse(&self, input: String, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
         self.parse(input.as_str(), config)
     }
 }
 
 impl Parser<&str> for IdentifierParser {
     type Output = Identifier;
-    fn parse(&self, input: &str, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, _config: &Config) -> Result<Self::Output> {
         // TODO: check if ident is valid identifier.
         let name = input.into();
         Ok(Identifier { name })
@@ -30,7 +30,7 @@ impl Parser<&str> for IdentifierParser {
 
 impl Parser<&std::path::Path> for IdentifierParser {
     type Output = Identifier;
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
         let identifier = input
             .file_stem()
             .ok_or(Error::Message(format!("Failed to parse file stem from path: {}", input.display())))?
@@ -43,7 +43,7 @@ impl Parser<&std::path::Path> for IdentifierParser {
 
 impl Parser<syn::Ident> for IdentifierParser {
     type Output = Identifier;
-    fn parse(&self, ident: syn::Ident, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, ident: syn::Ident, _config: &Config) -> Result<Self::Output> {
         let name = ident.to_string();
         Ok(Self::Output { name })
     }

@@ -1,6 +1,6 @@
 use anchor_lang_idl_spec::Idl;
 use ligen_ir::{prelude::Result, Author, Dependency, Identifier, Language, Library, Metadata, Version, VersionRequirement};
-use ligen_parser::{Parser, ParserConfig};
+use ligen_parser::prelude::*;
 
 use crate::module::ModuleParser;
 
@@ -13,7 +13,7 @@ pub struct LibraryParser {
 impl Parser<&std::path::Path> for LibraryParser {
     type Output = Library;
 
-    fn parse(&self, input: &std::path::Path, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &std::path::Path, config: &Config) -> Result<Self::Output> {
         let input = std::fs::read_to_string(input)?;
         let input = serde_json::from_str::<Idl>(&input)?;
         self.parse(input, config)
@@ -27,7 +27,7 @@ impl Parser<&std::path::Path> for LibraryParser {
 impl Parser<anchor_lang_idl_spec::Idl> for LibraryParser {
     type Output = Library;
     
-    fn parse(&self, input: Idl, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: Idl, config: &Config) -> Result<Self::Output> {
         let identifier = Identifier::new(input.metadata.name.clone());
         let authors = input
             .metadata

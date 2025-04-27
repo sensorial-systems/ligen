@@ -1,6 +1,6 @@
 use rustpython_parser::ast::{Constant, ExprConstant, Expr};
 use ligen::ir::Literal;
-use ligen::parser::{Parser, ParserConfig};
+use ligen::parser::prelude::*;
 use crate::prelude::*;
 
 #[derive(Default)]
@@ -8,14 +8,14 @@ pub struct LiteralParser {}
 
 impl Parser<String> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: String, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: String, config: &Config) -> Result<Self::Output> {
         self.parse(input.as_str(), config)
     }
 }
 
 impl Parser<&str> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &str, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &str, config: &Config) -> Result<Self::Output> {
         if let Ok(integer) = input.parse::<i64>() {
             Ok(Literal::Integer(integer))
         } else {
@@ -28,7 +28,7 @@ impl Parser<&str> for LiteralParser {
 
 impl Parser<&Constant> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &Constant, _config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Constant, _config: &Config) -> Result<Self::Output> {
         match input {
             Constant::Bool(bool) => Ok(Literal::Boolean(*bool)),
             Constant::Float(float) => Ok(Literal::Float(*float)),
@@ -55,14 +55,14 @@ impl Parser<&Constant> for LiteralParser {
 
 impl Parser<&ExprConstant> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &ExprConstant, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &ExprConstant, config: &Config) -> Result<Self::Output> {
         self.parse(&input.value, config)
     }
 }
 
 impl Parser<&Expr> for LiteralParser {
     type Output = Literal;
-    fn parse(&self, input: &Expr, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: &Expr, config: &Config) -> Result<Self::Output> {
         match input {
             Expr::Constant(constant) => self.parse(constant, config),
             Expr::List(list) => {

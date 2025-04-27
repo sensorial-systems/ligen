@@ -1,6 +1,6 @@
 pub mod validator;
 
-use ligen::parser::ParserConfig;
+use ligen::parser::prelude::*;
 use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
 use ligen::ir::{Method, Mutability};
 use crate::parser::PythonParser;
@@ -8,7 +8,7 @@ use crate::prelude::*;
 
 impl Parser<WithSource<StmtFunctionDef>> for PythonParser {
     type Output = Method;
-    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Self::Output> {
         let function = self.function_parser.parse(input, config)?;
         let attributes = function.attributes;
         let visibility = function.visibility;
@@ -23,7 +23,7 @@ impl Parser<WithSource<StmtFunctionDef>> for PythonParser {
 
 impl Parser<WithSource<StmtAsyncFunctionDef>> for PythonParser {
     type Output = Method;
-    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &ParserConfig) -> Result<Self::Output> {
+    fn parse(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Self::Output> {
         let function = self.function_parser.parse(input, config)?;
         let attributes = function.attributes;
         let visibility = function.visibility;
