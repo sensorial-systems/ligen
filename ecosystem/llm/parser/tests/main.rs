@@ -6,6 +6,10 @@ use ligen_transformer::prelude::*;
 async fn main() -> Result<()> {
     let parser = GeneralLlmParser::<Function>::new()?;
 
+    if std::env::var("GITHUB_ACTIONS").is_ok() {
+        println!("Running in GitHub Actions - skipping test because I don't want to pay for the API calls :)");
+        return Ok(());
+    }
 
     match parser.parse("pub async fn add(a: i32, b: i32) -> i32 { a + b }", &Config::default()).await {
         Ok(function) => println!("{:#?}", function),

@@ -32,7 +32,7 @@ impl Type {
 
     // TODO: Add length parameter. (type, length) Example: Array<i32, 10>
     /// Returns a new `Type` representing an array type.
-    pub fn array(type_: impl Into<Type>) -> Self {
+    pub fn array(type_: impl Into<Type>, _length: usize) -> Self {
         PathSegment::new(Identifier::array(), type_.into()).into()
     }
 
