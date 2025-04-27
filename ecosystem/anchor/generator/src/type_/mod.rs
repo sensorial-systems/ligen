@@ -11,9 +11,8 @@ impl AnchorTypeGenerator {
     }
 }
 
-impl Generator<ligen_ir::Type> for AnchorTypeGenerator {
-    type Output = anchor_lang_idl_spec::IdlType;
-    fn generate(&self, type_: &ligen_ir::Type, _config: &Config) -> Result<Self::Output> {
+impl Generator<&ligen_ir::Type, anchor_lang_idl_spec::IdlType> for AnchorTypeGenerator {
+    fn generate(&self, type_: &ligen_ir::Type, _config: &Config) -> Result<anchor_lang_idl_spec::IdlType> {
         let result = if *type_ == Type::u8() {
             IdlType::U8
         } else if *type_ == Type::u16() {

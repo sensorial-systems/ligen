@@ -17,9 +17,8 @@ impl AnchorGenerator {
     }
 }
 
-impl Generator<ligen_ir::Library> for AnchorGenerator {
-    type Output = anchor_lang_idl_spec::Idl;
-    fn generate(&self, input: &ligen_ir::Library, config: &Config) -> Result<Self::Output> {
+impl Generator<&ligen_ir::Library, anchor_lang_idl_spec::Idl> for AnchorGenerator {
+    fn generate(&self, input: &ligen_ir::Library, config: &Config) -> Result<anchor_lang_idl_spec::Idl> {
         let mut metadata = self.metadata_generator.generate(&input.metadata, config)?;
         metadata.name = input.identifier.to_string();
 

@@ -11,8 +11,7 @@ pub struct RustTypeGenerator {
     path_generator: RustPathGenerator,
 }
 
-impl Generator<Type> for RustTypeGenerator {
-    type Output = syn::Type;
+impl Generator<&Type, syn::Type> for RustTypeGenerator {
     fn generate(&self, type_: &Type, _config: &Config) -> Result<syn::Type> {
         if type_.is_mutable_reference() || type_.is_constant_reference() {
             let and_token = syn::token::And::default();

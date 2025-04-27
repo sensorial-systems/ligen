@@ -16,9 +16,8 @@ impl AnchorTypeDefinitionGenerator {
     }
 }
 
-impl Generator<ligen_ir::TypeDefinition> for AnchorTypeDefinitionGenerator {
-    type Output = anchor_lang_idl_spec::IdlTypeDef;
-    fn generate(&self, input: &ligen_ir::TypeDefinition, config: &Config) -> Result<Self::Output> {
+impl Generator<&ligen_ir::TypeDefinition, anchor_lang_idl_spec::IdlTypeDef> for AnchorTypeDefinitionGenerator {
+    fn generate(&self, input: &ligen_ir::TypeDefinition, config: &Config) -> Result<anchor_lang_idl_spec::IdlTypeDef> {
         let name = input.identifier.to_string();
 
         if !input.attributes.contains("account") {

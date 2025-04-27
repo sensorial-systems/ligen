@@ -8,8 +8,7 @@ pub struct RustPathGenerator {
     identifier_generator: RustIdentifierGenerator,
 }
 
-impl Generator<Path> for RustPathGenerator {
-    type Output = syn::Path;
+impl Generator<&Path, syn::Path> for RustPathGenerator {
     fn generate(&self, path: &Path, _config: &Config) -> Result<syn::Path> {
         let segments = path.segments.iter().map(|segment| {
             let ident = self.identifier_generator.generate(&segment.identifier, _config)?;

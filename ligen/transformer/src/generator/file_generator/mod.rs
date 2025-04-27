@@ -20,7 +20,7 @@ pub trait FileGenerator<Input> {
     fn base_path(&self) -> PathBuf;
 
     /// Generate files.
-    fn generate_files(&self, input: &Input, file_set: &mut FileSet) -> Result<()>;
+    fn generate_files(&self, input: Input, file_set: &mut FileSet) -> Result<()>;
 
     /// Saves the file set.
     fn save_file_set(&self, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
@@ -36,9 +36,8 @@ pub trait FileGenerator<Input> {
     }
 }
 
-impl <I, T: FileGenerator<I>> Generator<I> for T {
-    type Output = ();
-    fn generate(&self, _input: &I, _config: &Config) -> Result<Self::Output> {
+impl <I, T: FileGenerator<I>> Generator<I, ()> for T {
+    fn generate(&self, _input: I, _config: &Config) -> Result<()> {
         todo!("File generator not implemented yet.");
         // let mut file_set = FileSet::default();
         // self.generate_files(input, &mut file_set)?;

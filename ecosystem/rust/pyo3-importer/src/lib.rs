@@ -46,7 +46,7 @@ impl LibraryGenerator {
     }
 }
 
-impl FileGenerator<Library> for LibraryGenerator {
+impl FileGenerator<&Library> for LibraryGenerator {
     fn base_path(&self) -> PathBuf {
         PathBuf::from("rust".to_string())
     }

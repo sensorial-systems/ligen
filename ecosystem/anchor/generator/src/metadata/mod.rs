@@ -10,9 +10,8 @@ impl AnchorMetadataGenerator {
     }
 }
 
-impl Generator<ligen_ir::Metadata> for AnchorMetadataGenerator {
-    type Output = anchor_lang_idl_spec::IdlMetadata;
-    fn generate(&self, input: &ligen_ir::Metadata, _config: &Config) -> Result<Self::Output> {
+impl Generator<&ligen_ir::Metadata, anchor_lang_idl_spec::IdlMetadata> for AnchorMetadataGenerator {
+    fn generate(&self, input: &ligen_ir::Metadata, _config: &Config) -> Result<anchor_lang_idl_spec::IdlMetadata> {
         let name = Default::default();
         let contact = if input.authors.is_empty() {
             None

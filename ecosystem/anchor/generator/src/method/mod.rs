@@ -15,9 +15,8 @@ impl AnchorMethodGenerator {
     }
 }
 
-impl Generator<ligen_ir::Method> for AnchorMethodGenerator {
-    type Output = anchor_lang_idl_spec::IdlInstruction;
-    fn generate(&self, method: &ligen_ir::Method, _config: &Config) -> Result<Self::Output> {
+impl Generator<&ligen_ir::Method, anchor_lang_idl_spec::IdlInstruction> for AnchorMethodGenerator {
+    fn generate(&self, method: &ligen_ir::Method, _config: &Config) -> Result<anchor_lang_idl_spec::IdlInstruction> {
         let name = method.identifier.to_string();
         let docs = method.attributes.get_documentation();
         let discriminator = Sha256::digest(format!("global:{}", name).as_bytes())[..8].to_vec();
