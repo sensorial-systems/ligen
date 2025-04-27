@@ -30,8 +30,7 @@ impl InterfaceValidator {
     }
 }
 
-impl Validator for InterfaceValidator {
-    type Input = Interface;
+impl Validator<Interface> for InterfaceValidator {
     fn validate(&self, interface: &mut Interface, config: &Config) -> Result<()> {
         self.validate_constructor(interface, config)?;
         Ok(())

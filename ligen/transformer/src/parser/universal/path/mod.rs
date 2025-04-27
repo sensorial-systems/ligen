@@ -1,9 +1,9 @@
 // FIXME: This is duplicated from Rust's parser.
 
-use crate::prelude::*;
+use crate::parser::*;
 
 use ligen_ir::{Path, PathSegment};
-use crate::universal::identifier::IdentifierParser;
+use crate::parser::universal::identifier::IdentifierParser;
 
 #[derive(Default)]
 pub struct PathParser {}

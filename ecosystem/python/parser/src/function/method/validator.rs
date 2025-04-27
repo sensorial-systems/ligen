@@ -13,8 +13,7 @@ impl MethodValidator {
     }
 }
 
-impl Validator for MethodValidator {
-    type Input = Method;
+impl Validator<Method> for MethodValidator {
     fn validate(&self, _method: &mut Method, _config: &Config) -> Result<()> {
         Ok(())
     }
