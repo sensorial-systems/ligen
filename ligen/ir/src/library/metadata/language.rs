@@ -1,6 +1,6 @@
 use crate::{prelude::*, VersionRequirement};
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub struct Language {
     pub name: String,
     pub requirement: Option<VersionRequirement>,

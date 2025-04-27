@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{Path, Literal};
 
 /// Attribute enumeration.
-#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Named {
     /// Path of the attribute.
     pub path: Path,

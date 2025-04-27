@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::prelude::*;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub struct Author {
     pub name: String,
     pub email: String,

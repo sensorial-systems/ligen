@@ -5,7 +5,7 @@ use crate::prelude::*;
 use crate::{Path, Identifier, Attributes};
 
 /// Attributes group.
-#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Group {
     /// Path of the group.
     pub path: Path,

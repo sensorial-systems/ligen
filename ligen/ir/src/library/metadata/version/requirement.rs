@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-#[derive(Shrinkwrap, Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Shrinkwrap, Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[shrinkwrap(mutable)]
 pub struct VersionRequirement(pub String);
 

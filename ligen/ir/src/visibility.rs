@@ -4,7 +4,7 @@ use std::fmt::Display;
 
 use crate::prelude::*;
 
-#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, EnumIter)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, EnumIter, JsonSchema)]
 /// Visibility enumeration.
 pub enum Visibility {
     /// Private

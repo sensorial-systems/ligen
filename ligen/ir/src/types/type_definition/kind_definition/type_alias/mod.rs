@@ -5,7 +5,7 @@ use crate::{prelude::*, Type};
 pub mod mock;
 
 /// Type alias representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct TypeAlias {
     pub type_: Type
 }

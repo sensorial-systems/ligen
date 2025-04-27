@@ -7,6 +7,16 @@ pub use requirement::*;
 #[shrinkwrap(mutable)]
 pub struct Version(pub semver::Version);
 
+impl JsonSchema for Version {
+    fn schema_name() -> String {
+        "Version".to_string()
+    }
+
+    fn json_schema(generator: &mut schemars::r#gen::SchemaGenerator) -> schemars::schema::Schema {
+        generator.subschema_for::<String>()
+    }
+}
+
 impl Default for Version {
     fn default() -> Self {
         Self(semver::Version::new(0, 1, 0))

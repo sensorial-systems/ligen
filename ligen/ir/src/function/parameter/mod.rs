@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter};
 use crate::{prelude::*, Literal};
 use crate::{Identifier, Type, Attributes, Mutability};
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 /// Parameter representation.
 pub struct Parameter {
     /// Attributes.

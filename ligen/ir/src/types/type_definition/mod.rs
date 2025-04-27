@@ -8,7 +8,7 @@ use crate::{prelude::*, Attributes, Visibility, Path, Generics};
 use crate::Identifier;
 
 /// All the possible ways to define a type.
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct TypeDefinition {
     /// Definition attributes.
     pub attributes: Attributes,

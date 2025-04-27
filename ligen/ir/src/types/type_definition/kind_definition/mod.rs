@@ -8,7 +8,7 @@ pub use structure::{Structure, Field};
 pub use enumeration::{Enumeration, Variant};
 pub use type_alias::TypeAlias;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[allow(missing_docs)]
 pub enum KindDefinition {
     Structure(Structure),

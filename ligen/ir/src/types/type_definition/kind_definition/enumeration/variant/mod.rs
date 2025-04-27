@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{Attributes, Identifier};
 
 /// Enumeration representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Variant {
     /// Attributes field.
     pub attributes: Attributes,

@@ -11,7 +11,7 @@ pub use method::*;
 pub use synchrony::*;
 
 /// Function structure.
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Function {
     /// Attributes field.
     pub attributes: Attributes,

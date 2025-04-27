@@ -1,7 +1,7 @@
 use crate::{Path, Identifier, PathSegment, Mutability};
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 /// Type structure.
 pub struct Type {
     /// Type path.

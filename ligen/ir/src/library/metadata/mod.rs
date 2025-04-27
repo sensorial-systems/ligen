@@ -12,7 +12,7 @@ pub use dependency::*;
 pub use author::*;
 pub use version::*;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub struct Metadata {
     pub version: Version,
     pub language: Language,

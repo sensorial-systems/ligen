@@ -13,7 +13,7 @@ use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition
 use crate::interface::Interface;
 
 /// Module representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree, JsonSchema)]
 #[tree(branches)]
 pub struct Module {
     /// Attributes.

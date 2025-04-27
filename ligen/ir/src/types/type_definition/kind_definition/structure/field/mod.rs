@@ -4,7 +4,7 @@ use crate::prelude::*;
 use crate::{Identifier, Type, Visibility, Attributes};
 
 /// Property representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Field {
     /// Field attributes.
     pub attributes: Attributes,

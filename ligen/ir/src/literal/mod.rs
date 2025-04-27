@@ -5,7 +5,7 @@ use crate::Type;
 pub mod mock;
 
 /// Literal Enum
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner, JsonSchema)]
 #[serde(untagged)]
 pub enum Literal {
     /// String variant

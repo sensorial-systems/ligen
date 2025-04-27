@@ -2,7 +2,7 @@ use regex::Regex;
 
 use crate::{prelude::*, VersionRequirement, Identifier};
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 pub struct Dependency {
     pub identifier: Identifier,
     pub requirement: VersionRequirement,

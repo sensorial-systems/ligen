@@ -1,0 +1,16 @@
+[package]
+name = "ligen-llm-parser"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+documentation.workspace = true
+readme.workspace = true
+
+[dependencies]
+ligen-parser.workspace = true
+ligen-ir.workspace = true
+llm.workspace = true
+tokio.workspace = true
+dotenv.workspace = true

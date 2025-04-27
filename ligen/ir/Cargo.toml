@@ -20,3 +20,5 @@ strum                   = { version = "0.25.0", features = ["derive"] }
 semver                  = { version = "1.0.20", features = ["serde"] }
 is-tree.workspace = true
 regex.workspace = true
+
+schemars.workspace = true

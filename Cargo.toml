@@ -12,6 +12,7 @@ members = [
     "ecosystem/rust/example",
     "ecosystem/rust/exporter",
     "ecosystem/rust/generator",
+    "ecosystem/llm/*",
     "ecosystem/anchor/*",
 #    "ecosystem/rust/runtime",
     "ecosystem/rust/parser",
@@ -67,6 +68,16 @@ quote           = "1.0.9"
 cargo_toml = "0.16.0"
 syn        = { version = "2.0.77", features = [ "full" ] }
 project-root = "0.2.2"
+
+# Tokio
+tokio = { version = "1.44.2", features = [ "full" ] }
+
+# Schema
+schemars = "0.8.22"
+
+# LLM
+llm = { version = "1.2.2", features = [ "openai" ] }
+dotenv = "0.15.0"
 
 # Anchor
 anchor-lang-idl-spec = "0.1.0"

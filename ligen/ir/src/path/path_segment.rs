@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{prelude::*, Identifier, Generics};
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 pub struct PathSegment {
     pub identifier: Identifier,
     pub generics: Generics

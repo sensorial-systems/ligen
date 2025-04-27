@@ -10,7 +10,7 @@ use crate::prelude::*;
 
 /// Library representation.
 #[allow(missing_docs)]
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree, JsonSchema)]
 #[tree(branches)]
 pub struct Library {
     #[tree(path_segment)]

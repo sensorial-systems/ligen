@@ -3,7 +3,7 @@ use is_tree::IsTree;
 use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility};
 use crate::prelude::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, IsTree)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, IsTree, JsonSchema)]
 #[tree(branches)]
 pub struct Interface {
     /// Interface attributes.

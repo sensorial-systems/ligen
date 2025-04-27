@@ -4,7 +4,7 @@ use crate::prelude::*;
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
-#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 /// Object struct
 pub struct Object {
     /// Object's mutability.

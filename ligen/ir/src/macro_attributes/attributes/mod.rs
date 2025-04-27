@@ -10,7 +10,7 @@ use crate::Path;
 use crate::Literal;
 use crate::prelude::*;
 
-#[derive(Shrinkwrap, Default, Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Shrinkwrap, Default, Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 #[shrinkwrap(mutable)]
 /// Attributes representation.
 pub struct Attributes {

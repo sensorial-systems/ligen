@@ -12,7 +12,7 @@ pub use path_segment::PathSegment;
 pub mod mock;
 
 /// A fully qualified path.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 pub struct Path {
     /// The path segments.
     pub segments: Vec<PathSegment>

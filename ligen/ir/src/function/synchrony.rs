@@ -3,7 +3,7 @@ use std::fmt::Display;
 use crate::prelude::*;
 
 /// Synchrony structure.
-#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, EnumIter)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, EnumIter, JsonSchema)]
 pub enum Synchrony {
     Synchronous,
     Asynchronous
