@@ -83,6 +83,7 @@ dotenv = "0.15.0"
 anchor-lang-idl-spec = "0.1.0"
 
 handlebars = "4.1.6"
+walkdir = "2.5.0"
 
 # If you want to use the bleeding edge version of egui and eframe:
 # egui = { git = "https://github.com/emilk/egui", branch = "master" }

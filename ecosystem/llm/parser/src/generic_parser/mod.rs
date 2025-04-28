@@ -28,12 +28,7 @@ impl<T: TypeDescriptor> GeneralLlmParser<T> {
         };
 
         let llm = LLMBuilder::new()
-            .system(format!(
-                "You are an universal {name} parser. You will be given a {input_description} and you will need to parse it into a {name} struct. Default types are:\n{default_types}",
-                name = T::name(),
-                input_description = T::input_description().to_lowercase(),
-                default_types = T::default_types()
-            ))
+            .system(T::instruction())
             .backend(LLMBackend::OpenAI)
             .api_key(api_key)
             .model("gpt-4o")
@@ -59,14 +54,9 @@ where Self: Send + Sync
                 .build(),
         ];
 
-        let response = self.llm.chat(&messages).await;
-        match response {
-            Ok(text) => {
-                let text = text.text().context("Failed to get response text")?;
-                let value: T = serde_json::from_str(&text).context(format!("Failed to parse {}", T::name()))?;
-                Ok(value)
-            },
-            Err(e) => Err(Error::Message(e.to_string())),
-        }
+        let response = self.llm.chat(&messages).await.context("Failed to parse")?;
+        let response = response.text().context("Failed to get response text")?;
+        let value: T = serde_json::from_str(&response).context(format!("Failed to parse {}", T::name()))?;
+        Ok(value)
     }
 }

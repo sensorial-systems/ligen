@@ -11,13 +11,10 @@ impl JsonSchema {
     }
 
     pub fn enforce_openai_subset(&mut self) {
-        let mut schema = self.value.clone();
-        Self::remove_property_format_value_from_json(&mut schema);
-        Self::replace_one_of_by_any_of(&mut schema);
-        Self::set_additional_properties_to_false(&mut schema);
-        Self::enforce_all_required_properties(&mut schema);
-
-        self.value = schema;
+        Self::remove_property_format_value_from_json(&mut self.value);
+        Self::replace_one_of_by_any_of(&mut self.value);
+        Self::set_additional_properties_to_false(&mut self.value);
+        Self::enforce_all_required_properties(&mut self.value);
     }
 
     fn set_additional_properties_to_false(object: &mut serde_json::Value) {
