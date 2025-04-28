@@ -37,3 +37,13 @@ pub trait AsyncParser<Output> {
         Default::default()
     }
 }
+
+#[async_trait]
+impl<Output, P> AsyncTransformer<String, Output> for P
+where
+    P: AsyncParser<Output> + Send + Sync,
+{
+    async fn transform(&self, input: String, config: &Config) -> Result<Output> {
+        self.parse(&input, config).await
+    }
+}

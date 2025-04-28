@@ -11,6 +11,6 @@ impl TypeDescriptor for Function {
     }
 
     fn input_description() -> String {
-        "a function signature".to_string()
+        "A function signature".to_string()
     }
 }

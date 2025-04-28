@@ -28,7 +28,12 @@ impl<T: TypeDescriptor> GeneralLlmParser<T> {
         };
 
         let llm = LLMBuilder::new()
-            .system(format!("You are an universal {name} parser. You will be given a {input_description} and you will need to parse it into a {name} struct.", name = T::name(), input_description = T::input_description().to_lowercase()))
+            .system(format!(
+                "You are an universal {name} parser. You will be given a {input_description} and you will need to parse it into a {name} struct. Default types are:\n{default_types}",
+                name = T::name(),
+                input_description = T::input_description().to_lowercase(),
+                default_types = T::default_types()
+            ))
             .backend(LLMBackend::OpenAI)
             .api_key(api_key)
             .model("gpt-4o")

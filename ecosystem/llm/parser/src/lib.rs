@@ -1,5 +1,6 @@
 mod library;
 mod function;
+mod module;
 
 mod generic_parser;
 mod type_descriptor;
