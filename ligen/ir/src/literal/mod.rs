@@ -78,6 +78,12 @@ impl From<&str> for Literal {
     }
 }
 
+impl From<&String> for Literal {
+    fn from(value: &String) -> Self {
+        value.to_string().into()
+    }
+}
+
 impl From<String> for Literal {
     fn from(value: String) -> Self {
         Self::String(value)

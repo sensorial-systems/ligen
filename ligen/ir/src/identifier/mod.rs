@@ -252,3 +252,27 @@ impl IsPathSegment for Identifier {
         Self::new("super")
     }
 }
+
+impl std::ops::Add<&str> for &Identifier {
+    type Output = Identifier;
+
+    fn add(self, other: &str) -> Identifier {
+        Identifier::new(format!("{}{}", self.name, other))
+    }
+}
+
+impl std::ops::Add<&Identifier> for &str {
+    type Output = Identifier;
+
+    fn add(self, other: &Identifier) -> Identifier {
+        Identifier::new(format!("{}{}", self, other.name))
+    }
+}
+
+impl std::ops::Add<Identifier> for &Identifier {
+    type Output = Identifier;
+
+    fn add(self, other: Identifier) -> Identifier {
+        Identifier::new(format!("{}{}", self.name, other.name))
+    }
+}

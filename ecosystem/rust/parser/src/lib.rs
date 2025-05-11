@@ -20,6 +20,7 @@ mod parser;
 pub use parser::*;
 pub use interface::*;
 pub use types::*;
+pub use cargo::*;
 
 extern crate proc_macro;
 extern crate core;
