@@ -42,6 +42,7 @@ impl Transformer<syn::ImplItemFn, Method> for MethodParser {
                     Some(self.type_parser.transform(*y, config)?)
                 }
             };
+            let body = Default::default();
             Ok(Method {
                 mutability,
                 attributes: Attributes {
@@ -56,6 +57,7 @@ impl Transformer<syn::ImplItemFn, Method> for MethodParser {
                 identifier: self.identifier_parser.transform(ident, config)?,
                 inputs,
                 output,
+                body
             })
         } else {
             Err(Error::Message("Function is not a method.".to_string()))

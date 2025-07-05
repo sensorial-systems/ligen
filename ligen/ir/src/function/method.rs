@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Identifier};
+use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Identifier, Block};
 
 /// Method structure.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
@@ -18,6 +18,8 @@ pub struct Method {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
+    /// Body field.
+    pub body: Option<Block>
 }
 
 impl CountSymbols for &Vec<Method> {

@@ -1,4 +1,4 @@
-use crate::function::{FunctionParser, MethodParser};
+use crate::function::{RustFunctionParser, MethodParser};
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::object::ObjectParser;
 use crate::prelude::*;
@@ -10,7 +10,7 @@ use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
 #[derive(Default)]
 pub struct RustInterfaceParser {
     type_parser: TypeParser,
-    function_parser: FunctionParser,
+    function_parser: RustFunctionParser,
     method_parser: MethodParser,
     object_parser: ObjectParser,
     attributes_parser: AttributesParser,

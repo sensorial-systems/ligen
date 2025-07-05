@@ -18,6 +18,12 @@ impl<T: Into<Type>> From<Vec<T>> for Generics {
     }
 }
 
+impl From<&str> for Generics {
+    fn from(value: &str) -> Self {
+        Type::from(value).into()
+    }
+}
+
 impl From<Type> for Generics {
     fn from(value: Type) -> Self {
         let types = vec![value];

@@ -7,7 +7,8 @@ pub fn function() -> Function {
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: None
+        output: None,
+        body: None
     }
 }
 
@@ -28,10 +29,12 @@ pub fn function_input() -> Function {
                 attributes: Default::default(),
                 identifier: Identifier::new("b"),
                 type_: Type::i32(),
-                default_value: Default::default()
+                default_value: Default::default(),
+                .. Default::default()
             },
         ],
-        output: None
+        output: None,
+        body: None
     }
 }
 
@@ -42,7 +45,8 @@ pub fn function_output() -> Function {
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: Some(Type::string())
+        output: Some(Type::string()),   
+        body: None
     }
 }
 
@@ -64,7 +68,8 @@ pub fn function_input_output() -> Function {
                 .. Default::default()
             }
         ],
-        output: Some(Type::i32())
+        output: Some(Type::i32()),
+        body: None
     }
 }
 
@@ -75,7 +80,8 @@ pub fn function_attribute() -> Function {
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: None
+        output: None,
+        body: None
     }
 }
 
@@ -86,7 +92,8 @@ pub fn function_async() -> Function {
         synchrony: Synchrony::Asynchronous,
         identifier: "test".into(),
         inputs: vec![],
-        output: None
+        output: None,
+        body: None
     }
 }
 
@@ -116,6 +123,7 @@ pub fn function_complete() -> Function {
                 default_value: Default::default()
             },
         ],
-        output: Some(Type::constant_reference(Type::string()))
+        output: Some(Type::constant_reference(Type::string())),
+        body: None
     }
 }

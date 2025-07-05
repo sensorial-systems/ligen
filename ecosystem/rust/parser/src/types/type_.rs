@@ -8,7 +8,8 @@ use crate::path::PathParser;
 #[derive(Default)]
 pub struct TypeParser {
     pub mutability_parser: MutabilityParser,
-    pub literal_parser: LiteralParser
+    pub literal_parser: LiteralParser,
+    pub path_parser: PathParser
 }
 
 impl TypeParser {
@@ -19,13 +20,13 @@ impl TypeParser {
 
 impl Transformer<syn::Ident, Type> for TypeParser {
     fn transform(&self, input: syn::Ident, config: &Config) -> Result<Type> {
-        Ok(PathParser::default().transform(input, config)?.into())
+        Ok(self.path_parser.transform(input, config)?.into())
     }
 }
 
 impl Transformer<syn::Path, Type> for TypeParser {
     fn transform(&self, path: syn::Path, config: &Config) -> Result<Type> {
-        let mut path = PathParser::default().transform(path, config)?;
+        let mut path = self.path_parser.transform(path, config)?;
         if path.segments.len() == 1 {
             let segment = path.first_mut();
             match segment.identifier.name.as_str() {
@@ -94,6 +95,8 @@ impl Transformer<proc_macro2::TokenStream, Type> for TypeParser {
 
 #[cfg(test)]
 mod test {
+    use ligen_ir::PathSegment;
+
     use crate::types::type_::TypeParser;
     use crate::prelude::*;
     use super::*;
@@ -200,6 +203,15 @@ mod test {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
             TypeParser::new().transform(quote! {*mut i32}, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_with_generics() -> Result<()> {
+        assert_eq!(
+            Type::from(PathSegment::new("vec2", Type::f32())),
+            TypeParser::new().transform(quote! {vec2<f32>}, &Default::default())?
         );
         Ok(())
     }

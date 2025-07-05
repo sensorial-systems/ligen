@@ -22,6 +22,16 @@ pub struct Parameter {
 }
 
 impl Parameter {
+    pub fn new(identifier: impl Into<Identifier>, type_: impl Into<Type>) -> Self {
+        let attributes = Attributes::default();
+        let identifier = identifier.into();
+        let type_ = type_.into();
+        let default_value = Default::default();
+        Self { attributes, identifier, type_, default_value }
+    }
+}
+
+impl Parameter {
     /// Get parameter mutability.
     pub fn mutability(&self) -> Mutability {
         if self.type_.is_mutable_reference() {

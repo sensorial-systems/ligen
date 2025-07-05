@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, Block};
 
 use crate::{Attributes, Identifier, Type, Visibility};
 
@@ -25,6 +25,22 @@ pub struct Function {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
+    /// Body field.
+    pub body: Option<Block>
+}
+
+impl Function {
+    pub fn new<R: Into<Type>, B: Into<Block>>(identifier: impl Into<Identifier>, inputs: impl IntoIterator<Item = Parameter>, output: Option<R>, body: Option<B>) -> Self {
+        Self {
+            attributes: Attributes::default(),
+            visibility: Visibility::Public,
+            synchrony: Synchrony::Synchronous,
+            identifier: identifier.into(),
+            inputs: inputs.into_iter().collect(),
+            output: output.map(Into::into),
+            body: body.map(Into::into),
+        }
+    }
 }
 
 impl CountSymbols for Vec<Function> {
@@ -48,6 +64,7 @@ impl From<Method> for Function {
             identifier: method.identifier,
             inputs: method.inputs,
             output: method.output,
+            body: method.body,
         }
     }
 }

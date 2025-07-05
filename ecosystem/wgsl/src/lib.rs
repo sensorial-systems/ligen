@@ -1,0 +1,1 @@
+pub use ligen_wgsl_generator as generator;

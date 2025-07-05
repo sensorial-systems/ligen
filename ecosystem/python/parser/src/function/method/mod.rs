@@ -16,7 +16,8 @@ impl Transformer<WithSource<StmtFunctionDef>, Method> for PythonParser {
         let inputs = function.inputs;
         let output = function.output;
         let mutability = Mutability::Mutable;
-        Ok(Method { attributes, visibility, synchrony, mutability, identifier, inputs, output })
+        let body = Default::default();
+        Ok(Method { attributes, visibility, synchrony, mutability, identifier, inputs, output, body })
     }
 }
 
@@ -30,6 +31,7 @@ impl Transformer<WithSource<StmtAsyncFunctionDef>, Method> for PythonParser {
         let inputs = function.inputs;
         let output = function.output;
         let mutability = Mutability::Mutable;
-        Ok(Method { attributes, visibility, synchrony, mutability, identifier, inputs, output })
+        let body = Default::default();
+        Ok(Method { attributes, visibility, synchrony, mutability, identifier, inputs, output, body })
     }
 }

@@ -14,11 +14,15 @@ pub use library::*;
 pub use mutability::*;
 pub use interface::*;
 pub use registry::*;
+// #[cfg(feature = "statements")]
+pub use block::*;
 
 pub use visitor::*;
 
 pub mod prelude;
 
+// #[cfg(feature = "statements")]
+pub mod block;
 pub mod module;
 pub mod macro_attributes;
 pub mod object;

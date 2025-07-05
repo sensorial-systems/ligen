@@ -1,6 +1,7 @@
 use ligen::ir::{Path, PathSegment};
 use ligen::transformer::prelude::*;
 use crate::identifier::IdentifierParser;
+use crate::GenericsParser;
 
 #[derive(Default)]
 pub struct PathParser {
@@ -18,11 +19,17 @@ impl Transformer<syn::Path, Path> for PathParser {
         let segments = path
             .segments
             .iter()
-            // FIXME: This isn't parsing generics, just the identifiers.
-            .map(|segment| self.identifier_parser.transform(segment.ident.clone(), config).expect("Failed to parse segment.")) // FIXME: Remove this expect.
-            .map(PathSegment::from)
+            .map(|segment| self.transform(segment.clone(), config).expect("Failed to parse segment.")) // FIXME: Remove this expect.
             .collect();
         Ok(Path { segments })
+    }
+}
+
+impl Transformer<syn::PathSegment, PathSegment> for PathParser {
+    fn transform(&self, input: syn::PathSegment, config: &Config) -> Result<PathSegment> {
+        let identifier = self.identifier_parser.transform(input.ident, config)?;
+        let generics = GenericsParser::default().transform(input.arguments, config)?;
+        Ok(PathSegment::new(identifier, generics))
     }
 }
 

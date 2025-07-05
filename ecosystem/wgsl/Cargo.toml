@@ -1,0 +1,12 @@
+[package]
+name = "ligen-wgsl"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+authors.workspace = true
+license.workspace = true
+documentation.workspace = true
+readme.workspace = true
+
+[dependencies]
+ligen-wgsl-generator.workspace = true

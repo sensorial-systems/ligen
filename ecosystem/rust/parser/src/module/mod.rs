@@ -10,7 +10,7 @@ use crate::prelude::*;
 use crate::types::type_alias::TypeAliasParser;
 use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
 use crate::object::ObjectParser;
-use crate::function::FunctionParser;
+use crate::function::RustFunctionParser;
 use crate::identifier::IdentifierParser;
 use crate::macro_attributes::attributes::AttributesParser;
 use crate::module::import::ImportsParser;
@@ -23,7 +23,7 @@ pub struct ModuleParser {
     interface_parser: RustInterfaceParser,
     object_parser: ObjectParser,
     visibility_parser: VisibilityParser,
-    function_parser: FunctionParser,
+    function_parser: RustFunctionParser,
     identifier_parser: IdentifierParser,
     attributes_parser: AttributesParser,
     type_alias_parser: TypeAliasParser,

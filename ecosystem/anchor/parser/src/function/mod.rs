@@ -30,6 +30,7 @@ impl Transformer<IdlInstruction, Function> for FunctionParser {
         let synchrony = Synchrony::Synchronous;
         let visibility = Visibility::Public;
         let identifier = Identifier::new(input.name.clone());
+        let body = Default::default();
         let function = Function {
             attributes,
             visibility,
@@ -37,6 +38,7 @@ impl Transformer<IdlInstruction, Function> for FunctionParser {
             identifier,
             inputs,
             output,
+            body
         };
         Ok(function)
     }
