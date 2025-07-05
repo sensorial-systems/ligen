@@ -30,18 +30,6 @@ impl Transformer<syn::Path, Type> for TypeParser {
         if path.segments.len() == 1 {
             let segment = path.first_mut();
             match segment.identifier.name.as_str() {
-                "i8"  | "i16" | "i32" | "i64" | "i128" |
-                "u8"  | "u16" | "u32" | "u64" | "u128" |
-                "f16" | "f32" | "f64" | "f128" =>
-                    segment
-                        .identifier
-                        .name
-                        .replace_range(..1, &segment.identifier.name[..1].to_uppercase()),
-                "usize" | "isize" =>
-                    segment
-                        .identifier
-                        .name
-                        .replace_range(..2, &segment.identifier.name[..2].to_uppercase()),
                 "char" => segment.identifier.name = "Character".into(),
                 "bool" => segment.identifier.name = "Boolean".into(),
                 _ => ()

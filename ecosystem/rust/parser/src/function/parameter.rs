@@ -18,10 +18,11 @@ impl Transformer<syn::FnArg, Parameter> for ParameterParser {
         match fn_arg {
             syn::FnArg::Typed(syn::PatType { pat, ty, attrs, .. }) => {
                 if let syn::Pat::Ident(syn::PatIdent { ident, .. }) = *pat {
+                    let type_ = self.type_parser.transform(*ty, config)?; 
                     Ok(Parameter {
                         attributes: self.attributes_parser.transform(attrs, config)?,
                         identifier: self.identifier_parser.transform(ident, config)?,
-                        type_: self.type_parser.transform(*ty, config)?,
+                        type_,
                         default_value: Default::default(),
                     })
                 } else {

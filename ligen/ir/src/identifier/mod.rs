@@ -114,77 +114,77 @@ impl Identifier {
 
     /// Returns a new `Identifier` representing a 16-bit signed integer type.
     pub fn i16() -> Self {
-        "I16".into()
+        "i16".into()
     }
 
     /// Returns a new `Identifier` representing a 32-bit signed integer type.
     pub fn i32() -> Self {
-        "I32".into()
+        "i32".into()
     }
 
     /// Returns a new `Identifier` representing a 64-bit signed integer type.
     pub fn i64() -> Self {
-        "I64".into()
+        "i64".into()
     }
 
     /// Returns a new `Identifier` representing a 128-bit signed integer type.
     pub fn i128() -> Self {
-        "I128".into()
+        "i128".into()
     }
 
     /// Returns a new `Identifier` representing an pointer-sized integer type.
     pub fn isize() -> Self {
-        "ISize".into()
+        "isize".into()
     }
 
     /// Returns a new `Identifier` representing an 8-bit unsigned integer type.
     pub fn u8() -> Self {
-        "U8".into()
+        "u8".into()
     }
 
     /// Returns a new `Identifier` representing a 16-bit unsigned integer type.
     pub fn u16() -> Self {
-        "U16".into()
+        "u16".into()
     }
 
     /// Returns a new `Identifier` representing a 32-bit unsigned integer type.
     pub fn u32() -> Self {
-        "U32".into()
+        "u32".into()
     }
 
     /// Returns a new `Identifier` representing a 64-bit unsigned integer type.
     pub fn u64() -> Self {
-        "U64".into()
+        "u64".into()
     }
 
     /// Returns a new `Identifier` representing a 128-bit unsigned integer type.
     pub fn u128() -> Self {
-        "U128".into()
+        "u128".into()
     }
 
     /// Returns a new `Identifier` representing an pointer-sized unsigned integer type.
     pub fn usize() -> Self {
-        "USize".into()
+        "usize".into()
     }
 
     /// Returns a new `Identifier` representing a 16-bit floating-point type.
     pub fn f16() -> Self {
-        "F16".into()
+        "f16".into()
     }
 
     /// Returns a new `Identifier` representing a 32-bit floating-point type.
     pub fn f32() -> Self {
-        "F32".into()
+        "f32".into()
     }
 
     /// Returns a new `Identifier` representing a 64-bit floating-point type.
     pub fn f64() -> Self {
-        "F64".into()
+        "f64".into()
     }
 
     /// Returns a new `Identifier` representing a 128-bit floating-point type.
     pub fn f128() -> Self {
-        "F128".into()
+        "f128".into()
     }
 
     /// Returns a new `Identifier` representing a string type.

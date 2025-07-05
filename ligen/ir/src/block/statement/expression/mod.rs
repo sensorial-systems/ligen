@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub mod binary;
 pub use binary::*;
 
-use crate::{Literal, Path};
+use crate::{Literal, Path, Identifier};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum Expression {
@@ -15,6 +15,12 @@ pub enum Expression {
     Binary(BinaryExpression),
     /// Parenthesized expression.
     Parenthesized(Box<Expression>),
+}
+
+impl From<Identifier> for Expression {
+    fn from(value: Identifier) -> Self {
+        Self::Path(value.into())
+    }
 }
 
 impl From<Path> for Expression {
