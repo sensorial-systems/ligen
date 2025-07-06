@@ -19,7 +19,7 @@ use crate::types::structure::StructureParser;
 use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
-pub struct ModuleParser {
+pub struct RustModuleParser {
     interface_parser: RustInterfaceParser,
     object_parser: ObjectParser,
     visibility_parser: VisibilityParser,
@@ -32,13 +32,13 @@ pub struct ModuleParser {
     imports_parser: ImportsParser,
 }
 
-impl ModuleParser {
+impl RustModuleParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Parser<Module> for ModuleParser {
+impl Parser<Module> for RustModuleParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Module> {
         syn::parse_str::<syn::ItemMod>(input.as_ref())
             .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
@@ -46,7 +46,13 @@ impl Parser<Module> for ModuleParser {
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, Module> for ModuleParser {
+impl Transformer<proc_macro::TokenStream, Module> for RustModuleParser {
+    fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Module> {
+        self.transform(proc_macro2::TokenStream::from(input), config)
+    }
+}
+
+impl Transformer<proc_macro2::TokenStream, Module> for RustModuleParser {
     fn transform(&self, token_stream: proc_macro2::TokenStream, config: &Config) -> Result<Module> {
         syn::parse2::<syn::ItemMod>(token_stream)
             .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
@@ -54,7 +60,7 @@ impl Transformer<proc_macro2::TokenStream, Module> for ModuleParser {
     }
 }
 
-impl Transformer<syn::ItemMod, Module> for ModuleParser {
+impl Transformer<syn::ItemMod, Module> for RustModuleParser {
     fn transform(&self, module: syn::ItemMod, config: &Config) -> Result<Module> {
         let items = module
             .content
@@ -74,7 +80,7 @@ impl Transformer<syn::ItemMod, Module> for ModuleParser {
     }
 }
 
-impl Transformer<&std::path::Path, Module> for ModuleParser {
+impl Transformer<&std::path::Path, Module> for RustModuleParser {
     fn transform(&self, path: &std::path::Path, config: &Config) -> Result<Module> {
         let module = syn2::file_parser::parse_file_recursive(path)?;
         let ident = syn::Ident::new(path.file_stem().unwrap_or_default().to_str().unwrap_or_default(), module.span()); // FIXME: This is hardcoded.
@@ -90,7 +96,7 @@ impl Transformer<&std::path::Path, Module> for ModuleParser {
     }
 }
 
-impl ModuleParser {
+impl RustModuleParser {
     fn extract_interfaces(&self, items: &[syn::Item]) -> Result<Vec<Interface>> {
         let mut interfaces = Vec::new();
         for item in items {
@@ -180,12 +186,12 @@ mod tests {
 
     #[test]
     fn module_file() -> Result<()> {
-        assert_failure(ModuleParser::default(), "mod module;")
+        assert_failure(RustModuleParser::default(), "mod module;")
     }
 
     #[test]
     fn sub_modules() -> Result<()> {
-        assert_eq(ModuleParser::default(), mock::sub_modules(), quote! {
+        assert_eq(RustModuleParser::default(), mock::sub_modules(), quote! {
             pub mod root {
                 pub mod branch {
                     pub mod leaf {}
@@ -196,7 +202,7 @@ mod tests {
 
     #[test]
     fn module_types() -> Result<()> {
-        assert_eq(ModuleParser::default(), mock::module_types(), quote! {
+        assert_eq(RustModuleParser::default(), mock::module_types(), quote! {
             pub mod types {
                 pub struct Structure;
                 pub enum Enumeration {}

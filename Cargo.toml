@@ -2,6 +2,7 @@
 members = [
     "ligen",
     "ligen/common",
+    "ligen/idl",
     "ligen/ir",
     "ligen/transformer",
     "ligen/utils",

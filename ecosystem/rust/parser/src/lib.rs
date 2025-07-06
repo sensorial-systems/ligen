@@ -18,6 +18,7 @@ pub mod cargo;
 
 mod parser;
 
+pub use module::*;
 pub use function::*;
 pub use parser::*;
 pub use interface::*;

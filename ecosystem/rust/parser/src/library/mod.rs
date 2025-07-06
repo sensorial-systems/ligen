@@ -3,11 +3,11 @@ use crate::prelude::*;
 use anyhow::Context;
 use ligen::ir::{Identifier, Language, Library, Metadata};
 
-use crate::module::ModuleParser;
+use crate::module::RustModuleParser;
 
 #[derive(Default)]
 pub struct RustLibraryParser {
-    module_parser: ModuleParser
+    module_parser: RustModuleParser
 }
 
 impl RustLibraryParser {
