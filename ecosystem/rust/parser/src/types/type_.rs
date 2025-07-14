@@ -61,6 +61,10 @@ impl Transformer<syn::Type, Type> for TypeParser {
                     let type_ = TypeParser::new().transform(*elem, config)?;
                     Ok(Type::array(type_, len))
                 },
+                syn::Type::Tuple(syn::TypeTuple { elems, .. }) => {
+                    let types = elems.into_iter().map(|elem| self.transform(elem, config)).collect::<Result<Vec<_>>>()?;
+                    Ok(Type::tuple(types))
+                },
                 _ => Err(Error::Message(format!("\"{}\" not supported. Only Path, Reference and Ptr Types are currently supported", syn_type.to_token_stream()))),
             }
         }
