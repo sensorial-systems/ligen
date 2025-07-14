@@ -17,6 +17,6 @@ impl WgslTypeGenerator {
 
 impl Generator<&Type, String> for WgslTypeGenerator {
     fn generate(&self, type_: &Type, config: &Config) -> Result<String> {
-        Ok(self.path_generator.upgrade().ok_or(Error::Message("Path generator not found".to_string()))?.generate(&type_.path, config)?)
+        self.path_generator.upgrade().ok_or(Error::Message("Path generator not found".to_string()))?.generate(&type_.path, config)
     }
 }

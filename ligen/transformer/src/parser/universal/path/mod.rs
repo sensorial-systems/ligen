@@ -37,7 +37,7 @@ impl Transformer<syn::Ident, Path> for PathParser {
 impl Transformer<&str, Path> for PathParser {
     fn transform(&self, input: &str, config: &Config) -> Result<Path> {
         syn::parse_str::<syn::Path>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse path: {e:?}")))
             .and_then(|path| self.transform(path, config))
     }
 }

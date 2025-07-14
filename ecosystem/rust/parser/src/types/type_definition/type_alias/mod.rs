@@ -31,7 +31,7 @@ impl Transformer<proc_macro::TokenStream, TypeDefinition> for TypeAliasParser {
 impl Transformer<proc_macro2::TokenStream, TypeDefinition> for TypeAliasParser {
     fn transform(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<TypeDefinition> {
         syn::parse2::<syn::ItemType>(tokenstream)
-            .map_err(|e| Error::Message(format!("Failed to parse to structure: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse to structure: {e:?}")))
             .and_then(|structure| self.transform(structure, config))
     }
 }

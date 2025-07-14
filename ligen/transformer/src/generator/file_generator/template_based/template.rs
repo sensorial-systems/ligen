@@ -15,7 +15,7 @@ impl Template {
         let result = self
             .handlebars
             .render(template.as_ref(), &value)
-            .map_err(|e| format!("Failed to render template: {}", e))?;
+            .map_err(|e| format!("Failed to render template: {e:?}"))?;
         Ok(result)
     }
 }
@@ -55,7 +55,7 @@ impl Template {
         self
             .handlebars
             .register_template_string(name.as_ref(), content.as_ref())
-            .map_err(|e| Error::Message(format!("Failed to register template: {}", e)))
+            .map_err(|e| Error::Message(format!("Failed to register template: {e:?}")))
     }
 
     pub fn register_function<S: AsRef<str>, F: Fn(&Inputs) -> String + Send + Sync + 'static>(&mut self, name: S, function: F) {

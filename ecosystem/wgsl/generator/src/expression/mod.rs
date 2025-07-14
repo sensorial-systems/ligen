@@ -29,7 +29,7 @@ impl Generator<&Expression, String> for WgslExpressionGenerator {
                 let left = self.generate(&binary_expression.left, config)?;
                 let right = self.generate(&binary_expression.right, config)?;
                 let operator = self.identifier_generator.generate(&binary_expression.operator, config)?;
-                result.push_str(&format!("{} {} {}", left, operator, right));
+                result.push_str(&format!("{left} {operator} {right}"));
             },
             Expression::Parenthesized(parenthesized_expression) => {
                 result.push_str(&format!("({})", self.generate(parenthesized_expression, config)?));

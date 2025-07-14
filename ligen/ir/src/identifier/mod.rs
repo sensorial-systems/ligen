@@ -10,7 +10,7 @@ use crate::{prelude::*, Mutability};
 
 /// Identifier structure
 #[derive(Clone, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize, JsonSchema)]
-#[display(fmt = "{}", name)]
+#[display(fmt = "{name}")]
 pub struct Identifier {
     /// Name field of Identifier
     pub name: String,

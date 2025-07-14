@@ -22,7 +22,7 @@ impl Parser<Function> for FunctionParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Function> {
         let input = input.as_ref();
         let statement = Stmt::parse(input, "<embedded>")
-            .map_err(|error| Error::Message(format!("Failed to parse statement: {}", error)))?;
+            .map_err(|error| Error::Message(format!("Failed to parse statement: {error}")))?;
         match statement {
             Stmt::FunctionDef(function) => self.transform(WithSource::new(input, function), config),
             Stmt::AsyncFunctionDef(function) => self.transform(WithSource::new(input, function), config),

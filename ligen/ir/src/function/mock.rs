@@ -20,16 +20,13 @@ pub fn function_input() -> Function {
         identifier: "test".into(),
         inputs: vec![
             Parameter {
-                attributes: Default::default(),
                 identifier: Identifier::new("a"),
                 type_: Type::i32(),
-                default_value: Default::default()
+                .. Default::default()
             },
             Parameter {
-                attributes: Default::default(),
                 identifier: Identifier::new("b"),
                 type_: Type::i32(),
-                default_value: Default::default(),
                 .. Default::default()
             },
         ],

@@ -32,7 +32,7 @@ impl LibraryGenerator {
         let file = file_set.entry(PathBuf::from(library.identifier.to_string()).join("src").join("lib.rs"));
         let section = file.section.branch("documentation");
         if let Some(description) = &library.metadata.description {
-            section.writeln(description.split('\n').map(|s| format!("//! {}", s)).collect::<Vec<String>>().join("\n"));
+            section.writeln(description.split('\n').map(|s| format!("//! {s}")).collect::<Vec<String>>().join("\n"));
         }
         Ok(())
     }

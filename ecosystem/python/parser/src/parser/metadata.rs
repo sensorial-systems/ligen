@@ -48,13 +48,13 @@ impl Transformer<&std::path::Path, Metadata> for MetadataParser {
                     .to_string();
                 file_name.starts_with(&name) && file_name.ends_with(".dist-info")
             });
-        let dist_info_dir = dist_info_dir.ok_or(format!("Failed to find dist-info directory for `{}`", name))?;
+        let dist_info_dir = dist_info_dir.ok_or(format!("Failed to find dist-info directory for `{name}`"))?;
         let metadata_file = dist_info_dir
             .path()
             .join("METADATA");
         let content = std::fs::read_to_string(metadata_file)?;
         let metadata = python_pkginfo::Metadata::parse(content.as_bytes())
-            .map_err(|e| Error::Message(format!("Failed to parse metadata: {}", e)))?;
+            .map_err(|e| Error::Message(format!("Failed to parse metadata: {e}")))?;
         self.transform(metadata, config)
     }
 }

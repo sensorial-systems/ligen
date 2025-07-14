@@ -19,7 +19,7 @@ impl Generator<&ligen_ir::Method, anchor_lang_idl_spec::IdlInstruction> for Anch
     fn generate(&self, method: &ligen_ir::Method, _config: &Config) -> Result<anchor_lang_idl_spec::IdlInstruction> {
         let name = method.identifier.to_string();
         let docs = method.attributes.get_documentation();
-        let discriminator = Sha256::digest(format!("global:{}", name).as_bytes())[..8].to_vec();
+        let discriminator = Sha256::digest(format!("global:{name}").as_bytes())[..8].to_vec();
         let returns = method.output.as_ref().and_then(|output| self.type_generator.generate(output, &Config::default()).ok());
         let mut accounts = Vec::new();
         let mut args = Vec::new();

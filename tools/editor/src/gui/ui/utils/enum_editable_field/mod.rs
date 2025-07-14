@@ -26,17 +26,17 @@ impl EnumField {
         if settings.editor.editable_fields {
             ui.horizontal_top(|ui| {
                 ComboBox::new(&self.id_source, "")
-                    .selected_text(format!("{:?}", field))
+                    .selected_text(format!("{field:?}"))
                     .show_ui(ui, |ui| {
                         for variant in T::iter() {
-                            if ui.add(egui::SelectableLabel::new(*field == variant, format!("{:?}", variant))).clicked() {
+                            if ui.add(egui::SelectableLabel::new(*field == variant, format!("{variant:?}"))).clicked() {
                                 *field = variant
                             }
                         }
                     });
             });
         } else {
-            ui.label(format!("{:?}", field));
+            ui.label(format!("{field:?}"));
         }
     }
 }

@@ -89,7 +89,7 @@ impl Transformer<proc_macro::TokenStream, Function> for RustFunctionParser {
 impl Transformer<proc_macro2::TokenStream, Function> for RustFunctionParser {
     fn transform(&self, token_stream: proc_macro2::TokenStream, config: &Config) -> Result<Function> {
         syn::parse2::<syn::ItemFn>(token_stream)
-            .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse function: {e:?}")))
             .and_then(|function| self.transform(function, config))
     }
 }
@@ -97,7 +97,7 @@ impl Transformer<proc_macro2::TokenStream, Function> for RustFunctionParser {
 impl Parser<Function> for RustFunctionParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Function> {
         syn::parse_str::<syn::ItemFn>(input.as_ref())
-            .map_err(|e| Error::Message(format!("Failed to parse function: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse function: {e:?}")))
             .and_then(|function| self.transform(function, config))
     }
 }

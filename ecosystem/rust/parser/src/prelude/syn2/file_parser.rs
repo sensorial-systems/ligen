@@ -10,7 +10,7 @@ pub fn parse_file_recursive(path: &Path) -> Result<syn::File> {
 fn load_file(path: &Path) -> Result<syn::File> {
     let content = std::fs::read_to_string(path)?;
     syn::parse_file(&content)
-        .map_err(|e| Error::Message(format!("Failed to parse file {:?}.", e)))
+        .map_err(|e| Error::Message(format!("Failed to parse file {e:?}.")))
 }
 
 fn load_modules(path: &Path, items: &mut [syn::Item]) -> Result<()> {
@@ -41,10 +41,10 @@ mod path_handling {
         let file_rs = path.join(module_name).with_extension("rs");
         let mod_rs = path.join(module_name).join("mod.rs");
         match (file_rs.exists(), mod_rs.exists()) {
-            (true, true) => Err(Error::Message(format!("Ambiguous module {:?}.", module_name))),
+            (true, true) => Err(Error::Message(format!("Ambiguous module {module_name:?}."))),
             (true, false) => Ok(file_rs),
             (false, true) => Ok(mod_rs),
-            (false, false) => Err(Error::Message(format!("Failed to find module {:?}.", module_name))),
+            (false, false) => Err(Error::Message(format!("Failed to find module {module_name:?}."))),
         }
     }
 

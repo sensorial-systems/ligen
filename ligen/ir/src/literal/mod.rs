@@ -135,19 +135,19 @@ impl From<u64> for Literal {
 impl std::fmt::Display for Literal {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Literal::String(value) => write!(f, "{}", value),
-            Literal::Boolean(value) => write!(f, "{}", value),
-            Literal::Character(value) => write!(f, "{}", value),
-            Literal::Integer(value) => write!(f, "{}", value),
-            Literal::UnsignedInteger(value) => write!(f, "{}", value),
-            Literal::Float(value) => write!(f, "{}", value),
+            Literal::String(value) => write!(f, "{value}"),
+            Literal::Boolean(value) => write!(f, "{value}"),
+            Literal::Character(value) => write!(f, "{value}"),
+            Literal::Integer(value) => write!(f, "{value}"),
+            Literal::UnsignedInteger(value) => write!(f, "{value}"),
+            Literal::Float(value) => write!(f, "{value}"),
             Literal::Tuple(values) => {
                 write!(f, "(")?;
                 for (index, value) in values.iter().enumerate() {
                     if index > 0 {
                         write!(f, ", ")?;
                     }
-                    write!(f, "{}", value)?;
+                    write!(f, "{value}")?;
                 }
                 write!(f, ")")
             },
@@ -157,12 +157,12 @@ impl std::fmt::Display for Literal {
                     if index > 0 {
                         write!(f, ", ")?;
                     }
-                    write!(f, "{}", value)?;
+                    write!(f, "{value}")?;
                 }
                 write!(f, "]")
             },
             Literal::None => write!(f, "None"),
-            Literal::Unknown(s) => write!(f, "Unknown({})", s)
+            Literal::Unknown(s) => write!(f, "Unknown({s})")
         }
     }
 }

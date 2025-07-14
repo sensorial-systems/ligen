@@ -80,7 +80,7 @@ impl Transformer<proc_macro::TokenStream, Type> for TypeParser {
 impl Transformer<proc_macro2::TokenStream, Type> for TypeParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Type> {
         syn::parse2::<syn::Type>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse type: {}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse type: {e}")))
             .and_then(|syn_type| self.transform(syn_type, config))
     }
 }

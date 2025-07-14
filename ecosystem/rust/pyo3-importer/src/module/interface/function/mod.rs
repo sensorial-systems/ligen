@@ -23,7 +23,7 @@ impl FunctionGenerator {
         body.write(") ");
         if let Some(output) = &function.output {
             let type_ = self.type_generator.translate(output);
-            body.write(format!("-> {} ", type_));
+            body.write(format!("-> {type_} "));
         }
         body.writeln("{");
         body.indent();
@@ -58,7 +58,7 @@ impl FunctionGenerator {
         body.write(") ");
         if let Some(output) = &method.output {
             let type_ = self.type_generator.translate(output);
-            body.write(format!("-> {} ", type_));
+            body.write(format!("-> {type_} "));
         }
         body.writeln("{");
         body.indent();

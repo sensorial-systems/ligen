@@ -51,7 +51,7 @@ impl Transformer<proc_macro::TokenStream, Literal> for LiteralParser {
 impl Transformer<proc_macro2::TokenStream, Literal> for LiteralParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Literal> {
         syn::parse2::<syn::Lit>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse literal: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse literal: {e:?}")))
             .and_then(|literal| self.transform(literal, config))
     }
 }

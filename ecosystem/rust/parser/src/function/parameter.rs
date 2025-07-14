@@ -61,7 +61,7 @@ impl Transformer<proc_macro::TokenStream, Parameter> for ParameterParser {
 impl Transformer<proc_macro2::TokenStream, Parameter> for ParameterParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Parameter> {
         syn::parse2::<syn::FnArg>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse parameter: {e}")))
             .and_then(|parameter| self.transform(parameter, config))
     }
 }
@@ -69,7 +69,7 @@ impl Transformer<proc_macro2::TokenStream, Parameter> for ParameterParser {
 impl Parser<Parameter> for ParameterParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Parameter> {
         syn::parse_str::<syn::FnArg>(input.as_ref())
-            .map_err(|e| Error::Message(format!("Failed to parse parameter: {}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse parameter: {e}")))
             .and_then(|parameter| self.transform(parameter, config))
     }
 }

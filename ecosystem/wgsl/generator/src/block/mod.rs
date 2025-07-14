@@ -10,11 +10,11 @@ pub struct WgslBlockGenerator {
 impl Generator<&Block, String> for WgslBlockGenerator {
     fn generate(&self, block: &Block, config: &Config) -> Result<String> {
         let mut result = String::new();
-        result.push_str("{");
+        result.push('{');
         for statement in &block.statements {
-            result.push_str(&format!("{}", self.statement_generator.generate(statement, config)?));
+            result.push_str(&self.statement_generator.generate(statement, config)?);
         }
-        result.push_str("}");
+        result.push('}');
         Ok(result)
     }
 }

@@ -10,7 +10,7 @@ impl Parser<WithSource<ModModule>> for ModuleParser {
     fn parse(&self, input: impl AsRef<str>, _config: &Config) -> Result<WithSource<ModModule>> {
         let input = input.as_ref();
         let module = parse(input, Mode::Module, "<embedded>")
-            .map_err(|error| Error::Message(format!("Failed to parse module: {}", error)))?
+            .map_err(|error| Error::Message(format!("Failed to parse module: {error}")))?
             .module()
             .ok_or(Error::Message("No module found".into()))?;
         Ok(WithSource::new(input, module))

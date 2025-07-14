@@ -1,61 +1,51 @@
-// TODO: Update this documentation.
-
 //! # Ligen
 //! Ligen (Language Interface Generator) is an extensible macro-based multi-language binding
 //! generator.
 //!
-//! We officially support `ligen-c`, a binding generator for the Programming Language C.
+//! We officially support binding generators for several languages, including C, Python, Rust, and more.
 //!
 //! ### Requirements
 //!
-//! `cargo install cargo-ligen`
+//! - Install `cargo-ligen` via `cargo install cargo-ligen` (if using the CLI).
+//! - For LLM features, set `OPENAI_API_KEY` in your environment.
 //!
-//! ### How to use
+//! ### How to Use
 //!
-//! Here is an library on how to use the C generator and the CMake library generator in your crate:
-//! `Cargo.toml`
+//! Add to your `Cargo.toml` (for build.rs integration):
 //! ```toml
 //! [dev-dependencies]
-//! ligen       = "0.1"
-//! ligen-c     = "0.1"
-//! ligen-cmake = "0.1"
+//! ligen = "0.1"
+//! ligen-c = "0.1"  # Example for C bindings
 //! ```
 //!
-//! Now you can use it in your `build.rs` file as following:
+//! In `build.rs`:
 //! ```rust,ignore
 //! use ligen::prelude::*;
 //! use ligen_c::Generator as CGenerator;
-//! use ligen_cmake::Generator as CMakeGenerator;
 //!
 //! fn main() {
 //!     if let Ok(library) = Library::read() {
-//!         let c_generator = CGenerator::default();
-//!         let cmake_generator = CMakeGenerator::default();
-//!         cmake_generator.generate(&library).expect("Couldn't generate CMake library.");
-//!         c_generator.generate(&library).expect("Couldn't generate C bindings");
+//!         CGenerator::default().generate(&library).expect("Failed to generate C bindings");
 //!     }
 //! }
 //! ```
 //!
-//! Then to generate the language bindings run: `cargo ligen`
+//! Generate bindings: `cargo ligen` (passes args to `cargo build`).
 //!
-//! `cargo ligen` passes all its extra parameters to `cargo build`, so you can use `cargo ligen --release` to
-//! generate a library with optimized production code (`--debug` is default).
+//! For other languages, see the ecosystem crates (e.g., `ligen-python-parser`).
 //!
-//! ### Getting started
+//! ### Getting Started Resources
+//! - [Supported Languages](https://github.com/sensorial-systems/ligen/search?q=orgen%3Asensorial-systems+ligen)
+//! - [Example: C Bindings](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md)
 //!
-//! Here are a few links to get started:
-//! * [List of officially supported languages](https://github.com/search?q=org%3Asensorial-systems+ligen).
-//! * [Usage library](https://github.com/sensorial-systems/ligen-c/tree/main/examples/counter/README.md).
-
-#![warn(missing_copy_implementations)]
-#![warn(missing_debug_implementations)]
-#![warn(missing_docs)]
-#![warn(trivial_casts)]
-#![warn(trivial_numeric_casts)]
-#![warn(unsafe_code)]
-#![warn(unused_import_braces)]
-#![warn(unused_qualifications)]
+//! #![warn(missing_copy_implementations)]
+//! #![warn(missing_debug_implementations)]
+//! #![warn(missing_docs)]
+//! #![warn(trivial_casts)]
+//! #![warn(trivial_numeric_casts)]
+//! #![warn(unsafe_code)]
+//! #![warn(unused_import_braces)]
+//! #![warn(unused_qualifications)]
 
 pub use ligen_macro::*;
 

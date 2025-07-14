@@ -20,7 +20,7 @@ impl Default for WgslFunctionGenerator {
         let path_generator = WgslPathGenerator::new();
         let type_generator = WgslTypeGenerator::new(Rc::downgrade(&path_generator));
         let block_generator = WgslBlockGenerator::default();
-        let identifier_generator = WgslIdentifierGenerator::default();
+        let identifier_generator = WgslIdentifierGenerator;
         let parameter_generator = WgslParameterGenerator::default();
         Self {
             identifier_generator,
@@ -39,7 +39,7 @@ impl Generator<&Function, String> for WgslFunctionGenerator {
         let parameters: Vec<String> = function.inputs.iter().map(|input| self.parameter_generator.generate(input, config)).collect::<Result<Vec<String>>>()?;
         result.push_str(&format!("({})", parameters.join(", ")));
         if let Some(output) = &function.output {
-            result.push_str(&format!(" -> {}", self.type_generator.generate(&output, config)?));
+            result.push_str(&format!(" -> {}", self.type_generator.generate(output, config)?));
         }
         if let Some(body) = &function.body {
             result.push_str(&format!(" {}", self.block_generator.generate(body, config)?));

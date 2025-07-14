@@ -47,7 +47,7 @@ impl Transformer<proc_macro::TokenStream, TypeDefinition> for EnumerationParser 
 impl Transformer<proc_macro2::TokenStream, TypeDefinition> for EnumerationParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<TypeDefinition> {
         syn::parse2::<syn::ItemEnum>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse enumeration: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse enumeration: {e:?}")))
             .and_then(|enumeration| self.transform(enumeration, config))
     }
 }

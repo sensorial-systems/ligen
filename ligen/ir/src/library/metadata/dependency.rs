@@ -23,7 +23,7 @@ impl TryFrom<&str> for Dependency {
                 .map(|c| Identifier::from(c.get(1).unwrap().as_str()))
         });
         let features = feature.into_iter().collect::<Vec<_>>();
-        let regex = regex::Regex::new(r"(==|>=|<=|>|<)").map_err(|e| format!("{:?}", e))?;
+        let regex = regex::Regex::new(r"(==|>=|<=|>|<)").map_err(|e| format!("{e:?}"))?;
         let mut parts = regex.split(value);
         let identifier = Identifier::from(parts.next().ok_or("Failed to get identifier.")?);
         let rest = parts.collect::<Vec<_>>().join(" ");

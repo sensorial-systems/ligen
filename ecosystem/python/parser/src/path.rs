@@ -34,7 +34,7 @@ impl Transformer<&Expr, Path> for PathParser {
         match input {
             Expr::Attribute(attribute) => self.transform(attribute, config),
             Expr::Name(name) => self.transform(name, config),
-            _ => Err(Error::Message(format!("Failed to parse path from {:?}", input))),
+            _ => Err(Error::Message(format!("Failed to parse path from {input:?}"))),
         }
     }
 }

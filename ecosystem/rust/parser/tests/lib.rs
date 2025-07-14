@@ -5,7 +5,7 @@ pub fn module_file() {
     use ligen::ir::*;
     use ligen_ir::macro_attributes::Group;
     use ligen::transformer::assert::assert_eq;
-    use ligen_rust_parser::module::ModuleParser;
+    use ligen_rust_parser::module::RustModuleParser;
 
     let module = Module {
         identifier: "lib".into(),
@@ -32,5 +32,5 @@ pub fn module_file() {
     };
     let project_root = project_root::get_project_root().expect("Failed to get library root.");
     let path = project_root.join(file!());
-    assert_eq(ModuleParser::default(), module, path.as_path()).unwrap()
+    assert_eq(RustModuleParser::default(), module, path.as_path()).unwrap()
 }

@@ -41,7 +41,7 @@ impl Transformer<proc_macro::TokenStream, Vec<Import>> for ImportsParser {
 impl Transformer<proc_macro2::TokenStream, Vec<Import>> for ImportsParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Vec<Import>> {
         syn::parse2::<syn::ItemUse>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse imports: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse imports: {e:?}")))
             .and_then(|imports| self.transform(imports, config))
     }
 }

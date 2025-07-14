@@ -40,7 +40,7 @@ impl Widget for Parser {
                             match self.parser.transform(entry.as_path(), &self.config) {
                                 Ok(library) => pane_manager.new_pane(Box::new(Editor::new(library))),
                                 Err(error) => {
-                                    self.result = format!("{:?}", error);
+                                    self.result = format!("{error:?}");
                                 }
                             }
                         });

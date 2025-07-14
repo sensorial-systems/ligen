@@ -48,10 +48,10 @@ impl Transformer<syn::Stmt, Statement> for BlockParser {
                             Ok(Statement::return_(None as Option<Expression>))
                         }
                     }
-                    _ => return Err(anyhow::anyhow!("Unsupported expression").into()),
+                    _ => Err(anyhow::anyhow!("Unsupported expression").into()),
                 }
             }
-            _ => return Err(anyhow::anyhow!("Unsupported statement").into()),
+            _ => Err(anyhow::anyhow!("Unsupported statement").into()),
         }
     }
 }

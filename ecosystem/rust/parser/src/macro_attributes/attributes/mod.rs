@@ -14,7 +14,7 @@ impl Parser<Attributes> for AttributesParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Attributes> {
         let input = input.as_ref();
         let attributes = syn::parse_str::<syn2::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse attributes: {}. Input: {}", e, input)))
+            .map_err(|e| Error::Message(format!("Failed to parse attributes: {e}. Input: {input}")))
             .and_then(|input| self.transform(input.0, config));
         if let Ok(attributes) = attributes {
             Ok(attributes)

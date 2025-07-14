@@ -37,7 +37,7 @@ impl Transformer<IdlType, Type> for TypeParser {
             },
             IdlType::Defined { name, .. } => Ok(Identifier::new(name).into()),
             IdlType::Generic(name) => Ok(Identifier::new(name).into()),
-            _ => Err(Error::Message(format!("Unsupported type: {:?}", input))),
+            _ => Err(Error::Message(format!("Unsupported type: {input:?}"))),
         }
     }
 

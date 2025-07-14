@@ -32,11 +32,11 @@ async fn project_discovery() -> Result<()> {
     }
 
     let project_directory = ProjectFiles::from_path("/home/notdanilo/dev/3rd/NotaFiscalSP")?; // FIXME: This is a hardcoded path.
-    println!("{}", project_directory);
+    println!("{project_directory}");
     let project_discovery = GeneralLlmParser::<ProjectDiscovery>::new()?;
     let project_discovery = project_discovery.parse(&project_directory.to_string(), &Config::default()).await?;
-    println!("{:#?}", project_discovery);
+    println!("{project_discovery:#?}");
     let structured_project_files = StructuredProjectFiles::new(&project_directory, &project_discovery);
-    println!("{:#?}", structured_project_files);
+    println!("{structured_project_files:#?}");
     Ok(())
 }

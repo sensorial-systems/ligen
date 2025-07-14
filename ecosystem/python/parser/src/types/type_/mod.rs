@@ -144,7 +144,7 @@ impl Transformer<&Constant, Type> for TypeParser {
                     .collect::<Result<Vec<Type>>>()?;
                 Ok(Type::tuple(types))
             },
-            _ => Err(Error::Message(format!("Failed to parse constant in type: {:?}", input)))
+            _ => Err(Error::Message(format!("Failed to parse constant in type: {input:?}")))
         }
     }
 }

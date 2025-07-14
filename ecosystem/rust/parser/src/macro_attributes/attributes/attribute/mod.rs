@@ -132,7 +132,7 @@ impl Parser<Attribute> for AttributeParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Attribute> {
         let input = input.as_ref();
         let attribute = syn::parse_str::<IntermediaryAttribute>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse attribute: {:?} - {}", e, input)))?;
+            .map_err(|e| Error::Message(format!("Failed to parse attribute: {e:?} - {input}")))?;
         self.transform(attribute, config)
     }
 }

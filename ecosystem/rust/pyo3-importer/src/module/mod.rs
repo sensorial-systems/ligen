@@ -60,9 +60,9 @@ impl ModuleGenerator {
                     if first.identifier == library.identifier {
                         path = Path::from("crate").join(import.path.clone().without_first());
                     }
-                    imports.write(format!("pub use {}", path));
+                    imports.write(format!("pub use {path}"));
                     if let Some(renaming) = &import.renaming {
-                        imports.write(format!(" as {}", renaming));
+                        imports.write(format!(" as {renaming}"));
                     }
                     imports.writeln(";");    
                 }

@@ -49,7 +49,7 @@ impl Widget for Literal {
                         ui.text_edit_singleline(value);
                     },
                     ligen_ir::Literal::Character(value) => {
-                        let mut string = format!("{}", value);
+                        let mut string = format!("{value}");
                         ui.text_edit_singleline(&mut string);
                         *value = string.chars().next().unwrap_or(' ');
                     },
@@ -70,10 +70,10 @@ impl Widget for Literal {
                     },
                     // TODO: Tuple and Vector
                     ligen_ir::Literal::Tuple(value) => {
-                        ui.label(format!("{:?}", value));
+                        ui.label(format!("{value:?}"));
                     },
                     ligen_ir::Literal::Vector(value) => {
-                        ui.label(format!("{:?}", value));
+                        ui.label(format!("{value:?}"));
                     },
                 }
             });

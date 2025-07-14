@@ -41,7 +41,7 @@ impl RustModuleParser {
 impl Parser<Module> for RustModuleParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Module> {
         syn::parse_str::<syn::ItemMod>(input.as_ref())
-            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse module: {e:?}")))
             .and_then(|module| self.transform(module, config))
     }
 }
@@ -55,7 +55,7 @@ impl Transformer<proc_macro::TokenStream, Module> for RustModuleParser {
 impl Transformer<proc_macro2::TokenStream, Module> for RustModuleParser {
     fn transform(&self, token_stream: proc_macro2::TokenStream, config: &Config) -> Result<Module> {
         syn::parse2::<syn::ItemMod>(token_stream)
-            .map_err(|e| Error::Message(format!("Failed to parse module: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse module: {e:?}")))
             .and_then(|module| self.transform(module, config))
     }
 }

@@ -13,7 +13,7 @@ impl Parser<Literal> for LiteralParser {
             Ok(Literal::Integer(integer))
         } else {
             ExprConstant::parse(input, "<embedded>")
-                .map_err(|e| Error::Message(format!("Failed to parse literal from ExprConstant: {:?}", e)))
+                .map_err(|e| Error::Message(format!("Failed to parse literal from ExprConstant: {e:?}")))
                 .and_then(|constant| self.transform(&constant, config))
         }
     }
@@ -40,7 +40,7 @@ impl Transformer<&Constant, Literal> for LiteralParser {
                 }
                 Ok(Literal::Tuple(result))
             },
-            _ => Err(Error::Message(format!("Failed to parse literal from constant: {:?}", input)))
+            _ => Err(Error::Message(format!("Failed to parse literal from constant: {input:?}")))
         }
     }
 }

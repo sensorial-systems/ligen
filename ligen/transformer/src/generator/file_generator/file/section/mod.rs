@@ -167,7 +167,7 @@ impl FileSection {
 impl std::fmt::Display for FileSection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for file_content in &self.content {
-            write!(f, "{}", file_content)?;
+            write!(f, "{file_content}")?;
         }
         Ok(())
     }

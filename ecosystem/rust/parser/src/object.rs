@@ -54,7 +54,7 @@ impl Transformer<proc_macro::TokenStream, Object> for ObjectParser {
 impl Transformer<proc_macro2::TokenStream, Object> for ObjectParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Object> {
         syn::parse2::<syn::ItemConst>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse constant: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse constant: {e:?}")))
             .and_then(|constant| self.transform(constant, config))
     }
 }

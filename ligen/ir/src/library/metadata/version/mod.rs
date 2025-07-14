@@ -41,7 +41,7 @@ impl TryFrom<&str> for Version {
     fn try_from(value: &str) -> Result<Self> {
         let version =
             semver::Version::parse(value)
-                .map_err(|e| Error::Message(format!("Failed to parse version: {}, Reason: {}", value, e)))?;
+                .map_err(|e| Error::Message(format!("Failed to parse version: {value}, Reason: {e:?}")))?;
         let version = Self(version);
         Ok(version)
     }

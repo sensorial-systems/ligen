@@ -43,7 +43,7 @@ impl Transformer<syn::Ident, Path> for PathParser {
 impl Transformer<&str, Path> for PathParser {
     fn transform(&self, input: &str, config: &Config) -> Result<Path> {
         syn::parse_str::<syn::Path>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse path: {e:?}")))
             .and_then(|path| self.transform(path, config))
     }
 }
@@ -57,7 +57,7 @@ impl Transformer<proc_macro::TokenStream, Path> for PathParser {
 impl Transformer<proc_macro2::TokenStream, Path> for PathParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Path> {
         syn::parse2::<syn::Path>(input)
-            .map_err(|e| Error::Message(format!("Failed to parse path: {:?}", e)))
+            .map_err(|e| Error::Message(format!("Failed to parse path: {e:?}")))
             .and_then(|path| self.transform(path, config))
     }
 }

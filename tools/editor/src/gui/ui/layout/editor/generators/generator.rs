@@ -30,7 +30,7 @@ impl Widget for Generator {
                 config.set("path", entry.to_string_lossy().to_string());
                 match self.generator.generate(input, &config) {
                     Ok(_) => self.result = "Success".to_string(),
-                    Err(error) => self.result = format!("Error: {:?}", error)
+                    Err(error) => self.result = format!("Error: {error:?}")
                 };
             }
         }

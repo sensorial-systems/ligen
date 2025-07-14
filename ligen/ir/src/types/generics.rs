@@ -39,10 +39,10 @@ impl std::fmt::Display for Generics {
             let generics = self
                 .types
                 .iter()
-                .map(|generic| format!("{}", generic))
+                .map(|generic| format!("{generic}"))
                 .collect::<Vec<String>>()
                 .join(", ");
-            f.write_str(&format!("<{}>", generics))
+            f.write_str(&format!("<{generics}>"))
         }
     }
 }

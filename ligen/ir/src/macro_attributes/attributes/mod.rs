@@ -100,8 +100,7 @@ impl Attributes {
         let attribute = attribute.into();
         self
             .attributes
-            .iter()
-            .any(|inner_attribute| *inner_attribute == attribute)
+            .contains(&attribute)
     }
 
     /// Check if the attributes list has an ignore attribute.

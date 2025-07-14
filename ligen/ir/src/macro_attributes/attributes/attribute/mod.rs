@@ -58,9 +58,9 @@ impl Default for Attribute {
 impl Display for Attribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Attribute::Literal(literal) => write!(f, "{}", literal),
-            Attribute::Named(named) => write!(f, "{}", named),
-            Attribute::Group(group) => write!(f, "{}", group),
+            Attribute::Literal(literal) => write!(f, "{literal}"),
+            Attribute::Named(named) => write!(f, "{named}"),
+            Attribute::Group(group) => write!(f, "{group}"),
         }
     }
 }
