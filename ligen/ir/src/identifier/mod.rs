@@ -109,7 +109,7 @@ impl Identifier {
 
     /// Returns a new `Identifier` representing an 8-bit signed integer type.
     pub fn i8() -> Self {
-        "I8".into()
+        "i8".into()
     }
 
     /// Returns a new `Identifier` representing a 16-bit signed integer type.
