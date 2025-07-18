@@ -1,20 +1,19 @@
 use ligen::ir::{Path, PathSegment};
 use ligen::transformer::prelude::*;
-use crate::identifier::IdentifierParser;
-use crate::GenericsParser;
+use crate::{RustIdentifierParser, RustGenericsParser};
 
 #[derive(Default)]
-pub struct PathParser {
-    identifier_parser: IdentifierParser,
+pub struct RustPathParser {
+    identifier_parser: RustIdentifierParser,
 }
 
-impl PathParser {
+impl RustPathParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<syn::Path, Path> for PathParser {
+impl Transformer<syn::Path, Path> for RustPathParser {
     fn transform(&self, path: syn::Path, config: &Config) -> Result<Path> {
         let segments = path
             .segments
@@ -25,22 +24,22 @@ impl Transformer<syn::Path, Path> for PathParser {
     }
 }
 
-impl Transformer<syn::PathSegment, PathSegment> for PathParser {
+impl Transformer<syn::PathSegment, PathSegment> for RustPathParser {
     fn transform(&self, input: syn::PathSegment, config: &Config) -> Result<PathSegment> {
         let identifier = self.identifier_parser.transform(input.ident, config)?;
-        let generics = GenericsParser::default().transform(input.arguments, config)?;
+        let generics = RustGenericsParser::default().transform(input.arguments, config)?;
         Ok(PathSegment::new(identifier, generics))
     }
 }
 
-impl Transformer<syn::Ident, Path> for PathParser {
+impl Transformer<syn::Ident, Path> for RustPathParser {
     fn transform(&self, identifier: syn::Ident, config: &Config) -> Result<Path> {
         let segments = vec![self.identifier_parser.transform(identifier, config)?.into()];
         Ok(Path { segments })
     }
 }
 
-impl Transformer<&str, Path> for PathParser {
+impl Transformer<&str, Path> for RustPathParser {
     fn transform(&self, input: &str, config: &Config) -> Result<Path> {
         syn::parse_str::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse path: {e:?}")))
@@ -48,13 +47,13 @@ impl Transformer<&str, Path> for PathParser {
     }
 }
 
-impl Transformer<proc_macro::TokenStream, Path> for PathParser {
+impl Transformer<proc_macro::TokenStream, Path> for RustPathParser {
     fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Path> {
         self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, Path> for PathParser {
+impl Transformer<proc_macro2::TokenStream, Path> for RustPathParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Path> {
         syn::parse2::<syn::Path>(input)
             .map_err(|e| Error::Message(format!("Failed to parse path: {e:?}")))
@@ -64,7 +63,7 @@ impl Transformer<proc_macro2::TokenStream, Path> for PathParser {
 
 #[cfg(test)]
 mod test {
-    use crate::path::PathParser;
+    use crate::path::RustPathParser;
     use crate::prelude::*;
 
     use ligen::transformer::assert::*;
@@ -72,11 +71,11 @@ mod test {
 
     #[test]
     fn identifier_as_path() -> Result<()> {
-        assert_eq(PathParser::default(), mock::identifier_as_path(), "u8")
+        assert_eq(RustPathParser::default(), mock::identifier_as_path(), "u8")
     }
 
     #[test]
     fn path() -> Result<()> {
-        assert_eq(PathParser::default(), mock::path(), "std::convert::TryFrom")
+        assert_eq(RustPathParser::default(), mock::path(), "std::convert::TryFrom")
     }
 }

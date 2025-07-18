@@ -1,29 +1,24 @@
-use crate::prelude::*;
-
-use ligen::ir::{Function, Parameter, Type};
-use crate::function::parameter::ParameterParser;
-use crate::identifier::IdentifierParser;
-use crate::block::BlockParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::types::TypeParser;
-
 mod parameter;
 mod method;
 mod synchrony;
 
+pub use parameter::*;
 pub use method::*;
 pub use synchrony::*;
-use crate::visibility::VisibilityParser;
+
+use crate::prelude::*;
+use ligen::ir::{Function, Parameter, Type};
+use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustTypeParser, RustBlockParser};
 
 #[derive(Default)]
 pub struct RustFunctionParser {
-    identifier_parser: IdentifierParser,
-    attributes_parser: AttributesParser,
-    visibility_parser: VisibilityParser,
-    synchrony_parser: SynchronyParser,
-    parameter_parser: ParameterParser,
-    type_parser: TypeParser,
-    block_parser: BlockParser
+    identifier_parser: RustIdentifierParser,
+    attributes_parser: RustAttributesParser,
+    visibility_parser: RustVisibilityParser,
+    synchrony_parser: RustSynchronyParser,
+    parameter_parser: RustParameterParser,
+    type_parser: RustTypeParser,
+    block_parser: RustBlockParser
 }
 
 impl RustFunctionParser {

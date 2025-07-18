@@ -1,8 +1,8 @@
 //! Type definitions.
 
-pub mod structure;
-pub mod enumeration;
-pub mod type_alias;
+mod structure;
+mod enumeration;
+mod type_alias;
 
 pub use structure::*;
 pub use enumeration::*;

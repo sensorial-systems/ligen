@@ -1,3 +1,5 @@
 //! Macro attributes.
 
-pub mod attributes;
+mod attributes;
+
+pub use attributes::*;

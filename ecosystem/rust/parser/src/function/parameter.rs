@@ -2,18 +2,16 @@
 
 use crate::prelude::*;
 use ligen::ir::{Identifier, Type, Mutability, Parameter};
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::types::TypeParser;
+use crate::{RustIdentifierParser, RustAttributesParser, RustTypeParser};
 
 #[derive(Default)]
-pub struct ParameterParser {
-    identifier_parser: IdentifierParser,
-    type_parser: TypeParser,
-    attributes_parser: AttributesParser,
+pub struct RustParameterParser {
+    identifier_parser: RustIdentifierParser,
+    type_parser: RustTypeParser,
+    attributes_parser: RustAttributesParser,
 }
 
-impl Transformer<syn::FnArg, Parameter> for ParameterParser {
+impl Transformer<syn::FnArg, Parameter> for RustParameterParser {
     fn transform(&self, fn_arg: syn::FnArg, config: &Config) -> Result<Parameter> {
         match fn_arg {
             syn::FnArg::Typed(syn::PatType { pat, ty, attrs, .. }) => {
@@ -52,13 +50,13 @@ impl Transformer<syn::FnArg, Parameter> for ParameterParser {
     }
 }
 
-impl Transformer<proc_macro::TokenStream, Parameter> for ParameterParser {
+impl Transformer<proc_macro::TokenStream, Parameter> for RustParameterParser {
     fn transform(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<Parameter> {
         self.transform(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, Parameter> for ParameterParser {
+impl Transformer<proc_macro2::TokenStream, Parameter> for RustParameterParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Parameter> {
         syn::parse2::<syn::FnArg>(input)
             .map_err(|e| Error::Message(format!("Failed to parse parameter: {e}")))
@@ -66,7 +64,7 @@ impl Transformer<proc_macro2::TokenStream, Parameter> for ParameterParser {
     }
 }
 
-impl Parser<Parameter> for ParameterParser {
+impl Parser<Parameter> for RustParameterParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Parameter> {
         syn::parse_str::<syn::FnArg>(input.as_ref())
             .map_err(|e| Error::Message(format!("Failed to parse parameter: {e}")))
@@ -76,7 +74,7 @@ impl Parser<Parameter> for ParameterParser {
 
 #[cfg(test)]
 mod test {
-    use crate::function::parameter::ParameterParser;
+    use crate::function::parameter::RustParameterParser;
     use crate::prelude::*;
 
     use ligen::ir::function::parameter::mock;
@@ -84,51 +82,51 @@ mod test {
 
     #[test]
     fn primitive_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::primitive_parameter(), "integer: i32")
+        assert_eq(RustParameterParser::default(), mock::primitive_parameter(), "integer: i32")
     }
 
     #[test]
     fn parameter_attribute() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::parameter_attribute(), "#[attribute] integer: i32")
+        assert_eq(RustParameterParser::default(), mock::parameter_attribute(), "#[attribute] integer: i32")
     }
 
     #[test]
     fn composite_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::composite_parameter(), "name: String")
+        assert_eq(RustParameterParser::default(), mock::composite_parameter(), "name: String")
     }
 
     #[test]
     fn constant_reference_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::constant_reference_parameter(), "name: &String")
+        assert_eq(RustParameterParser::default(), mock::constant_reference_parameter(), "name: &String")
     }
 
     #[test]
     fn mutable_reference_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::mutable_reference_parameter(), "name: &mut String")
+        assert_eq(RustParameterParser::default(), mock::mutable_reference_parameter(), "name: &mut String")
     }
 
     #[test]
     fn constant_pointer_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::constant_reference_parameter(), "name: *const String")
+        assert_eq(RustParameterParser::default(), mock::constant_reference_parameter(), "name: *const String")
     }
 
     #[test]
     fn mutable_pointer_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::mutable_reference_parameter(), "name: *mut String")
+        assert_eq(RustParameterParser::default(), mock::mutable_reference_parameter(), "name: *mut String")
     }
 
     #[test]
     fn receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::receiver_parameter(), "self")
+        assert_eq(RustParameterParser::default(), mock::receiver_parameter(), "self")
     }
 
     #[test]
     fn reference_receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::reference_receiver_parameter(), "&self")
+        assert_eq(RustParameterParser::default(), mock::reference_receiver_parameter(), "&self")
     }
 
     #[test]
     fn mutable_receiver_parameter() -> Result<()> {
-        assert_eq(ParameterParser::default(), mock::mutable_receiver_parameter(), "&mut self")
+        assert_eq(RustParameterParser::default(), mock::mutable_receiver_parameter(), "&mut self")
     }
 }

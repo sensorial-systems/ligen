@@ -1,31 +1,25 @@
-use ligen::ir::Mutability;
 use crate::prelude::*;
 
-use ligen::ir::{Attributes, Method, Parameter, Type};
-use crate::function::parameter::ParameterParser;
-use crate::function::SynchronyParser;
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributeParser;
-use crate::types::TypeParser;
-use crate::visibility::VisibilityParser;
+use ligen::ir::{Mutability, Attributes, Method, Parameter, Type};
+use crate::{RustSynchronyParser, RustIdentifierParser, RustTypeParser, RustAttributeParser, RustParameterParser, RustVisibilityParser};
 
 #[derive(Default)]
-pub struct MethodParser {
-    identifier_parser: IdentifierParser,
-    visibility_parser: VisibilityParser,
-    synchrony_parser: SynchronyParser,
-    parameter_parser: ParameterParser,
-    type_parser: TypeParser,
-    attribute_parser: AttributeParser,
+pub struct RustMethodParser {
+    identifier_parser: RustIdentifierParser,
+    visibility_parser: RustVisibilityParser,
+    synchrony_parser: RustSynchronyParser,
+    parameter_parser: RustParameterParser,
+    type_parser: RustTypeParser,
+    attribute_parser: RustAttributeParser,
 }
 
-impl MethodParser {
+impl RustMethodParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<syn::ImplItemFn, Method> for MethodParser {
+impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
     fn transform(&self, method: syn::ImplItemFn, config: &Config) -> Result<Method> {
         if let Some(receiver) = method.sig.receiver() {
             let mutability = if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant };

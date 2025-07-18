@@ -2,20 +2,17 @@
 
 use crate::prelude::*;
 use ligen::ir::Field;
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::types::TypeParser;
-use crate::visibility::VisibilityParser;
+use crate::{RustIdentifierParser, RustAttributesParser, RustTypeParser, RustVisibilityParser};
 
 #[derive(Default)]
-pub struct FieldParser {
-    identifier_parser: IdentifierParser,
-    visibility_parser: VisibilityParser,
-    attributes_parser: AttributesParser,
-    type_parser: TypeParser,
+pub struct RustFieldParser {
+    identifier_parser: RustIdentifierParser,
+    visibility_parser: RustVisibilityParser,
+    attributes_parser: RustAttributesParser,
+    type_parser: RustTypeParser,
 }
 
-impl Transformer<syn::Field, Field> for FieldParser {
+impl Transformer<syn::Field, Field> for RustFieldParser {
     fn transform(&self, field: syn::Field, config: &Config) -> Result<Field> {
         let attributes = self.attributes_parser.transform(field.attrs, config)?;
         let visibility = self.visibility_parser.transform(field.vis, config)?;
@@ -25,7 +22,7 @@ impl Transformer<syn::Field, Field> for FieldParser {
     }
 }
 
-impl Transformer<syn::Fields, Vec<Field>> for FieldParser {
+impl Transformer<syn::Fields, Vec<Field>> for RustFieldParser {
     fn transform(&self, input: syn::Fields, config: &Config) -> Result<Vec<Field>> {
         let mut fields = Vec::new();
         for field in input {
@@ -39,7 +36,7 @@ impl Transformer<syn::Fields, Vec<Field>> for FieldParser {
 mod tests {
     use syn::parse_quote;
     use ligen::ir::{Field, Visibility, Path};
-    use crate::types::structure::FieldParser;
+    use crate::RustFieldParser;
     use crate::prelude::*;
 
     #[test]
@@ -51,7 +48,7 @@ mod tests {
         };
         let field = structure.fields.into_iter().next().expect("Couldn't get field.");
         assert_eq!(
-            FieldParser::default().transform(field, &Default::default())?,
+            RustFieldParser::default().transform(field, &Default::default())?,
             Field {
                 attributes: Default::default(),
                 visibility: Visibility::Private,

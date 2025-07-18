@@ -1,31 +1,28 @@
 //! Enumeration representation.
 
-pub mod variant;
+mod variant;
+pub use variant::*;
 
 use crate::prelude::*;
-use crate::types::GenericsParser;
+use crate::{RustIdentifierParser, RustAttributesParser, RustGenericsParser, RustVisibilityParser};
 use ligen::ir::{Enumeration, TypeDefinition};
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::types::type_definition::enumeration::variant::VariantParser;
-use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
-pub struct EnumerationParser {
-    identifier_parser: IdentifierParser,
-    visibility_parser: VisibilityParser,
-    attributes_parser: AttributesParser,
-    generics_parser: GenericsParser,
-    variant_parser: VariantParser,
+pub struct RustEnumerationParser {
+    identifier_parser: RustIdentifierParser,
+    visibility_parser: RustVisibilityParser,
+    attributes_parser: RustAttributesParser,
+    generics_parser: RustGenericsParser,
+    variant_parser: RustVariantParser,
 }
 
-impl EnumerationParser {
+impl RustEnumerationParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<syn::ItemEnum, TypeDefinition> for EnumerationParser {
+impl Transformer<syn::ItemEnum, TypeDefinition> for RustEnumerationParser {
     fn transform(&self, enumeration: syn::ItemEnum, config: &Config) -> Result<TypeDefinition> {
         let attributes = self.attributes_parser.transform(enumeration.attrs, config)?;
         let identifier = self.identifier_parser.transform(enumeration.ident, config)?;
@@ -38,13 +35,13 @@ impl Transformer<syn::ItemEnum, TypeDefinition> for EnumerationParser {
     }
 }
 
-impl Transformer<proc_macro::TokenStream, TypeDefinition> for EnumerationParser {
+impl Transformer<proc_macro::TokenStream, TypeDefinition> for RustEnumerationParser {
     fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<TypeDefinition> {
         self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, TypeDefinition> for EnumerationParser {
+impl Transformer<proc_macro2::TokenStream, TypeDefinition> for RustEnumerationParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<TypeDefinition> {
         syn::parse2::<syn::ItemEnum>(input)
             .map_err(|e| Error::Message(format!("Failed to parse enumeration: {e:?}")))
@@ -60,7 +57,7 @@ mod tests {
 
     #[test]
     fn enumeration() -> Result<()> {
-        assert_eq(EnumerationParser::default(), mock::enumeration(), quote !{
+        assert_eq(RustEnumerationParser::default(), mock::enumeration(), quote !{
             pub enum Enumeration {
                 Integer,
                 Float,

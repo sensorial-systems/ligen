@@ -2,7 +2,7 @@ use crate::{prelude::*, gui::ui::panes::Pane};
 use ligen_python_parser::{PythonParserConfig, PythonParser};
 
 pub mod parser;
-use ligen_rust_parser::library::RustLibraryParser;
+use ligen_rust_parser::RustLibraryParser;
 pub use parser::*;
 
 use crate::gui::ui::panes::PaneManager;

@@ -2,9 +2,7 @@
 
 use crate::prelude::*;
 use ligen::ir::{Path, Attributes, Visibility, Import};
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::visibility::VisibilityParser;
+use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser};
 
 #[derive(Clone)]
 struct ImportsBuilder {
@@ -15,14 +13,14 @@ struct ImportsBuilder {
 }
 
 #[derive(Default)]
-pub struct ImportsParser {
-    attributes_parser: AttributesParser,
-    visibility_parser: VisibilityParser,
-    identifier_parser: IdentifierParser
+pub struct RustImportsParser {
+    attributes_parser: RustAttributesParser,
+    visibility_parser: RustVisibilityParser,
+    identifier_parser: RustIdentifierParser
 }
 
 
-impl Transformer<syn::ItemUse, Vec<Import>> for ImportsParser {
+impl Transformer<syn::ItemUse, Vec<Import>> for RustImportsParser {
     fn transform(&self, import: syn::ItemUse, config: &Config) -> Result<Vec<Import>> {
         let attributes = self.attributes_parser.transform(import.attrs, config)?;
         let visibility = self.visibility_parser.transform(import.vis, config)?;
@@ -32,13 +30,13 @@ impl Transformer<syn::ItemUse, Vec<Import>> for ImportsParser {
     }
 }
 
-impl Transformer<proc_macro::TokenStream, Vec<Import>> for ImportsParser {
+impl Transformer<proc_macro::TokenStream, Vec<Import>> for RustImportsParser {
     fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Vec<Import>> {
         self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, Vec<Import>> for ImportsParser {
+impl Transformer<proc_macro2::TokenStream, Vec<Import>> for RustImportsParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Vec<Import>> {
         syn::parse2::<syn::ItemUse>(input)
             .map_err(|e| Error::Message(format!("Failed to parse imports: {e:?}")))
@@ -47,7 +45,7 @@ impl Transformer<proc_macro2::TokenStream, Vec<Import>> for ImportsParser {
 }
 
 
-impl Transformer<ImportsBuilder, Vec<Import>> for ImportsParser {
+impl Transformer<ImportsBuilder, Vec<Import>> for RustImportsParser {
     fn transform(&self, builder: ImportsBuilder, config: &Config) -> Result<Vec<Import>> {
         let mut builder = builder;
         match builder.tree {
@@ -104,7 +102,7 @@ mod tests {
 
     #[test]
     fn import() -> Result<()> {
-        assert_eq(ImportsParser::default(), mock::import(), quote! {
+        assert_eq(RustImportsParser::default(), mock::import(), quote! {
             #[custom(attribute)]
             pub use std::collections::HashMap;
         })
@@ -112,7 +110,7 @@ mod tests {
 
     #[test]
     fn glob_import() -> Result<()> {
-        assert_eq(ImportsParser::default(), mock::glob_import(), quote! {
+        assert_eq(RustImportsParser::default(), mock::glob_import(), quote! {
             #[custom(attribute)]
             pub use std::collections::*;
         })
@@ -120,7 +118,7 @@ mod tests {
 
     #[test]
     fn renamed_import() -> Result<()> {
-        assert_eq(ImportsParser::default(), mock::renamed_import(), quote !{
+        assert_eq(RustImportsParser::default(), mock::renamed_import(), quote !{
             #[custom(attribute)]
             pub use std::collections::HashMap as Map;
         })
@@ -128,7 +126,7 @@ mod tests {
 
     #[test]
     fn group_import() -> Result<()> {
-        assert_eq(ImportsParser::default(), mock::group_import(), quote! {
+        assert_eq(RustImportsParser::default(), mock::group_import(), quote! {
             #[custom(attribute)]
             pub use std::{
                 collections::{

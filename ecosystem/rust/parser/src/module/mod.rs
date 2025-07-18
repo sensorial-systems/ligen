@@ -1,35 +1,25 @@
 //! Module representation.
 
 mod import;
+pub use import::*;
 
 use syn::spanned::Spanned;
-use ligen::ir::Object;
-use ligen::transformer::prelude::*;
-use crate::interface::RustInterfaceParser;
+use ligen::ir::{Function, Module, Import, TypeDefinition, Interface, Object};
 use crate::prelude::*;
-use crate::types::type_alias::TypeAliasParser;
-use ligen::ir::{Function, Module, Import, TypeDefinition, Interface};
-use crate::object::ObjectParser;
-use crate::function::RustFunctionParser;
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::module::import::ImportsParser;
-use crate::types::enumeration::EnumerationParser;
-use crate::types::structure::StructureParser;
-use crate::visibility::VisibilityParser;
+use crate::{RustInterfaceParser, RustTypeAliasParser, RustObjectParser, RustFunctionParser, RustIdentifierParser, RustAttributesParser, RustEnumerationParser, RustStructureParser, RustVisibilityParser};
 
 #[derive(Default)]
 pub struct RustModuleParser {
     interface_parser: RustInterfaceParser,
-    object_parser: ObjectParser,
-    visibility_parser: VisibilityParser,
+    object_parser: RustObjectParser,
+    visibility_parser: RustVisibilityParser,
     function_parser: RustFunctionParser,
-    identifier_parser: IdentifierParser,
-    attributes_parser: AttributesParser,
-    type_alias_parser: TypeAliasParser,
-    enumeration_parser: EnumerationParser,
-    structure_parser: StructureParser,
-    imports_parser: ImportsParser,
+    identifier_parser: RustIdentifierParser,
+    attributes_parser: RustAttributesParser,
+    type_alias_parser: RustTypeAliasParser,
+    enumeration_parser: RustEnumerationParser,
+    structure_parser: RustStructureParser,
+    imports_parser: RustImportsParser,
 }
 
 impl RustModuleParser {

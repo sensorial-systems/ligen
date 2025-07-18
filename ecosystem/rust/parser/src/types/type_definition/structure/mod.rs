@@ -1,38 +1,34 @@
 //! Structure representation.
 
-pub mod field;
-
+mod field;
 pub use field::*;
 
 use crate::prelude::*;
-use crate::types::GenericsParser;
+use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustGenericsParser};
 use ligen::ir::{Structure, TypeDefinition};
-use crate::identifier::IdentifierParser;
-use crate::macro_attributes::attributes::AttributesParser;
-use crate::visibility::VisibilityParser;
 
 #[derive(Default)]
-pub struct StructureParser {
-    field_parser: FieldParser,
-    identifier_parser: IdentifierParser,
-    visibility_parser: VisibilityParser,
-    attributes_parser: AttributesParser,
-    generics_parser: GenericsParser,
+pub struct RustStructureParser {
+    field_parser: RustFieldParser,
+    identifier_parser: RustIdentifierParser,
+    visibility_parser: RustVisibilityParser,
+    attributes_parser: RustAttributesParser,
+    generics_parser: RustGenericsParser,
 }
 
-impl StructureParser {
+impl RustStructureParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<proc_macro::TokenStream, TypeDefinition> for StructureParser {
+impl Transformer<proc_macro::TokenStream, TypeDefinition> for RustStructureParser {
     fn transform(&self, token_stream: proc_macro::TokenStream, config: &Config) -> Result<TypeDefinition> {
         self.transform(proc_macro2::TokenStream::from(token_stream), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, TypeDefinition> for StructureParser {
+impl Transformer<proc_macro2::TokenStream, TypeDefinition> for RustStructureParser {
     fn transform(&self, tokenstream: proc_macro2::TokenStream, config: &Config) -> Result<TypeDefinition> {
         syn::parse2::<syn::ItemStruct>(tokenstream)
             .map_err(|e| Error::Message(format!("Failed to parse to structure: {e:?}")))
@@ -40,7 +36,7 @@ impl Transformer<proc_macro2::TokenStream, TypeDefinition> for StructureParser {
     }
 }
 
-impl Transformer<syn::ItemStruct, TypeDefinition> for StructureParser {
+impl Transformer<syn::ItemStruct, TypeDefinition> for RustStructureParser {
     fn transform(&self, structure: syn::ItemStruct, config: &Config) -> Result<TypeDefinition> {
         let attributes = self.attributes_parser.transform(structure.attrs, config)?;
         let identifier = self.identifier_parser.transform(structure.ident, config)?;
@@ -55,15 +51,15 @@ impl Transformer<syn::ItemStruct, TypeDefinition> for StructureParser {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::structure::StructureParser;
     use crate::prelude::*;
+    use crate::RustStructureParser;
 
     use ligen::transformer::assert::*;
     use ligen::ir::structure::mock;
 
     #[test]
     fn structure() -> Result<()> {
-        assert_eq(StructureParser::default(), mock::structure(), quote! {
+        assert_eq(RustStructureParser::default(), mock::structure(), quote! {
             pub struct Structure {
                 integer: i32
             }

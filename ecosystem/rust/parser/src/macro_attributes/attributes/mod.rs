@@ -6,11 +6,11 @@ use attribute::intermediary_attribute::IntermediaryAttribute;
 use ligen::ir::{Attribute, Attributes, Literal};
 
 #[derive(Default)]
-pub struct AttributesParser {
-    attribute_parser: AttributeParser,
+pub struct RustAttributesParser {
+    attribute_parser: RustAttributeParser,
 }
 
-impl Parser<Attributes> for AttributesParser {
+impl Parser<Attributes> for RustAttributesParser {
     fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Attributes> {
         let input = input.as_ref();
         let attributes = syn::parse_str::<syn2::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>>(input)
@@ -24,7 +24,7 @@ impl Parser<Attributes> for AttributesParser {
     }
 }
 
-impl Transformer<Vec<syn::Attribute>, Attributes> for AttributesParser {
+impl Transformer<Vec<syn::Attribute>, Attributes> for RustAttributesParser {
     fn transform(&self, in_attributes: Vec<syn::Attribute>, config: &Config) -> Result<Attributes> {
         let mut attributes = Vec::new();
         for attribute in in_attributes {
@@ -34,7 +34,7 @@ impl Transformer<Vec<syn::Attribute>, Attributes> for AttributesParser {
     }
 }
 
-impl Transformer<syn::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>, Attributes> for AttributesParser {
+impl Transformer<syn::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>, Attributes> for RustAttributesParser {
     fn transform(&self, input: syn::punctuated::Punctuated<IntermediaryAttribute, syn::token::Comma>, config: &Config) -> Result<Attributes> {
         let mut attributes = Vec::new();
         for attribute in input {
@@ -44,7 +44,7 @@ impl Transformer<syn::punctuated::Punctuated<IntermediaryAttribute, syn::token::
     }
 }
 
-impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Attributes> for AttributesParser {
+impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Attributes> for RustAttributesParser {
     fn transform(&self, input: syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, config: &Config) -> Result<Attributes> {
         let attributes = input
             .into_iter()
@@ -54,7 +54,7 @@ impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Attr
     }
 }
 
-impl Transformer<syn::punctuated::Punctuated<syn::Meta, syn::token::Comma>, Attributes> for AttributesParser {
+impl Transformer<syn::punctuated::Punctuated<syn::Meta, syn::token::Comma>, Attributes> for RustAttributesParser {
     fn transform(&self, input: syn::punctuated::Punctuated<syn::Meta, syn::token::Comma>, config: &Config) -> Result<Attributes> {
         let attributes = input
             .into_iter()
@@ -74,16 +74,16 @@ mod test {
 
     #[test]
     fn parse_literals() -> Result<()> {
-        assert_eq(AttributesParser::default(), mock::parse_literals(), "c(marshal_as(name = \"hello\", uuid = 5), int = \"sized\")")
+        assert_eq(RustAttributesParser::default(), mock::parse_literals(), "c(marshal_as(name = \"hello\", uuid = 5), int = \"sized\")")
     }
 
     #[test]
     fn parse_attributes() -> Result<()> {
-        assert_eq(AttributesParser::default(), mock::parse_attributes(), "c(int = \"sized\")")
+        assert_eq(RustAttributesParser::default(), mock::parse_attributes(), "c(int = \"sized\")")
     }
 
     #[test]
     fn parse_expressions() -> Result<()> {
-        assert_eq(AttributesParser::default(), mock::parse_expressions(), r#"error("the {} field name: '{}' is invalid, path: {:?}", self.0.field_type, self.0.field_name, self.0.path)"#) // we need to make expressions valid.
+        assert_eq(RustAttributesParser::default(), mock::parse_expressions(), r#"error("the {} field name: '{}' is invalid, path: {:?}", self.0.field_type, self.0.field_name, self.0.path)"#) // we need to make expressions valid.
     }
 }

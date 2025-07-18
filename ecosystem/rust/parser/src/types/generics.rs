@@ -1,19 +1,19 @@
 use ligen::ir::Generics;
 use ligen::transformer::prelude::*;
-use crate::types::type_::TypeParser;
+use crate::types::type_::RustTypeParser;
 
 #[derive(Default)]
-pub struct GenericsParser {
-    type_parser: TypeParser,
+pub struct RustGenericsParser {
+    type_parser: RustTypeParser,
 }
 
-impl GenericsParser {
+impl RustGenericsParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<syn::PathArguments, Generics> for GenericsParser {
+impl Transformer<syn::PathArguments, Generics> for RustGenericsParser {
     fn transform(&self, input: syn::PathArguments, config: &Config) -> Result<Generics> {
         let types = match input {
             syn::PathArguments::AngleBracketed(arguments) => {
@@ -33,7 +33,7 @@ impl Transformer<syn::PathArguments, Generics> for GenericsParser {
     }
 }
 
-impl Transformer<syn::Generics, Generics> for GenericsParser {
+impl Transformer<syn::Generics, Generics> for RustGenericsParser {
     fn transform(&self, input: syn::Generics, config: &Config) -> Result<Generics> {
         let mut generics = Generics::default();
         for generic in input.params {

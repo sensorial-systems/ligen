@@ -4,15 +4,15 @@ use crate::prelude::*;
 use ligen::ir::Mutability;
 
 #[derive(Default)]
-pub struct MutabilityParser;
+pub struct RustMutabilityParser;
 
-impl MutabilityParser {
+impl RustMutabilityParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<Option<syn::token::Mut>, Mutability> for MutabilityParser {
+impl Transformer<Option<syn::token::Mut>, Mutability> for RustMutabilityParser {
     fn transform(&self, mutability: Option<syn::token::Mut>, _config: &Config) -> Result<Mutability> {
         if mutability.is_some() {
             Ok(Mutability::Mutable)

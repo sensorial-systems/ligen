@@ -2,29 +2,29 @@ use ligen::prelude::*;
 use ligen::ir::Type;
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
-use crate::{literal::LiteralParser, mutability::MutabilityParser};
-use crate::path::PathParser;
+use crate::{literal::RustLiteralParser, mutability::RustMutabilityParser};
+use crate::path::RustPathParser;
 
 #[derive(Default)]
-pub struct TypeParser {
-    pub mutability_parser: MutabilityParser,
-    pub literal_parser: LiteralParser,
-    pub path_parser: PathParser
+pub struct RustTypeParser {
+    pub mutability_parser: RustMutabilityParser,
+    pub literal_parser: RustLiteralParser,
+    pub path_parser: RustPathParser
 }
 
-impl TypeParser {
+impl RustTypeParser {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Transformer<syn::Ident, Type> for TypeParser {
+impl Transformer<syn::Ident, Type> for RustTypeParser {
     fn transform(&self, input: syn::Ident, config: &Config) -> Result<Type> {
         Ok(self.path_parser.transform(input, config)?.into())
     }
 }
 
-impl Transformer<syn::Path, Type> for TypeParser {
+impl Transformer<syn::Path, Type> for RustTypeParser {
     fn transform(&self, path: syn::Path, config: &Config) -> Result<Type> {
         let mut path = self.path_parser.transform(path, config)?;
         if path.segments.len() == 1 {
@@ -39,7 +39,7 @@ impl Transformer<syn::Path, Type> for TypeParser {
     }
 }
 
-impl Transformer<syn::Type, Type> for TypeParser {
+impl Transformer<syn::Type, Type> for RustTypeParser {
     fn transform(&self, syn_type: syn::Type, config: &Config) -> Result<Type> {
         if let syn::Type::Path(syn::TypePath { path, .. }) = syn_type {
             Ok(self.transform(path, config)?)
@@ -48,17 +48,17 @@ impl Transformer<syn::Type, Type> for TypeParser {
                 syn::Type::Reference(syn::TypeReference { elem, mutability, .. }) |
                 syn::Type::Ptr(syn::TypePtr { elem, mutability, .. }) => {
                     let mutability = self.mutability_parser.transform(mutability, config)?;
-                    let type_ = TypeParser::new().transform(*elem, config)?;
+                    let type_ = RustTypeParser::new().transform(*elem, config)?;
                     Ok(Type::reference(mutability, type_))
                 },
                 syn::Type::Slice(TypeSlice { elem, .. }) => {
-                    let type_ = TypeParser::new().transform(*elem, config)?;
+                    let type_ = RustTypeParser::new().transform(*elem, config)?;
                     Ok(Type::slice(type_))
                 },
                 syn::Type::Array(TypeArray { elem, len, .. }) => {
                     let len = self.literal_parser.transform(len, config)?;
                     let len = len.into_integer().map_err(|_| Error::Message("Array length literal isn't an integer.".into()))? as usize;
-                    let type_ = TypeParser::new().transform(*elem, config)?;
+                    let type_ = RustTypeParser::new().transform(*elem, config)?;
                     Ok(Type::array(type_, len))
                 },
                 syn::Type::Tuple(syn::TypeTuple { elems, .. }) => {
@@ -71,13 +71,13 @@ impl Transformer<syn::Type, Type> for TypeParser {
     }
 }
 
-impl Transformer<proc_macro::TokenStream, Type> for TypeParser {
+impl Transformer<proc_macro::TokenStream, Type> for RustTypeParser {
     fn transform(&self, input: proc_macro::TokenStream, config: &Config) -> Result<Type> {
         self.transform(proc_macro2::TokenStream::from(input), config)
     }
 }
 
-impl Transformer<proc_macro2::TokenStream, Type> for TypeParser {
+impl Transformer<proc_macro2::TokenStream, Type> for RustTypeParser {
     fn transform(&self, input: proc_macro2::TokenStream, config: &Config) -> Result<Type> {
         syn::parse2::<syn::Type>(input)
             .map_err(|e| Error::Message(format!("Failed to parse type: {e}")))
@@ -89,7 +89,7 @@ impl Transformer<proc_macro2::TokenStream, Type> for TypeParser {
 mod test {
     use ligen_ir::PathSegment;
 
-    use crate::types::type_::TypeParser;
+    use crate::types::type_::RustTypeParser;
     use crate::prelude::*;
     use super::*;
 
@@ -97,7 +97,7 @@ mod test {
 
     fn test_pairs(input: Vec<(proc_macro2::TokenStream, Type)>) {
         let v: Vec<(Type, Type)> = input.into_iter().map(|(input, expected)| {
-            (TypeParser::new().transform(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
+            (RustTypeParser::new().transform(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
         }).collect();
         for (value, expected_value) in v {
             assert_eq!(value, expected_value);
@@ -149,7 +149,7 @@ mod test {
     fn types_boolean() -> Result<()> {
         assert_eq!(
             Type::boolean(),
-            TypeParser::new().transform(quote! {bool}, &Default::default())?
+            RustTypeParser::new().transform(quote! {bool}, &Default::default())?
         );
         Ok(())
     }
@@ -158,7 +158,7 @@ mod test {
     fn types_character() -> Result<()> {
         assert_eq!(
             Type::character(),
-            TypeParser::new().transform(quote! {char}, &Default::default())?
+            RustTypeParser::new().transform(quote! {char}, &Default::default())?
         );
         Ok(())
     }
@@ -167,7 +167,7 @@ mod test {
     fn types_borrow_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser::new().transform(quote! {&i32}, &Default::default())?
+            RustTypeParser::new().transform(quote! {&i32}, &Default::default())?
         );
         Ok(())
     }
@@ -176,7 +176,7 @@ mod test {
     fn types_borrow_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser::new().transform(quote! {&mut i32}, &Default::default())?
+            RustTypeParser::new().transform(quote! {&mut i32}, &Default::default())?
         );
         Ok(())
     }
@@ -185,7 +185,7 @@ mod test {
     fn types_pointer_constant() -> Result<()> {
         assert_eq!(
             Type::constant_reference(Type::i32()),
-            TypeParser::new().transform(quote! {*const i32}, &Default::default())?
+            RustTypeParser::new().transform(quote! {*const i32}, &Default::default())?
         );
         Ok(())
     }
@@ -194,7 +194,7 @@ mod test {
     fn types_pointer_mutable() -> Result<()> {
         assert_eq!(
             Type::mutable_reference(Type::i32()),
-            TypeParser::new().transform(quote! {*mut i32}, &Default::default())?
+            RustTypeParser::new().transform(quote! {*mut i32}, &Default::default())?
         );
         Ok(())
     }
@@ -203,7 +203,7 @@ mod test {
     fn types_with_generics() -> Result<()> {
         assert_eq!(
             Type::from(PathSegment::new("vec2", Type::f32())),
-            TypeParser::new().transform(quote! {vec2<f32>}, &Default::default())?
+            RustTypeParser::new().transform(quote! {vec2<f32>}, &Default::default())?
         );
         Ok(())
     }

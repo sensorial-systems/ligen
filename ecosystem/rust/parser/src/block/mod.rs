@@ -5,17 +5,17 @@ use quote::quote;
 
 
 #[derive(Default)]
-pub struct BlockParser {
+pub struct RustBlockParser {
     path_parser: PathParser,
 }
 
-impl Transformer<Box<syn::Block>, Option<Block>> for BlockParser {
+impl Transformer<Box<syn::Block>, Option<Block>> for RustBlockParser {
     fn transform(&self, block: Box<syn::Block>, config: &Config) -> Result<Option<Block>> {
         self.transform(*block, config)
     }
 }
 
-impl Transformer<syn::Block, Option<Block>> for BlockParser {
+impl Transformer<syn::Block, Option<Block>> for RustBlockParser {
     fn transform(&self, block: syn::Block, config: &Config) -> Result<Option<Block>> {
         Ok(if block.stmts.is_empty() {
             None
@@ -25,7 +25,7 @@ impl Transformer<syn::Block, Option<Block>> for BlockParser {
     }
 }
 
-impl Transformer<syn::Block, Block> for BlockParser {
+impl Transformer<syn::Block, Block> for RustBlockParser {
     fn transform(&self, block: syn::Block, config: &Config) -> Result<Block> {
         let mut statements = Vec::new();
         for stmt in block.stmts {
@@ -35,7 +35,7 @@ impl Transformer<syn::Block, Block> for BlockParser {
     }
 }
 
-impl Transformer<syn::Stmt, Statement> for BlockParser {
+impl Transformer<syn::Stmt, Statement> for RustBlockParser {
     fn transform(&self, stmt: syn::Stmt, config: &Config) -> Result<Statement> {
         match stmt {
             syn::Stmt::Expr(expr, _) => {
@@ -56,13 +56,13 @@ impl Transformer<syn::Stmt, Statement> for BlockParser {
     }
 }
 
-impl Transformer<Box<syn::Expr>, Expression> for BlockParser {
+impl Transformer<Box<syn::Expr>, Expression> for RustBlockParser {
     fn transform(&self, expr: Box<syn::Expr>, config: &Config) -> Result<Expression> {
         self.transform(*expr, config)
     }
 }
 
-impl Transformer<syn::Expr, Expression> for BlockParser {
+impl Transformer<syn::Expr, Expression> for RustBlockParser {
     fn transform(&self, expr: syn::Expr, config: &Config) -> Result<Expression> {
         match expr {
             syn::Expr::Binary(binary) => {
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn block() {
-        let block_parser = BlockParser::default();
+        let block_parser = RustBlockParser::default();
         let block = syn::parse_str::<syn::Block>("{
             return a / b;
         }").unwrap();

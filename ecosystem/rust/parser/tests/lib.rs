@@ -5,7 +5,7 @@ pub fn module_file() {
     use ligen::ir::*;
     use ligen_ir::macro_attributes::Group;
     use ligen::transformer::assert::assert_eq;
-    use ligen_rust_parser::module::RustModuleParser;
+    use ligen_rust_parser::RustModuleParser;
 
     let module = Module {
         identifier: "lib".into(),
