@@ -1,5 +1,5 @@
 use anchor_lang_idl_spec::Idl;
-use ligen_ir::{attribute::Named, prelude::Result, Identifier, Literal, Module, Mutability, Object, Visibility};
+use ligen_idl::{attribute::Named, prelude::Result, Identifier, Literal, Module, Mutability, Object, Visibility};
 use ligen_transformer::prelude::*;
 
 use crate::type_::TypeParser;

@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Path;
+use ligen_idl::Path;
 
 use crate::RustIdentifierGenerator;
 

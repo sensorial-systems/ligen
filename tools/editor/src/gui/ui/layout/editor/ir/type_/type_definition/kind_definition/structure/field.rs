@@ -15,8 +15,8 @@ impl Field {
 }
 
 impl Widget for Field {
-    type Input = ligen_ir::Field;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, field: &mut ligen_ir::Field) {
+    type Input = ligen_idl::Field;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, field: &mut ligen_idl::Field) {
         OptionalField::new("Identifier").show(settings, ui, &mut field.identifier, |ui, identifier| {
             Identifier::new().show(settings, ui, identifier);
         });

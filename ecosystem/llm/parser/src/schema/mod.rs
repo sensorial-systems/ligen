@@ -1,5 +1,5 @@
 use schemars::schema_for;
-use ligen_ir::prelude::*;
+use ligen_idl::prelude::*;
 pub struct JsonSchema {
     pub value: serde_json::Value,
 }

@@ -12,8 +12,8 @@ impl Parameter {
 }
 
 impl Widget for Parameter {
-    type Input = ligen_ir::Parameter;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, parameter: &mut ligen_ir::Parameter) {
+    type Input = ligen_idl::Parameter;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, parameter: &mut ligen_idl::Parameter) {
         ui.horizontal_top(|ui| {
             Type::new().show(settings, ui, &mut parameter.type_);
             Identifier::new().show(settings, ui, &mut parameter.identifier);

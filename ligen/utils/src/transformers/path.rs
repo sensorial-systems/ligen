@@ -1,4 +1,4 @@
-use ligen_ir::{Function, Import, Module, Library, Type};
+use ligen_idl::{Function, Import, Module, Library, Type};
 use crate::transformers::Transform;
 use crate::visitors::{FunctionVisitor, ImportVisitor, ModuleVisitor, LibraryVisitor};
 

@@ -1,4 +1,4 @@
-use ligen::ir::TypeDefinition;
+use ligen::idl::TypeDefinition;
 
 pub use crate::prelude::*;
 

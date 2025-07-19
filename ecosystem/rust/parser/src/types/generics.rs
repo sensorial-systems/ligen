@@ -1,4 +1,4 @@
-use ligen::ir::Generics;
+use ligen::idl::Generics;
 use ligen::transformer::prelude::*;
 use crate::types::type_::RustTypeParser;
 

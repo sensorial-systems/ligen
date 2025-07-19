@@ -1,4 +1,4 @@
-use ligen_ir::Function;
+use ligen_idl::Function;
 use crate::TypeDescriptor;
 
 impl TypeDescriptor for Function {

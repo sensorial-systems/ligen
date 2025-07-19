@@ -17,8 +17,8 @@ impl AnchorGenerator {
     }
 }
 
-impl Generator<&ligen_ir::Library, anchor_lang_idl_spec::Idl> for AnchorGenerator {
-    fn generate(&self, input: &ligen_ir::Library, config: &Config) -> Result<anchor_lang_idl_spec::Idl> {
+impl Generator<&ligen_idl::Library, anchor_lang_idl_spec::Idl> for AnchorGenerator {
+    fn generate(&self, input: &ligen_idl::Library, config: &Config) -> Result<anchor_lang_idl_spec::Idl> {
         let mut metadata = self.metadata_generator.generate(&input.metadata, config)?;
         metadata.name = input.identifier.to_string();
 
@@ -30,7 +30,7 @@ impl Generator<&ligen_ir::Library, anchor_lang_idl_spec::Idl> for AnchorGenerato
         let constants = vec![];
 
         let instructions = input
-            .all_branches::<&ligen_ir::Module>()
+            .all_branches::<&ligen_idl::Module>()
             .flat_map(|module| module.interfaces.iter())
             .filter(|interface| interface.attributes.contains("program"))
             .flat_map(|interface| &interface.methods)
@@ -41,7 +41,7 @@ impl Generator<&ligen_ir::Library, anchor_lang_idl_spec::Idl> for AnchorGenerato
             }).collect::<Vec<_>>();
 
         let types = input
-            .all_branches::<&ligen_ir::Module>()
+            .all_branches::<&ligen_idl::Module>()
             .flat_map(|module| module.types.iter())
             .filter_map(|type_def| self.type_definition_generator.generate(type_def, config).ok())
             .collect::<Vec<_>>();

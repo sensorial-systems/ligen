@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Library;
+use ligen_idl::Library;
 
 #[derive(Default)]
 pub struct LlmLibraryParser {

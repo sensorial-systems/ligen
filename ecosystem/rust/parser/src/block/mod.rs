@@ -1,6 +1,6 @@
 use ligen::parser::universal::PathParser;
 use ligen::prelude::*;
-use ligen::ir::{Block, Statement, Expression, BinaryExpression};
+use ligen::idl::{Block, Statement, Expression, BinaryExpression};
 use quote::quote;
 
 
@@ -85,7 +85,7 @@ impl Transformer<syn::Expr, Expression> for RustBlockParser {
 
 #[cfg(test)]
 mod tests {
-    use ligen::ir::{Statement, Expression, BinaryExpression, Path};
+    use ligen::idl::{Statement, Expression, BinaryExpression, Path};
 
     use super::*;
 

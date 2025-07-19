@@ -1,5 +1,5 @@
 // TODO: Remove this file if it is no longer used.
-// use ligen_ir::{Type, Attribute, Reference, Mutability};
+// use ligen_idl::{Type, Attribute, Reference, Mutability};
 // use ligen_utils::visitors::{ModuleVisitor, LibraryVisitor, StructureVisitor};
 // use std::collections::HashMap;
 //
@@ -107,7 +107,7 @@
 // #[cfg(test)]
 // mod tests {
 //     use super::*;
-//     use ligen_ir::{Primitive, Integer, Reference};
+//     use ligen_idl::{Primitive, Integer, Reference};
 //
 //     struct A;
 //     struct B;

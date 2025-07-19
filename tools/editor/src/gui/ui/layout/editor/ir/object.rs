@@ -12,13 +12,13 @@ impl Object {
 }
 
 impl Widget for Object {
-    type Input = ligen_ir::Object;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, object: &mut ligen_ir::Object) {
+    type Input = ligen_idl::Object;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, object: &mut ligen_idl::Object) {
         ui.horizontal_top(|ui| {
             Identifier::new().show(settings, ui, &mut object.identifier);
             Type::new().show(settings, ui, &mut object.type_);
             if !object.literal.is_compatible_with(&object.type_) {
-                object.literal = ligen_ir::Literal::default_for_type(&object.type_);
+                object.literal = ligen_idl::Literal::default_for_type(&object.type_);
             }
             ui.label("=");
             Literal::new().show(settings, ui, &mut object.literal);
@@ -26,6 +26,6 @@ impl Widget for Object {
     }
 }
 
-impl WidgetFor for ligen_ir::Object {
+impl WidgetFor for ligen_idl::Object {
     type Widget = Object;
 }

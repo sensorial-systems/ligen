@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::prelude::Result;
+use ligen_idl::prelude::Result;
 
 #[derive(Debug, Default)]
 pub struct AnchorMetadataGenerator;
@@ -10,8 +10,8 @@ impl AnchorMetadataGenerator {
     }
 }
 
-impl Generator<&ligen_ir::Metadata, anchor_lang_idl_spec::IdlMetadata> for AnchorMetadataGenerator {
-    fn generate(&self, input: &ligen_ir::Metadata, _config: &Config) -> Result<anchor_lang_idl_spec::IdlMetadata> {
+impl Generator<&ligen_idl::Metadata, anchor_lang_idl_spec::IdlMetadata> for AnchorMetadataGenerator {
+    fn generate(&self, input: &ligen_idl::Metadata, _config: &Config) -> Result<anchor_lang_idl_spec::IdlMetadata> {
         let name = Default::default();
         let contact = if input.authors.is_empty() {
             None

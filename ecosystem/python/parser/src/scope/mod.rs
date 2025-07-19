@@ -2,7 +2,7 @@ mod import_parser;
 mod scope_type;
 
 use rustpython_parser::ast::{Arguments, Expr, Stmt};
-use ligen::ir::{Interface, Object, Function, Method, Import, TypeDefinition};
+use ligen::idl::{Interface, Object, Function, Method, Import, TypeDefinition};
 use crate::{prelude::*, parser::PythonParserConfig};
 
 // TODO: REMOVE THIS.

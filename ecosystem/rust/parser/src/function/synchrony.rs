@@ -1,4 +1,4 @@
-use ligen::ir::Synchrony;
+use ligen::idl::Synchrony;
 use ligen::transformer::prelude::*;
 
 #[derive(Default)]

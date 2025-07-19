@@ -12,8 +12,8 @@ impl Visibility {
 }
 
 impl Widget for Visibility {
-    type Input = ligen_ir::Visibility;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, visibility: &mut ligen_ir::Visibility) {
+    type Input = ligen_idl::Visibility;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, visibility: &mut ligen_idl::Visibility) {
         if settings.display.show_visibility {
             EnumField::new().id_source("visibility").show(settings, ui, visibility);
         }
@@ -21,8 +21,8 @@ impl Widget for Visibility {
 }
 
 impl TextPrinter for Visibility {
-    type Input = ligen_ir::Visibility;
-    fn print(&self, settings: &Settings, text: &mut Paper, visibility: &ligen_ir::Visibility) -> &Self {
+    type Input = ligen_idl::Visibility;
+    fn print(&self, settings: &Settings, text: &mut Paper, visibility: &ligen_idl::Visibility) -> &Self {
         if settings.display.show_visibility {
             text.print_word(visibility);
         }

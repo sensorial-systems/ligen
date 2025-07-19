@@ -1,4 +1,4 @@
-use ligen_ir::prelude::serde;
+use ligen_idl::prelude::serde;
 
 
 pub trait TypeDescriptor: schemars::JsonSchema + serde::de::DeserializeOwned {

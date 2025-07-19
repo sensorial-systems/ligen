@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::ir::Method;
+use ligen::idl::Method;
 
 #[derive(Default)]
 pub struct MethodValidator {

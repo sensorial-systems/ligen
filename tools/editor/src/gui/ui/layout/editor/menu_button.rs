@@ -1,4 +1,4 @@
-use ligen_ir::Library;
+use ligen_idl::Library;
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 use crate::prelude::*;
@@ -15,10 +15,10 @@ impl MenuButton for EditorMenuButton {
     fn show_button(&self, ui: &mut egui::Ui, panes: &mut Panes) {
         if ui.button("Open").clicked() {
             let file = rfd::FileDialog::new()
-                .add_filter("ligen-ir", &["lir"])
+                .add_filter("ligen-idl", &["lir"])
                 .pick_file();
             if let Some(file) = file {
-                if let Ok(library) = ligen_ir::Library::load(file) {
+                if let Ok(library) = ligen_idl::Library::load(file) {
                     panes.new_pane(Box::new(Editor::new(library)));
                 }
             }

@@ -13,7 +13,7 @@ pub use config::*;
 pub use metadata::*;
 pub use validator::*;
 
-use ligen::ir::{Registry, Library};
+use ligen::idl::{Registry, Library};
 
 #[derive(Default)]
 pub struct PythonParser {

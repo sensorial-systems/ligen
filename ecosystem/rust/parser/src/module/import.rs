@@ -1,7 +1,7 @@
 //! Import representation.
 
 use crate::prelude::*;
-use ligen::ir::{Path, Attributes, Visibility, Import};
+use ligen::idl::{Path, Attributes, Visibility, Import};
 use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser};
 
 #[derive(Clone)]
@@ -98,7 +98,7 @@ impl Transformer<ImportsBuilder, Vec<Import>> for RustImportsParser {
 mod tests {
     use super::*;
     use ligen::transformer::assert::*;
-    use ligen::ir::module::import::mock;
+    use ligen::idl::module::import::mock;
 
     #[test]
     fn import() -> Result<()> {

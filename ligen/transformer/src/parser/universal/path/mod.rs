@@ -2,7 +2,7 @@
 
 use crate::parser::*;
 
-use ligen_ir::{Path, PathSegment};
+use ligen_idl::{Path, PathSegment};
 use crate::parser::universal::identifier::IdentifierParser;
 
 #[derive(Default)]
@@ -48,7 +48,7 @@ mod test {
     use crate::prelude::*;
 
     use crate::assert::*;
-    use ligen_ir::path::mock;
+    use ligen_idl::path::mock;
 
     #[test]
     fn identifier_as_path() -> Result<()> {

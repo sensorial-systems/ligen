@@ -1,5 +1,5 @@
 use ligen::prelude::*;
-use ligen::ir::Registry;
+use ligen::idl::Registry;
 
 #[derive(Default)]
 pub struct RustParser;

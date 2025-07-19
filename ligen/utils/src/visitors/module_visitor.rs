@@ -1,5 +1,5 @@
 use super::{LibraryVisitor, Visitor};
-use ligen_ir::{Module, Library, Path};
+use ligen_idl::{Module, Library, Path};
 
 /// All the possibilities of module parents.
 #[derive(Debug, Clone)]

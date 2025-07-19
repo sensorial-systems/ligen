@@ -26,7 +26,7 @@ impl Generators {
 }
 
 impl Widget for Generators {
-    type Input = ligen_ir::Library;
+    type Input = ligen_idl::Library;
     fn show(&mut self, settings: &Settings, ui: &mut ligen_gui_runtime::egui::Ui, input: &mut Self::Input) {
         for (index, generator) in self.generators.iter_mut().enumerate() {
             ui.push_id(index, |ui| {

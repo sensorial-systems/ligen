@@ -5,7 +5,7 @@ pub use template::*;
 // use builtin_functions::*;
 // use super::{FileGenerator, FileSet};
 
-// use ligen_ir::{Module, Library};
+// use ligen_idl::{Module, Library};
 // use ligen_common::*;
 
 // use std::path::PathBuf;

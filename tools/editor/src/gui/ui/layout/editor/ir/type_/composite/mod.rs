@@ -14,7 +14,7 @@ impl Composite {
 }
 
 impl Widget for Composite {
-    type Input = ligen_ir::Composite;
+    type Input = ligen_idl::Composite;
     fn show(&mut self, settings: &crate::gui::ui::editor::settings::Settings, ui: &mut ligen_gui_runtime::egui::Ui, input: &mut Self::Input) {
         if settings.editor.editable_fields {
             ui.horizontal_top(|ui| {

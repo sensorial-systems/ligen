@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 use crate::{RustFunctionParser, RustMethodParser, RustObjectParser, RustTypeParser, RustAttributesParser};
-use ligen::ir::{Path, Interface, Visibility, Function, Method, Object};
+use ligen::idl::{Path, Interface, Visibility, Function, Method, Object};
 
 
 #[derive(Default)]

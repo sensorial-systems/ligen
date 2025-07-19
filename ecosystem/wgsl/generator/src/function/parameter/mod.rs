@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use ligen_transformer::prelude::*;
-use ligen_ir::Parameter;
+use ligen_idl::Parameter;
 
 use crate::{WgslIdentifierGenerator, WgslPathGenerator};
 

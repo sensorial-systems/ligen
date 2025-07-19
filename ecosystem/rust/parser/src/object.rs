@@ -1,4 +1,4 @@
-use ligen::ir::{Object, Mutability};
+use ligen::idl::{Object, Mutability};
 use ligen::transformer::prelude::*;
 use crate::identifier::RustIdentifierParser;
 use crate::literal::RustLiteralParser;
@@ -66,7 +66,7 @@ mod test {
     use crate::prelude::*;
     
     use ligen::transformer::assert::assert_eq;
-    use ligen::ir::object::mock;
+    use ligen::idl::object::mock;
     
     #[test]
     fn constant() -> Result<()> {

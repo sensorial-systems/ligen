@@ -12,14 +12,14 @@ impl Synchrony {
 }
 
 impl Widget for Synchrony {
-    type Input = ligen_ir::Synchrony;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, synchrony: &mut ligen_ir::Synchrony) {
+    type Input = ligen_idl::Synchrony;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, synchrony: &mut ligen_idl::Synchrony) {
         EnumField::new().id_source("synchrony").show(settings, ui, synchrony);
     }
 }
 
 impl TextPrinter for Synchrony {
-    type Input = ligen_ir::Synchrony;
+    type Input = ligen_idl::Synchrony;
     fn print(&self, settings: &Settings, paper: &mut crate::gui::ui::Paper, input: &Self::Input) -> &Self {
         paper.print_word(input);
         self

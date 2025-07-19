@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 ligen-transformer.workspace = true
-ligen-ir.workspace = true
+ligen-idl.workspace = true
 llm.workspace = true
 tokio.workspace = true
 dotenv.workspace = true
@@ -20,4 +20,4 @@ serde_json.workspace = true
 walkdir.workspace = true
 
 [dev-dependencies]
-ligen-ir = { workspace = true, features = ["mocks"] }
+ligen-idl = { workspace = true, features = ["mocks"] }

@@ -1,4 +1,4 @@
-use ligen_ir::Module;
+use ligen_idl::Module;
 use crate::TypeDescriptor;
 
 impl TypeDescriptor for Module {

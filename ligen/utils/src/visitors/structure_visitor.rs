@@ -1,5 +1,5 @@
 use super::{Visitor, ModuleVisitor};
-use ligen_ir::{Structure, Path};
+use ligen_idl::{Structure, Path};
 
 /// Structure visitor.
 pub type StructureVisitor = Visitor<ModuleVisitor, Structure>;

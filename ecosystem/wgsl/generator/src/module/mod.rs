@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Module;
+use ligen_idl::Module;
 use crate::WgslFunctionGenerator;
 
 #[derive(Default)]

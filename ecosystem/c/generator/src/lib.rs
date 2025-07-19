@@ -1,4 +1,4 @@
-use ligen_ir::*;
+use ligen_idl::*;
 
 use ligen_traits::generator::file_generator::{Inputs, Template, TemplateBasedGenerator, TemplateRegister};
 use std::path::PathBuf;

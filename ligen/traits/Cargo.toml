@@ -9,7 +9,7 @@ documentation.workspace = true
 readme.workspace        = true
 
 [dependencies]
-ligen-ir.workspace     = true
+ligen-idl.workspace     = true
 ligen-utils.workspace  = true
 ligen-common.workspace = true
 serde.workspace        = true

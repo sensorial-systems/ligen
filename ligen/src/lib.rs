@@ -50,7 +50,7 @@
 pub use ligen_macro::*;
 
 pub mod prelude;
-pub use ligen_ir as ir;
+pub use ligen_idl as idl;
 pub use ligen_utils as utils;
 pub use ligen_traits as traits;
 pub use ligen_transformer as transformer;

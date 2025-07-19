@@ -1,4 +1,4 @@
-use ligen::ir::{Identifier, Mutability, Visibility};
+use ligen::idl::{Identifier, Mutability, Visibility};
 use ligen::transformer::prelude::*;
 use ligen::parser::universal::IdentifierParser as InternalParser;
 

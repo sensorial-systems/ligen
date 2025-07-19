@@ -2,7 +2,7 @@ pub mod validator;
 
 use ligen::transformer::prelude::*;
 use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
-use ligen::ir::{Method, Mutability};
+use ligen::idl::{Method, Mutability};
 use crate::parser::PythonParser;
 use crate::prelude::*;
 

@@ -1,7 +1,7 @@
 //! Mutability enumeration.
 
 use crate::prelude::*;
-use ligen::ir::Mutability;
+use ligen::idl::Mutability;
 
 #[derive(Default)]
 pub struct RustMutabilityParser;

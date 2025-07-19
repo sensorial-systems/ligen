@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::ir::{Type, TypeDefinition, Path, KindDefinition, Structure, Field};
-use ligen::ir::Mutability;
+use ligen::idl::{Type, TypeDefinition, Path, KindDefinition, Structure, Field};
+use ligen::idl::Mutability;
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
 #[derive(Default)]

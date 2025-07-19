@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustGenericsParser, RustTypeParser};
-use ligen::ir::{TypeAlias, TypeDefinition};
+use ligen::idl::{TypeAlias, TypeDefinition};
 
 #[derive(Default)]
 pub struct RustTypeAliasParser {
@@ -51,7 +51,7 @@ mod tests {
     use crate::prelude::*;
 
     use ligen::transformer::assert::*;
-    use ligen::ir::type_alias::mock;
+    use ligen::idl::type_alias::mock;
 
     use super::RustTypeAliasParser;
 

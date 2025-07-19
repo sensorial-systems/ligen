@@ -2,7 +2,7 @@ pub mod validator;
 
 use crate::prelude::*;
 use rustpython_parser::ast::StmtClassDef;
-use ligen::ir::Interface;
+use ligen::idl::Interface;
 use crate::parser::PythonParser;
 
 impl Transformer<WithSource<&StmtClassDef>, Interface> for PythonParser {

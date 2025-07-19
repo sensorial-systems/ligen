@@ -1,14 +1,43 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! Ligen intermediate representation.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub use source::*;
+pub use module::{Module, Import};
+pub use object::Object;
+pub use function::{Function, Parameter, Synchrony, Method};
+pub use identifier::Identifier;
+pub use literal::Literal;
+pub use path::{Path, PathSegment};
+pub use macro_attributes::{Attributes, Attribute, MacroAttributes, attributes, attribute};
+pub use types::*;
+pub use visibility::*;
+pub use library::*;
+pub use mutability::*;
+pub use interface::*;
+pub use registry::*;
+// #[cfg(feature = "statements")]
+pub use block::*;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use visitor::*;
+
+pub mod prelude;
+
+// #[cfg(feature = "statements")]
+pub mod block;
+pub mod module;
+pub mod macro_attributes;
+pub mod object;
+pub mod function;
+pub mod visibility;
+pub mod identifier;
+pub mod literal;
+pub mod types;
+pub mod interface;
+pub mod path;
+pub mod mutability;
+pub mod source;
+pub mod library;
+pub mod registry;
+
+pub mod symbols;
+
+pub mod visitor;

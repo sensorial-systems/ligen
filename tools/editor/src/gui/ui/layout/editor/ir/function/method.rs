@@ -15,13 +15,13 @@ impl Method {
     }
 }
 
-impl WidgetFor for ligen_ir::Method {
+impl WidgetFor for ligen_idl::Method {
     type Widget = Method;
 }
 
 impl Widget for Method {
-    type Input = ligen_ir::Method;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, method: &mut ligen_ir::Method) {
+    type Input = ligen_idl::Method;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, method: &mut ligen_idl::Method) {
         ui.horizontal_top(|ui| {
             let text = Printer::default().print(|paper| {
                 self.print(settings, paper, method);
@@ -50,7 +50,7 @@ impl Widget for Method {
 
 
 impl TextPrinter for Method {
-    type Input = ligen_ir::Method;
+    type Input = ligen_idl::Method;
     fn print(&self, settings: &Settings, paper: &mut crate::gui::ui::Paper, input: &Self::Input) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Synchrony::new().print(settings, paper, &input.synchrony);

@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Statement;
+use ligen_idl::Statement;
 
 use crate::WgslExpressionGenerator;
 

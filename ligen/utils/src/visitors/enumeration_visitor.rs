@@ -1,5 +1,5 @@
 use super::{Visitor, ModuleVisitor};
-use ligen_ir::{Enumeration, Path};
+use ligen_idl::{Enumeration, Path};
 
 /// Enumeration visitor.
 pub type EnumerationVisitor = Visitor<ModuleVisitor, Enumeration>;

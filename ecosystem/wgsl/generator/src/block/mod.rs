@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Block;
+use ligen_idl::Block;
 use crate::statement::WgslStatementGenerator;
 
 #[derive(Default)]

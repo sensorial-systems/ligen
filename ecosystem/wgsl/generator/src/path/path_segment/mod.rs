@@ -1,7 +1,7 @@
 use std::rc::Weak;
 
 use ligen_transformer::prelude::*;
-use ligen_ir::PathSegment;
+use ligen_idl::PathSegment;
 
 use crate::{WgslIdentifierGenerator, WgslPathGenerator, WgslTypeGenerator};
 

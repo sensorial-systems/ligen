@@ -3,7 +3,7 @@ pub use attribute::*;
 
 use crate::prelude::*;
 use attribute::intermediary_attribute::IntermediaryAttribute;
-use ligen::ir::{Attribute, Attributes, Literal};
+use ligen::idl::{Attribute, Attributes, Literal};
 
 #[derive(Default)]
 pub struct RustAttributesParser {
@@ -69,7 +69,7 @@ impl Transformer<syn::punctuated::Punctuated<syn::Meta, syn::token::Comma>, Attr
 mod test {
     use crate::prelude::*;
     use super::*;
-    use ligen::ir::attributes::mock;
+    use ligen::idl::attributes::mock;
     use ligen::transformer::assert::assert_eq;
 
     #[test]

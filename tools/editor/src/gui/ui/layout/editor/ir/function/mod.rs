@@ -23,13 +23,13 @@ impl Function {
     }
 }
 
-impl WidgetFor for ligen_ir::Function {
+impl WidgetFor for ligen_idl::Function {
     type Widget = Function;
 }
 
 impl Widget for Function {
-    type Input = ligen_ir::Function;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, function: &mut ligen_ir::Function) {
+    type Input = ligen_idl::Function;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, function: &mut ligen_idl::Function) {
         ui.horizontal_top(|ui| {
             let text = Printer::default().print(|paper| {
                 self.print(settings, paper, function);
@@ -57,7 +57,7 @@ impl Widget for Function {
 }
 
 impl TextPrinter for Function {
-    type Input = ligen_ir::Function;
+    type Input = ligen_idl::Function;
     fn print(&self, settings: &Settings, paper: &mut crate::gui::ui::Paper, input: &Self::Input) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Synchrony::new().print(settings, paper, &input.synchrony);

@@ -1,7 +1,7 @@
 //! Function parameter.
 
 use crate::prelude::*;
-use ligen::ir::{Identifier, Type, Mutability, Parameter};
+use ligen::idl::{Identifier, Type, Mutability, Parameter};
 use crate::{RustIdentifierParser, RustAttributesParser, RustTypeParser};
 
 #[derive(Default)]
@@ -77,7 +77,7 @@ mod test {
     use crate::function::parameter::RustParameterParser;
     use crate::prelude::*;
 
-    use ligen::ir::function::parameter::mock;
+    use ligen::idl::function::parameter::mock;
     use ligen::transformer::assert::assert_eq;
 
     #[test]

@@ -3,7 +3,6 @@ members = [
     "ligen",
     "ligen/common",
     "ligen/idl",
-    "ligen/ir",
     "ligen/transformer",
     "ligen/utils",
     "ligen/traits",
@@ -41,7 +40,7 @@ readme        = "README.md"
 [workspace.dependencies]
 ligen                    = { path = "ligen" }
 ligen-common             = { path = "ligen/common" }
-ligen-ir                 = { path = "ligen/ir" }
+ligen-idl                 = { path = "ligen/idl" }
 ligen-macro              = { path = "ligen/macro" }
 ligen-transformer        = { path = "ligen/transformer" }
 ligen-traits             = { path = "ligen/traits" }

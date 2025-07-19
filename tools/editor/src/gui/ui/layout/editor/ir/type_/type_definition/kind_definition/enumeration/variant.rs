@@ -12,8 +12,8 @@ impl Variant {
 }
 
 impl Widget for Variant {
-    type Input = ligen_ir::Variant;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, variant: &mut ligen_ir::Variant) {
+    type Input = ligen_idl::Variant;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, variant: &mut ligen_idl::Variant) {
         Identifier::new().show(settings, ui, &mut variant.identifier);
         Attributes::new().show(settings, ui, &mut variant.attributes);
     }

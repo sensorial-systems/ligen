@@ -1,6 +1,6 @@
 // TODO: Document built-in functions.
 
-// use ligen_ir::Path;
+// use ligen_idl::Path;
 // use crate::generator::file_generator::Inputs;
 
 

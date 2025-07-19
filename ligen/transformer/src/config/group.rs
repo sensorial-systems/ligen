@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ligen_ir::{Literal, Path};
+use ligen_idl::{Literal, Path};
 
 use crate::prelude::*;
 

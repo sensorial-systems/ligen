@@ -11,7 +11,7 @@ This module provides parsing and generation tools for Rust code in Ligen.
 In your project:
 ```
 use ligen_rust_parser::RustParser;
-use ligen::ir::Library;
+use ligen::idl::Library;
 
 let library = RustParser::parse("path/to/rust/project")?;
 ```

@@ -16,8 +16,8 @@ impl Structure {
 }
 
 impl Widget for Structure {
-    type Input = ligen_ir::Structure;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, structure: &mut ligen_ir::Structure) {
+    type Input = ligen_idl::Structure;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, structure: &mut ligen_idl::Structure) {
         EditableList::new("Fields", "Add field").show(settings, ui, &mut structure.fields, |ui, variant| {
             Field::new().show(settings, ui, variant);
         });

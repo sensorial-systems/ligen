@@ -1,6 +1,6 @@
 use anyhow::Context;
 use ligen::prelude::*;
-use ligen::ir::{Author, Dependency, Identifier, VersionRequirement, Version};
+use ligen::idl::{Author, Dependency, Identifier, VersionRequirement, Version};
 use cargo_toml::{Inheritable, Manifest, Workspace};
 
 pub struct Cargo {

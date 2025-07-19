@@ -26,7 +26,7 @@ pub use library::*;
 pub use module::*;
 pub use literal::*;
 pub use interface::*;
-use ligen_ir::symbols::Symbols;
+use ligen_idl::symbols::Symbols;
 use crate::gui::ui::List;
 
 use crate::gui::ui::panes::{Pane, PaneManager};
@@ -37,7 +37,7 @@ use super::widget::Widget;
 
 #[derive(Default)]
 pub struct Editor {
-    library: ligen_ir::Library,
+    library: ligen_idl::Library,
     filter: String,
     settings: Settings,
     symbols: Symbols,
@@ -45,7 +45,7 @@ pub struct Editor {
 }
 
 impl Editor {
-    pub fn new(library: ligen_ir::Library) -> Self {
+    pub fn new(library: ligen_idl::Library) -> Self {
         let filter = Default::default();
         let symbols = Symbols::new(&library);
         let display_settings = Default::default();
@@ -65,7 +65,7 @@ impl Pane for Editor {
             ui.menu_button("File", |ui| {
                 if ui.button("Save").clicked() {
                     let file = rfd::FileDialog::new()
-                        .add_filter("ligen-ir", &["lir"])
+                        .add_filter("ligen-idl", &["lir"])
                         .save_file();
                     if let Some(file) = file {
                         self

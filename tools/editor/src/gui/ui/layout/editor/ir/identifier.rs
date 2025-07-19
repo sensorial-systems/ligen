@@ -15,14 +15,14 @@ impl Identifier {
 }
 
 impl Widget for Identifier {
-    type Input = ligen_ir::Identifier;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, identifier: &mut ligen_ir::Identifier) {
+    type Input = ligen_idl::Identifier;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, identifier: &mut ligen_idl::Identifier) {
         self.string_field.show(settings, ui, identifier)
     }
 }
 
 impl TextPrinter for Identifier {
-    type Input = ligen_ir::Identifier;
+    type Input = ligen_idl::Identifier;
     fn print(&self, settings: &Settings, paper: &mut Paper, input: &Self::Input) -> &Self {
         paper.print_word(input);
         self

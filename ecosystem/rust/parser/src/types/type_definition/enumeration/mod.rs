@@ -5,7 +5,7 @@ pub use variant::*;
 
 use crate::prelude::*;
 use crate::{RustIdentifierParser, RustAttributesParser, RustGenericsParser, RustVisibilityParser};
-use ligen::ir::{Enumeration, TypeDefinition};
+use ligen::idl::{Enumeration, TypeDefinition};
 
 #[derive(Default)]
 pub struct RustEnumerationParser {
@@ -52,7 +52,7 @@ impl Transformer<proc_macro2::TokenStream, TypeDefinition> for RustEnumerationPa
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ligen::ir::enumeration::mock;
+    use ligen::idl::enumeration::mock;
     use ligen::transformer::assert::*;
 
     #[test]

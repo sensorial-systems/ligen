@@ -1,7 +1,7 @@
 pub use crate::prelude::*;
 
 use std::path::PathBuf;
-use ligen_ir::{Identifier, Path, Version, VersionRequirement};
+use ligen_idl::{Identifier, Path, Version, VersionRequirement};
 
 pub trait StringEditable {
     fn as_string(&self) -> String;

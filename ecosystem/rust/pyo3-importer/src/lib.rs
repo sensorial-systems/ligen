@@ -7,7 +7,7 @@ pub mod type_;
 pub use module::*;
 use std::path::PathBuf;
 
-use ligen::ir::{Library, Visitors};
+use ligen::idl::{Library, Visitors};
 
 use is_tree::{HasBranch, TreeIterator};
 

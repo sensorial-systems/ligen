@@ -25,14 +25,14 @@ impl KindDefinition {
 
 impl KindDefinition {
     /// Show the kind definition.
-    pub fn show_kind_name(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_ir::KindDefinition) {
+    pub fn show_kind_name(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_idl::KindDefinition) {
         let variant_name = definition.kind_name();
         if settings.editor.editable_fields {
             ComboBox::new("Kind", "")
                 .selected_text(variant_name)
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(definition, ligen_ir::KindDefinition::Structure(Default::default()), "Structure");
-                    ui.selectable_value(definition, ligen_ir::KindDefinition::Enumeration(Default::default()), "Enumeration");
+                    ui.selectable_value(definition, ligen_idl::KindDefinition::Structure(Default::default()), "Structure");
+                    ui.selectable_value(definition, ligen_idl::KindDefinition::Enumeration(Default::default()), "Enumeration");
                 });
         } else {
             ui.label(variant_name);
@@ -41,18 +41,18 @@ impl KindDefinition {
 }
 
 impl Widget for KindDefinition {
-    type Input = ligen_ir::KindDefinition;
+    type Input = ligen_idl::KindDefinition;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut Self::Input) {
         match definition {
-            ligen_ir::KindDefinition::Structure(structure) => Structure::new().show(settings, ui, structure),
-            ligen_ir::KindDefinition::Enumeration(enumeration) => Enumeration::new().show(settings, ui, enumeration),
-            ligen_ir::KindDefinition::TypeAlias(type_alias) => TypeAlias::new().show(settings, ui, type_alias),
+            ligen_idl::KindDefinition::Structure(structure) => Structure::new().show(settings, ui, structure),
+            ligen_idl::KindDefinition::Enumeration(enumeration) => Enumeration::new().show(settings, ui, enumeration),
+            ligen_idl::KindDefinition::TypeAlias(type_alias) => TypeAlias::new().show(settings, ui, type_alias),
         }
     }
 }
 
 impl TextPrinter for KindDefinition {
-    type Input = ligen_ir::KindDefinition;
+    type Input = ligen_idl::KindDefinition;
     fn print(&self, settings: &Settings, paper: &mut crate::gui::ui::Paper, input: &Self::Input) -> &Self {
         paper.print_word(input.kind_name());
         self

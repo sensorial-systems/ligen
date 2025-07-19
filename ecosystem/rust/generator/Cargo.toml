@@ -11,6 +11,6 @@ readme.workspace = true
 [dependencies]
 ligen-transformer.workspace = true
 syn.workspace = true
-ligen-ir.workspace = true
+ligen-idl.workspace = true
 proc-macro2.workspace = true
 anyhow.workspace = true

@@ -1,7 +1,7 @@
 //! Enumeration variant representation.
 
 use crate::prelude::*;
-use ligen::ir::Variant;
+use ligen::idl::Variant;
 use crate::{RustIdentifierParser, RustAttributesParser};
 
 #[derive(Default)]
@@ -32,7 +32,7 @@ impl Transformer<syn::punctuated::Punctuated<syn::Variant, syn::token::Comma>, V
 mod tests {
     use ligen::transformer::prelude::*;
     use syn::parse_quote;
-    use ligen::ir::Variant;
+    use ligen::idl::Variant;
     use crate::types::type_definition::enumeration::variant::RustVariantParser;
 
     #[test]

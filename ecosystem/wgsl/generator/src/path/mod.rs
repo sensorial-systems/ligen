@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use ligen_transformer::prelude::*;
-use ligen_ir::Path;
+use ligen_idl::Path;
 
 pub mod path_segment;
 pub use path_segment::*;

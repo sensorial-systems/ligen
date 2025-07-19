@@ -1,7 +1,7 @@
 //! Structure field representation.
 
 use crate::prelude::*;
-use ligen::ir::Field;
+use ligen::idl::Field;
 use crate::{RustIdentifierParser, RustAttributesParser, RustTypeParser, RustVisibilityParser};
 
 #[derive(Default)]
@@ -35,7 +35,7 @@ impl Transformer<syn::Fields, Vec<Field>> for RustFieldParser {
 #[cfg(test)]
 mod tests {
     use syn::parse_quote;
-    use ligen::ir::{Field, Visibility, Path};
+    use ligen::idl::{Field, Visibility, Path};
     use crate::RustFieldParser;
     use crate::prelude::*;
 

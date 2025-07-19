@@ -22,7 +22,7 @@ impl Metadata {
 }
 
 impl Widget for Metadata {
-    type Input = ligen_ir::Metadata;
+    type Input = ligen_idl::Metadata;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, input: &mut Self::Input) {
         CollapsingHeader::new("Metadata")
                 .show(ui, |ui| {

@@ -14,13 +14,13 @@ impl TypeDefinition {
     }
 }
 
-impl WidgetFor for ligen_ir::TypeDefinition {
+impl WidgetFor for ligen_idl::TypeDefinition {
     type Widget = TypeDefinition;
 }
 
 impl Widget for TypeDefinition {
-    type Input = ligen_ir::TypeDefinition;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_ir::TypeDefinition) {
+    type Input = ligen_idl::TypeDefinition;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, definition: &mut ligen_idl::TypeDefinition) {
         let text = Printer::new().print(|text| {
             self.print(settings, text, definition);
         });
@@ -44,7 +44,7 @@ impl Widget for TypeDefinition {
 }
 
 impl TextPrinter for TypeDefinition {
-    type Input = ligen_ir::TypeDefinition;
+    type Input = ligen_idl::TypeDefinition;
     fn print(&self, settings: &Settings, paper: &mut Paper, input: &Self::Input) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         KindDefinition::new().print(settings, paper, &input.definition);

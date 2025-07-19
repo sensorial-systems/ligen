@@ -1,7 +1,7 @@
 //! Visibility enumeration.
 
 use crate::prelude::*;
-use ligen::ir::Visibility;
+use ligen::idl::Visibility;
 
 #[derive(Default)]
 pub struct RustVisibilityParser;

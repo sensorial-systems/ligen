@@ -7,7 +7,7 @@ pub use method::*;
 pub use synchrony::*;
 
 use crate::prelude::*;
-use ligen::ir::{Function, Parameter, Type};
+use ligen::idl::{Function, Parameter, Type};
 use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustTypeParser, RustBlockParser};
 
 #[derive(Default)]
@@ -121,7 +121,7 @@ mod test {
     use crate::function::RustFunctionParser;
     use crate::prelude::*;
 
-    use ligen::ir::function::mock;
+    use ligen::idl::function::mock;
 
     #[test]
     fn function() -> Result<()> {

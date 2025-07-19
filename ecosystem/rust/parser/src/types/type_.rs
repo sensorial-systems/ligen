@@ -1,5 +1,5 @@
 use ligen::prelude::*;
-use ligen::ir::Type;
+use ligen::idl::Type;
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
 use crate::{literal::RustLiteralParser, mutability::RustMutabilityParser};
@@ -87,7 +87,7 @@ impl Transformer<proc_macro2::TokenStream, Type> for RustTypeParser {
 
 #[cfg(test)]
 mod test {
-    use ligen_ir::PathSegment;
+    use ligen_idl::PathSegment;
 
     use crate::types::type_::RustTypeParser;
     use crate::prelude::*;

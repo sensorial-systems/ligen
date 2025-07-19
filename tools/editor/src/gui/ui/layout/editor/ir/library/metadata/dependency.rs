@@ -4,7 +4,7 @@ use crate::{prelude::*, gui::ui::{editor::{widget::{Widget, WidgetFor}, settings
 pub struct Dependency {}
 
 impl Widget for Dependency {
-    type Input = ligen_ir::Dependency;
+    type Input = ligen_idl::Dependency;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, input: &mut Self::Input) {
         Labeled::new(&input.identifier.name).show(settings, ui, |ui| {
             StringField::default().show(settings, ui, &mut input.requirement);
@@ -12,6 +12,6 @@ impl Widget for Dependency {
     }
 }
 
-impl WidgetFor for ligen_ir::Dependency {
+impl WidgetFor for ligen_idl::Dependency {
     type Widget = Dependency;
 }

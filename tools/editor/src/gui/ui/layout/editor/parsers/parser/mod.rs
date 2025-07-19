@@ -9,14 +9,14 @@ use ligen_transformer::prelude::*;
 use ligen_python_parser::{PythonParser, PythonParserConfig};
 
 pub struct Parser {
-    parser: Box<dyn for<'a> Transformer<&'a Path, ligen_ir::Library>>,
+    parser: Box<dyn for<'a> Transformer<&'a Path, ligen_idl::Library>>,
     config: ligen_transformer::prelude::Config,
     result: String
 }
 
 impl Parser {
     pub fn new<T>(parser: T) -> Self
-    where T: for<'a> Transformer<&'a Path, ligen_ir::Library> + 'static
+    where T: for<'a> Transformer<&'a Path, ligen_idl::Library> + 'static
     {
         let config = parser.config();
         let parser = Box::new(parser);

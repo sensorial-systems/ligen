@@ -1,5 +1,5 @@
 use crate::{prelude::*, function::method::validator::MethodValidator, interface::validator::InterfaceValidator};
-use ligen::ir::Library;
+use ligen::idl::Library;
 use crate::types::type_::TypeValidator;
 
 #[derive(Default)]

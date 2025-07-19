@@ -10,7 +10,7 @@ readme.workspace = true
 
 [dependencies]
 ligen-gui-runtime.workspace = true
-ligen-ir.workspace = true
+ligen-idl.workspace = true
 serde.workspace = true
 ligen-python-parser.workspace = true
 ligen-rust-parser.workspace = true

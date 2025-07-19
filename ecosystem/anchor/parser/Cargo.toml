@@ -11,5 +11,5 @@ readme.workspace = true
 [dependencies]
 anchor-lang-idl-spec.workspace = true
 serde_json.workspace = true
-ligen-ir.workspace = true
+ligen-idl.workspace = true
 ligen-transformer.workspace = true

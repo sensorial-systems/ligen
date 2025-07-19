@@ -5,7 +5,7 @@ pub use field::*;
 
 use crate::prelude::*;
 use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustGenericsParser};
-use ligen::ir::{Structure, TypeDefinition};
+use ligen::idl::{Structure, TypeDefinition};
 
 #[derive(Default)]
 pub struct RustStructureParser {
@@ -55,7 +55,7 @@ mod tests {
     use crate::RustStructureParser;
 
     use ligen::transformer::assert::*;
-    use ligen::ir::structure::mock;
+    use ligen::idl::structure::mock;
 
     #[test]
     fn structure() -> Result<()> {

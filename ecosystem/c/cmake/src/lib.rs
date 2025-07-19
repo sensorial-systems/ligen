@@ -1,7 +1,7 @@
 use ligen::prelude::*;
 use ligen::traits::generator::file_generator::{File, FileSet, FileGenerator};
 use std::path::PathBuf;
-use ligen::ir::conventions::naming::SnakeCase;
+use ligen::idl::conventions::naming::SnakeCase;
 
 /// CMake library generator.
 #[derive(Debug, Clone)]

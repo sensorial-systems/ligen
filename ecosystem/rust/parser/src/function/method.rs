@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use ligen::ir::{Mutability, Attributes, Method, Parameter, Type};
+use ligen::idl::{Mutability, Attributes, Method, Parameter, Type};
 use crate::{RustSynchronyParser, RustIdentifierParser, RustTypeParser, RustAttributeParser, RustParameterParser, RustVisibilityParser};
 
 #[derive(Default)]

@@ -1,4 +1,4 @@
-use ligen_ir::prelude::anyhow::Context;
+use ligen_idl::prelude::anyhow::Context;
 use ligen_transformer::prelude::*;
 
 use llm::builder::{LLMBackend, LLMBuilder};

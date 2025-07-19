@@ -1,4 +1,4 @@
-use ligen::ir::{Path, PathSegment};
+use ligen::idl::{Path, PathSegment};
 use ligen::transformer::prelude::*;
 use crate::{RustIdentifierParser, RustGenericsParser};
 
@@ -67,7 +67,7 @@ mod test {
     use crate::prelude::*;
 
     use ligen::transformer::assert::*;
-    use ligen::ir::path::mock;
+    use ligen::idl::path::mock;
 
     #[test]
     fn identifier_as_path() -> Result<()> {

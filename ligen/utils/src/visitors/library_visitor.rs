@@ -1,5 +1,5 @@
 use super::Visitor;
-use ligen_ir::Library;
+use ligen_idl::Library;
 use crate::visitors::ModuleVisitor;
 
 /// Library visitor.

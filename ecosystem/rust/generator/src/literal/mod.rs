@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Literal;
+use ligen_idl::Literal;
 
 #[derive(Default)]	
 pub struct RustLiteralGenerator;

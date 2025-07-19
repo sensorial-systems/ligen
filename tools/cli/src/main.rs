@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::Parser as Clap;
-use ligen_ir::{prelude::*, Registry};
+use ligen_idl::{prelude::*, Registry};
 use ligen_python_parser::PythonParser;
 use ligen_rust_parser::RustParser;
 use ligen_rust_pyo3_importer::Transformer;

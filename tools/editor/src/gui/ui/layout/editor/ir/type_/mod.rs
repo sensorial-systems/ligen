@@ -23,8 +23,8 @@ impl Type {
 }
 
 impl Widget for Type {
-    type Input = ligen_ir::Type;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, type_: &mut ligen_ir::Type) {
+    type Input = ligen_idl::Type;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, type_: &mut ligen_idl::Type) {
         ui.add_enabled_ui(self.enabled, |ui| {
             Path::new().show(settings, ui, &mut type_.path)
         });

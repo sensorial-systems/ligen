@@ -3,7 +3,7 @@ pub use group::*;
 
 use crate::prelude::*;
 
-use ligen_ir::{Literal, Path};
+use ligen_idl::{Literal, Path};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {

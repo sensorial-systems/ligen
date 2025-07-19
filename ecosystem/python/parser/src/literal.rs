@@ -1,5 +1,5 @@
 use rustpython_parser::ast::{Constant, ExprConstant, Expr};
-use ligen::ir::Literal;
+use ligen::idl::Literal;
 use ligen::transformer::prelude::*;
 use crate::prelude::*;
 
@@ -71,7 +71,7 @@ impl Transformer<&Expr, Literal> for LiteralParser {
 mod test {
     use crate::literal::LiteralParser;
     use crate::prelude::*;
-    use ligen::ir::literal::mock;
+    use ligen::idl::literal::mock;
     use ligen::transformer::assert::*;
 
     #[test]

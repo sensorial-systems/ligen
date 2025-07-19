@@ -1,5 +1,5 @@
 use anchor_lang_idl_spec::{IdlField, IdlInstructionAccountItem};
-use ligen_ir::{prelude::Result, Identifier, Parameter, Type};
+use ligen_idl::{prelude::Result, Identifier, Parameter, Type};
 use ligen_transformer::prelude::*;
 
 use crate::{doc::DocParser, type_::TypeParser};

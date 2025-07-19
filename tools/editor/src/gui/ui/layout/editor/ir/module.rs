@@ -15,13 +15,13 @@ impl Module {
     }
 }
 
-impl WidgetFor for ligen_ir::Module {
+impl WidgetFor for ligen_idl::Module {
     type Widget = Module;
 }
 
 impl Widget for Module {
-    type Input = ligen_ir::Module;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, module: &mut ligen_ir::Module) {
+    type Input = ligen_idl::Module;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, module: &mut ligen_idl::Module) {
         let text = Printer::new().print(|text| {
             self.print(settings, text, module);
         });
@@ -46,7 +46,7 @@ impl Widget for Module {
 }
 
 impl TextPrinter for Module {
-    type Input = ligen_ir::Module;
+    type Input = ligen_idl::Module;
     fn print(&self, settings: &Settings, paper: &mut Paper, input: &Self::Input) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Identifier::new().print(settings, paper, &input.identifier);

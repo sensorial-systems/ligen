@@ -11,13 +11,13 @@ impl Path {
     }
 }
 
-impl WidgetFor for ligen_ir::Path {
+impl WidgetFor for ligen_idl::Path {
     type Widget = Path;
 }
 
 impl Widget for Path {
-    type Input = ligen_ir::Path;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, path: &mut ligen_ir::Path) {
+    type Input = ligen_idl::Path;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, path: &mut ligen_idl::Path) {
         StringField::new().show(settings, ui, path)
     }
 }

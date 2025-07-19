@@ -16,8 +16,8 @@ impl Enumeration {
 }
 
 impl Widget for Enumeration {
-    type Input = ligen_ir::Enumeration;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, enumeration: &mut ligen_ir::Enumeration) {
+    type Input = ligen_idl::Enumeration;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, enumeration: &mut ligen_idl::Enumeration) {
         EditableList::new("Variants", "Add variant").show(settings, ui, &mut enumeration.variants, |ui, variant| {
             Variant::new().show(settings, ui, variant);
         });

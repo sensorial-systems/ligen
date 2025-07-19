@@ -4,7 +4,7 @@ pub use parameter::*;
 use std::rc::Rc;
 
 use ligen_transformer::prelude::*;
-use ligen_ir::Function;
+use ligen_idl::Function;
 use crate::{WgslBlockGenerator, WgslIdentifierGenerator, WgslPathGenerator, WgslTypeGenerator};
 
 pub struct WgslFunctionGenerator {
@@ -50,7 +50,7 @@ impl Generator<&Function, String> for WgslFunctionGenerator {
 
 #[cfg(test)]
 mod tests {
-    use ligen_ir::{BinaryExpression, Block, Identifier, Parameter, PathSegment, Statement};
+    use ligen_idl::{BinaryExpression, Block, Identifier, Parameter, PathSegment, Statement};
 
     use super::*;
 

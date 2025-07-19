@@ -4,7 +4,7 @@ mod import;
 pub use import::*;
 
 use syn::spanned::Spanned;
-use ligen::ir::{Function, Module, Import, TypeDefinition, Interface, Object};
+use ligen::idl::{Function, Module, Import, TypeDefinition, Interface, Object};
 use crate::prelude::*;
 use crate::{RustInterfaceParser, RustTypeAliasParser, RustObjectParser, RustFunctionParser, RustIdentifierParser, RustAttributesParser, RustEnumerationParser, RustStructureParser, RustVisibilityParser};
 
@@ -171,7 +171,7 @@ impl RustModuleParser {
 mod tests {
     use super::*;
     use quote::quote;
-    use ligen::ir::module::mock;
+    use ligen::idl::module::mock;
     use ligen::transformer::assert::*;
 
     #[test]

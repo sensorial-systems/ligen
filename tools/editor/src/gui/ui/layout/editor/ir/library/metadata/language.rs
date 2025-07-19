@@ -12,7 +12,7 @@ impl Language {
 }
 
 impl Widget for Language {
-    type Input = ligen_ir::Language;
+    type Input = ligen_idl::Language;
     fn show(&mut self, settings: &crate::gui::ui::editor::settings::Settings, ui: &mut egui::Ui, input: &mut Self::Input) {
         CollapsingHeader::new("Language")
             .default_open(false)

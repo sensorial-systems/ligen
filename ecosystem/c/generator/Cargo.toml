@@ -9,7 +9,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-ligen-ir.workspace     = true
+ligen-idl.workspace     = true
 ligen-traits.workspace = true
 ligen-utils.workspace  = true
 serde_json.workspace   = true

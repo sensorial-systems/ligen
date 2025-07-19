@@ -1,6 +1,6 @@
 use ligen::transformer::prelude::*;
 use rustpython_parser::ast::ArgWithDefault;
-use ligen::ir::Parameter;
+use ligen::idl::Parameter;
 use crate::identifier::IdentifierParser;
 use crate::literal::LiteralParser;
 use crate::types::type_::TypeParser;

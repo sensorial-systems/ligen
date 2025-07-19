@@ -4,7 +4,7 @@ pub use function::*;
 pub use structure::*;
 
 use is_tree::{HasBranch, Visitor};
-use ligen::ir::{Module, Visitors};
+use ligen::idl::{Module, Visitors};
 
 #[derive(Default)]
 pub struct InterfaceGenerator {

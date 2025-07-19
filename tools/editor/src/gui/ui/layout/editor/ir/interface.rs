@@ -13,13 +13,13 @@ impl Interface {
     }
 }
 
-impl WidgetFor for ligen_ir::Interface {
+impl WidgetFor for ligen_idl::Interface {
     type Widget = Interface;
 }
 
 impl Widget for Interface {
-    type Input = ligen_ir::Interface;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, interface: &mut ligen_ir::Interface) {
+    type Input = ligen_idl::Interface;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, interface: &mut ligen_idl::Interface) {
         let text = Printer::new().print(|text| {
             self.print(settings, text, interface);
         });
@@ -42,8 +42,8 @@ impl Widget for Interface {
 }
 
 impl TextPrinter for Interface {
-    type Input = ligen_ir::Interface;
-    fn print(&self, settings: &Settings, paper: &mut Paper, input: &ligen_ir::Interface) -> &Self {
+    type Input = ligen_idl::Interface;
+    fn print(&self, settings: &Settings, paper: &mut Paper, input: &ligen_idl::Interface) -> &Self {
         Visibility::new().print(settings, paper, &input.visibility);
         Identifier::new().print(settings, paper, &input.identifier);
         SymbolsCount::new().print(settings, paper, input);

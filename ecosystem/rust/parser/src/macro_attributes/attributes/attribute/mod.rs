@@ -3,11 +3,11 @@
 pub(crate) mod intermediary_attribute;
 
 use intermediary_attribute::IntermediaryAttribute;
-use ligen::ir::macro_attributes::{Named, Group};
+use ligen::idl::macro_attributes::{Named, Group};
 use syn::__private::ToTokens;
 use crate::prelude::*;
 use crate::{RustAttributesParser, RustLiteralParser, RustPathParser, RustIdentifierParser};
-use ligen::ir::{Attribute, Literal};
+use ligen::idl::{Attribute, Literal};
 
 
 #[derive(Default)]
@@ -151,7 +151,7 @@ mod test {
     use crate::prelude::*;
     use super::*;
     use ligen::transformer::assert::assert_eq;
-    use ligen::ir::attribute::mock;
+    use ligen::idl::attribute::mock;
 
     #[test]
     fn attribute_literal() -> Result<()> {

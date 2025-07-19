@@ -1,4 +1,4 @@
-use ligen_ir::Library;
+use ligen_idl::Library;
 
 pub mod path;
 pub mod alias;

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use ligen_ir::Identifier;
+use ligen_idl::Identifier;
 use crate::parser::Parser;
 
 #[derive(Default)]
@@ -43,7 +43,7 @@ impl Transformer<syn::Ident, Identifier> for IdentifierParser {
 mod test {
     use super::*;
     use crate::assert::*;
-    use ligen_ir::identifier::mock;
+    use ligen_idl::identifier::mock;
 
     #[test]
     fn identifier() -> Result<()> {

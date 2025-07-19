@@ -1,4 +1,4 @@
-use ligen_ir::prelude::CountSymbols;
+use ligen_idl::prelude::CountSymbols;
 
 use crate::gui::ui::editor::settings::Settings;
 

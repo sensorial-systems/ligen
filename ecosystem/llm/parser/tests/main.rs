@@ -1,4 +1,4 @@
-use ligen_ir::{function, module, Function, Module};
+use ligen_idl::{function, module, Function, Module};
 use ligen_llm_parser::{discovery::{ProjectDiscovery, ProjectFiles, StructuredProjectFiles}, GeneralLlmParser};
 use ligen_transformer::{assert::async_assert_eq, prelude::*};
 

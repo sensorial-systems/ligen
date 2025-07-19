@@ -3,7 +3,7 @@ pub use crate::prelude::*;
 
 use std::fmt::Debug;
 use egui::ComboBox;
-use ligen_ir::prelude::*;
+use ligen_idl::prelude::*;
 
 #[derive(Default)]
 pub struct EnumField {

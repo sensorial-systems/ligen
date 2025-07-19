@@ -1,4 +1,4 @@
-use ligen_ir::{Import, Path, Library};
+use ligen_idl::{Import, Path, Library};
 use crate::visitors::{ModuleVisitor, Visitor};
 
 pub type ImportVisitor = Visitor<ModuleVisitor, Import>;

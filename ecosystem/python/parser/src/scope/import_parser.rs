@@ -1,6 +1,6 @@
 use ligen::transformer::prelude::*;
 use ligen::transformer::utils::WithSource;
-use ligen::ir::{Import, Path, Identifier, PathSegment};
+use ligen::idl::{Import, Path, Identifier, PathSegment};
 use rustpython_parser::ast::{StmtImport, StmtImportFrom, Alias};
 
 use crate::PythonParser;

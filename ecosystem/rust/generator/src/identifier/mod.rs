@@ -1,5 +1,5 @@
 use ligen_transformer::prelude::*;
-use ligen_ir::Identifier;
+use ligen_idl::Identifier;
 
 #[derive(Default)]	
 pub struct RustIdentifierGenerator;

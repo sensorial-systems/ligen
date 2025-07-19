@@ -1,4 +1,4 @@
-use ligen::ir::{Interface, Object, Function, Method, TypeDefinition, Import};
+use ligen::idl::{Interface, Object, Function, Method, TypeDefinition, Import};
 
 pub struct Scope {
     pub imports: Vec<Import>,

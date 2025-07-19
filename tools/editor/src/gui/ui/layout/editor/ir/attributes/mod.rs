@@ -15,8 +15,8 @@ impl Attributes {
 }
 
 impl Widget for Attributes {
-    type Input = ligen_ir::Attributes;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, attributes: &mut ligen_ir::Attributes) {
+    type Input = ligen_idl::Attributes;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, attributes: &mut ligen_idl::Attributes) {
         EditableList::new("Attributes", "Add attribute")
             .show(settings, ui, &mut attributes.attributes,|ui, attribute| {
                 Attribute::new().show(settings, ui, attribute);

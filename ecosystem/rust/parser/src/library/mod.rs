@@ -1,7 +1,7 @@
 use crate::cargo::Cargo;
 use crate::prelude::*;
 use anyhow::Context;
-use ligen::ir::{Identifier, Language, Library, Metadata};
+use ligen::idl::{Identifier, Language, Library, Metadata};
 
 use crate::module::RustModuleParser;
 

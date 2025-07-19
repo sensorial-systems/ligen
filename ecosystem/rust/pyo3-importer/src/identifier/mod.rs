@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use ligen::ir::Identifier;
+use ligen::idl::Identifier;
 use ligen::utils::mapper::LanguageMap;
 
 pub struct IdentifierGenerator {

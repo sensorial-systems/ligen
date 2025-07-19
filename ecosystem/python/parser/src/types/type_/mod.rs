@@ -4,7 +4,7 @@ pub mod validator;
 pub use validator::*;
 
 use rustpython_parser::ast::{ExprName, Expr, ExprSubscript, ExprTuple, Ranged, ExprList, ExprConstant, Constant, ExprAttribute};
-use ligen::ir::{Path, Type, Identifier};
+use ligen::idl::{Path, Type, Identifier};
 use crate::prelude::*;
 
 pub struct PythonMapper {

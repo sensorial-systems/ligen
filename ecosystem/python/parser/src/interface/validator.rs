@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use ligen::ir::{Interface, Function, Identifier};
+use ligen::idl::{Interface, Function, Identifier};
 
 #[derive(Default)]
 pub struct InterfaceValidator {}

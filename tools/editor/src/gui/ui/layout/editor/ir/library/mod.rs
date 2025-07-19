@@ -19,7 +19,7 @@ impl Library {
 }
 
 impl Widget for Library {
-    type Input = ligen_ir::Library;
+    type Input = ligen_idl::Library;
     fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, library: &mut Self::Input) {
         egui::ScrollArea::both()
             .auto_shrink([false, true])

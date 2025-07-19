@@ -1,4 +1,4 @@
-use ligen_ir::{attribute::Named, prelude::Result, Attribute, Attributes};
+use ligen_idl::{attribute::Named, prelude::Result, Attribute, Attributes};
 use ligen_transformer::prelude::*;
 
 #[derive(Default)]

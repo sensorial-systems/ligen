@@ -1,5 +1,5 @@
 use ligen::transformer::prelude::*;
-use ligen::ir::{Metadata, Version, VersionRequirement, Author, Dependency, Language};
+use ligen::idl::{Metadata, Version, VersionRequirement, Author, Dependency, Language};
 
 
 #[derive(Default)]

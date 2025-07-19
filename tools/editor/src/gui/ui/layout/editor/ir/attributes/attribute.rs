@@ -12,31 +12,31 @@ impl Attribute {
 }
 
 impl Widget for Attribute {
-    type Input = ligen_ir::Attribute;
-    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, mut attribute: &mut ligen_ir::Attribute) {
+    type Input = ligen_idl::Attribute;
+    fn show(&mut self, settings: &Settings, ui: &mut egui::Ui, mut attribute: &mut ligen_idl::Attribute) {
         let variant_name = match attribute {
-            ligen_ir::Attribute::Literal(_) => "Literal",
-            ligen_ir::Attribute::Group(_) => "Group",
-            ligen_ir::Attribute::Named(_) => "Named",
+            ligen_idl::Attribute::Literal(_) => "Literal",
+            ligen_idl::Attribute::Group(_) => "Group",
+            ligen_idl::Attribute::Named(_) => "Named",
         };
         ui.horizontal_top(|ui| {
             egui::ComboBox::new("combo", "")
                 .selected_text(variant_name)
                 .show_ui(ui, |ui| {
-                    ui.selectable_value(attribute, ligen_ir::Attribute::Literal(Default::default()), "Literal");
-                    ui.selectable_value(attribute, ligen_ir::Attribute::Group(Default::default()), "Group");
-                    ui.selectable_value(attribute, ligen_ir::Attribute::Named(Default::default()), "Named");
+                    ui.selectable_value(attribute, ligen_idl::Attribute::Literal(Default::default()), "Literal");
+                    ui.selectable_value(attribute, ligen_idl::Attribute::Group(Default::default()), "Group");
+                    ui.selectable_value(attribute, ligen_idl::Attribute::Named(Default::default()), "Named");
                 });
         });
 
         ui.horizontal_top(|ui| {
             match &mut attribute {
-                ligen_ir::Attribute::Literal(literal) => Literal::new().show(settings, ui, literal),
-                ligen_ir::Attribute::Group(group) => {
+                ligen_idl::Attribute::Literal(literal) => Literal::new().show(settings, ui, literal),
+                ligen_idl::Attribute::Group(group) => {
                     Path::new().show(settings, ui, &mut group.path);
                     Attributes::new().show(settings, ui, &mut group.attributes);
                 },
-                ligen_ir::Attribute::Named(named) => {
+                ligen_idl::Attribute::Named(named) => {
                     Path::new().show(settings, ui, &mut named.path);
                     Literal::new().show(settings, ui, &mut named.literal);
                 }

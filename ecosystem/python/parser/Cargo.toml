@@ -16,4 +16,4 @@ python-pkginfo = "0.6.0"
 is-tree.workspace = true
 
 [dev-dependencies]
-ligen-ir = { workspace = true, features = ["mocks"]}
+ligen-idl = { workspace = true, features = ["mocks"]}

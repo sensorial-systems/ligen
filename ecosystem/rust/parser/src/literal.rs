@@ -1,4 +1,4 @@
-use ligen::ir::Literal;
+use ligen::idl::Literal;
 use ligen::transformer::prelude::*;
 
 #[derive(Default)]
@@ -71,7 +71,7 @@ impl Parser<Literal> for RustLiteralParser {
 mod test {
     use crate::literal::RustLiteralParser;
     use crate::prelude::*;
-    use ligen::ir::literal::mock;
+    use ligen::idl::literal::mock;
     use ligen::transformer::assert::*;
 
     #[test]
