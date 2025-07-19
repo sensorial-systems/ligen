@@ -36,7 +36,7 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                     Some(self.type_parser.transform(*y, config)?)
                 }
             };
-            let body = Default::default();
+            let body = ();
             Ok(Method {
                 mutability,
                 attributes: Attributes {

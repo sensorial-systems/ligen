@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{prelude::*, identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
-use ligen::idl::{Type, TypeDefinition, Path, KindDefinition, Structure, Field};
-use ligen::idl::Mutability;
+use crate::prelude::*;
+use crate::{identifier::IdentifierParser, macro_attributes::attributes::AttributesParser, function::FunctionParser, types::type_::TypeParser, parser::PythonParserConfig};
+use ligen::idl::{Type, TypeDefinition, Path, KindDefinition, Structure, Field, Function, Mutability};
 use rustpython_parser::ast::{StmtClassDef, Expr, Stmt, StmtAnnAssign, StmtAugAssign, StmtAssign};
 
 #[derive(Default)]
@@ -118,7 +118,7 @@ impl TypeDefinitionParser {
                     }
                 },
                 Stmt::FunctionDef(function_def) => {
-                    let function = self.function_parser.transform(input.sub(function_def.clone()), config)?;
+                    let function: Function<()> = self.function_parser.transform(input.sub(function_def.clone()), config)?;
                     if function.attributes.contains("property") {
                         let identifier = Some(function.identifier);
                         let type_ = function.output.unwrap_or_default();

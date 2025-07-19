@@ -18,8 +18,8 @@ pub struct FunctionParser {
     identifier_parser: IdentifierParser,
 }
 
-impl Parser<Function> for FunctionParser {
-    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Function> {
+impl<Body: Default> Parser<Function<Body>> for FunctionParser {
+    fn parse(&self, input: impl AsRef<str>, config: &Config) -> Result<Function<Body>> {
         let input = input.as_ref();
         let statement = Stmt::parse(input, "<embedded>")
             .map_err(|error| Error::Message(format!("Failed to parse statement: {error}")))?;
@@ -31,8 +31,8 @@ impl Parser<Function> for FunctionParser {
     }
 }
 
-impl Transformer<WithSource<StmtFunctionDef>, Function> for FunctionParser {
-    fn transform(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Function> {
+impl<Body: Default> Transformer<WithSource<StmtFunctionDef>, Function<Body>> for FunctionParser {
+    fn transform(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Function<Body>> {
         let identifier = self.identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })
@@ -48,8 +48,8 @@ impl Transformer<WithSource<StmtFunctionDef>, Function> for FunctionParser {
     }
 }
 
-impl Transformer<WithSource<StmtAsyncFunctionDef>, Function> for FunctionParser {
-    fn transform(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Function> {
+impl<Body: Default> Transformer<WithSource<StmtAsyncFunctionDef>, Function<Body>> for FunctionParser {
+    fn transform(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Function<Body>> {
         let identifier = self.identifier_parser.parse(input.ast.name.as_str(), config)?;
         if config.get_only_parse_symbols() {
             Ok(Function { identifier, ..Default::default() })

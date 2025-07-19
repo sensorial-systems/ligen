@@ -2,13 +2,13 @@ pub mod validator;
 
 use ligen::transformer::prelude::*;
 use rustpython_parser::ast::{StmtAsyncFunctionDef, StmtFunctionDef};
-use ligen::idl::{Method, Mutability};
+use ligen::idl::{Method, Mutability, Function};
 use crate::parser::PythonParser;
 use crate::prelude::*;
 
-impl Transformer<WithSource<StmtFunctionDef>, Method> for PythonParser {
-    fn transform(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Method> {
-        let function = self.function_parser.transform(input, config)?;
+impl<Body: Default> Transformer<WithSource<StmtFunctionDef>, Method<Body>> for PythonParser {
+    fn transform(&self, input: WithSource<StmtFunctionDef>, config: &Config) -> Result<Method<Body>> {
+        let function: Function<Body> = self.function_parser.transform(input, config)?;
         let attributes = function.attributes;
         let visibility = function.visibility;
         let synchrony = function.synchrony;
@@ -21,9 +21,9 @@ impl Transformer<WithSource<StmtFunctionDef>, Method> for PythonParser {
     }
 }
 
-impl Transformer<WithSource<StmtAsyncFunctionDef>, Method> for PythonParser {
-    fn transform(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Method> {
-        let function = self.function_parser.transform(input, config)?;
+impl<Body: Default> Transformer<WithSource<StmtAsyncFunctionDef>, Method<Body>> for PythonParser {
+    fn transform(&self, input: WithSource<StmtAsyncFunctionDef>, config: &Config) -> Result<Method<Body>> {
+        let function: Function<Body> = self.function_parser.transform(input, config)?;
         let attributes = function.attributes;
         let visibility = function.visibility;
         let synchrony = function.synchrony;

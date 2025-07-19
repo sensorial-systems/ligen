@@ -18,7 +18,7 @@ pub struct RustFunctionParser {
     synchrony_parser: RustSynchronyParser,
     parameter_parser: RustParameterParser,
     type_parser: RustTypeParser,
-    block_parser: RustBlockParser
+    _block_parser: RustBlockParser
 }
 
 impl RustFunctionParser {
@@ -35,7 +35,7 @@ impl Transformer<syn::ItemFn, Function> for RustFunctionParser {
         let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
         let inputs = self.parse_inputs(function.sig.inputs, config)?;
         let output = self.parse_output(function.sig.output, config)?;
-        let body = self.block_parser.transform(function.block, config)?;
+        let body = ();
         Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
     }
 }
@@ -51,7 +51,7 @@ impl Transformer<syn::ImplItemFn, Function> for RustFunctionParser {
             let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
             let inputs = self.parse_inputs(function.sig.inputs, config)?;
             let output = self.parse_output(function.sig.output, config)?;
-            let body = self.block_parser.transform(function.block, config)?;
+            let body = ();
             Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
         }
     }

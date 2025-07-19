@@ -12,8 +12,8 @@ pub struct FunctionParser {
     parameter_parser: ParameterParser,
 }
 
-impl Transformer<IdlInstruction, Function> for FunctionParser {
-    fn transform(&self, input: IdlInstruction, config: &Config) -> Result<Function> {
+impl<Body: Default> Transformer<IdlInstruction, Function<Body>> for FunctionParser {
+    fn transform(&self, input: IdlInstruction, config: &Config) -> Result<Function<Body>> {
         let accounts = input
             .accounts
             .iter()
