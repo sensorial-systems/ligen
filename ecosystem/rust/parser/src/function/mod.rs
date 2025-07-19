@@ -28,14 +28,23 @@ impl RustFunctionParser {
 }
 
 impl Transformer<syn::ItemFn, Function> for RustFunctionParser {
-    fn transform(&self, item_fn: syn::ItemFn, config: &Config) -> Result<Function> {
-        let attributes = self.attributes_parser.transform(item_fn.attrs, config)?;
-        let visibility = self.visibility_parser.transform(item_fn.vis, config)?;
-        let synchrony = self.synchrony_parser.transform(item_fn.sig.asyncness, config)?;
-        let identifier = self.identifier_parser.transform(item_fn.sig.ident, config)?;
-        let inputs = self.parse_inputs(item_fn.sig.inputs, config)?;
-        let output = self.parse_output(item_fn.sig.output, config)?;
-        let body = self.block_parser.transform(item_fn.block, config)?;
+    fn transform(&self, function: syn::ItemFn, config: &Config) -> Result<Function> {
+        let attributes = self.attributes_parser.transform(function.attrs, config)?;
+        let visibility = self.visibility_parser.transform(function.vis, config)?;
+        let synchrony = self.synchrony_parser.transform(function.sig.asyncness, config)?;
+        let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
+        let inputs = self.parse_inputs(function.sig.inputs, config)?;
+        let output = self.parse_output(function.sig.output, config)?;
+        let body = config
+            .get("ligen::parse-function-body")
+            .and_then(|literal|
+                literal
+                    .as_boolean()
+            ).copied()
+            .unwrap_or(false)
+            .then(|| self.block_parser.transform(function.block, config))
+            .transpose()?
+            .flatten();
         Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
     }
 }
@@ -51,7 +60,16 @@ impl Transformer<syn::ImplItemFn, Function> for RustFunctionParser {
             let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
             let inputs = self.parse_inputs(function.sig.inputs, config)?;
             let output = self.parse_output(function.sig.output, config)?;
-            let body = self.block_parser.transform(function.block, config)?;
+            let body = config
+                .get("ligen::parse-function-body")
+                .and_then(|literal|
+                    literal
+                        .as_boolean()
+                ).copied()
+                .unwrap_or(false)
+                .then(|| self.block_parser.transform(function.block, config))
+                .transpose()?
+                .flatten();
             Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
         }
     }
