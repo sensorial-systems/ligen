@@ -17,8 +17,8 @@ members = [
     "ecosystem/anchor",
     "ecosystem/anchor/parser",
     "ecosystem/anchor/generator",
-    # "ecosystem/wgsl",
-    # "ecosystem/wgsl/generator",
+    "ecosystem/wgsl",
+    "ecosystem/wgsl/generator",
 #    "ecosystem/rust/runtime",
     "ecosystem/rust/parser",
 #    "ecosystem/c/cmake",
@@ -53,7 +53,7 @@ ligen-rust-generator     = { path = "ecosystem/rust/generator" }
 ligen-rust-parser        = { path = "ecosystem/rust/parser" }
 ligen-anchor-generator   = { path = "ecosystem/anchor/generator" }
 ligen-anchor-parser      = { path = "ecosystem/anchor/parser" }
-# ligen-wgsl-generator     = { path = "ecosystem/wgsl/generator" }
+ligen-wgsl-generator     = { path = "ecosystem/wgsl/generator" }
 ligen-gui-runtime        = { path = "tools/editor/dependencies/gui-runtime" }
 is-tree                  = "0.9.9"
 serde                    = { version = "1", features = ["derive"] }

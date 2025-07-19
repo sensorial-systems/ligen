@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use ligen_transformer::prelude::*;
 use ligen_idl::Function;
+use ligen_ir::Block;
 use crate::{WgslBlockGenerator, WgslIdentifierGenerator, WgslPathGenerator, WgslTypeGenerator};
 
 pub struct WgslFunctionGenerator {
@@ -32,8 +33,8 @@ impl Default for WgslFunctionGenerator {
     }
 }
 
-impl Generator<&Function, String> for WgslFunctionGenerator {
-    fn generate(&self, function: &Function, config: &Config) -> Result<String> {
+impl Generator<&Function<Block>, String> for WgslFunctionGenerator {
+    fn generate(&self, function: &Function<Block>, config: &Config) -> Result<String> {
         let mut result = String::new();
         result.push_str(&format!("fn {}", self.identifier_generator.generate(&function.identifier, config)?));
         let parameters: Vec<String> = function.inputs.iter().map(|input| self.parameter_generator.generate(input, config)).collect::<Result<Vec<String>>>()?;
@@ -41,16 +42,15 @@ impl Generator<&Function, String> for WgslFunctionGenerator {
         if let Some(output) = &function.output {
             result.push_str(&format!(" -> {}", self.type_generator.generate(output, config)?));
         }
-        if let Some(body) = &function.body {
-            result.push_str(&format!(" {}", self.block_generator.generate(body, config)?));
-        }
+        result.push_str(&format!(" {}", self.block_generator.generate(&function.body, config)?));
         Ok(result)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use ligen_idl::{BinaryExpression, Block, Identifier, Parameter, PathSegment, Statement};
+    use ligen_ir::{BinaryExpression, Block, Statement};
+    use ligen_idl::{Identifier, Parameter, PathSegment};
 
     use super::*;
 
@@ -60,7 +60,7 @@ mod tests {
         let block = Block::from([
             Statement::return_(Some(BinaryExpression::new(Identifier::new("a"), "/", Identifier::new("b"))))
         ]);
-        let function = Function::new("div", vec![Parameter::new("a", PathSegment::new("vec2", "f32")), Parameter::new("b", PathSegment::new("vec2", "f32"))], Some(PathSegment::new("vec2", "f32")), Some(block));
+        let function = Function::new("div", vec![Parameter::new("a", PathSegment::new("vec2", "f32")), Parameter::new("b", PathSegment::new("vec2", "f32"))], Some(PathSegment::new("vec2", "f32")), block);
         let result = generator.generate(&function, &Config::default()).unwrap();
         assert_eq!(result, "fn div(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {return a / b;}");
     }
