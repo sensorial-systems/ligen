@@ -9,8 +9,7 @@ pub use import::*;
 use ::is_tree::*;
 
 use crate::prelude::*;
-use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition};
-use crate::interface::Interface;
+use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition, Interface};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree, JsonSchema)]

@@ -11,3 +11,4 @@ readme.workspace = true
 [dependencies]
 ligen-transformer.workspace = true
 ligen-idl.workspace = true
+ligen-ir.workspace = true

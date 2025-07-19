@@ -8,6 +8,7 @@ pub fn function() -> Function {
         identifier: "test".into(),
         inputs: vec![],
         output: None,
+        #[cfg(feature = "ir")]
         body: None
     }
 }
@@ -31,6 +32,7 @@ pub fn function_input() -> Function {
             },
         ],
         output: None,
+        #[cfg(feature = "ir")]
         body: None
     }
 }
@@ -43,7 +45,8 @@ pub fn function_output() -> Function {
         identifier: "test".into(),
         inputs: vec![],
         output: Some(Type::string()),   
-        body: None
+        #[cfg(feature = "ir")]
+        body: None,
     }
 }
 
@@ -66,6 +69,7 @@ pub fn function_input_output() -> Function {
             }
         ],
         output: Some(Type::i32()),
+        #[cfg(feature = "ir")]
         body: None
     }
 }
@@ -78,7 +82,8 @@ pub fn function_attribute() -> Function {
         identifier: "test".into(),
         inputs: vec![],
         output: None,
-        body: None
+        #[cfg(feature = "ir")]
+        body: None,
     }
 }
 
@@ -90,7 +95,8 @@ pub fn function_async() -> Function {
         identifier: "test".into(),
         inputs: vec![],
         output: None,
-        body: None
+        #[cfg(feature = "ir")]
+        body: None,
     }
 }
 
@@ -121,6 +127,7 @@ pub fn function_complete() -> Function {
             },
         ],
         output: Some(Type::constant_reference(Type::string())),
+        #[cfg(feature = "ir")]
         body: None
     }
 }

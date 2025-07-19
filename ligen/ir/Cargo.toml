@@ -1,0 +1,6 @@
+[package]
+name = "ligen-ir"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

@@ -1,10 +1,10 @@
 pub mod attribute;
+pub use attribute::*;
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
 use std::fmt::{Display, Formatter};
-pub use attribute::*;
 
 use crate::Path;
 use crate::Literal;

@@ -1,10 +1,9 @@
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
-pub mod naming_convention;
-use is_tree::IsPathSegment;
-pub use naming_convention::*;
+mod naming_convention;
 
+use is_tree::IsPathSegment;
 use crate::path::PathSegment;
 use crate::{prelude::*, Mutability};
 

@@ -3,7 +3,7 @@
 pub(crate) mod intermediary_attribute;
 
 use intermediary_attribute::IntermediaryAttribute;
-use ligen::idl::macro_attributes::{Named, Group};
+use ligen::idl::{Named, Group};
 use syn::__private::ToTokens;
 use crate::prelude::*;
 use crate::{RustAttributesParser, RustLiteralParser, RustPathParser, RustIdentifierParser};

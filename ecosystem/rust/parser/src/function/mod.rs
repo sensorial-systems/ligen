@@ -8,7 +8,10 @@ pub use synchrony::*;
 
 use crate::prelude::*;
 use ligen::idl::{Function, Parameter, Type};
-use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustTypeParser, RustBlockParser};
+use crate::{RustIdentifierParser, RustAttributesParser, RustVisibilityParser, RustTypeParser};
+
+#[cfg(feature = "ir")]
+use crate::RustBlockParser;
 
 #[derive(Default)]
 pub struct RustFunctionParser {
@@ -18,6 +21,7 @@ pub struct RustFunctionParser {
     synchrony_parser: RustSynchronyParser,
     parameter_parser: RustParameterParser,
     type_parser: RustTypeParser,
+    #[cfg(feature = "ir")]
     block_parser: RustBlockParser
 }
 
@@ -35,6 +39,7 @@ impl Transformer<syn::ItemFn, Function> for RustFunctionParser {
         let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
         let inputs = self.parse_inputs(function.sig.inputs, config)?;
         let output = self.parse_output(function.sig.output, config)?;
+        #[cfg(feature = "ir")]
         let body = config
             .get("ligen::parse-function-body")
             .and_then(|literal|
@@ -45,7 +50,11 @@ impl Transformer<syn::ItemFn, Function> for RustFunctionParser {
             .then(|| self.block_parser.transform(function.block, config))
             .transpose()?
             .flatten();
-        Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
+        #[cfg(feature = "ir")]
+        let function = Function { attributes, visibility, synchrony, identifier, inputs, output, body };
+        #[cfg(not(feature = "ir"))]
+        let function = Function { attributes, visibility, synchrony, identifier, inputs, output };
+        Ok(function)
     }
 }
 
@@ -60,6 +69,7 @@ impl Transformer<syn::ImplItemFn, Function> for RustFunctionParser {
             let identifier = self.identifier_parser.transform(function.sig.ident, config)?;
             let inputs = self.parse_inputs(function.sig.inputs, config)?;
             let output = self.parse_output(function.sig.output, config)?;
+            #[cfg(feature = "ir")]
             let body = config
                 .get("ligen::parse-function-body")
                 .and_then(|literal|
@@ -70,7 +80,11 @@ impl Transformer<syn::ImplItemFn, Function> for RustFunctionParser {
                 .then(|| self.block_parser.transform(function.block, config))
                 .transpose()?
                 .flatten();
-            Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
+            #[cfg(feature = "ir")]
+            let function = Function { attributes, visibility, synchrony, identifier, inputs, output, body };
+            #[cfg(not(feature = "ir"))]
+            let function = Function { attributes, visibility, synchrony, identifier, inputs, output };
+            Ok(function)
         }
     }
 }

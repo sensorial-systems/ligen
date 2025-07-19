@@ -12,7 +12,6 @@ mod module;
 mod object;
 mod interface;
 mod library;
-mod block;
 mod parser;
 
 pub mod cargo;
@@ -31,6 +30,10 @@ pub use module::*;
 pub use object::*;
 pub use interface::*;
 pub use library::*;
+
+#[cfg(feature = "ir")]
+pub mod block;
+#[cfg(feature = "ir")]
 pub use block::*;
 
 extern crate proc_macro;

@@ -1,12 +1,11 @@
 // TODO: Replace this with is-tree Path and PathSegment?
 
-pub mod path_segment;
+mod path_segment;
+pub use path_segment::*;
 
 use crate::Identifier;
 use crate::prelude::*;
 use std::path::PathBuf;
-
-pub use path_segment::PathSegment;
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;

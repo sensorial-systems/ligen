@@ -8,6 +8,9 @@ license.workspace = true
 documentation.workspace = true
 readme.workspace = true
 
+[features]
+ir = []
+
 [dependencies]
 ligen.workspace = true
 syn.workspace = true

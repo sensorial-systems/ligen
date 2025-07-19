@@ -10,7 +10,7 @@ readme.workspace        = true
 
 [features]
 mocks = []
-statements = []
+ir = []
 
 [dependencies]
 ligen-common.workspace  = true

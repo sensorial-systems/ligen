@@ -1,4 +1,4 @@
-use crate::{Library, Path, Module, interface};
+use crate::{Library, Path, Module, Interface};
 
 #[derive(Default)]
 pub struct Symbols {
@@ -29,7 +29,7 @@ impl Symbols {
         symbols
     }
 
-    fn from_interface(interface: &interface::Interface, path: &Path) -> Vec<Path> {
+    fn from_interface(interface: &Interface, path: &Path) -> Vec<Path> {
         let path = path.clone().join(interface.identifier.clone());
         let mut symbols = Vec::default();
         interface.objects.iter().for_each(|object| {

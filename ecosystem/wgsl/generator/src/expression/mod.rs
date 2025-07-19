@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::{WgslIdentifierGenerator, WgslPathGenerator};
 
 use ligen_transformer::prelude::*;
-use ligen_idl::Expression;
+use ligen_ir::Expression;
 
 pub struct WgslExpressionGenerator {
     pub path_generator: Rc<WgslPathGenerator>,

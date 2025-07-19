@@ -36,6 +36,7 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                     Some(self.type_parser.transform(*y, config)?)
                 }
             };
+            #[cfg(feature = "ir")]
             let body = Default::default();
             Ok(Method {
                 mutability,
@@ -51,7 +52,8 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                 identifier: self.identifier_parser.transform(ident, config)?,
                 inputs,
                 output,
-                body
+                #[cfg(feature = "ir")]
+                body: Default::default(),
             })
         } else {
             Err(Error::Message("Function is not a method.".to_string()))
