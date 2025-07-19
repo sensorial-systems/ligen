@@ -1,5 +1,4 @@
 use crate::prelude::*;
-
 use crate::{Attributes, Identifier, Type, Visibility};
 
 pub mod parameter;
@@ -12,7 +11,7 @@ pub use synchrony::*;
 
 /// Function structure.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct Function {
+pub struct Function<Body = ()> {
     /// Attributes field.
     pub attributes: Attributes,
     /// Visibility field.
@@ -25,15 +24,12 @@ pub struct Function {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
-    // TODO: What to do about the body?
-    // /// Body field.
-    // pub body: Option<Block>
+    /// Body field.
+    pub body: Body
 }
 
-impl Function {
-    pub fn new<R: Into<Type>>(identifier: impl Into<Identifier>, inputs: impl IntoIterator<Item = Parameter>, output: Option<R>) -> Self {
-    // TODO: Add body
-    // pub fn new<R: Into<Type>, B: Into<Block>>(identifier: impl Into<Identifier>, inputs: impl IntoIterator<Item = Parameter>, output: Option<R>, body: Option<B>) -> Self {
+impl<Body> Function<Body> {
+    pub fn new<R: Into<Type>, B: Into<Body>>(identifier: impl Into<Identifier>, inputs: impl IntoIterator<Item = Parameter>, output: Option<R>, body: B) -> Self {
         Self {
             attributes: Attributes::default(),
             visibility: Visibility::Public,
@@ -41,24 +37,25 @@ impl Function {
             identifier: identifier.into(),
             inputs: inputs.into_iter().collect(),
             output: output.map(Into::into),
+            body: body.into(),
         }
     }
 }
 
-impl CountSymbols for Vec<Function> {
+impl<Body> CountSymbols for Vec<Function<Body>> {
     fn count_symbols(&self) -> usize {
         self.len()
     }
 }
 
-impl CountSymbols for &Vec<Function> {
+impl<Body> CountSymbols for &Vec<Function<Body>> {
     fn count_symbols(&self) -> usize {
         self.len()
     }
 }
 
-impl From<Method> for Function {
-    fn from(method: Method) -> Self {
+impl<Body> From<Method<Body>> for Function<Body> {
+    fn from(method: Method<Body>) -> Self {
         Self {
             attributes: method.attributes,
             visibility: method.visibility,
@@ -66,8 +63,7 @@ impl From<Method> for Function {
             identifier: method.identifier,
             inputs: method.inputs,
             output: method.output,
-            // TODO: Add body
-            // body: method.body,
+            body: method.body,
         }
     }
 }

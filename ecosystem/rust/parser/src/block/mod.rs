@@ -1,12 +1,24 @@
 use ligen::parser::universal::PathParser;
 use ligen::prelude::*;
-use ligen::idl::{Block, Statement, Expression, BinaryExpression};
+use ligen::ir::{Block, Statement, Expression, BinaryExpression};
 use quote::quote;
 
 
 #[derive(Default)]
 pub struct RustBlockParser {
     path_parser: PathParser,
+}
+
+impl Transformer<syn::Block, ()> for RustBlockParser {
+    fn transform(&self, _block: syn::Block, _config: &Config) -> Result<()> {
+        Ok(())
+    }
+}
+
+impl Transformer<Box<syn::Block>, ()> for RustBlockParser {
+    fn transform(&self, block: Box<syn::Block>, config: &Config) -> Result<()> {
+        self.transform(*block, config)
+    }
 }
 
 impl Transformer<Box<syn::Block>, Option<Block>> for RustBlockParser {
@@ -85,7 +97,8 @@ impl Transformer<syn::Expr, Expression> for RustBlockParser {
 
 #[cfg(test)]
 mod tests {
-    use ligen::idl::{Statement, Expression, BinaryExpression, Path};
+    use ligen::ir::{Statement, Expression, BinaryExpression};
+    use ligen::idl::Path;
 
     use super::*;
 

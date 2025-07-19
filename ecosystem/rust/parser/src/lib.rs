@@ -31,9 +31,7 @@ pub use object::*;
 pub use interface::*;
 pub use library::*;
 
-#[cfg(feature = "ir")]
 pub mod block;
-#[cfg(feature = "ir")]
 pub use block::*;
 
 extern crate proc_macro;

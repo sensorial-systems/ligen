@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub mod binary;
 pub use binary::*;
 
-use crate::{Literal, Path, Identifier};
+use ligen_idl::{Literal, Path, Identifier};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub enum Expression {

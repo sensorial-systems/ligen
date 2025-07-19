@@ -3,7 +3,7 @@ use crate::{Synchrony, Attributes, Mutability, Parameter, Type, Visibility, Iden
 
 /// Method structure.
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct Method {
+pub struct Method<Body = ()> {
     /// Attributes field.
     pub attributes: Attributes,
     /// The owner mutability.
@@ -18,18 +18,17 @@ pub struct Method {
     pub inputs: Vec<Parameter>,
     /// Output field.
     pub output: Option<Type>,
-    // TODO: What to do about the body?
-    // /// Body field.
-    // pub body: Option<Block>
+    /// Body field.
+    pub body: Body
 }
 
-impl CountSymbols for &Vec<Method> {
+impl<Body> CountSymbols for &Vec<Method<Body>> {
     fn count_symbols(&self) -> usize {
         self.len()
     }
 }
 
-impl CountSymbols for Vec<Method> {
+impl<Body> CountSymbols for Vec<Method<Body>> {
     fn count_symbols(&self) -> usize {
         self.len()
     }

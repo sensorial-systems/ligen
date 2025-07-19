@@ -42,13 +42,8 @@ impl Transformer<WithSource<StmtFunctionDef>, Function> for FunctionParser {
             let synchrony = Synchrony::Synchronous;
             let inputs = self.parse_inputs(*input.ast.args, config)?;
             let output = self.parse_output(input.ast.returns, config)?;
-            #[cfg(feature = "ir")]
             let body = Default::default();
-            #[cfg(feature = "ir")]
-            let function = Function { attributes, visibility, synchrony, identifier, inputs, output, body };
-            #[cfg(not(feature = "ir"))]
-            let function = Function { attributes, visibility, synchrony, identifier, inputs, output };
-            Ok(function)
+            Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
         }
     }
 }
@@ -64,13 +59,8 @@ impl Transformer<WithSource<StmtAsyncFunctionDef>, Function> for FunctionParser 
             let synchrony = Synchrony::Asynchronous;
             let inputs = self.parse_inputs(*input.ast.args, config)?;
             let output = self.parse_output(input.ast.returns, config)?;    
-            #[cfg(feature = "ir")]
             let body = Default::default();
-            #[cfg(feature = "ir")]
-            let function = Function { attributes, visibility, synchrony, identifier, inputs, output, body };
-            #[cfg(not(feature = "ir"))]
-            let function = Function { attributes, visibility, synchrony, identifier, inputs, output };
-            Ok(function)
+            Ok(Function { attributes, visibility, synchrony, identifier, inputs, output, body })
         }
     }
 }

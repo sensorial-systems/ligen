@@ -4,3 +4,10 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+ligen-idl.workspace     = true
+ligen-common.workspace  = true
+serde.workspace         = true
+serde_json.workspace    = true
+enum-as-inner.workspace = true
+is-tree.workspace       = true
+schemars.workspace      = true

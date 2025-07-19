@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
-use crate::{Identifier, Expression};
+use ligen_idl::Identifier;
+use crate::Expression;
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct BinaryExpression {

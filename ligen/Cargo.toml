@@ -9,9 +9,10 @@ documentation.workspace = true
 readme.workspace        = true
 
 [dependencies]
-ligen-macro.workspace     = true
-ligen-idl.workspace        = true
-ligen-utils.workspace     = true
-ligen-traits.workspace    = true
+ligen-macro.workspace       = true
+ligen-idl.workspace         = true
+ligen-ir.workspace          = true
+ligen-utils.workspace       = true
+ligen-traits.workspace      = true
 ligen-transformer.workspace = true
-ligen-common.workspace    = true
+ligen-common.workspace      = true

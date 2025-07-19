@@ -8,9 +8,6 @@ license.workspace = true
 documentation.workspace = true
 readme.workspace = true
 
-[features]
-ir = []
-
 [dependencies]
 ligen.workspace = true
 rustpython-parser = { git = "https://github.com/RustPython/Parser" }

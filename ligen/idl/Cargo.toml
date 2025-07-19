@@ -10,16 +10,14 @@ readme.workspace        = true
 
 [features]
 mocks = []
-ir = []
 
 [dependencies]
 ligen-common.workspace  = true
 serde.workspace         = true
 serde_json.workspace    = true
 enum-as-inner.workspace = true
+is-tree.workspace       = true
+regex.workspace         = true
+schemars.workspace      = true
 strum                   = { version = "0.25.0", features = ["derive"] }
 semver                  = { version = "1.0.20", features = ["serde"] }
-is-tree.workspace = true
-regex.workspace = true
-
-schemars.workspace = true

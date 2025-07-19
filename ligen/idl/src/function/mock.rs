@@ -6,10 +6,7 @@ pub fn function() -> Function {
         visibility: Visibility::Public,
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
-        inputs: vec![],
-        output: None,
-        #[cfg(feature = "ir")]
-        body: None
+        .. Default::default()
     }
 }
 
@@ -31,9 +28,7 @@ pub fn function_input() -> Function {
                 .. Default::default()
             },
         ],
-        output: None,
-        #[cfg(feature = "ir")]
-        body: None
+        .. Default::default()
     }
 }
 
@@ -43,10 +38,8 @@ pub fn function_output() -> Function {
         visibility: Visibility::Public,
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
-        inputs: vec![],
         output: Some(Type::string()),   
-        #[cfg(feature = "ir")]
-        body: None,
+        .. Default::default()
     }
 }
 
@@ -69,8 +62,7 @@ pub fn function_input_output() -> Function {
             }
         ],
         output: Some(Type::i32()),
-        #[cfg(feature = "ir")]
-        body: None
+        .. Default::default()
     }
 }
 
@@ -80,10 +72,7 @@ pub fn function_attribute() -> Function {
         visibility: Visibility::Public,
         synchrony: Synchrony::Synchronous,
         identifier: "test".into(),
-        inputs: vec![],
-        output: None,
-        #[cfg(feature = "ir")]
-        body: None,
+        .. Default::default()
     }
 }
 
@@ -93,10 +82,7 @@ pub fn function_async() -> Function {
         visibility: Visibility::Public,
         synchrony: Synchrony::Asynchronous,
         identifier: "test".into(),
-        inputs: vec![],
-        output: None,
-        #[cfg(feature = "ir")]
-        body: None,
+        .. Default::default()
     }
 }
 
@@ -127,7 +113,6 @@ pub fn function_complete() -> Function {
             },
         ],
         output: Some(Type::constant_reference(Type::string())),
-        #[cfg(feature = "ir")]
-        body: None
+        .. Default::default()
     }
 }
