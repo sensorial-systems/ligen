@@ -12,28 +12,26 @@ use crate::prelude::*;
 use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition, Interface};
 
 /// Module representation.
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, IsTree, JsonSchema)]
-#[tree(branches)]
-pub struct Module {
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct Module<Block = ()> {
     /// Attributes.
     pub attributes: Attributes,
     /// Visibility.
     pub visibility: Visibility,
     /// Module identifier
-    #[tree(path_segment)]
     pub identifier: Identifier,
     /// Imports.
     pub imports: Vec<Import>,
     /// Objects.
     pub objects: Vec<Object>,
     /// Functions.
-    pub functions: Vec<Function>,
+    pub functions: Vec<Function<Block>>,
     /// Types.
     pub types: Vec<TypeDefinition>,
     /// Interfaces.
     pub interfaces: Vec<Interface>,
     /// Sub-modules.
-    pub modules: Vec<Module>,
+    pub modules: Vec<Module<Block>>,
 }
 
 impl CountSymbols for Module {
@@ -94,5 +92,29 @@ impl Module {
             && self.interfaces.is_empty()
             && self.types.is_empty()
             && self.modules.is_empty()
+    }
+}
+
+impl<'a, Block> HasBranches<&'a Module<Block>> for &'a Module<Block> {
+    fn branches_impl(self) -> impl Iterator<Item = &'a Module<Block>> {
+        self.modules.iter()
+    }
+}
+
+impl<'a, Block> HasBranches<&'a mut Module<Block>> for &'a mut Module<Block> {
+    fn branches_impl(self) -> impl Iterator<Item = &'a mut Module<Block>> {
+        self.modules.iter_mut()
+    }
+}
+
+impl<Block> HasPathSegment for &Module<Block> {
+    fn path_segment(&self) -> String {
+        self.identifier.to_string()
+    }
+}
+
+impl<Block> HasPathSegment for &mut Module<Block> {
+    fn path_segment(&self) -> String {
+        self.identifier.to_string()
     }
 }
