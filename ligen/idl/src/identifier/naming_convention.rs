@@ -1,6 +1,7 @@
 //! Naming convetions such as kebab-case, snake_case, PascalCase, camelCase.
 
 use crate::{prelude::*, Identifier};
+use heck::{ToKebabCase, ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase, ToShoutySnakeCase};
 
 /// Enumerated naming conventions.
 #[derive(Debug, Clone, Serialize, Deserialize, Display, PartialEq, Eq)]
@@ -46,65 +47,27 @@ impl Identifier {
 
     /// Set the name convention of the Identifier to camelCase.
     pub fn to_camel_case(&self) -> Self {
-        let mut result = String::new();
-        let mut first = true;
-        for word in self.words() {
-            if first {
-                result.push_str(word.to_lowercase().as_str());
-                first = false;
-            } else {
-                result.push_str(&word[..1].to_uppercase());
-                result.push_str(&word[1..].to_lowercase());
-            }
-        }
-        result.into()
+        self.name.to_lower_camel_case().into()
     }
 
     /// Set the name convention of the Identifier to PascalCase.
     pub fn to_pascal_case(&self) -> Self {
-        let mut result = String::new();
-        for word in self.words() {
-            result.push_str(&word[..1].to_uppercase());
-            result.push_str(&word[1..].to_lowercase());
-        }
-        result.into()
+        self.name.to_upper_camel_case().into()
     }
 
     /// Set the name convention of the Identifier to SCREAMING_SNAKE_CASE.
     pub fn to_screaming_snake_case(&self) -> Self {
-        self.to_snake_case().name.to_uppercase().into()
+        self.name.to_shouty_snake_case().into()
     }
 
     /// Set the name convention of the Identifier to snake_case.
     pub fn to_snake_case(&self) -> Self {
-        let mut result = String::new();
-        let mut first = true;
-        for word in self.words() {
-            if first {
-                result.push_str(word.to_lowercase().as_str());
-                first = false;
-            } else {
-                result.push('_');
-                result.push_str(word.to_lowercase().as_str());
-            }
-        }
-        result.into()
+        self.name.to_snake_case().into()
     }
 
     /// Set the name convention of the Identifier to kebab-case.
     pub fn to_kebab_case(&self) -> Self {
-        let mut result = String::new();
-        let mut first = true;
-        for word in self.words() {
-            if first {
-                result.push_str(word.to_lowercase().as_str());
-                first = false;
-            } else {
-                result.push('-');
-                result.push_str(word.to_lowercase().as_str());
-            }
-        }
-        result.into()
+        self.name.to_kebab_case().into()
     }
 
     /// Get the words of the Identifier.

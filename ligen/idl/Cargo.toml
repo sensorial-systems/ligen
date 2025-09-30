@@ -21,3 +21,4 @@ regex.workspace         = true
 schemars.workspace      = true
 strum                   = { version = "0.25.0", features = ["derive"] }
 semver                  = { version = "1.0.20", features = ["serde"] }
+heck                    = "0.4.1"
