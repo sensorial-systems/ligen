@@ -21,6 +21,16 @@ impl Transformer<syn::Lit, Literal> for RustLiteralParser {
     }
 }
 
+impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Literal> for RustLiteralParser {
+    fn transform(&self, input: syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, config: &Config) -> Result<Literal> {
+        let mut result = Vec::new();
+        for element in input {
+            result.push(self.transform(element, config)?);
+        }
+        Ok(Literal::Array(result))
+    }
+}
+
 impl Transformer<syn::Ident, Literal> for RustLiteralParser {
     fn transform(&self, input: syn::Ident, _config: &Config) -> Result<Literal> {
         Ok(Literal::String(input.to_string()))

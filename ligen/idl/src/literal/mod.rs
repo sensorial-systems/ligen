@@ -22,8 +22,8 @@ pub enum Literal {
     Float(f64),
     /// Tuple variant
     Tuple(Vec<Literal>),
-    /// Vector variant
-    Vector(Vec<Literal>),
+    /// Array variant
+    Array(Vec<Literal>),
     /// None variant
     None,
     /// Unknown variant used for language specific literals
@@ -41,7 +41,7 @@ impl Literal {
             Literal::UnsignedInteger(_) => type_.is_unsigned_integer(),
             Literal::Float(_) => type_.is_float(),
             Literal::Tuple(_) => type_.is_tuple(),
-            Literal::Vector(_) => type_.is_vector(),
+            Literal::Array(_) => type_.is_array(),
             Literal::None => false,
             Literal::Unknown(_) => false
         }
@@ -151,7 +151,7 @@ impl std::fmt::Display for Literal {
                 }
                 write!(f, ")")
             },
-            Literal::Vector(values) => {
+            Literal::Array(values) => {
                 write!(f, "[")?;
                 for (index, value) in values.iter().enumerate() {
                     if index > 0 {

@@ -227,6 +227,11 @@ impl Type {
         self.path.last().identifier == Identifier::tuple()
     }
 
+    /// Check if the `Type` is `Array`.
+    pub fn is_array(&self) -> bool {
+        self.path.last().identifier == Identifier::array()
+    }
+
     /// Check if the `Type` is `Vector`.
     pub fn is_vector(&self) -> bool {
         self.path.last().identifier == Identifier::vector()

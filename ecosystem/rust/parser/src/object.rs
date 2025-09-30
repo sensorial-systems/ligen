@@ -19,28 +19,44 @@ impl RustObjectParser {
 
 impl Transformer<syn::ImplItemConst, Object> for RustObjectParser {
     fn transform(&self, item_const: syn::ImplItemConst, config: &Config) -> Result<Object> {
-        if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = item_const.expr {
-            let mutability = Mutability::Constant;
-            let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
-            let type_ = self.type_parser.transform(item_const.ty, config)?;
-            let literal = self.literal_parser.transform(lit, config)?;
-            Ok(Object { mutability, identifier, type_, literal })
-        } else {
-            Err("Undefined Constant inside Impl block".into())
+        match item_const.expr {
+            syn::Expr::Array(syn::ExprArray { elems, .. }) => {
+                let mutability = Mutability::Constant;
+                let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+                let type_ = self.type_parser.transform(item_const.ty, config)?;
+                let literal = self.literal_parser.transform(elems, config)?;
+                Ok(Object { mutability, identifier, type_, literal })
+            }
+            syn::Expr::Lit(syn::ExprLit { lit, .. }) => {
+                let mutability = Mutability::Constant;
+                let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+                let type_ = self.type_parser.transform(item_const.ty, config)?;
+                let literal = self.literal_parser.transform(lit, config)?;
+                Ok(Object { mutability, identifier, type_, literal })
+            }
+            _ => Err("Undefined Constant inside Impl block".into())
         }
     }
 }
 
 impl Transformer<syn::ItemConst, Object> for RustObjectParser {
     fn transform(&self, item_const: syn::ItemConst, config: &Config) -> Result<Object> {
-        if let syn::Expr::Lit(syn::ExprLit { lit, .. }) = *item_const.expr {
-            let mutability = Mutability::Constant;
-            let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
-            let type_ = self.type_parser.transform(*item_const.ty, config)?;
-            let literal = self.literal_parser.transform(lit, config)?;
-            Ok(Object { mutability, identifier, type_, literal })
-        } else {
-            Err("Undefined Constant".into())
+        match *item_const.expr {
+            syn::Expr::Lit(syn::ExprLit { lit, .. }) => {
+                let mutability = Mutability::Constant;
+                let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+                let type_ = self.type_parser.transform(*item_const.ty, config)?;
+                let literal = self.literal_parser.transform(lit, config)?;
+                Ok(Object { mutability, identifier, type_, literal })
+            },
+            syn::Expr::Array(syn::ExprArray { elems, .. }) => {
+                let mutability = Mutability::Constant;
+                let identifier = self.identifier_parser.transform(item_const.ident.clone(), config)?;
+                let type_ = self.type_parser.transform(*item_const.ty, config)?;
+                let literal = self.literal_parser.transform(elems, config)?;
+                Ok(Object { mutability, identifier, type_, literal })
+            },
+            _ => Err("Undefined constant.".into())
         }
     }
 }

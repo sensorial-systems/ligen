@@ -33,7 +33,6 @@ impl<T: TypeDescriptor> GeneralLlmParser<T> {
             .api_key(api_key)
             .model("gpt-4o")
             .temperature(0.7)
-            .stream(false)
             .schema(structured_output)
             .build()
             .context("Failed to build LLM (OpenAI)")?;

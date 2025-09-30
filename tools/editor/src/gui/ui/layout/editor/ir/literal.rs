@@ -26,7 +26,7 @@ impl Widget for Literal {
                 ligen_idl::Literal::None => "None",
                 ligen_idl::Literal::Unknown(_) => "Unknown",
                 ligen_idl::Literal::Tuple(_) => "Tuple",
-                ligen_idl::Literal::Vector(_) => "Vector",
+                ligen_idl::Literal::Array(_) => "Array",
             };
             ui.horizontal_top(|ui| {
                 ComboBox::new("Literal", "")
@@ -72,7 +72,7 @@ impl Widget for Literal {
                     ligen_idl::Literal::Tuple(value) => {
                         ui.label(format!("{value:?}"));
                     },
-                    ligen_idl::Literal::Vector(value) => {
+                    ligen_idl::Literal::Array(value) => {
                         ui.label(format!("{value:?}"));
                     },
                 }

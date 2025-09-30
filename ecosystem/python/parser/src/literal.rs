@@ -60,7 +60,7 @@ impl Transformer<&Expr, Literal> for LiteralParser {
                 for element in &list.elts {
                     result.push(self.transform(element, config)?);
                 }
-                Ok(Literal::Vector(result))
+                Ok(Literal::Array(result))
             },
             _ => Ok(Literal::Unknown("Unimplemented".into()))
         }
