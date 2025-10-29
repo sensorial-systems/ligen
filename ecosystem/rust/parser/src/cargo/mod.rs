@@ -121,8 +121,7 @@ impl Cargo {
                     (requirement, vec![])
                 },
                 cargo_toml::Dependency::Detailed(dependency) => {
-                    let requirement = dependency.version.as_ref().context(format!("Version for {} not found in Cargo.toml.", name))?;
-                    let requirement = VersionRequirement::from(requirement.clone());
+                    let requirement = dependency.version.as_ref().cloned().map(VersionRequirement::from).unwrap_or(VersionRequirement::any());
                     (requirement, dependency.features.clone())
                 },
                 cargo_toml::Dependency::Inherited(_dependency) => {
