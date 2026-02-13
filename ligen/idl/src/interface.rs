@@ -1,7 +1,7 @@
 use is_tree::*;
 
-use crate::{Attributes, Object, Function, Identifier, Method, Path, Visibility};
 use crate::prelude::*;
+use crate::{Attributes, Function, Identifier, Method, Object, Path, Visibility};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Interface<Block = ()> {
@@ -18,34 +18,32 @@ pub struct Interface<Block = ()> {
     /// Interface methods.
     pub methods: Vec<Method<Block>>,
     /// Interfaces that this interface extends.
-    pub interfaces: Vec<Path>
+    pub interfaces: Vec<Path>,
 }
 
 impl<Block> CountSymbols for &Vec<Interface<Block>> {
     fn count_symbols(&self) -> usize {
-        self.iter().fold(0, |acc, interface| acc + interface.count_symbols())
+        self.iter()
+            .fold(0, |acc, interface| acc + interface.count_symbols())
     }
 }
 
 impl<Block> CountSymbols for Vec<Interface<Block>> {
     fn count_symbols(&self) -> usize {
-        self.iter().fold(0, |acc, interface| acc + interface.count_symbols())
+        self.iter()
+            .fold(0, |acc, interface| acc + interface.count_symbols())
     }
 }
 
 impl<Block> CountSymbols for &Interface<Block> {
     fn count_symbols(&self) -> usize {
-        self.objects.count_symbols()
-            + self.functions.count_symbols()
-            + self.methods.count_symbols()
+        self.objects.count_symbols() + self.functions.count_symbols() + self.methods.count_symbols()
     }
 }
 
 impl<Block> CountSymbols for Interface<Block> {
     fn count_symbols(&self) -> usize {
-        self.objects.count_symbols()
-            + self.functions.count_symbols()
-            + self.methods.count_symbols()
+        self.objects.count_symbols() + self.functions.count_symbols() + self.methods.count_symbols()
     }
 }
 

@@ -5,11 +5,11 @@ pub mod import;
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
-pub use import::*;
 use ::is_tree::*;
+pub use import::*;
 
 use crate::prelude::*;
-use crate::{Visibility, Attributes, Function, Object, Identifier, TypeDefinition, Interface};
+use crate::{Attributes, Function, Identifier, Interface, Object, TypeDefinition, Visibility};
 
 /// Module representation.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -51,7 +51,7 @@ impl CountSymbols for &mut Module {
             + self.types.count_symbols()
             + self.interfaces.count_symbols()
             + self.modules.count_symbols()
-    }    
+    }
 }
 
 impl CountSymbols for &Module {
@@ -61,18 +61,20 @@ impl CountSymbols for &Module {
             + self.types.count_symbols()
             + self.interfaces.count_symbols()
             + self.modules.count_symbols()
-    }    
+    }
 }
 
 impl CountSymbols for Vec<Module> {
     fn count_symbols(&self) -> usize {
-        self.iter().fold(0, |acc, module| acc + module.count_symbols())
+        self.iter()
+            .fold(0, |acc, module| acc + module.count_symbols())
     }
 }
 
 impl CountSymbols for &Vec<Module> {
     fn count_symbols(&self) -> usize {
-        self.iter().fold(0, |acc, module| acc + module.count_symbols())
+        self.iter()
+            .fold(0, |acc, module| acc + module.count_symbols())
     }
 }
 

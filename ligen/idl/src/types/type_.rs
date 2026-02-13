@@ -1,7 +1,9 @@
-use crate::{Path, Identifier, PathSegment, Mutability};
 use crate::prelude::*;
+use crate::{Identifier, Mutability, Path, PathSegment};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
+)]
 /// Type structure.
 pub struct Type {
     /// Type path.
@@ -160,6 +162,21 @@ impl Type {
     pub fn string() -> Self {
         Identifier::string().into()
     }
+
+    /// Returns a new `Type` representing a void type.
+    pub fn void() -> Self {
+        Identifier::void().into()
+    }
+
+    /// Returns a new `Type` representing an inferred type.
+    pub fn infer() -> Self {
+        Identifier::infer().into()
+    }
+
+    /// Returns a new `Type` representing a function type.
+    pub fn function(inputs: Vec<Type>, output: Type) -> Self {
+        PathSegment::new(Identifier::function(), vec![Type::tuple(inputs), output]).into()
+    }
 }
 
 impl Default for Type {
@@ -172,10 +189,10 @@ impl Type {
     /// Check if the `Type` is `Primitive`.
     pub fn is_primitive(&self) -> bool {
         self.is_boolean()
-        || self.is_character()
-        || self.is_float()
-        || self.is_integer()
-        || self.is_unsigned_integer()
+            || self.is_character()
+            || self.is_float()
+            || self.is_integer()
+            || self.is_unsigned_integer()
     }
 
     pub fn is<T: Into<Self>>(&self, t: T) -> bool {
@@ -205,16 +222,24 @@ impl Type {
     /// Check if the `Type` is a number.
     pub fn is_number(&self) -> bool {
         self.is_integer() || self.is_float()
-    }    
+    }
 
     /// Check if the `Type` is integer.
     pub fn is_integer(&self) -> bool {
-        self.is(Self::i8()) || self.is(Self::i16()) || self.is(Self::i32()) || self.is(Self::i64()) || self.is(Self::i128())
+        self.is(Self::i8())
+            || self.is(Self::i16())
+            || self.is(Self::i32())
+            || self.is(Self::i64())
+            || self.is(Self::i128())
     }
 
     /// Check if the `Type` is `UnsignedInteger`.
     pub fn is_unsigned_integer(&self) -> bool {
-        self.is(Self::u8()) || self.is(Self::u16()) || self.is(Self::u32()) || self.is(Self::u64()) || self.is(Self::u128())
+        self.is(Self::u8())
+            || self.is(Self::u16())
+            || self.is(Self::u32())
+            || self.is(Self::u64())
+            || self.is(Self::u128())
     }
 
     /// Check if the `Type` is `Float`.

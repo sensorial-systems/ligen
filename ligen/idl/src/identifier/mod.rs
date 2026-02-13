@@ -3,12 +3,25 @@ pub mod mock;
 
 mod naming_convention;
 
-use is_tree::IsPathSegment;
 use crate::path::PathSegment;
 use crate::{prelude::*, Mutability};
+use is_tree::IsPathSegment;
 
 /// Identifier structure
-#[derive(Clone, Default, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Display, Serialize, Deserialize, JsonSchema)]
+#[derive(
+    Clone,
+    Default,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Display,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+)]
 #[display(fmt = "{name}")]
 pub struct Identifier {
     /// Name field of Identifier
@@ -205,7 +218,21 @@ impl Identifier {
     pub fn self_() -> Self {
         "self".into()
     }
-    
+
+    /// Returns a new `Identifier` representing the `void` type.
+    pub fn void() -> Self {
+        "void".into()
+    }
+
+    /// Returns a new `Identifier` representing the `_` type.
+    pub fn infer() -> Self {
+        "_".into()
+    }
+
+    /// Returns a new `Identifier` representing the `Function` type.
+    pub fn function() -> Self {
+        "Function".into()
+    }
 }
 
 impl From<Identifier> for String {
@@ -222,7 +249,9 @@ impl PartialEq<&str> for Identifier {
 
 impl From<&str> for Identifier {
     fn from(name: &str) -> Self {
-        Self { name: name.to_string() }
+        Self {
+            name: name.to_string(),
+        }
     }
 }
 

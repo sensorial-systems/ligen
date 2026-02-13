@@ -1,0 +1,22 @@
+[package]
+name = "ligen-mcp-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ligen-idl.workspace = true
+ligen-rust-parser.workspace = true
+ligen-common.workspace = true
+ligen-transformer.workspace = true
+ligen-traits.workspace = true
+is-tree.workspace = true
+
+rmcp = { version = "0.15.0", features = ["server", "macros", "transport-io"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1.44.2", features = ["full"] }
+anyhow = "1"
+url = "2.5"
+schemars = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

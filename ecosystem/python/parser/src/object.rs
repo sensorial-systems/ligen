@@ -1,9 +1,8 @@
-use ligen::transformer::prelude::*;
-use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
-use ligen::idl::Object;
 use crate::identifier::IdentifierParser;
 use crate::prelude::*;
 use crate::types::type_::TypeParser;
+use ligen::idl::{Object, Visibility};
+use rustpython_parser::ast::{Expr, StmtAnnAssign, StmtAssign, StmtAugAssign};
 
 #[derive(Default)]
 pub struct ObjectParser {
@@ -15,7 +14,9 @@ impl Transformer<WithSource<&StmtAnnAssign>, Object> for ObjectParser {
     fn transform(&self, input: WithSource<&StmtAnnAssign>, config: &Config) -> Result<Object> {
         let mut object = self.transform(input.ast.target.as_ref(), config)?;
         if !config.get_only_parse_symbols() {
-            object.type_ = self.type_parser.transform(input.sub(&*input.ast.annotation), config)?;
+            object.type_ = self
+                .type_parser
+                .transform(input.sub(&*input.ast.annotation), config)?;
         }
         Ok(object)
     }
@@ -35,13 +36,24 @@ impl Transformer<&Expr, Object> for ObjectParser {
             .id
             .as_str();
         let identifier = self.identifier_parser.transform(identifier, config)?;
+        let visibility = Visibility::Public;
         if config.get_only_parse_symbols() {
-            Ok(Object { identifier, ..Default::default() })
+            Ok(Object {
+                visibility,
+                identifier,
+                ..Default::default()
+            })
         } else {
             let mutability = self.identifier_parser.get_mutability(&identifier);
             let type_ = Default::default();
             let literal = Default::default();
-            Ok(Object { identifier, mutability, literal, type_ })
+            Ok(Object {
+                visibility,
+                identifier,
+                mutability,
+                literal,
+                type_,
+            })
         }
     }
 }
@@ -57,4 +69,3 @@ impl Transformer<&StmtAssign, Vec<Object>> for ObjectParser {
         Ok(objects)
     }
 }
-

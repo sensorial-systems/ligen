@@ -1,5 +1,5 @@
-use ligen_transformer::prelude::*;
 use ligen_idl::prelude::Result;
+use ligen_transformer::prelude::*;
 
 #[derive(Debug, Default)]
 pub struct AnchorMetadataGenerator;
@@ -10,13 +10,26 @@ impl AnchorMetadataGenerator {
     }
 }
 
-impl Generator<&ligen_idl::Metadata, anchor_lang_idl_spec::IdlMetadata> for AnchorMetadataGenerator {
-    fn generate(&self, input: &ligen_idl::Metadata, _config: &Config) -> Result<anchor_lang_idl_spec::IdlMetadata> {
+impl Generator<&ligen_idl::Metadata, anchor_lang_idl_spec::IdlMetadata>
+    for AnchorMetadataGenerator
+{
+    fn generate(
+        &self,
+        input: &ligen_idl::Metadata,
+        _config: &Config,
+    ) -> Result<anchor_lang_idl_spec::IdlMetadata> {
         let name = Default::default();
         let contact = if input.authors.is_empty() {
             None
         } else {
-            Some(input.authors.iter().map(|author| author.to_string()).collect::<Vec<_>>().join(", "))
+            Some(
+                input
+                    .authors
+                    .iter()
+                    .map(|author| author.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            )
         };
         let description = input.description.clone();
         let repository = input.homepage.clone();

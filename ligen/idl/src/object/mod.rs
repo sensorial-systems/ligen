@@ -1,5 +1,5 @@
-use crate::{Identifier, Literal, Type, Mutability};
-use crate::prelude::*;
+use crate::{prelude::*, Visibility};
+use crate::{Identifier, Literal, Mutability, Type};
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
@@ -7,6 +7,8 @@ pub mod mock;
 #[derive(Debug, Default, PartialEq, Clone, Serialize, Deserialize, JsonSchema)]
 /// Object struct
 pub struct Object {
+    /// Object's visibility.
+    pub visibility: Visibility,
     /// Object's mutability.
     pub mutability: Mutability,
     /// Object's identifier.

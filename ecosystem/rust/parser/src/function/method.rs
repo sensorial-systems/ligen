@@ -1,7 +1,10 @@
 use crate::prelude::*;
 
-use ligen::idl::{Mutability, Attributes, Method, Parameter, Type};
-use crate::{RustSynchronyParser, RustIdentifierParser, RustTypeParser, RustAttributeParser, RustParameterParser, RustVisibilityParser};
+use crate::{
+    RustAttributeParser, RustIdentifierParser, RustParameterParser, RustSynchronyParser,
+    RustTypeParser, RustVisibilityParser,
+};
+use ligen::idl::{Attributes, Method, Mutability, Parameter, Type};
 
 #[derive(Default)]
 pub struct RustMethodParser {
@@ -22,19 +25,31 @@ impl RustMethodParser {
 impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
     fn transform(&self, method: syn::ImplItemFn, config: &Config) -> Result<Method> {
         if let Some(receiver) = method.sig.receiver() {
-            let mutability = if receiver.mutability.is_some() { Mutability::Mutable } else { Mutability::Constant };
-            let syn::Signature { asyncness, ident, inputs, output, .. } = method.sig;
+            let mutability = if receiver.mutability.is_some() {
+                Mutability::Mutable
+            } else {
+                Mutability::Constant
+            };
+            let syn::Signature {
+                asyncness,
+                ident,
+                inputs,
+                output,
+                ..
+            } = method.sig;
             let inputs: Vec<Parameter> = inputs
                 .clone()
                 .into_iter()
                 .filter(|input| !matches!(input, syn::FnArg::Receiver(_)))
-                .map(|x| self.parameter_parser.transform(x, config).expect("Failed to convert Parameter"))
+                .map(|x| {
+                    self.parameter_parser
+                        .transform(x, config)
+                        .expect("Failed to convert Parameter")
+                })
                 .collect();
             let output: Option<Type> = match output {
                 syn::ReturnType::Default => None,
-                syn::ReturnType::Type(_x, y) => {
-                    Some(self.type_parser.transform(*y, config)?)
-                }
+                syn::ReturnType::Type(_x, y) => Some(self.type_parser.transform(*y, config)?),
             };
             let body = ();
             Ok(Method {
@@ -43,7 +58,11 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                     attributes: method
                         .attrs
                         .into_iter()
-                        .map(|attribute| self.attribute_parser.transform(attribute, config).expect("Failed to parse meta."))
+                        .map(|attribute| {
+                            self.attribute_parser
+                                .transform(attribute, config)
+                                .expect("Failed to parse meta.")
+                        })
                         .collect(),
                 },
                 visibility: self.visibility_parser.transform(method.vis, config)?,

@@ -1,17 +1,16 @@
 //! Attribute enumeration.
 
-mod named;
 mod group;
+mod named;
 pub use group::*;
 pub use named::*;
 
 #[cfg(any(test, feature = "mocks"))]
 pub mod mock;
 
-use std::fmt::{Display, Formatter};
 use crate::prelude::*;
 use crate::Literal;
-
+use std::fmt::{Display, Formatter};
 
 /// Attribute enueration.
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner, JsonSchema)]

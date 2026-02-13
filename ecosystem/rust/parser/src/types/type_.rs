@@ -1,15 +1,15 @@
-use ligen::prelude::*;
+use crate::path::RustPathParser;
+use crate::{literal::RustLiteralParser, mutability::RustMutabilityParser};
 use ligen::idl::Type;
+use ligen::prelude::*;
 use quote::ToTokens;
 use syn::{TypeArray, TypeSlice};
-use crate::{literal::RustLiteralParser, mutability::RustMutabilityParser};
-use crate::path::RustPathParser;
 
 #[derive(Default)]
 pub struct RustTypeParser {
     pub mutability_parser: RustMutabilityParser,
     pub literal_parser: RustLiteralParser,
-    pub path_parser: RustPathParser
+    pub path_parser: RustPathParser,
 }
 
 impl RustTypeParser {
@@ -32,7 +32,7 @@ impl Transformer<syn::Path, Type> for RustTypeParser {
             match segment.identifier.name.as_str() {
                 "char" => segment.identifier.name = "Character".into(),
                 "bool" => segment.identifier.name = "Boolean".into(),
-                _ => ()
+                _ => (),
             }
         }
         Ok(path.into())
@@ -65,6 +65,41 @@ impl Transformer<syn::Type, Type> for RustTypeParser {
                     let types = elems.into_iter().map(|elem| self.transform(elem, config)).collect::<Result<Vec<_>>>()?;
                     Ok(Type::tuple(types))
                 },
+                syn::Type::Paren(syn::TypeParen { elem, .. }) |
+                syn::Type::Group(syn::TypeGroup { elem, .. }) => {
+                    self.transform(*elem, config)
+                },
+                syn::Type::BareFn(bare_fn) => {
+                    let inputs = bare_fn.inputs
+                        .iter()
+                        .map(|arg| self.transform(arg.ty.clone(), config))
+                        .collect::<Result<Vec<_>>>()?;
+                    let output = match bare_fn.output {
+                        syn::ReturnType::Default => Type::void(),
+                        syn::ReturnType::Type(_, elem) => self.transform(*elem, config)?,
+                    };
+                    Ok(Type::function(inputs, output))
+                },
+                syn::Type::Never(_) => {
+                    Ok(Type::void())
+                },
+                syn::Type::TraitObject(syn::TypeTraitObject { bounds, .. }) |
+                syn::Type::ImplTrait(syn::TypeImplTrait { bounds, .. }) => {
+                    if let Some(syn::TypeParamBound::Trait(trait_bound)) = bounds.first() {
+                        self.path_parser.transform(trait_bound.path.clone(), config).map(Type::from)
+                    } else {
+                        Err(Error::Message("Failed to find trait bound.".into()))
+                    }
+                },
+                syn::Type::Infer(_) => {
+                    Ok(Type::infer())
+                },
+                syn::Type::Macro(_) => {
+                    Err(Error::Message("Macro types not supported.".into()))
+                },
+                syn::Type::Verbatim(_) => {
+                    Err(Error::Message("Verbatim types not supported.".into()))
+                },
                 _ => Err(Error::Message(format!("\"{}\" not supported. Only Path, Reference and Ptr Types are currently supported", syn_type.to_token_stream()))),
             }
         }
@@ -89,16 +124,25 @@ impl Transformer<proc_macro2::TokenStream, Type> for RustTypeParser {
 mod test {
     use ligen_idl::PathSegment;
 
-    use crate::types::type_::RustTypeParser;
-    use crate::prelude::*;
     use super::*;
+    use crate::prelude::*;
+    use crate::types::type_::RustTypeParser;
+    use ligen::idl::Identifier;
 
     // FIXME: Update this tests to use the mock module.
 
     fn test_pairs(input: Vec<(proc_macro2::TokenStream, Type)>) {
-        let v: Vec<(Type, Type)> = input.into_iter().map(|(input, expected)| {
-            (RustTypeParser::new().transform(input, &Default::default()).expect("Failed to parse syn::Type"), expected)
-        }).collect();
+        let v: Vec<(Type, Type)> = input
+            .into_iter()
+            .map(|(input, expected)| {
+                (
+                    RustTypeParser::new()
+                        .transform(input, &Default::default())
+                        .expect("Failed to parse syn::Type"),
+                    expected,
+                )
+            })
+            .collect();
         for (value, expected_value) in v {
             assert_eq!(value, expected_value);
         }
@@ -108,7 +152,7 @@ mod test {
     fn types_array() {
         test_pairs(vec![
             (quote! { [u8; 4] }, Type::array(Type::u8(), 4)),
-            (quote! { [u8] }, Type::slice(Type::u8()))
+            (quote! { [u8] }, Type::slice(Type::u8())),
         ]);
     }
 
@@ -204,6 +248,60 @@ mod test {
         assert_eq!(
             Type::from(PathSegment::new("vec2", Type::f32())),
             RustTypeParser::new().transform(quote! {vec2<f32>}, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_paren() -> Result<()> {
+        assert_eq!(
+            Type::i32(),
+            RustTypeParser::new().transform(quote! { (i32) }, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_bare_fn() -> Result<()> {
+        assert_eq!(
+            Type::function(vec![Type::i32()], Type::i32()),
+            RustTypeParser::new().transform(quote! { fn(i32) -> i32 }, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_never() -> Result<()> {
+        assert_eq!(
+            Type::void(),
+            RustTypeParser::new().transform(quote! { ! }, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_infer() -> Result<()> {
+        assert_eq!(
+            Type::infer(),
+            RustTypeParser::new().transform(quote! { _ }, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_impl_trait() -> Result<()> {
+        assert_eq!(
+            Type::from(Identifier::new("Trait")),
+            RustTypeParser::new().transform(quote! { impl Trait }, &Default::default())?
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn types_dyn_trait() -> Result<()> {
+        assert_eq!(
+            Type::from(Identifier::new("Trait")),
+            RustTypeParser::new().transform(quote! { dyn Trait }, &Default::default())?
         );
         Ok(())
     }

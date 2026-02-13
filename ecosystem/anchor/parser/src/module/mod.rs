@@ -1,10 +1,10 @@
 use anchor_lang_idl_spec::Idl;
 use ligen_idl::prelude::*;
-use ligen_idl::{Named, Identifier, Literal, Module, Mutability, Object, Visibility};
+use ligen_idl::{Identifier, Literal, Module, Mutability, Named, Object, Visibility};
 use ligen_transformer::prelude::*;
 
-use crate::type_::TypeParser;
 use crate::function::FunctionParser;
+use crate::type_::TypeParser;
 
 #[derive(Default)]
 pub struct ModuleParser {
@@ -20,12 +20,15 @@ impl Transformer<Idl, Module> for ModuleParser {
         let objects = input
             .constants
             .iter()
-            .map(|constant| Ok(Object {
-                mutability: Mutability::Constant,
-                identifier: Identifier::new(constant.name.clone()),
-                type_: self.type_parser.transform(constant.ty.clone(), config)?,
-                literal: Literal::String(constant.value.clone()),
-            }))
+            .map(|constant| {
+                Ok(Object {
+                    visibility,
+                    mutability: Mutability::Constant,
+                    identifier: Identifier::new(constant.name.clone()),
+                    type_: self.type_parser.transform(constant.ty.clone(), config)?,
+                    literal: Literal::String(constant.value.clone()),
+                })
+            })
             .collect::<Result<Vec<_>>>()?;
         let functions = input
             .instructions
