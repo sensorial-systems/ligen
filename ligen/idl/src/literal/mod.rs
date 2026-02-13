@@ -7,6 +7,7 @@ pub mod mock;
 /// Literal Enum
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, EnumAsInner, JsonSchema)]
 #[serde(untagged)]
+#[derive(Default)]
 pub enum Literal {
     /// String variant
     String(String),
@@ -25,6 +26,7 @@ pub enum Literal {
     /// Array variant
     Array(Vec<Literal>),
     /// None variant
+    #[default]
     None,
     /// Unknown variant used for language specific literals
     Unknown(String)
@@ -66,11 +68,6 @@ impl Literal {
     }
 }
 
-impl Default for Literal {
-    fn default() -> Self {
-        Self::None
-    }
-}
 
 impl From<&str> for Literal {
     fn from(value: &str) -> Self {

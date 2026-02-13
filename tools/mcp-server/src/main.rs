@@ -34,6 +34,12 @@ pub struct McpServer {
     pub tool_router: ToolRouter<Self>,
 }
 
+impl Default for McpServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl McpServer {
     pub fn new() -> Self {
         Self {
@@ -95,7 +101,7 @@ impl ServerHandler for McpServer {
         _request: InitializeRequestParams,
         _context: RequestContext<RoleServer>,
     ) -> Result<InitializeResult, ErrorData> {
-        Ok(self.get_info().into())
+        Ok(self.get_info())
     }
 
     async fn list_resources(
@@ -123,26 +129,24 @@ impl ServerHandler for McpServer {
         let registry = self.registry.lock().await;
         let uri = &request.uri;
 
-        if uri.starts_with("ligen://") {
-            let part = &uri["ligen://".len()..];
-            if let Some(slash_idx) = part.find('/') {
-                let project_name = &part[..slash_idx];
-                let path = &part[slash_idx..];
+        if let Some(part) = uri.strip_prefix("ligen://")
+            && let Some(slash_idx) = part.find('/')
+        {
+            let project_name = &part[..slash_idx];
+            let path = &part[slash_idx..];
 
-                if path == "/idl" {
-                    if let Some(project) = registry.get_project(project_name) {
-                        if let Ok(idl_json) = serde_json::to_string_pretty(&project.library) {
-                            return Ok(ReadResourceResult {
-                                contents: vec![ResourceContents::TextResourceContents {
-                                    uri: uri.clone(),
-                                    mime_type: Some("application/json".to_string()),
-                                    text: idl_json,
-                                    meta: None,
-                                }],
-                            });
-                        }
-                    }
-                }
+            if path == "/idl"
+                && let Some(project) = registry.get_project(project_name)
+                && let Ok(idl_json) = serde_json::to_string_pretty(&project.library)
+            {
+                return Ok(ReadResourceResult {
+                    contents: vec![ResourceContents::TextResourceContents {
+                        uri: uri.clone(),
+                        mime_type: Some("application/json".to_string()),
+                        text: idl_json,
+                        meta: None,
+                    }],
+                });
             }
         }
 

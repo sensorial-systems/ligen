@@ -4,16 +4,13 @@ use crate::prelude::*;
 
 /// Synchrony structure.
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, EnumIter, JsonSchema)]
+#[derive(Default)]
 pub enum Synchrony {
+    #[default]
     Synchronous,
     Asynchronous
 }
 
-impl Default for Synchrony {
-    fn default() -> Self {
-        Self::Synchronous
-    }
-}
 
 impl Display for Synchrony {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

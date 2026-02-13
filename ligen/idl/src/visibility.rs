@@ -8,18 +8,15 @@ use crate::prelude::*;
     Debug, PartialEq, Clone, Copy, Serialize, Deserialize, EnumIter, JsonSchema, EnumAsInner,
 )]
 /// Visibility enumeration.
+#[derive(Default)]
 pub enum Visibility {
     /// Private
     Private,
     /// Public
+    #[default]
     Public,
 }
 
-impl Default for Visibility {
-    fn default() -> Self {
-        Self::Public
-    }
-}
 
 impl Display for Visibility {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

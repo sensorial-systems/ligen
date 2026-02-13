@@ -10,13 +10,19 @@ pub struct Service {
     parsers: Parsers,
 }
 
+impl Default for Service {
+    fn default() -> Self {
+        let registry = Default::default();
+        let mut parsers: Parsers = Default::default();
+        parsers.insert("rust".to_string(), Box::new(RustRegistryParser));
+        Self { registry, parsers }
+    }
+}
+
 impl Service {
     /// Create a new service.
     pub fn new() -> Self {
-        let registry = Default::default();
-        let mut parsers: Parsers = Default::default();
-        parsers.insert("rust".to_string(), Box::new(RustRegistryParser::default()));
-        Self { registry, parsers }
+        Default::default()
     }
 
     /// List of supported languages.
@@ -145,11 +151,8 @@ fn usual_flow() -> Result<()> {
     let interfaces = service.get_library_interfaces(&path)?;
     let objects = service.get_library_objects(&path)?;
     println!("Description: {}", description);
-    println!("");
     println!("Types: {:#?}", types);
-    println!("");
     println!("Interfaces: {:#?}", interfaces);
-    println!("");
     println!("Objects: {:#?}", objects);
     Ok(())
 }

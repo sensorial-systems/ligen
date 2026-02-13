@@ -17,6 +17,12 @@ pub struct Registry {
     pub projects: HashMap<String, Project>,
 }
 
+impl Default for Registry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Registry {
     pub fn new() -> Self {
         Self {
@@ -26,7 +32,7 @@ impl Registry {
 
     pub fn add_project(&mut self, path: impl AsRef<Path>) -> Result<String> {
         let path = path.as_ref().to_path_buf();
-        let parser = RustRegistryParser::default();
+        let parser = RustRegistryParser;
 
         // I need to check RustParser transform signature.
         let transformer: &dyn Transformer<&Path, ligen_idl::Registry> = &parser;
