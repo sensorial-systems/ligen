@@ -142,9 +142,12 @@ impl Service {
 #[test]
 fn usual_flow() -> Result<()> {
     let mut service = Service::new();
-    if let Err(_) = service.add_library(PathBuf::from(
-        "D:\\dev\\sensorial\\systems\\metadata-service\\crates\\metadata-service",
-    )) {
+    if service
+        .add_library(PathBuf::from(
+            "D:\\dev\\sensorial\\systems\\metadata-service\\crates\\metadata-service",
+        ))
+        .is_err()
+    {
         println!("Skipping test because this is local while in WIP");
         return Ok(());
     }
