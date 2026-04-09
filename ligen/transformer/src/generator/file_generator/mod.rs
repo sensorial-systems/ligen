@@ -24,10 +24,7 @@ pub trait FileGenerator<Input> {
 
     /// Saves the file set.
     fn save_file_set(&self, file_set: FileSet, folder: &std::path::Path) -> Result<()> {
-        let target = folder.to_path_buf();
-        let library_dir = target
-            .join("ligen")
-            .join(self.base_path());
+        let library_dir = folder.to_path_buf();
         for (_path, file) in file_set.files {
             let file_path = library_dir.join(&file.path);
             write_file(&file_path, file.to_string())?;
@@ -36,12 +33,16 @@ pub trait FileGenerator<Input> {
     }
 }
 
-impl <I, T: FileGenerator<I>> Generator<I, ()> for T {
-    fn generate(&self, _input: I, _config: &Config) -> Result<()> {
-        todo!("File generator not implemented yet.");
-        // let mut file_set = FileSet::default();
-        // self.generate_files(input, &mut file_set)?;
-        // self.save_file_set(file_set, folder)?;
-        // Ok(())
+impl<I, T: FileGenerator<I>> Generator<I, ()> for T {
+    fn generate(&self, input: I, config: &Config) -> Result<()> {
+        let mut file_set = FileSet::default();
+        self.generate_files(input, &mut file_set)?;
+        let output_dir = config
+            .get("ligen::output-dir")
+            .and_then(|l| l.as_string())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from("."));
+        self.save_file_set(file_set, &output_dir)?;
+        Ok(())
     }
 }

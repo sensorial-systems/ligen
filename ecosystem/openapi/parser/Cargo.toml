@@ -1,0 +1,19 @@
+[package]
+name = "ligen-openapi-parser"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Ligen OpenAPI parser."
+
+[dependencies]
+ligen = { workspace = true }
+ligen-common = { workspace = true }
+ligen-idl = { workspace = true }
+ligen-transformer = { workspace = true }
+ligen-utils = { workspace = true }
+openapiv3 = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+is-tree = { workspace = true }
+serde = { workspace = true }

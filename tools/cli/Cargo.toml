@@ -17,7 +17,13 @@ ligen-transformer.workspace = true
 
 ligen-rust-parser.workspace = true
 ligen-python-parser.workspace = true
+ligen-openapi-parser.workspace = true
+ligen-anchor-parser.workspace = true
+ligen-rust-client-generator.workspace = true
+ligen-anchor-generator.workspace = true
 ligen-rust-pyo3-importer.workspace = true
 
 serde.workspace = true
+serde_json.workspace = true
 clap = { version = "4.4.8", features = ["derive"] }
+anyhow.workspace = true

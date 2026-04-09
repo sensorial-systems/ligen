@@ -17,9 +17,11 @@ members = [
     "ecosystem/anchor",
     "ecosystem/anchor/parser",
     "ecosystem/anchor/generator",
+    "ecosystem/openapi/parser",
     "ecosystem/wgsl",
     "ecosystem/wgsl/generator",
     "ecosystem/rust/parser",
+    "ecosystem/rust/client-generator",
     "tools/editor/dependencies/gui-runtime",
     "tools/cli",
     "tools/editor",
@@ -51,6 +53,8 @@ ligen-rust-generator = { path = "ecosystem/rust/generator" }
 ligen-rust-parser = { path = "ecosystem/rust/parser" }
 ligen-anchor-generator = { path = "ecosystem/anchor/generator" }
 ligen-anchor-parser = { path = "ecosystem/anchor/parser" }
+ligen-openapi-parser = { path = "ecosystem/openapi/parser" }
+ligen-rust-client-generator = { path = "ecosystem/rust/client-generator" }
 ligen-wgsl-generator = { path = "ecosystem/wgsl/generator" }
 ligen-gui-runtime = { path = "tools/editor/dependencies/gui-runtime" }
 is-tree = "0.9.9"
@@ -90,6 +94,7 @@ anchor-lang-idl-spec = "0.1.0"
 
 handlebars = "4.1.6"
 walkdir = "2.5.0"
+openapiv3 = "2.0.0"
 
 # If you want to use the bleeding edge version of egui and eframe:
 # egui = { git = "https://github.com/emilk/egui", branch = "master" }
