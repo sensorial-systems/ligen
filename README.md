@@ -6,11 +6,26 @@ Ligen (Language Interface Generator - IPA: /ˈliɡən/) is an extensible multi-l
 
 ### Features
 
-* **Zero-effort binding generation**: Automatically parse code from one language and generate bindings for others using an Intermediate Representation (IR).
-* **Multi-language support**: Currently includes parsers and generators for Python, Rust, C/C++, Anchor (Solana), WGSL, and experimental LLM-based parsing.
-* **Extensible ecosystem**: Easily add support for new languages via modular parsers and generators.
-* **Tools included**: CLI for binding generation and a GUI editor for working with IR (parsing, metrics, and generation).
-* **LLM integration**: Uses AI (e.g., OpenAI) for semantic code discovery and parsing.
+#### Language & Framework Support
+
+| Ecosystem | Parser | Generator | Exporter | Notes |
+| :--- | :---: | :---: | :---: | :--- |
+| **Rust** | ✅ | ✅ | ✅ | Full support, foundational ecosystem |
+| **C / C++** | - | ✅ | - | Focused on FFI and CMake integration |
+| **Python** | ✅ | - | - | Leveraging PyO3 for parsing |
+| **Anchor (Solana)** | ✅ | ✅ | - | Blockchain IDL support |
+| **OpenAPI** | ✅ | - | - | Parsing specifications for client gen |
+| **WGSL** | - | ✅ | - | WebGPU Shading Language |
+| **LLM** | ✅ | ✅ | - | Experimental AI-driven parsing |
+
+#### Tools
+
+| Tool | Description | Status |
+| :--- | :--- | :--- |
+| **CLI** | Command-line interface for binding generation | ✅ Stable |
+| **Editor** | GUI for working with IR, metrics, and generation | 🛠️ In Development |
+| **MCP Server** | Model Context Protocol for AI agent integration | ✅ Stable |
+
 
 ### Getting Started
 
