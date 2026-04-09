@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use ligen_idl::{
-    Attribute, Attributes, Field, Function, Identifier, KindDefinition, Module, Named,
-    Parameter, PathSegment, Structure, Synchrony, TypeAlias, TypeDefinition, Visibility,
+    Attribute, Attributes, Field, Function, Identifier, KindDefinition, Module, Named, Parameter,
+    PathSegment, Structure, Synchrony, TypeAlias, TypeDefinition, Visibility,
 };
 use openapiv3::{
     OpenAPI, Operation, ParameterSchemaOrContent, PathItem, ReferenceOr, Responses, Schema,
@@ -19,8 +19,10 @@ impl OpenAPIModuleParser {
 
 impl Transformer<&OpenAPI, Module> for OpenAPIModuleParser {
     fn transform(&self, input: &OpenAPI, _config: &Config) -> Result<Module> {
-        let mut module = Module::default();
-        module.identifier = Identifier::from("root");
+        let mut module = Module {
+            identifier: Identifier::from("root"),
+            ..Default::default()
+        };
 
         // Map paths to functions
         for (path, item) in input.paths.iter() {
@@ -63,7 +65,7 @@ impl OpenAPIModuleParser {
                 for param in &item.parameters {
                     let parameter = match param {
                         ReferenceOr::Reference { reference } => {
-                            let name = reference.split('/').last().unwrap_or("Unknown");
+                            let name = reference.split('/').next_back().unwrap_or("Unknown");
                             Ok(Parameter::new(Identifier::from(name), idl::Type::string()))
                         }
                         ReferenceOr::Item(param) => self.parse_parameter(module, param),
@@ -108,7 +110,11 @@ impl OpenAPIModuleParser {
             .to_snake_case();
 
         let mut attributes = Attributes::default();
-        self.parse_docs(&mut attributes, operation.summary.as_ref(), operation.description.as_ref());
+        self.parse_docs(
+            &mut attributes,
+            operation.summary.as_ref(),
+            operation.description.as_ref(),
+        );
 
         let mut inputs = Vec::new();
         for param in &operation.parameters {
@@ -177,18 +183,26 @@ impl OpenAPIModuleParser {
         param: &openapiv3::Parameter,
     ) -> Result<idl::Parameter> {
         let (name, schema, description) = match param {
-            openapiv3::Parameter::Query { parameter_data, .. } => {
-                (&parameter_data.name, &parameter_data.format, &parameter_data.description)
-            }
-            openapiv3::Parameter::Header { parameter_data, .. } => {
-                (&parameter_data.name, &parameter_data.format, &parameter_data.description)
-            }
-            openapiv3::Parameter::Path { parameter_data, .. } => {
-                (&parameter_data.name, &parameter_data.format, &parameter_data.description)
-            }
-            openapiv3::Parameter::Cookie { parameter_data, .. } => {
-                (&parameter_data.name, &parameter_data.format, &parameter_data.description)
-            }
+            openapiv3::Parameter::Query { parameter_data, .. } => (
+                &parameter_data.name,
+                &parameter_data.format,
+                &parameter_data.description,
+            ),
+            openapiv3::Parameter::Header { parameter_data, .. } => (
+                &parameter_data.name,
+                &parameter_data.format,
+                &parameter_data.description,
+            ),
+            openapiv3::Parameter::Path { parameter_data, .. } => (
+                &parameter_data.name,
+                &parameter_data.format,
+                &parameter_data.description,
+            ),
+            openapiv3::Parameter::Cookie { parameter_data, .. } => (
+                &parameter_data.name,
+                &parameter_data.format,
+                &parameter_data.description,
+            ),
         };
 
         let type_ = match schema {
@@ -199,10 +213,8 @@ impl OpenAPIModuleParser {
             _ => idl::Type::opaque(),
         };
 
-        let mut parameter = idl::Parameter::new(
-            Identifier::from(name.as_str()).to_snake_case(),
-            type_,
-        );
+        let mut parameter =
+            idl::Parameter::new(Identifier::from(name.as_str()).to_snake_case(), type_);
         self.parse_docs(&mut parameter.attributes, None, description.as_ref());
 
         Ok(parameter)
@@ -218,14 +230,18 @@ impl OpenAPIModuleParser {
             .responses
             .get(&StatusCode::Code(200))
             .or_else(|| responses.responses.get(&StatusCode::Code(201)))
-            .or_else(|| responses.default.as_ref());
+            .or(responses.default.as_ref());
 
         if let Some(response) = response {
             if let Some(response) = response.as_item() {
                 if let Some(content) = response.content.get("application/json") {
                     if let Some(schema) = content.schema.as_ref() {
                         let name = format!("{}Response", identifier.to_pascal_case());
-                        return Ok(Some(self.parse_schema_reference(module, schema, Some(name))?));
+                        return Ok(Some(self.parse_schema_reference(
+                            module,
+                            schema,
+                            Some(name),
+                        )?));
                     }
                 }
             }
@@ -241,7 +257,7 @@ impl OpenAPIModuleParser {
     ) -> Result<idl::Type> {
         match schema {
             ReferenceOr::Reference { reference } => {
-                let name = reference.split('/').last().unwrap_or("Unknown");
+                let name = reference.split('/').next_back().unwrap_or("Unknown");
                 let identifier = Identifier::from(name).to_pascal_case();
                 Ok(idl::Type::from(identifier))
             }
@@ -271,7 +287,9 @@ impl OpenAPIModuleParser {
                             },
                             None,
                         )?,
-                        Some(ReferenceOr::Item(item)) => self.parse_schema_type(module, item, name)?,
+                        Some(ReferenceOr::Item(item)) => {
+                            self.parse_schema_type(module, item, name)?
+                        }
                         None => idl::Type::opaque(),
                     };
                     Ok(idl::Type::vector(items))
@@ -279,13 +297,7 @@ impl OpenAPIModuleParser {
                 OpenAPIType::Object(object) => {
                     if let Some(additional_properties) = &object.additional_properties {
                         let type_ = match additional_properties {
-                            openapiv3::AdditionalProperties::Any(any) => {
-                                if *any {
-                                    idl::Type::opaque()
-                                } else {
-                                    idl::Type::opaque() // Should not happen in valid OpenAPI
-                                }
-                            }
+                            openapiv3::AdditionalProperties::Any(_any) => idl::Type::opaque(),
                             openapiv3::AdditionalProperties::Schema(schema) => {
                                 self.parse_schema_reference(module, schema, name)?
                             }
@@ -322,7 +334,11 @@ impl OpenAPIModuleParser {
                         interfaces: Default::default(),
                         definition: KindDefinition::Structure(structure),
                     };
-                    self.parse_docs(&mut type_definition.attributes, schema.schema_data.title.as_ref(), schema.schema_data.description.as_ref());
+                    self.parse_docs(
+                        &mut type_definition.attributes,
+                        schema.schema_data.title.as_ref(),
+                        schema.schema_data.description.as_ref(),
+                    );
                     if !module.types.iter().any(|t| t.identifier == identifier) {
                         module.types.push(type_definition);
                     }
@@ -347,15 +363,24 @@ impl OpenAPIModuleParser {
                 let mut structure = Structure::default();
                 for (prop_name, prop_schema) in obj.properties.iter() {
                     let (prop_schema_concrete, prop_desc) = match prop_schema {
-                        ReferenceOr::Reference { reference } => (ReferenceOr::Reference { reference: reference.clone() }, None),
-                        ReferenceOr::Item(item) => (ReferenceOr::Item(*item.clone()), item.schema_data.description.clone()),
+                        ReferenceOr::Reference { reference } => (
+                            ReferenceOr::Reference {
+                                reference: reference.clone(),
+                            },
+                            None,
+                        ),
+                        ReferenceOr::Item(item) => (
+                            ReferenceOr::Item(*item.clone()),
+                            item.schema_data.description.clone(),
+                        ),
                     };
                     let name = format!(
                         "{}{}",
                         identifier,
                         Identifier::from(prop_name.as_str()).to_pascal_case()
                     );
-                    let type_ = self.parse_schema_reference(module, &prop_schema_concrete, Some(name))?;
+                    let type_ =
+                        self.parse_schema_reference(module, &prop_schema_concrete, Some(name))?;
                     let mut field = Field {
                         attributes: Default::default(),
                         identifier: Some(Identifier::from(prop_name.as_str()).to_snake_case()),
@@ -387,7 +412,11 @@ impl OpenAPIModuleParser {
             interfaces: Default::default(),
             definition,
         };
-        self.parse_docs(&mut type_definition.attributes, schema.schema_data.title.as_ref(), schema.schema_data.description.as_ref());
+        self.parse_docs(
+            &mut type_definition.attributes,
+            schema.schema_data.title.as_ref(),
+            schema.schema_data.description.as_ref(),
+        );
         Ok(type_definition)
     }
 
@@ -401,7 +430,7 @@ impl OpenAPIModuleParser {
         for schema in all_of {
             let schema = match schema {
                 ReferenceOr::Reference { reference } => {
-                    let name = reference.split('/').last().unwrap_or("Unknown");
+                    let name = reference.split('/').next_back().unwrap_or("Unknown");
                     let id = Identifier::from(name).to_pascal_case();
                     if let Some(ty) = module.types.iter().find(|t| t.identifier == id) {
                         if let KindDefinition::Structure(s) = &ty.definition {
@@ -425,15 +454,24 @@ impl OpenAPIModuleParser {
                 SchemaKind::Type(OpenAPIType::Object(obj)) => {
                     for (prop_name, prop_schema) in obj.properties.iter() {
                         let (prop_schema_concrete, prop_desc) = match prop_schema {
-                            ReferenceOr::Reference { reference } => (ReferenceOr::Reference { reference: reference.clone() }, None),
-                            ReferenceOr::Item(item) => (ReferenceOr::Item(*item.clone()), item.schema_data.description.clone()),
+                            ReferenceOr::Reference { reference } => (
+                                ReferenceOr::Reference {
+                                    reference: reference.clone(),
+                                },
+                                None,
+                            ),
+                            ReferenceOr::Item(item) => (
+                                ReferenceOr::Item(*item.clone()),
+                                item.schema_data.description.clone(),
+                            ),
                         };
                         let name = format!(
                             "{}{}",
                             identifier,
                             Identifier::from(prop_name.as_str()).to_pascal_case()
                         );
-                        let type_ = self.parse_schema_reference(module, &prop_schema_concrete, Some(name))?;
+                        let type_ =
+                            self.parse_schema_reference(module, &prop_schema_concrete, Some(name))?;
                         let field_id = Some(Identifier::from(prop_name.as_str()).to_snake_case());
                         if !structure.fields.iter().any(|f| f.identifier == field_id) {
                             let mut field = Field {

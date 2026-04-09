@@ -55,22 +55,20 @@ impl RustClientGenerator {
         }
 
         // Generate Client struct
-        sections.push(format!(
-            r#"
-pub struct Client {{
+        sections.push(r#"
+pub struct Client {
     client: reqwest::Client,
     base_url: String,
-}}
+}
 
-impl Client {{
-    pub fn new(base_url: impl Into<String>) -> Self {{
-        Self {{
+impl Client {
+    pub fn new(base_url: impl Into<String>) -> Self {
+        Self {
             client: reqwest::Client::new(),
             base_url: base_url.into(),
-        }}
-    }}
-"#
-        ));
+        }
+    }
+"#.to_string());
 
         // Generate methods
         let function_generator = crate::function::RustFunctionGenerator::default();
