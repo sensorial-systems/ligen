@@ -10,7 +10,7 @@ members = [
     "ecosystem/python/parser",
     "ecosystem/rust",
     "ecosystem/rust/pyo3-importer",
-    "ecosystem/rust/example",
+    "ecosystem/rust/examples/binding",
     "ecosystem/rust/exporter",
     "ecosystem/rust/generator",
     "ecosystem/llm/*",
