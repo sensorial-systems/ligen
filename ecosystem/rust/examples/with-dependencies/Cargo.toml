@@ -1,0 +1,10 @@
+[package]
+name = "with-dependencies"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+test-fetch-from-registry = "0.1.0"
+ligen-rust-parser.workspace = true
+ligen-idl.workspace = true
+tokio.workspace = true

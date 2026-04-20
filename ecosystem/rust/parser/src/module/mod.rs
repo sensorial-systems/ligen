@@ -3,10 +3,14 @@
 mod import;
 pub use import::*;
 
-use syn::spanned::Spanned;
-use ligen::idl::{Function, Module, Import, TypeDefinition, Interface, Object};
 use crate::prelude::*;
-use crate::{RustInterfaceParser, RustTypeAliasParser, RustObjectParser, RustFunctionParser, RustIdentifierParser, RustAttributesParser, RustEnumerationParser, RustStructureParser, RustVisibilityParser};
+use crate::{
+    RustAttributesParser, RustEnumerationParser, RustFunctionParser, RustIdentifierParser,
+    RustInterfaceParser, RustObjectParser, RustStructureParser, RustTypeAliasParser,
+    RustVisibilityParser,
+};
+use ligen::idl::{Function, Import, Interface, Module, Object, TypeDefinition};
+use syn::spanned::Spanned;
 
 #[derive(Default)]
 pub struct RustModuleParser {
@@ -66,14 +70,30 @@ impl Transformer<syn::ItemMod, Module> for RustModuleParser {
         let types = self.extract_types(items.as_slice(), config)?;
         let interfaces = self.extract_interfaces(items.as_slice())?;
         let modules = self.extract_modules(items, config)?;
-        Ok(Module { attributes, visibility, identifier, imports, functions, objects, types, interfaces, modules })
+        Ok(Module {
+            attributes,
+            visibility,
+            identifier,
+            imports,
+            functions,
+            objects,
+            types,
+            interfaces,
+            modules,
+        })
     }
 }
 
 impl Transformer<&std::path::Path, Module> for RustModuleParser {
     fn transform(&self, path: &std::path::Path, config: &Config) -> Result<Module> {
         let module = syn2::file_parser::parse_file_recursive(path)?;
-        let ident = syn::Ident::new(path.file_stem().unwrap_or_default().to_str().unwrap_or_default(), module.span()); // FIXME: This is hardcoded.
+        let ident = syn::Ident::new(
+            path.file_stem()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default(),
+            module.span(),
+        ); // FIXME: This is hardcoded.
         let attrs = module.attrs;
         let pub_token = Default::default();
         let semi = Default::default();
@@ -81,7 +101,15 @@ impl Transformer<&std::path::Path, Module> for RustModuleParser {
         let content = Some((Default::default(), module.items));
         let vis = syn::Visibility::Public(pub_token);
         let unsafety = Default::default();
-        let module = syn::ItemMod { unsafety, attrs, vis, mod_token, ident, semi, content };
+        let module = syn::ItemMod {
+            unsafety,
+            attrs,
+            vis,
+            mod_token,
+            ident,
+            semi,
+            content,
+        };
         self.transform(module, config)
     }
 }
@@ -91,7 +119,10 @@ impl RustModuleParser {
         let mut interfaces = Vec::new();
         for item in items {
             if let syn::Item::Impl(impl_) = item {
-                if let Ok(interface) = self.interface_parser.transform(impl_.clone(), &Config::default()) {
+                if let Ok(interface) = self
+                    .interface_parser
+                    .transform(impl_.clone(), &Config::default())
+                {
                     interfaces.push(interface);
                 }
             }
@@ -102,17 +133,20 @@ impl RustModuleParser {
         let mut types = Vec::new();
         for item in items {
             match item {
-                syn::Item::Enum(enumeration) =>
-                    types.push(self.enumeration_parser.transform(enumeration.clone(), config)?),
-                syn::Item::Struct(structure) =>
-                    types.push(self.structure_parser.transform(structure.clone(), config)?),
+                syn::Item::Enum(enumeration) => types.push(
+                    self.enumeration_parser
+                        .transform(enumeration.clone(), config)?,
+                ),
+                syn::Item::Struct(structure) => {
+                    types.push(self.structure_parser.transform(structure.clone(), config)?)
+                }
                 syn::Item::Type(type_) => {
                     types.push(self.type_alias_parser.transform(type_.clone(), config)?);
-                },
+                }
                 syn::Item::Union(_union) => {
-                    todo!("Union object isn't implemented yet.")
-                },
-                _ => ()
+                    return Err(Error::Message("Union object isn't implemented yet.".to_string()))
+                }
+                _ => (),
             }
         }
         Ok(types)
@@ -139,15 +173,13 @@ impl RustModuleParser {
 
     fn extract_modules(&self, items: Vec<syn::Item>, config: &Config) -> Result<Vec<Module>> {
         let mut modules = Vec::new();
-        let items = items
-            .into_iter()
-            .filter_map(|item| {
-                if let syn::Item::Mod(module) = item {
-                    Some(module)
-                } else {
-                    None
-                }
-            });
+        let items = items.into_iter().filter_map(|item| {
+            if let syn::Item::Mod(module) = item {
+                Some(module)
+            } else {
+                None
+            }
+        });
         for module in items {
             modules.push(self.transform(module, config)?)
         }
@@ -163,16 +195,14 @@ impl RustModuleParser {
         }
         Ok(objects)
     }
-
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use quote::quote;
     use ligen::idl::module::mock;
     use ligen::transformer::assert::*;
+    use quote::quote;
 
     #[test]
     fn module_file() -> Result<()> {
@@ -181,23 +211,31 @@ mod tests {
 
     #[test]
     fn sub_modules() -> Result<()> {
-        assert_eq(RustModuleParser::default(), mock::sub_modules(), quote! {
-            pub mod root {
-                pub mod branch {
-                    pub mod leaf {}
+        assert_eq(
+            RustModuleParser::default(),
+            mock::sub_modules(),
+            quote! {
+                pub mod root {
+                    pub mod branch {
+                        pub mod leaf {}
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 
     #[test]
     fn module_types() -> Result<()> {
-        assert_eq(RustModuleParser::default(), mock::module_types(), quote! {
-            pub mod types {
-                pub struct Structure;
-                pub enum Enumeration {}
-            }
-        })
+        assert_eq(
+            RustModuleParser::default(),
+            mock::module_types(),
+            quote! {
+                pub mod types {
+                    pub struct Structure;
+                    pub enum Enumeration {}
+                }
+            },
+        )
     }
 
     // TODO: Implement these:

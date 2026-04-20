@@ -1,6 +1,6 @@
+use crate::{RustGenericsParser, RustIdentifierParser};
 use ligen::idl::{Path, PathSegment};
 use ligen::transformer::prelude::*;
-use crate::{RustIdentifierParser, RustGenericsParser};
 
 #[derive(Default)]
 pub struct RustPathParser {
@@ -18,8 +18,8 @@ impl Transformer<syn::Path, Path> for RustPathParser {
         let segments = path
             .segments
             .iter()
-            .map(|segment| self.transform(segment.clone(), config).expect("Failed to parse segment.")) // FIXME: Remove this expect.
-            .collect();
+            .map(|segment| self.transform(segment.clone(), config))
+            .collect::<Result<Vec<PathSegment>>>()?;
         Ok(Path { segments })
     }
 }
@@ -66,8 +66,8 @@ mod test {
     use crate::path::RustPathParser;
     use crate::prelude::*;
 
-    use ligen::transformer::assert::*;
     use ligen::idl::path::mock;
+    use ligen::transformer::assert::*;
 
     #[test]
     fn identifier_as_path() -> Result<()> {
@@ -76,6 +76,10 @@ mod test {
 
     #[test]
     fn path() -> Result<()> {
-        assert_eq(RustPathParser::default(), mock::path(), "std::convert::TryFrom")
+        assert_eq(
+            RustPathParser::default(),
+            mock::path(),
+            "std::convert::TryFrom",
+        )
     }
 }

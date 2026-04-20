@@ -1,13 +1,15 @@
+use std::collections::HashMap;
+
 use is_tree::IsTree;
 use schemars::JsonSchema;
 
-use crate::{prelude::*, Library};
+use crate::{prelude::*, Identifier, Library};
 
 #[allow(missing_docs)]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, IsTree, JsonSchema)]
 #[tree(branches)]
 pub struct Registry {
-    pub libraries: Vec<Library>
+    pub libraries: HashMap<Identifier, Library>,
 }
 
 impl Registry {

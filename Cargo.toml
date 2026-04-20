@@ -11,6 +11,8 @@ members = [
     "ecosystem/rust",
     "ecosystem/rust/pyo3-importer",
     "ecosystem/rust/examples/binding",
+    "ecosystem/rust/examples/with-dependencies",
+    "ecosystem/rust/examples/test-fetch-from-registry",
     "ecosystem/rust/exporter",
     "ecosystem/rust/generator",
     "ecosystem/llm/*",

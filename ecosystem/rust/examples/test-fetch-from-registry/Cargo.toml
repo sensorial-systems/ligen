@@ -1,0 +1,11 @@
+[package]
+name = "test-fetch-from-registry"
+version = "0.1.0"
+edition = "2021"
+description = "A crate for testing fetching from the registry"
+license = "MIT"
+homepage = "https://github.com/sensorial-systems/ligen"
+repository = "https://github.com/sensorial-systems/ligen"
+
+
+[dependencies]

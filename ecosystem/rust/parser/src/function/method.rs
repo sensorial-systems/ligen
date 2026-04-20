@@ -41,12 +41,8 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                 .clone()
                 .into_iter()
                 .filter(|input| !matches!(input, syn::FnArg::Receiver(_)))
-                .map(|x| {
-                    self.parameter_parser
-                        .transform(x, config)
-                        .expect("Failed to convert Parameter")
-                })
-                .collect();
+                .map(|x| self.parameter_parser.transform(x, config))
+                .collect::<Result<Vec<Parameter>>>()?;
             let output: Option<Type> = match output {
                 syn::ReturnType::Default => None,
                 syn::ReturnType::Type(_x, y) => Some(self.type_parser.transform(*y, config)?),
@@ -58,12 +54,8 @@ impl Transformer<syn::ImplItemFn, Method> for RustMethodParser {
                     attributes: method
                         .attrs
                         .into_iter()
-                        .map(|attribute| {
-                            self.attribute_parser
-                                .transform(attribute, config)
-                                .expect("Failed to parse meta.")
-                        })
-                        .collect(),
+                        .map(|attribute| self.attribute_parser.transform(attribute, config))
+                        .collect::<Result<Vec<_>>>()?,
                 },
                 visibility: self.visibility_parser.transform(method.vis, config)?,
                 synchrony: self.synchrony_parser.transform(asyncness, config)?,

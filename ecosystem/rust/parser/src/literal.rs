@@ -9,20 +9,42 @@ impl Transformer<syn::Lit, Literal> for RustLiteralParser {
         Ok(match lit {
             syn::Lit::Str(litstr) => Literal::String(litstr.value()),
             syn::Lit::Verbatim(litverb) => Literal::String(litverb.to_string()),
-            syn::Lit::ByteStr(litbytestr) => Literal::String(String::from_utf8_lossy(&litbytestr.value()).into_owned()),
+            syn::Lit::ByteStr(litbytestr) => {
+                Literal::String(String::from_utf8_lossy(&litbytestr.value()).into_owned())
+            }
             syn::Lit::Byte(litbyte) => Literal::UnsignedInteger(litbyte.value() as u64),
             syn::Lit::Char(litchar) => Literal::Character(litchar.value()),
-            syn::Lit::Int(litint) => Literal::Integer(litint.base10_parse().unwrap()),
-            syn::Lit::Float(litfloat) => Literal::Float(litfloat.base10_parse().unwrap()),
+            syn::Lit::Int(litint) => Literal::Integer(
+                litint
+                    .base10_parse()
+                    .map_err(|e| Error::Message(format!("Failed to parse integer: {e}")))?,
+            ),
+            syn::Lit::Float(litfloat) => Literal::Float(
+                litfloat
+                    .base10_parse()
+                    .map_err(|e| Error::Message(format!("Failed to parse float: {e}")))?,
+            ),
             syn::Lit::Bool(litbool) => Literal::Boolean(litbool.value),
-            syn::Lit::CStr(litcstr) => Literal::String(litcstr.value().to_str().unwrap().to_string()),
+            syn::Lit::CStr(litcstr) => Literal::String(
+                litcstr
+                    .value()
+                    .to_str()
+                    .map_err(|e| Error::Message(format!("Failed to parse CStr: {e}")))?
+                    .to_string(),
+            ),
             _ => return Err(Error::Message("Failed to parse literal".into())),
         })
     }
 }
 
-impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Literal> for RustLiteralParser {
-    fn transform(&self, input: syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, config: &Config) -> Result<Literal> {
+impl Transformer<syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>, Literal>
+    for RustLiteralParser
+{
+    fn transform(
+        &self,
+        input: syn::punctuated::Punctuated<syn::Expr, syn::token::Comma>,
+        config: &Config,
+    ) -> Result<Literal> {
         let mut result = Vec::new();
         for element in input {
             result.push(self.transform(element, config)?);
@@ -41,7 +63,9 @@ impl Transformer<syn::Expr, Literal> for RustLiteralParser {
     fn transform(&self, input: syn::Expr, config: &Config) -> Result<Literal> {
         match input {
             syn::Expr::Lit(lit) => self.transform(lit, config),
-            _ => Err(Error::Message("Failed to parse literal from expression".into())),
+            _ => Err(Error::Message(
+                "Failed to parse literal from expression".into(),
+            )),
         }
     }
 }
@@ -86,7 +110,11 @@ mod test {
 
     #[test]
     fn literal_verbatim() -> Result<()> {
-        assert_eq(RustLiteralParser, mock::literal_verbatim(), syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim")))
+        assert_eq(
+            RustLiteralParser,
+            mock::literal_verbatim(),
+            syn::Lit::Verbatim(proc_macro2::Literal::string("verbatim")),
+        )
     }
 
     #[test]
