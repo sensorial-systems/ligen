@@ -51,10 +51,10 @@ impl Transformer<&std::path::Path, Registry> for PythonParser {
         let library = self.parse_library(input, config)?;
         for dependency in library.metadata.dependencies.iter().filter(|dependency| dependency.features.is_empty()) { // TODO: We need to support features.
             let dependency_path = input.parent().unwrap().join(dependency.identifier.to_string());
-            let mut dependency_library = self.transform(dependency_path.as_path(), config)?;
-            registry.libraries.append(&mut dependency_library.libraries);
+            let dependency_library = self.transform(dependency_path.as_path(), config)?;
+            registry.libraries.extend(dependency_library.libraries);
         }
-        registry.libraries.push(library);
+        registry.libraries.insert(library.identifier.clone(), library);
         Ok(registry)
     }
     fn name(&self) -> &str {

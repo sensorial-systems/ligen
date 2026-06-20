@@ -39,7 +39,7 @@ impl Registry {
         let config = transformer.config();
         let registry = transformer.transform(path.as_path(), &config)?;
 
-        if let Some(library) = registry.libraries.first() {
+        if let Some(library) = registry.libraries.values().next() {
             let name = library.identifier.to_string();
             let project = Project {
                 name: name.clone(),

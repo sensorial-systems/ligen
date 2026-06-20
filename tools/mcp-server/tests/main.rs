@@ -67,7 +67,7 @@ impl Service {
         let registry = parser
             .transform(path.clone(), &Default::default())
             .map_err(|e| e.to_string())?;
-        for library in registry.libraries.into_iter() {
+        for (_, library) in registry.libraries.into_iter() {
             self.registry.insert(path.clone(), library);
         }
         Ok(())

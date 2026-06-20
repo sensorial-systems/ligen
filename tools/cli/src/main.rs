@@ -46,12 +46,12 @@ fn parse(parser_name: &str, input: &Path) -> Result<Registry> {
         "openapi" => {
             let parser = ligen_openapi_parser::OpenAPILibraryParser::new();
             let library = parser.transform(input, &config)?;
-            Ok(Registry { libraries: vec![library] })
+            Ok(Registry { libraries: std::collections::HashMap::from([(library.identifier.clone(), library)]) })
         }
         "anchor" => {
             let parser = ligen_anchor_parser::library::LibraryParser::default();
             let library = parser.transform(input, &config)?;
-            Ok(Registry { libraries: vec![library] })
+            Ok(Registry { libraries: std::collections::HashMap::from([(library.identifier.clone(), library)]) })
         }
         _ => Err(Error::Message(format!("Parser not found: {}", parser_name)))
     }
@@ -61,7 +61,7 @@ fn generate(generator_name: &str, registry: Registry, output: &Path) -> Result<(
     let mut config = Config::default();
     config.set("ligen::output-dir", output.to_string_lossy().to_string());
     
-    for library in registry.libraries {
+    for library in registry.libraries.into_values() {
         match generator_name.to_lowercase().as_str() {
             "rust-client" => {
                 let generator = ligen_rust_client_generator::RustClientGenerator::default();
