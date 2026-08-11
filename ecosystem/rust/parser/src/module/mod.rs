@@ -24,6 +24,7 @@ pub struct RustModuleParser {
     enumeration_parser: RustEnumerationParser,
     structure_parser: RustStructureParser,
     imports_parser: RustImportsParser,
+    literal_parser: crate::literal::RustLiteralParser,
 }
 
 impl RustModuleParser {
@@ -64,6 +65,9 @@ impl Transformer<syn::ItemMod, Module> for RustModuleParser {
         let visibility = self.visibility_parser.transform(module.vis, config)?;
         let identifier = self.identifier_parser.transform(module.ident, config)?;
 
+        // Everything below is parsed against a config carrying this module's constants, so that a
+        // constant, an array length or a nested module can refer to one by name.
+        let config = &self.constants(items.as_slice(), config);
         let imports = self.extract_imports(items.as_slice(), config)?;
         let functions = self.extract_functions(items.as_slice(), config)?;
         let objects = self.extract_objects(items.as_slice(), config)?;
@@ -144,7 +148,9 @@ impl RustModuleParser {
                     types.push(self.type_alias_parser.transform(type_.clone(), config)?);
                 }
                 syn::Item::Union(_union) => {
-                    return Err(Error::Message("Union object isn't implemented yet.".to_string()))
+                    return Err(Error::Message(
+                        "Union object isn't implemented yet.".to_string(),
+                    ))
                 }
                 _ => (),
             }
@@ -194,6 +200,59 @@ impl RustModuleParser {
             }
         }
         Ok(objects)
+    }
+
+    /// The config this module's items are parsed against: the one handed down, plus every constant
+    /// declared here that can be worked out.
+    ///
+    /// Repeated until nothing new resolves, rather than in one pass, because a constant may be
+    /// written in terms of one declared below it — Rust does not care what order they appear in and
+    /// neither should this. Each round resolves at least one more or stops, so a chain of any depth
+    /// settles and a circular one gives up instead of spinning.
+    ///
+    /// What cannot be worked out is simply left out. That is not a failure: a constant whose value
+    /// needs a compiler is still a constant, and the only thing lost is the ability to *refer* to it
+    /// from somewhere a literal is required — where it will be reported, in its own right, by the
+    /// parser that needed it.
+    ///
+    /// Inherited, so a nested module sees the enclosing one's constants. Rust would want a `use`
+    /// for that; a parser with no import graph would otherwise see nothing at all, and a name that
+    /// resolves to the value it has in the file is better than a name that resolves to nothing.
+    fn constants(&self, items: &[syn::Item], config: &Config) -> Config {
+        let mut config = config.clone();
+        let mut pending: Vec<&syn::ItemConst> = items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Const(constant) => Some(constant),
+                _ => None,
+            })
+            .collect();
+
+        while !pending.is_empty() {
+            let round = pending.len();
+            let mut unresolved = Vec::with_capacity(round);
+            for constant in pending {
+                match self
+                    .literal_parser
+                    .transform((*constant.expr).clone(), &config)
+                {
+                    Ok(value) => {
+                        crate::literal::declare_constant(
+                            &mut config,
+                            &constant.ident.to_string(),
+                            value,
+                        );
+                    }
+                    Err(_) => unresolved.push(constant),
+                }
+            }
+            // A round that resolved nothing will resolve nothing next time either.
+            if unresolved.len() == round {
+                break;
+            }
+            pending = unresolved;
+        }
+        config
     }
 }
 

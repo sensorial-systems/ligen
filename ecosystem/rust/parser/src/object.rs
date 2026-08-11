@@ -60,42 +60,31 @@ impl Transformer<syn::ImplItemConst, Object> for RustObjectParser {
 }
 
 impl Transformer<syn::ItemConst, Object> for RustObjectParser {
+    /// A `const` item, with its value worked out.
+    ///
+    /// The value is whatever the literal parser can fold the initializer down to, which is more
+    /// than a literal: see its `syn::Expr` transformer. This used to accept a literal and a list of
+    /// them and nothing else, so a constant written as the arithmetic it is — or as `[0; 32]` —
+    /// stopped the whole IDL, and a program had to spell its constants out with a comment saying
+    /// why.
     fn transform(&self, item_const: syn::ItemConst, config: &Config) -> Result<Object> {
-        match *item_const.expr {
-            syn::Expr::Lit(syn::ExprLit { lit, .. }) => {
-                let mutability = Mutability::Constant;
-                let visibility = self.visibility_parser.transform(item_const.vis, config)?;
-                let identifier = self
-                    .identifier_parser
-                    .transform(item_const.ident.clone(), config)?;
-                let type_ = self.type_parser.transform(*item_const.ty, config)?;
-                let literal = self.literal_parser.transform(lit, config)?;
-                Ok(Object {
-                    visibility,
-                    mutability,
-                    identifier,
-                    type_,
-                    literal,
-                })
-            }
-            syn::Expr::Array(syn::ExprArray { elems, .. }) => {
-                let mutability = Mutability::Constant;
-                let visibility = self.visibility_parser.transform(item_const.vis, config)?;
-                let identifier = self
-                    .identifier_parser
-                    .transform(item_const.ident.clone(), config)?;
-                let type_ = self.type_parser.transform(*item_const.ty, config)?;
-                let literal = self.literal_parser.transform(elems, config)?;
-                Ok(Object {
-                    visibility,
-                    mutability,
-                    identifier,
-                    type_,
-                    literal,
-                })
-            }
-            _ => Err("Undefined constant.".into()),
-        }
+        let mutability = Mutability::Constant;
+        let visibility = self.visibility_parser.transform(item_const.vis, config)?;
+        let identifier = self
+            .identifier_parser
+            .transform(item_const.ident.clone(), config)?;
+        let type_ = self.type_parser.transform(*item_const.ty, config)?;
+        let literal = self
+            .literal_parser
+            .transform(*item_const.expr, config)
+            .map_err(|error| Error::Message(format!("Constant {}: {error}", item_const.ident)))?;
+        Ok(Object {
+            visibility,
+            mutability,
+            identifier,
+            type_,
+            literal,
+        })
     }
 }
 
